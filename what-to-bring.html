@@ -1,0 +1,100 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Horizon House — Photo Gallery</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@500;700&family=Nunito:wght@400;600&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --slate:#2b3440; --amber:#c98a22; --sand:#f5f1ea;
+    }
+    body{margin:0;font-family:Nunito,system-ui;background:var(--sand);color:var(--slate)}
+    header{background:var(--slate);color:#ebc867}
+    .wrap{max-width:1080px;margin:0 auto;padding:1rem}
+    nav{display:flex;align-items:center;justify-content:space-between}
+    nav ul{list-style:none;display:flex;gap:.75rem;margin:0;padding:0}
+    nav a{color:#fff;font-weight:600;text-decoration:none}
+    .section h2{font-family:Inter;font-size:1.8rem;margin-bottom:.5rem}
+    .gallery-grid{
+      display:grid;
+      grid-template-columns:repeat(auto-fit,minmax(260px,1fr));
+      gap:1rem;
+      margin-top:1.5rem;
+    }
+    .gallery-grid img{
+      width:100%;
+      border-radius:.5rem;
+      box-shadow:0 2px 6px rgba(0,0,0,.08);
+    }
+    footer{background:#1f2530;color:#cfd6e6;padding:2rem 0;margin-top:2rem;text-align:center}
+  </style>
+</head>
+
+<body>
+<header>
+  <div class="wrap">
+    <nav>
+      <img src="hhlogo.png" alt="Horizon House logo" style="height:180px;">
+      <ul>
+        <li><a href="index.html">Home</a></li>
+        <li><a href="gallery.html">Gallery</a></li>
+        <li><a href="what-to-bring.html">What to Bring</a></li>
+        <li><a href="#contact">Contact</a></li>
+      </ul>
+    </nav>
+    </div>
+</header>
+  <meta charset="UTF-8">
+  <title>Horizon House — What to Bring</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <style>
+    body {margin:0;font-family:Nunito,Arial,sans-serif;background:#f8e8cc;color:#2b3440;}
+    .container {max-width:700px;margin:0 auto;background:#fff;padding:20px;}
+    h1,h2 {font-family:Inter,Arial,sans-serif;color:#2b3440;}
+    ul {padding-left:20px;}
+    footer {margin-top:20px;font-size:0.9rem;color:#faf9f9;text-align:center;}
+    @media (max-width:640px){.container{padding:10px;}}
+  </style>
+</head>
+<body>
+  <div class="container">
+    
+    <!-- Page Title -->
+    <h1>What to Bring</h1>
+    <p>To help members feel prepared and comfortable, here’s just a sample guide to what is welcome — and what is not allowed — in our homes.</p>
+
+    <!-- Allowed Items -->
+    <h2>✅ Please Bring</h2>
+    <ul>
+      <li>Clothing for daily wear, exercise, and meetings</li>
+      <li>Personal hygiene items (toothbrush, shampoo, etc.)</li>
+      <li>Prescribed medications (in original containers)</li>
+      <li>Notebook, journal, or recovery literature</li>
+      <li>Small personal items that support comfort and routine</li>
+    </ul>
+
+    <!-- Not Allowed -->
+    <h2>🚫 Do Not Bring</h2>
+    <ul>
+      <li>Alcohol, drugs, or paraphernalia</li>
+      <li>Weapons of any kind</li>
+      <li>Large electronics or gaming systems</li>
+      <li>Excessive cash or valuables</li>
+      <li>pets</li>
+    </ul>
+
+    <p>This list is a shortend version. We maintain these guidelines to ensure safety, accountability, and a supportive environment for all members.</p>
+
+    <footer role="contentinfo">
+    <div class="wrap">
+      <p><strong>Horizon House</strong> — Structured, caring sober living</p>
+      <p>© <span id="y"></span> Horizon House. All rights reserved.</p>
+      <a href="privacy.html" style="color:#91aef3;text-decoration:underline;">Privacy</a> • 
+      <a href="accessibility.html" style="color:#97b0eb;text-decoration:underline;">Accessibility</a>
+    </div>
+    <script>document.getElementById('y').textContent = new Date().getFullYear();</script>
+  </p>
+</footer>
+</body>
+</html>

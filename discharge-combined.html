@@ -1,0 +1,172 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Horizon House — Discharge Report</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="robots" content="noindex, nofollow">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@500;700&family=Nunito:wght@400;600&display=swap" rel="stylesheet">
+
+  <style>
+    :root { --slate:#2b3440; --amber:#c98a22; --sand:#f5f1ea; --blue:#1e73be; }
+    body { margin:0; font-family:Nunito,system-ui; background:var(--sand); color:var(--slate); }
+    header { background:var(--slate); color:#fff; padding:1rem 0; }
+    .wrap { max-width:900px; margin:0 auto; padding:1rem; }
+    h1, h2 { font-family:Inter; }
+    form { display:grid; gap:1rem; background:#fff; padding:1.5rem; border-radius:.5rem; box-shadow:0 2px 6px rgba(0,0,0,.08); }
+    label { font-weight:600; }
+    input, textarea, select { padding:.6rem; border:1px solid #ccc; border-radius:.4rem; font-size:1rem; width:100%; }
+    .inline { display:flex; gap:1rem; }
+    .checkbox-group { display:flex; align-items:left; gap:.4rem; }
+    .section-title { margin-top:1.5rem; font-size:1.3rem; font-family:Inter; }
+    button { background:var(--amber); border:none; padding:.8rem 1.2rem; border-radius:.4rem; font-weight:700; cursor:pointer; }
+    footer { text-align:center; padding:2rem 0; color:#555; font-size:.9rem; }
+
+    /* Mobile fixes */
+    @media (max-width: 640px) {
+      .inline { flex-direction: column; }
+      .checkbox-group { gap:.2rem; }
+      .checkbox-group input { margin-right:2px; flex-shrink:0; }
+    }
+  </style>
+</head>
+
+<body>
+
+<header>
+  <div class="wrap">
+    <h1>Horizon House Sober Living — Discharge Report</h1>
+  </div>
+</header>
+
+<main class="wrap">
+
+  <form action="https://formsubmit.co/mars@horizon-house.org" method="POST">
+
+    <!-- Hidden fields -->
+    <input type="hidden" name="_captcha" value="false">
+    <input type="hidden" name="_next" value="https://www.horizon-house.org/?submitted=true">
+    <input type="hidden" name="_subject" value="New Discharge Report Submission">
+    <input type="hidden" name="_template" value="table">
+
+    <h2 class="section-title">Member Information</h2>
+
+    <label>Member Name</label>
+    <input type="text" name="member_name" required>
+
+    <label>Date of Discharge</label>
+    <input type="date" name="discharge_date" required>
+
+    <label>House (Men/Women)</label>
+    <input type="text" name="house">
+
+    <label>Staff Completing Report</label>
+    <input type="text" name="staff_name" required>
+
+    <h2 class="section-title">Reason for Discharge</h2>
+
+    <label class="checkbox-group"><input type="checkbox" name="reason_relapse"> Relapse</label>
+    <label class="checkbox-group"><input type="checkbox" name="reason_behavior"> Behavioral violation</label>
+    <label class="checkbox-group"><input type="checkbox" name="reason_threats"> Threats or violence</label>
+    <label class="checkbox-group"><input type="checkbox" name="reason_noncompliance"> Non‑compliance with house rules</label>
+    <label class="checkbox-group"><input type="checkbox" name="reason_other"> Other (explain)</label>
+    <input type="text" name="reason_other_text">
+
+    <h2 class="section-title">Incident Description</h2>
+    <textarea name="incident_description" rows="5" placeholder="Provide objective, factual details..." required></textarea>
+
+    <!-- RELAPSE SECTION -->
+    <h2 class="section-title">Relapse Details (if applicable)</h2>
+
+    <label>Type of Test</label>
+    <div class="inline">
+      <label class="checkbox-group"><input type="radio" name="test_type" value="urine"> Urine</label>
+      <label class="checkbox-group"><input type="radio" name="test_type" value="breathalyzer"> Breathalyzer</label>
+      <label class="checkbox-group"><input type="radio" name="test_type" value="oral_swab"> Oral Swab</label>
+      <label class="checkbox-group"><input type="radio" name="test_type" value="other"> Other</label>
+    </div>
+
+    <label>Test Result</label>
+    <div class="inline">
+      <label class="checkbox-group"><input type="radio" name="test_result" value="positive"> Positive</label>
+      <label class="checkbox-group"><input type="radio" name="test_result" value="negative"> Negative</label>
+      <label class="checkbox-group"><input type="radio" name="test_result" value="refused"> Refused (treated as positive)</label>
+    </div>
+
+    <label>Substances Detected</label>
+    <input type="text" name="substances">
+
+    <label>Date/Time Test Administered</label>
+    <input type="text" name="test_datetime">
+
+    <!-- BEHAVIORAL SECTION -->
+    <h2 class="section-title">Behavioral Details (if applicable)</h2>
+
+    <label>Behavioral Violation Type</label>
+    <div class="inline">
+      <label class="checkbox-group"><input type="checkbox" name="behavior_violation"> Behavioral violation</label>
+      <label class="checkbox-group"><input type="checkbox" name="behavior_threats"> Threats or violence</label>
+      <label class="checkbox-group"><input type="checkbox" name="behavior_noncompliance"> Non‑compliance with house rules</label>
+    </div>
+
+    <label>Other (explain)</label>
+    <input type="text" name="behavior_other">
+
+    <label>Description of Behavior</label>
+    <textarea name="behavior_description" rows="4"></textarea>
+
+    <label>Staff Observations</label>
+    <textarea name="behavior_observations" rows="4"></textarea>
+
+    <label>Member Response / Statement</label>
+    <textarea name="member_statement" rows="4"></textarea>
+
+    <h2 class="section-title">Safety & Exit Procedures</h2>
+
+    <label class="checkbox-group"><input type="checkbox" name="exit_belongings"> Member gathered belongings</label>
+    <label class="checkbox-group"><input type="checkbox" name="exit_room_inspected"> Room inspected</label>
+    <label class="checkbox-group"><input type="checkbox" name="exit_no_incident"> Member left without incident</label>
+    <label class="checkbox-group"><input type="checkbox" name="exit_transport"> Transportation arranged</label>
+    <label class="checkbox-group"><input type="checkbox" name="exit_contact_notified"> Emergency contact notified</label>
+    <label class="checkbox-group"><input type="checkbox" name="exit_resources_provided"> Provided detox/IOP resources</label>
+    <label class="checkbox-group"><input type="checkbox" name="exit_resources_declined"> Member declined resources</label>
+
+    <label>Police/EMS involvement (if any)</label>
+    <input type="text" name="police_ems">
+
+    <h2 class="section-title">Follow‑Up Recommendations</h2>
+
+    <label class="checkbox-group"><input type="checkbox" name="rec_detox"> Detox</label>
+    <label class="checkbox-group"><input type="checkbox" name="rec_residential"> Residential treatment</label>
+    <label class="checkbox-group"><input type="checkbox" name="rec_iop"> IOP</label>
+    <label class="checkbox-group"><input type="checkbox" name="rec_return"> Eligible to return after treatment</label>
+    <label class="checkbox-group"><input type="checkbox" name="rec_not_return"> Not eligible to return</label>
+
+    <label>Other Recommendations</label>
+    <input type="text" name="rec_other">
+
+    <h2 class="section-title">Signatures</h2>
+
+    <label>Staff Signature (typed)</label>
+    <input type="text" name="staff_signature" required>
+
+    <label>Date</label>
+    <input type="date" name="staff_signature_date" required>
+
+    <label>Member Signature (if cooperative)</label>
+    <input type="text" name="member_signature">
+
+    <label>Date</label>
+    <input type="date" name="member_signature_date">
+
+    <button type="submit">Submit Discharge Report</button>
+
+  </form>
+</main>
+
+<footer>
+  © 2026 Horizon House Sober Living
+</footer>
+
+</body>
+</html>

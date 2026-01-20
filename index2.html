@@ -1,0 +1,160 @@
+
+Today
+You said
+continue working on the website
+Copilot said
+Got it, Marshall 👍 — let’s pick up where we left off with Horizon House’s website. Since you’ve been troubleshooting HTML and aiming for a trustworthy, structured, and welcoming digital presence, here are the next practical steps we can tackle together:
+
+🌐 Website Development Roadmap
+1. Homepage Structure
+Header: Logo (simple, clean), navigation bar (Home, About, Programs, Contact).
+
+Hero Section: A strong tagline like “Structured Support, Authentic Recovery” with a background image that feels warm but professional.
+
+Call-to-Action (CTA): Button for “Apply Now” or “Learn More”.
+
+2. About Page
+Short mission statement emphasizing authenticity, community, and compliance.
+
+Timeline or milestones (e.g., Horizon House’s founding, program growth).
+
+A section highlighting your leadership style: structured yet empathetic.
+
+3. Programs Page
+Clear breakdown of sober living expectations (behavioral contracts, accountability).
+
+Icons or infographics for rules, support systems, and community benefits.
+
+Testimonials or anonymized quotes from members to build trust.
+
+4. Compliance & Safety
+A dedicated section showing your expertise in CBC, NFPA, NEC, ADA compliance.
+
+This reassures families and professionals that Horizon House is safe and structured.
+
+5. Contact Page
+Simple form (Name, Email, Message).
+
+Map integration for Cathedral City area.
+
+Phone/email prominently displayed.
+
+🛠 Technical Next Steps
+Navigation Bar: Ensure links are working and consistent across pages.
+
+Responsive Design: Test on mobile and desktop (common issue with HTML layouts).
+
+SEO Basics: Add meta descriptions and keywords like “sober living Cathedral City”.
+
+Accessibility: Alt text for images, readable fonts, ADA-friendly color contrast.
+
+🎨 Branding Touch
+Color palette: calming blues/greens with warm accents.
+
+Typography: one clean sans-serif (for body text) + one distinctive serif (for headings).
+
+Subtle creative touches: maybe a paintbrush-style divider line to nod to your artistic side.
+
+Would you like me to draft the actual HTML/CSS skeleton for the homepage next, so you can plug it directly into your site and test? That way, you’ll have a working framework to build on.
+
+
+
+
+
+Edit in a page
+You said
+bring up the code snipit
+Copilot said
+Here’s a clean HTML + CSS starter snippet for your Horizon House homepage. It sets up the structure we discussed (header, hero section, navigation, and footer) so you can plug it directly into your site and expand from there:
+
+html
+
+
+Copy
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Horizon House Sober Living</title>
+  <style>
+    body {
+      margin: 0;
+      font-family: Arial, sans-serif;
+      line-height: 1.6;
+      background-color: #f9f9f9;
+      color: #333;
+    }
+    header {
+      background: #2c3e50;
+      color: #fff;
+      padding: 1rem;
+    }
+    nav {
+      display: flex;
+      justify-content: center;
+      gap: 2rem;
+    }
+    nav a {
+      color: #fff;
+      text-decoration: none;
+      font-weight: bold;
+    }
+    .hero {
+      background: url('hero-image.jpg') no-repeat center center/cover;
+      height: 60vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #fff;
+      text-align: center;
+    }
+    .hero h1 {
+      font-size: 3rem;
+      background: rgba(0,0,0,0.5);
+      padding: 1rem;
+      border-radius: 8px;
+    }
+    .cta-button {
+      display: inline-block;
+      margin-top: 1rem;
+      padding: 0.75rem 1.5rem;
+      background: #27ae60;
+      color: #fff;
+      text-decoration: none;
+      border-radius: 5px;
+      font-weight: bold;
+    }
+    footer {
+      background: #2c3e50;
+      color: #fff;
+      text-align: center;
+      padding: 1rem;
+      margin-top: 2rem;
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <h2>Horizon House</h2>
+    <nav>
+      <a href="#">Home</a>
+      <a href="#">About</a>
+      <a href="#">Programs</a>
+      <a href="#">Compliance</a>
+      <a href="#">Contact</a>
+    </nav>
+  </header>
+
+  <section class="hero">
+    <div>
+      <h1>Structured Support, Authentic Recovery</h1>
+      <a href="#programs" class="cta-button">Learn More</a>
+    </div>
+  </section>
+
+  <footer>
+    <p>&copy; 2025 Horizon House Sober Living | Cathedral City, CA</p>
+  </footer>
+</body>
+</html>

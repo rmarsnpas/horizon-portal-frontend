@@ -1,0 +1,167 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Horizon House — Discharge Report (Printable)</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="robots" content="noindex, nofollow">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@500;700&family=Nunito:wght@400;600&display=swap" rel="stylesheet">
+
+  <style>
+    :root { --slate:#2b3440; --blue:#1e73be; }
+
+    body {
+      margin: 0;
+      font-family: Nunito, system-ui;
+      color: #000;
+      background: #fff;
+    }
+
+    .page {
+      max-width: 800px;
+      margin: 0 auto;
+      padding: 24px 32px;
+      page-break-after: always;
+    }
+
+    h1 {
+      font-family: Inter, system-ui;
+      font-size: 1.4rem;
+      margin: 0 0 4px 0;
+      text-align: center;
+      text-transform: uppercase;
+      letter-spacing: 0.03em;
+      color: var(--slate);
+    }
+
+    .subheading {
+      text-align: center;
+      font-size: 0.9rem;
+      margin-bottom: 12px;
+      color: var(--blue);
+      font-weight: 600;
+    }
+
+    h2 {
+      font-family: Inter, system-ui;
+      font-size: 1rem;
+      margin: 18px 0 6px 0;
+      border-bottom: 1px solid #000;
+      padding-bottom: 2px;
+    }
+
+    .row {
+      display: flex;
+      gap: 12px;
+      margin-bottom: 6px;
+    }
+
+    .field {
+      flex: 1;
+      font-size: 0.9rem;
+    }
+
+    .label {
+      font-weight: 600;
+      display: block;
+      margin-bottom: 2px;
+    }
+
+    .line {
+      border-bottom: 1px solid #000;
+      height: 1.2rem;
+      font-size: 0.85rem;
+    }
+
+    .checkbox-group {
+      font-size: 0.9rem;
+      margin-bottom: 4px;
+    }
+
+    .checkbox-group input {
+      margin-right: 4px;
+    }
+
+    textarea {
+      width: 100%;
+      min-height: 70px;
+      border: 1px solid #000;
+      padding: 4px;
+      font-family: inherit;
+      font-size: 0.9rem;
+      resize: vertical;
+    }
+
+    .signature-row {
+      display: flex;
+      gap: 24px;
+      margin-top: 16px;
+    }
+
+    .signature-block {
+      flex: 1;
+      font-size: 0.9rem;
+    }
+
+    .signature-line {
+      border-bottom: 1px solid #000;
+      height: 1.4rem;
+      margin-top: 20px;
+    }
+
+    .signature-label {
+      font-size: 0.8rem;
+      margin-top: 2px;
+    }
+
+    @media print {
+      body { margin: 0; }
+      .page { margin: 0; padding: 16px 24px; }
+    }
+  </style>
+</head>
+
+<body>
+
+<!-- PAGE 1 — DISCHARGE REPORT -->
+<div class="page">
+
+  <h1>Horizon House Sober Living</h1>
+  <div class="subheading">Discharge Report — Relapse / Behavioral / Non‑Compliance</div>
+
+  <h2>Member Information</h2>
+
+  <div class="row">
+    <div class="field">
+      <span class="label">Member Name</span>
+      <div class="line"></div>
+    </div>
+    <div class="field">
+      <span class="label">Date of Discharge</span>
+      <div class="line"></div>
+    </div>
+  </div>
+
+  <div class="row">
+    <div class="field">
+      <span class="label">House</span>
+      <div>
+        <label class="checkbox-group" style="display:inline-block; margin-right:20px;">
+          <input type="radio"> Men’s House
+        </label>
+        <label class="checkbox-group" style="display:inline-block;">
+          <input type="radio"> Women’s House
+        </label>
+      </div>
+    </div>
+
+    <div class="field">
+      <span class="label">Staff Completing Report</span>
+      <div class="line"></div>
+    </div>
+  </div>
+
+  <h2>Reason for Discharge</h2>
+
+  <div class="checkbox-group"><input type="checkbox"> Relapse</div>
+

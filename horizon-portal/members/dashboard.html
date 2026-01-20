@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Member Dashboard – Horizon House</title>
+
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f7fa;
+            margin: 0;
+            padding: 0;
+        }
+
+        header {
+            background-color: #003366;
+            color: #fff;
+            padding: 20px;
+            position: relative;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 40px auto;
+            background: #fff;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        }
+
+        h2 {
+            color: #003366;
+            margin-top: 0;
+        }
+
+        .card {
+            background: #f8fafc;
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            border: 1px solid #e0e6ed;
+        }
+
+        .card h3 {
+            margin-top: 0;
+            color: #003366;
+        }
+
+        a.button {
+            display: inline-block;
+            padding: 12px 18px;
+            background-color: #003366;
+            color: #fff;
+            border-radius: 6px;
+            text-decoration: none;
+            margin-top: 10px;
+        }
+
+        a.button:hover {
+            background-color: #00264d;
+        }
+    </style>
+</head>
+
+<body>
+
+<header>
+    <div id="welcome" style="position: absolute; left: 20px; top: 20px; font-size: 18px;">Welcome!</div>
+    <h1 style="text-align: center; margin: 0;">Horizon House Member Dashboard</h1>
+</header>
+
+<div class="container">
+
+    <h2>Welcome!</h2>
+    <p>This is your member dashboard. From here you can access announcements, forms, and important house information.</p>
+
+    <div class="card">
+        <h3>Announcements</h3>
+        <p>Stay updated with house news, schedule changes, and upcoming events.</p>
+        <a href="/members/announcements.html" class="button">View Announcements</a>
+    </div>
+
+    <div class="card">
+        <h3>Forms & Requests</h3>
+        <p>Submit passes, maintenance requests, or other required forms.</p>
+        <a href="/members/forms.html" class="button">Go to Forms</a>
+    </div>
+
+    <div class="card">
+        <h3>Your Progress</h3>
+        <p>Track milestones, meeting attendance, and program achievements.</p>
+        <a href="/members/progress.html" class="button">View Progress</a>
+    </div>
+
+</div>
+
+<script>
+    // Get member ID from URL parameter or localStorage
+    const urlParams = new URLSearchParams(window.location.search);
+    const memberId = urlParams.get('id') || localStorage.getItem('memberId');
+
+    if (memberId) {
+        // Fetch member data from API
+        fetch(`https://horizon-portal-backend-production-3532.up.railway.app/api/getMember?id=${encodeURIComponent(memberId)}`)
+            .then(response => response.json())
+            .then(data => {
+                if (data) {
+                    // Update welcome message with member name
+                    const welcomeEl = document.getElementById('welcome');
+                    welcomeEl.textContent = `Welcome, ${data['FIRST NAME']} ${data['LAST NAME']}!`;
+                }
+            })
+            .catch(error => {
+                console.error('Error loading member data:', error);
+            });
+    }
+</script>
+
+</body>
+</html>

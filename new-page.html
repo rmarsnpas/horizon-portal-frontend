@@ -1,0 +1,81 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>New Page — Horizon House</title>
+  <style>
+    :root{--accent:#0b6;--muted:#6b7280;--bg:#fff}
+    *{box-sizing:border-box}
+    body{font-family:system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial;line-height:1.5;margin:0;background:var(--bg);color:#111}
+    header{background:#0a3;padding:18px 20px;color:#fff}
+    .container{max-width:1000px;margin:0 auto;padding:20px}
+    nav{display:flex;gap:12px;flex-wrap:wrap}
+    a.logo{font-weight:700;color:#fff;text-decoration:none}
+    a.navlink{color:#fff;opacity:.9;text-decoration:none;padding:6px 8px;border-radius:6px}
+    a.navlink:focus{outline:3px solid #fff8}
+    .hero{display:grid;grid-template-columns:1fr;gap:18px;align-items:center;padding:36px 0}
+    .hero h1{margin:0;font-size:1.8rem}
+    .card-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:16px;margin-top:20px}
+    .card{border:1px solid #e6e6e6;padding:16px;border-radius:8px;background:#fff}
+    footer{border-top:1px solid #eee;margin-top:28px;padding:14px 0;color:var(--muted)}
+    @media(min-width:768px){.hero{grid-template-columns:1fr 320px}.hero h1{font-size:2.4rem}}
+  </style>
+</head>
+<body>
+  <header role="banner">
+    <div class="container" style="display:flex;align-items:center;justify-content:space-between">
+      <a class="logo" href="#">Horizon House</a>
+      <nav role="navigation" aria-label="Main navigation">
+        <a class="navlink" href="index.htm">Home</a>
+        <a class="navlink" href="community.html">Community</a>
+        <a class="navlink" href="gallery.html">Gallery</a>
+      </nav>
+    </div>
+  </header>
+  <main class="container" role="main">
+    <section class="hero" aria-labelledby="hero-title">
+      <div>
+        <h1 id="hero-title">Welcome to Horizon House</h1>
+        <p style="color:var(--muted);margin-top:8px">A simple, accessible starter page you can customize. This layout scales from phones to desktops.</p>
+        <p style="margin-top:12px"><a href="#features" style="background:var(--accent);color:#003;padding:10px 14px;border-radius:8px;text-decoration:none">See features</a></p>
+      </div>
+      <aside aria-label="Quick facts">
+        <div class="card">Open hours: Mon–Fri, 9am–5pm</div>
+        <div class="card" style="margin-top:12px">Contact: <a href="mailto:info@example.org">info@example.org</a></div>
+      </aside>
+    </section>
+
+    <section id="features" aria-labelledby="features-title">
+      <h2 id="features-title">Features</h2>
+      <div class="card-grid">
+        <article class="card" aria-labelledby="f1">
+          <h3 id="f1">Accessible</h3>
+          <p style="color:var(--muted)">Keyboard friendly, semantic markup and sufficient color contrast.</p>
+        </article>
+        <article class="card" aria-labelledby="f2">
+          <h3 id="f2">Responsive</h3>
+          <p style="color:var(--muted)">Fluid grid and breakpoints for different devices.</p>
+        </article>
+        <article class="card" aria-labelledby="f3">
+          <h3 id="f3">Customizable</h3>
+          <p style="color:var(--muted)">Drop in your content, images, and branding.</p>
+        </article>
+      </div>
+    </section>
+
+    <section aria-labelledby="more-title" style="margin-top:24px">
+      <h2 id="more-title">Next steps</h2>
+      <ul style="color:var(--muted)">
+        <li>Add real images and adjust colors to match your brand.</li>
+        <li>Replace placeholder text with actual page content.</li>
+        <li>Let me know if you want a contact form or map embedded.</li>
+      </ul>
+    </section>
+  </main>
+  <footer role="contentinfo">
+    <div class="container">© <span id="year"></span> Horizon House — All rights reserved.</div>
+  </footer>
+  <script>document.getElementById('year').textContent=new Date().getFullYear();</script>
+</body>
+</html>
