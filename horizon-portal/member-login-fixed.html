@@ -176,6 +176,12 @@
                     EMAIL: data.EMAIL
                 };
 
+                // Block status code 3 immediately
+                if (userRecord.AccessCode === 3) {
+                    showError('Access denied.');
+                    return;
+                }
+
                 document.getElementById('step1').style.display = 'none';
                 if (!userRecord.PIN) {
                     document.getElementById('createPin').style.display = 'block';
