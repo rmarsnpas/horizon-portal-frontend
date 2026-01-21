@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin - Sync Members Data</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f7fa;
+            margin: 0;
+            padding: 20px;
+        }
+        .container {
+            max-width: 600px;
+            margin: 40px auto;
+            background: #fff;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        }
+        h1 {
+            color: #003366;
+            margin-top: 0;
+        }
+        .section {
+            margin: 30px 0;
+            padding: 20px;
+            border: 1px solid #e0e6ed;
+            border-radius: 8px;
+            background: #f8fafc;
+        }
+        button {
+            background-color: #003366;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            font-size: 16px;
+            border-radius: 5px;
+            cursor: pointer;
+            width: 100%;
+            margin-top: 10px;
+        }
+        button:hover {
+            background-color: #002244;
+        }
+        button:disabled {
+            background-color: #ccc;
+            cursor: not-allowed;
+        }
+        .message {
+            margin-top: 15px;
+            padding: 10px;
+            border-radius: 5px;
+            display: none;
+        }
+        .success {
+            background-color: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+        .error {
+            background-color: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+        input[type="file"] {
+            margin: 10px 0;
+            padding: 8px;
+            width: 100%;
+            box-sizing: border-box;
+        }
+        .info {
+            font-size: 14px;
+            color: #666;
+            margin-top: 10px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Admin - Members Data Sync</h1>
+        <p>Use this page to sync your HHcensus file with the portal.</p>
+
+        <div class="section">
+            <h2>Download Current Portal Data</h2>
+            <p class="info">Download the current members.xlsx file from the portal to update your HHcensus.</p>
+            <button onclick="downloadFile()">Download members.xlsx</button>
+            <div id="downloadMsg" class="message"></div>
+        </div>
+
+        <div class="section">
+            <h2>Upload Updated HHcensus</h2>
+            <p class="info">Upload your updated HHcensus file to replace the portal's members.xlsx.</p>
+            <input type="file" id="fileInput" accept=".xlsx,.xls,.xlsb" />
+            <button onclick="uploadFile()">Upload & Replace</button>
+            <div id="uploadMsg" class="message"></div>
+        </div>
+    </div>
+
+    <script>
+        const API_URL = 'https://horizon-portal-backend-production-3532.up.railway.app';
+
+        function showMessage(elementId, message, isSuccess) {
+            const el = document.getElementById(elementId);
+            el.textContent = message;
+            el.className = 'message ' + (isSuccess ? 'success' : 'error');
+            el.style.display = 'block';
+            setTimeout(() => {
+                el.style.display = 'none';
+            }, 5000);
+        }
+
+        async function downloadFile() {
+            try {
+                const response = await fetch(`${API_URL}/api/downloadMembers`);
+                if (!response.ok) throw new Error('Download failed');
+                
+                const blob = await response.blob();
+                const url = window.URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = 'members.xlsx';
+                document.body.appendChild(a);
+                a.click();
+                window.URL.revokeObjectURL(url);
+                a.remove();
+                
+                showMessage('downloadMsg', 'File downloaded successfully!', true);
+            } catch (err) {
+                console.error(err);
+                showMessage('downloadMsg', 'Download failed: ' + err.message, false);
+            }
+        }
+
+        async function uploadFile() {
+            const fileInput = document.getElementById('fileInput');
+            const file = fileInput.files[0];
+            
+            if (!file) {
+                showMessage('uploadMsg', 'Please select a file first', false);
+                return;
+            }
+
+            if (!file.name.match(/\.(xlsx|xls|xlsb)$/)) {
+                showMessage('uploadMsg', 'Please select a valid Excel file', false);
+                return;
+            }
+
+            try {
+                const formData = new FormData();
+                formData.append('file', file);
+
+                const response = await fetch(`${API_URL}/api/uploadMembers`, {
+                    method: 'POST',
+                    body: formData
+                });
+
+                const result = await response.json();
+                
+                if (!response.ok) {
+                    throw new Error(result.error || 'Upload failed');
+                }
+
+                showMessage('uploadMsg', 'File uploaded successfully! Portal data updated.', true);
+                fileInput.value = '';
+            } catch (err) {
+                console.error(err);
+                showMessage('uploadMsg', 'Upload failed: ' + err.message, false);
+            }
+        }
+    </script>
+</body>
+</html>
