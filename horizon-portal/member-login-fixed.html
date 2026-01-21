@@ -214,8 +214,10 @@
                 document.getElementById('createPin').style.display = 'none';
                 if (userRecord.AccessCode >= 4) {
                     document.getElementById('staffPw').style.display = 'block';
-                } else {
+                } else if ([1,2].includes(userRecord.AccessCode)) {
                     routeUser();
+                } else {
+                    showError('Access denied.');
                 }
             } catch (err) {
                 console.error(err);
@@ -235,8 +237,10 @@
             document.getElementById('enterPin').style.display = 'none';
             if (userRecord.AccessCode >= 4) {
                 document.getElementById('staffPw').style.display = 'block';
-            } else {
+            } else if ([1,2].includes(userRecord.AccessCode)) {
                 routeUser();
+            } else {
+                showError('Access denied.');
             }
         }
 
