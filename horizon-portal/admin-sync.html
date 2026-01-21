@@ -113,8 +113,19 @@
 
         async function downloadFile() {
             try {
-                const response = await fetch(`${API_URL}/api/downloadMembers`);
-                if (!response.ok) throw new Error('Download failed');
+                console.log('Attempting download from:', `${API_URL}/api/downloadMembers`);
+                const response = await fetch(`${API_URL}/api/downloadMembers`, {
+                    method: 'GET',
+                    mode: 'cors'
+                });
+                console.log('Response status:', response.status);
+                console.log('Response headers:', [...response.headers]);
+                
+                if (!response.ok) {
+                    const text = await response.text();
+                    console.error('Error response:', text);
+                    throw new Error(`Download failed: ${response.status} - ${text.substring(0, 100)}`);
+                }
                 
                 const blob = await response.blob();
                 const url = window.URL.createObjectURL(blob);
@@ -128,7 +139,7 @@
                 
                 showMessage('downloadMsg', 'File downloaded successfully!', true);
             } catch (err) {
-                console.error(err);
+                console.error('Download error details:', err);
                 showMessage('downloadMsg', 'Download failed: ' + err.message, false);
             }
         }
@@ -148,15 +159,28 @@
             }
 
             try {
+                console.log('Attempting upload to:', `${API_URL}/api/uploadMembers`);
                 const formData = new FormData();
                 formData.append('file', file);
 
                 const response = await fetch(`${API_URL}/api/uploadMembers`, {
                     method: 'POST',
+                    mode: 'cors',
                     body: formData
                 });
 
-                const result = await response.json();
+                console.log('Upload response status:', response.status);
+                const contentType = response.headers.get('content-type');
+                console.log('Content-Type:', contentType);
+                
+                let result;
+                if (contentType && contentType.includes('application/json')) {
+                    result = await response.json();
+                } else {
+                    const text = await response.text();
+                    console.error('Non-JSON response:', text);
+                    throw new Error(`Server returned HTML instead of JSON. Status: ${response.status}`);
+                }
                 
                 if (!response.ok) {
                     throw new Error(result.error || 'Upload failed');
