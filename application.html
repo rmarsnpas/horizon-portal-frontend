@@ -43,19 +43,25 @@
 
 <main class="wrap">
 
-  <!-- FORM WITH EMAIL SUBMISSION -->
-  <form action="https://formsubmit.co/mars@horizon-house.org" method="POST">
+  <div id="savingStatus" style="display:none; padding: 10px; margin-bottom: 15px; border-radius: 4px; text-align: center;">
+    <span id="savingMessage">Draft saved</span>
+  </div>
 
-    <!-- Hidden fields -->
-    <input type="hidden" name="_captcha" value="false">
-    <input type="hidden" name="_next" value="https://www.horizon-house.org/?submitted=true">
-    <input type="hidden" name="_subject" value="New Horizon House Application Submission">
-    <input type="hidden" name="_template" value="table">
+  <!-- FORM WITH BACKEND SUBMISSION -->
+  <form id="applicationForm">
 
     <h2 class="section-title">Personal Information</h2>
 
-    <label>Legal Name</label>
-    <input type="text" name="legal_name" required>
+    <div class="inline">
+      <div style="flex:1">
+        <label>First Name</label>
+        <input type="text" name="first_name" required>
+      </div>
+      <div style="flex:1">
+        <label>Last Name</label>
+        <input type="text" name="last_name" required>
+      </div>
+    </div>
 
     <label>Address</label>
     <input type="text" name="address">
@@ -226,7 +232,15 @@
     <label>Date</label>
     <input type="date" name="signature_date" required>
 
-    <button type="submit">Submit Application</button>
+    <div style="background-color: #f0f0f0; padding: 15px; border-left: 4px solid #003366; margin-top: 20px; border-radius: 4px;">
+      <strong>⚠️ Staff Approval Required</strong>
+      <p>This application will be reviewed and approved by Horizon House staff before being processed. You will receive confirmation once approved.</p>
+    </div>
+
+    <div style="display: flex; gap: 10px; margin-top: 20px;">
+      <button type="button" onclick="saveDraft()" style="background-color: #666; flex: 1;">Save Draft</button>
+      <button type="submit" style="flex: 1;">Submit Application</button>
+    </div>
 
   </form>
 </main>
@@ -234,6 +248,103 @@
 <footer>
   © 2026 Horizon House Sober Living
 </footer>
+
+<script>
+  const DRAFT_KEY = 'hhApplicationDraft';
+
+  // Load draft on page load
+  window.addEventListener('load', () => {
+    const draft = localStorage.getItem(DRAFT_KEY);
+    if (draft) {
+      try {
+        const data = JSON.parse(draft);
+        Object.keys(data).forEach(key => {
+          const field = document.querySelector(`[name="${key}"]`);
+          if (field) {
+            if (field.type === 'radio') {
+              document.querySelector(`[name="${key}"][value="${data[key]}"]`).checked = true;
+            } else if (field.type === 'checkbox') {
+              field.checked = data[key] === 'on';
+            } else {
+              field.value = data[key];
+            }
+          }
+        });
+      } catch (e) {
+        console.error('Error loading draft:', e);
+      }
+    }
+  });
+
+  // Save draft function
+  function saveDraft() {
+    const formData = new FormData(document.getElementById('applicationForm'));
+    const data = {};
+    formData.forEach((value, key) => {
+      data[key] = value;
+    });
+
+    localStorage.setItem(DRAFT_KEY, JSON.stringify(data));
+
+    // Show saved message
+    const status = document.getElementById('savingStatus');
+    const message = document.getElementById('savingMessage');
+    message.textContent = '✓ Draft saved at ' + new Date().toLocaleTimeString();
+    status.style.display = 'block';
+    status.style.backgroundColor = '#d4edda';
+    status.style.color = '#155724';
+
+    setTimeout(() => {
+      status.style.display = 'none';
+    }, 3000);
+  }
+
+  // Auto-save draft every 30 seconds while filling out
+  setInterval(() => {
+    const form = document.getElementById('applicationForm');
+    if (form && form.style.display !== 'none') {
+      saveDraft();
+    }
+  }, 30000);
+
+  document.getElementById('applicationForm').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    
+    try {
+      // Collect all form data
+      const formData = new FormData(document.getElementById('applicationForm'));
+      const data = {};
+      formData.forEach((value, key) => {
+        data[key] = value;
+      });
+
+      // Submit to backend
+      const response = await fetch('https://horizon-portal-backend-production-3532.up.railway.app/api/submitApplication', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(data)
+      });
+
+      const result = await response.json();
+
+      if (response.ok) {
+        // Clear draft after successful submission
+        localStorage.removeItem(DRAFT_KEY);
+        
+        // Show success message
+        alert('✓ Application submitted successfully!\n\nYour application has been received and is awaiting staff approval.\n\nApplication ID: ' + result.applicationId);
+        document.getElementById('applicationForm').reset();
+      } else {
+        alert('Error: ' + (result.error || 'Failed to submit application'));
+      }
+    } catch (error) {
+      console.error('Error submitting form:', error);
+      alert('Unable to submit application. Please try again or contact support.');
+    }
+  });
+</script>
 
 </body>
 </html>

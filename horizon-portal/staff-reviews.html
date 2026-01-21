@@ -1,0 +1,398 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Staff Application Review - Horizon House</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f7fa;
+            color: #333;
+        }
+
+        .header {
+            background-color: #003366;
+            color: white;
+            padding: 20px;
+            text-align: center;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .section {
+            background: white;
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        .tab-buttons {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+            border-bottom: 2px solid #ddd;
+        }
+
+        .tab-button {
+            padding: 10px 20px;
+            background: none;
+            border: none;
+            cursor: pointer;
+            font-size: 16px;
+            color: #666;
+            border-bottom: 3px solid transparent;
+        }
+
+        .tab-button.active {
+            color: #003366;
+            border-bottom-color: #003366;
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        .application-card {
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            padding: 15px;
+            margin-bottom: 15px;
+            background: #fafafa;
+        }
+
+        .app-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid #ddd;
+        }
+
+        .app-id {
+            font-weight: bold;
+            font-size: 14px;
+            color: #666;
+        }
+
+        .app-timestamp {
+            font-size: 12px;
+            color: #999;
+        }
+
+        .app-status {
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: bold;
+        }
+
+        .status-pending {
+            background-color: #fff3cd;
+            color: #856404;
+        }
+
+        .status-approved {
+            background-color: #d4edda;
+            color: #155724;
+        }
+
+        .status-rejected {
+            background-color: #f8d7da;
+            color: #721c24;
+        }
+
+        .app-data {
+            margin: 15px 0;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+        }
+
+        .data-field {
+            font-size: 13px;
+        }
+
+        .data-label {
+            font-weight: bold;
+            color: #003366;
+        }
+
+        .data-value {
+            color: #333;
+            margin-top: 2px;
+        }
+
+        .app-actions {
+            display: flex;
+            gap: 10px;
+            margin-top: 15px;
+            padding-top: 15px;
+            border-top: 1px solid #ddd;
+        }
+
+        button {
+            padding: 8px 16px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: bold;
+        }
+
+        .btn-approve {
+            background-color: #28a745;
+            color: white;
+        }
+
+        .btn-approve:hover {
+            background-color: #218838;
+        }
+
+        .btn-reject {
+            background-color: #dc3545;
+            color: white;
+        }
+
+        .btn-reject:hover {
+            background-color: #c82333;
+        }
+
+        .btn-secondary {
+            background-color: #6c757d;
+            color: white;
+        }
+
+        .btn-secondary:hover {
+            background-color: #5a6268;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 40px;
+            color: #666;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 40px;
+            color: #999;
+        }
+
+        .reject-reason {
+            font-size: 12px;
+            color: #666;
+            margin-top: 10px;
+            font-style: italic;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>Staff Application Review Dashboard</h1>
+        <p>Review pending applications</p>
+    </div>
+
+    <div class="container">
+        <div class="section">
+            <div class="tab-buttons">
+                <button class="tab-button active" onclick="switchTab('pending')">Pending (Awaiting Review)</button>
+                <button class="tab-button" onclick="switchTab('approved')">Approved</button>
+                <button class="tab-button" onclick="switchTab('rejected')">Rejected</button>
+            </div>
+
+            <div id="pending" class="tab-content active">
+                <div id="pendingList"></div>
+            </div>
+
+            <div id="approved" class="tab-content">
+                <div id="approvedList"></div>
+            </div>
+
+            <div id="rejected" class="tab-content">
+                <div id="rejectedList"></div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const BACKEND_URL = 'https://horizon-portal-backend-production-3532.up.railway.app';
+        const COLUMN_MAPPING = {
+            'first_name': 'FIRST NAME',
+            'last_name': 'LAST NAME',
+            'address': 'ADDRESS',
+            'city': 'CITY',
+            'state': 'STATE',
+            'zip': 'ZIP',
+            'gender': 'GENDER',
+            'dob': 'DOB',
+            'phone': 'PHONE',
+            'email': 'EMAIL'
+        };
+
+        async function loadApplications() {
+            try {
+                const response = await fetch(`${BACKEND_URL}/api/pendingApplications`);
+                const apps = await response.json();
+                
+                const pending = apps.filter(a => a.status === 'pending');
+                const approved = apps.filter(a => a.status === 'approved');
+                const rejected = apps.filter(a => a.status === 'rejected');
+
+                displayApplications('pendingList', pending, true);
+                displayApplications('approvedList', approved, false);
+                displayApplications('rejectedList', rejected, false);
+            } catch (error) {
+                console.error('Error loading applications:', error);
+                document.getElementById('pendingList').innerHTML = '<div class="empty-state">Error loading applications</div>';
+            }
+        }
+
+        function displayApplications(elementId, apps, showActions) {
+            const element = document.getElementById(elementId);
+            
+            if (apps.length === 0) {
+                element.innerHTML = '<div class="empty-state">No applications</div>';
+                return;
+            }
+
+            element.innerHTML = apps.map(app => `
+                <div class="application-card">
+                    <div class="app-header">
+                        <div>
+                            <div class="app-id">ID: ${app.id}</div>
+                            <div class="app-timestamp">${new Date(app.timestamp).toLocaleString()}</div>
+                        </div>
+                        <span class="app-status ${app.status ? 'status-' + app.status : 'status-pending'}">
+                            ${app.status === 'pending' ? 'Pending' : app.status === 'approved' ? 'Approved' : 'Rejected'}
+                        </span>
+                    </div>
+
+                    <div class="app-data">
+                        ${Object.keys(app.data).map(key => {
+                            const label = key.replace(/_/g, ' ').toUpperCase();
+                            return `
+                                <div class="data-field">
+                                    <div class="data-label">${label}</div>
+                                    <div class="data-value">${app.data[key] || '-'}</div>
+                                </div>
+                            `;
+                        }).join('')}
+                    </div>
+
+                    ${app.status === 'approved' ? `
+                        <div style="margin-top: 10px; padding: 10px; background: #d4edda; border-radius: 4px;">
+                            <strong>✓ Approved</strong><br>
+                            <small>Date: ${new Date(app.approvalDate).toLocaleString()}</small><br>
+                            <small>Assigned ID: ${app.assignedId}</small>
+                        </div>
+                    ` : ''}
+
+                    ${app.status === 'rejected' ? `
+                        <div class="reject-reason">
+                            <strong>❌ Rejected</strong><br>
+                            Reason: ${app.rejectionReason}
+                        </div>
+                    ` : ''}
+
+                    ${showActions ? `
+                        <div class="app-actions">
+                            <button class="btn-approve" onclick="approveApplication('${app.id}')">Approve & Add to System</button>
+                            <button class="btn-reject" onclick="rejectApplication('${app.id}')">Reject</button>
+                        </div>
+                    ` : ''}
+                </div>
+            `).join('');
+        }
+
+        async function approveApplication(appId) {
+            if (!confirm('Approve this application? This will assign an ID and add the applicant to the system.')) {
+                return;
+            }
+
+            try {
+                const response = await fetch(`${BACKEND_URL}/api/approveApplication`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        applicationId: appId,
+                        columnMapping: COLUMN_MAPPING
+                    })
+                });
+
+                const result = await response.json();
+
+                if (response.ok) {
+                    alert(`✓ Application approved!\n\nAssigned ID: ${result.assignedId}`);
+                    loadApplications();
+                } else {
+                    alert('Error: ' + (result.error || 'Failed to approve application'));
+                }
+            } catch (error) {
+                console.error('Error approving application:', error);
+                alert('Failed to approve application');
+            }
+        }
+
+        function rejectApplication(appId) {
+            const reason = prompt('Enter rejection reason:');
+            if (reason === null) return;
+
+            fetch(`${BACKEND_URL}/api/rejectApplication`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    applicationId: appId,
+                    reason: reason
+                })
+            })
+            .then(response => response.json())
+            .then(result => {
+                if (result.success) {
+                    alert('✓ Application rejected');
+                    loadApplications();
+                } else {
+                    alert('Error: ' + result.error);
+                }
+            })
+            .catch(error => {
+                console.error('Error rejecting application:', error);
+                alert('Failed to reject application');
+            });
+        }
+
+        function switchTab(tab) {
+            // Hide all tabs
+            document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
+            document.querySelectorAll('.tab-button').forEach(b => b.classList.remove('active'));
+
+            // Show selected tab
+            document.getElementById(tab).classList.add('active');
+            event.target.classList.add('active');
+        }
+
+        // Load applications on page load
+        window.addEventListener('load', loadApplications);
+
+        // Refresh every 30 seconds
+        setInterval(loadApplications, 30000);
+    </script>
+</body>
+</html>
