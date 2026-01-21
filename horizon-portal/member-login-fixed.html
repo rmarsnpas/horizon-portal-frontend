@@ -107,18 +107,7 @@
             <button type="button" onclick="verifyID()">Continue</button>
         </div>
 
-        <!-- STEP 2A: CREATE PIN -->
-        <div id="createPin" style="display:none;">
-            <label for="newPin">Create Your 4-Digit PIN</label>
-            <input type="text" id="newPin" class="pin-input" inputmode="numeric" maxlength="4" placeholder="Enter PIN">
-
-            <label for="confirmPin">Confirm PIN</label>
-            <input type="text" id="confirmPin" class="pin-input" inputmode="numeric" maxlength="4" placeholder="Confirm PIN">
-
-            <button type="button" onclick="savePin()">Save PIN</button>
-        </div>
-
-        <!-- STEP 2B: ENTER PIN -->
+        <!-- STEP 2: ENTER PIN -->
         <div id="enterPin" style="display:none;">
             <label for="pinInput">Enter Your PIN</label>
             <input type="text" id="pinInput" class="pin-input" inputmode="numeric" maxlength="4" placeholder="4-digit PIN">
@@ -182,56 +171,21 @@
                     return;
                 }
 
-                document.getElementById('step1').style.display = 'none';
+                // Check if PIN exists
                 if (!userRecord.PIN) {
-                    document.getElementById('createPin').style.display = 'block';
-                } else {
-                    document.getElementById('enterPin').style.display = 'block';
+                    showError('No PIN found. Please see your manager to set up your PIN.');
+                    return;
                 }
+
+                document.getElementById('step1').style.display = 'none';
+                document.getElementById('enterPin').style.display = 'block';
             } catch (err) {
                 console.error(err);
                 showError('Unable to contact the verification server.');
             }
         }
 
-        // STEP 2A — SAVE NEW PIN
-        async function savePin() {
-            clearError();
-            const pin1 = document.getElementById('newPin').value.trim();
-            const pin2 = document.getElementById('confirmPin').value.trim();
-            if (!/^\d{4}$/.test(pin1) || pin1 !== pin2) {
-                showError('PINs must match and be 4 digits.');
-                return;
-            }
-            if (!userRecord || !userRecord.MemberID) { showError('Missing member record. Please start again.'); return; }
-
-            try {
-                const body = { id: String(userRecord.MemberID).trim(), pin: pin1 };
-                const res = await fetch('https://horizon-portal-backend-production-3532.up.railway.app/api/savePin', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify(body)
-                });
-                const json = await res.json();
-                if (!res.ok) throw new Error(json.error || 'Save failed');
-
-                // update local record
-                userRecord.PIN = pin1;
-                document.getElementById('createPin').style.display = 'none';
-                if (userRecord.AccessCode >= 4) {
-                    document.getElementById('staffPw').style.display = 'block';
-                } else if ([1,2].includes(userRecord.AccessCode)) {
-                    routeUser();
-                } else {
-                    showError('Access denied.');
-                }
-            } catch (err) {
-                console.error(err);
-                showError(err.message || 'Unable to save PIN');
-            }
-        }
-
-        // STEP 2B — VERIFY EXISTING PIN
+        // STEP 2 — VERIFY PIN
         function verifyPin() {
             clearError();
             const pin = document.getElementById('pinInput').value.trim();
