@@ -70,15 +70,29 @@
       text-align: center;
     }
 
+    .hero-content > * {
+      position: relative;
+      z-index: 1;
+    }
+
+    .hero-logo {
+      position: absolute;
+      right: 32px;
+      top: 48px;
+      max-width: 210px;
+      filter: drop-shadow(0 4px 10px rgba(0,0,0,0.35));
+    }
+
     .stone-path {
       position: absolute;
-      width: 220px;
-      height: 240px;
-      left: 60%;
+      width: 260px;
+      height: 230px;
+      left: 68%;
       transform: translateX(-50%);
-      top: 150px;
+      top: 190px;
       pointer-events: none;
       opacity: 0.9;
+      z-index: 0;
     }
 
     .hero h1 {
@@ -484,20 +498,20 @@
   <!-- Hero Section -->
   <section class="hero">
     <div class="hero-content">
-      <img src="HH logo gold1.jpg" alt="Horizon House Logo" style="max-width: 150px; margin-bottom: 20px; filter: drop-shadow(0 4px 10px rgba(0,0,0,0.3));">
+      <img class="hero-logo" src="HH logo gold1.jpg" alt="Horizon House Logo">
       <h1>Welcome to Horizon House</h1>
       <p class="tagline">Your Path to Lasting Recovery Starts Here</p>
-      <svg class="stone-path" viewBox="0 0 240 260" aria-hidden="true">
-        <ellipse cx="128" cy="225" rx="24" ry="11" fill="rgba(207,162,79,0.9)" />
-        <ellipse cx="175" cy="205" rx="22" ry="10" fill="rgba(255,255,255,0.35)" />
-        <ellipse cx="205" cy="180" rx="20" ry="9" fill="rgba(207,162,79,0.8)" />
-        <ellipse cx="190" cy="150" rx="18" ry="8" fill="rgba(255,255,255,0.35)" />
-        <ellipse cx="165" cy="125" rx="17" ry="8" fill="rgba(207,162,79,0.8)" />
-        <ellipse cx="185" cy="105" rx="14" ry="7" fill="rgba(255,255,255,0.35)" />
-        <ellipse cx="160" cy="88" rx="13" ry="6" fill="rgba(207,162,79,0.8)" />
-        <ellipse cx="175" cy="70" rx="11" ry="6" fill="rgba(255,255,255,0.35)" />
-        <ellipse cx="152" cy="52" rx="10" ry="5" fill="rgba(207,162,79,0.8)" />
-        <ellipse cx="165" cy="38" rx="9" ry="5" fill="rgba(255,255,255,0.35)" />
+      <svg class="stone-path" viewBox="0 0 260 230" aria-hidden="true">
+        <ellipse cx="188" cy="212" rx="24" ry="11" fill="rgba(207,162,79,0.9)" />
+        <ellipse cx="220" cy="186" rx="22" ry="10" fill="rgba(255,255,255,0.35)" />
+        <ellipse cx="238" cy="156" rx="20" ry="9" fill="rgba(207,162,79,0.8)" />
+        <ellipse cx="210" cy="134" rx="18" ry="8" fill="rgba(255,255,255,0.35)" />
+        <ellipse cx="182" cy="116" rx="17" ry="8" fill="rgba(207,162,79,0.8)" />
+        <ellipse cx="205" cy="98" rx="14" ry="7" fill="rgba(255,255,255,0.35)" />
+        <ellipse cx="176" cy="82" rx="13" ry="6" fill="rgba(207,162,79,0.8)" />
+        <ellipse cx="198" cy="64" rx="12" ry="6" fill="rgba(255,255,255,0.35)" />
+        <ellipse cx="170" cy="48" rx="10" ry="5" fill="rgba(207,162,79,0.8)" />
+        <ellipse cx="188" cy="34" rx="9" ry="5" fill="rgba(255,255,255,0.35)" />
       </svg>
       <div class="cta-buttons">
         <a href="application.html" class="btn btn-primary">Apply Now</a>
