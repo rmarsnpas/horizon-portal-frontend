@@ -1,0 +1,482 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Horizon House Sober Living - Print Brochure</title>
+  <style>
+    @page {
+      size: 11in 8.5in landscape;
+      margin: 0;
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Georgia', serif;
+      color: #2f1a1f;
+      line-height: 1.5;
+      -webkit-print-color-adjust: exact;
+      print-color-adjust: exact;
+    }
+
+    .brochure {
+      width: 11in;
+      height: 8.5in;
+      display: flex;
+      page-break-after: always;
+    }
+
+    .panel {
+      width: 3.6667in;
+      height: 8.5in;
+      padding: 0.5in;
+      position: relative;
+      overflow: hidden;
+    }
+
+    /* Front Cover (right panel when folded) */
+    .panel-1 {
+      background: linear-gradient(135deg, #8b2540 0%, #4a0f24 100%);
+      color: white;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      padding: 0.75in;
+    }
+
+    .panel-1 .logo {
+      width: 2.5in;
+      margin-bottom: 0.4in;
+      filter: drop-shadow(0 4px 8px rgba(0,0,0,0.3));
+    }
+
+    .panel-1 h1 {
+      font-size: 28pt;
+      margin-bottom: 0.15in;
+      font-family: 'Arial', sans-serif;
+      font-weight: bold;
+      line-height: 1.2;
+    }
+
+    .panel-1 .tagline {
+      font-size: 16pt;
+      font-style: italic;
+      margin-bottom: 0.4in;
+      opacity: 0.95;
+    }
+
+    .panel-1 .contact-box {
+      background: rgba(255,255,255,0.15);
+      padding: 0.25in;
+      border-radius: 8px;
+      margin-top: 0.3in;
+      backdrop-filter: blur(10px);
+    }
+
+    .panel-1 .contact-box p {
+      font-size: 14pt;
+      margin: 0.08in 0;
+    }
+
+    /* Inside Left Panel */
+    .panel-2 {
+      background: #f8f4ec;
+      border-right: 2px solid #cfa24f;
+    }
+
+    .panel-2 h2 {
+      color: #7a1f35;
+      font-size: 20pt;
+      margin-bottom: 0.2in;
+      border-bottom: 3px solid #cfa24f;
+      padding-bottom: 0.1in;
+      font-family: 'Arial', sans-serif;
+    }
+
+    .panel-2 h3 {
+      color: #4a0f24;
+      font-size: 14pt;
+      margin: 0.2in 0 0.1in 0;
+      font-family: 'Arial', sans-serif;
+    }
+
+    .panel-2 p, .panel-2 ul {
+      font-size: 11pt;
+      margin-bottom: 0.15in;
+    }
+
+    .panel-2 ul {
+      list-style: none;
+      padding-left: 0;
+    }
+
+    .panel-2 ul li {
+      padding-left: 0.25in;
+      margin-bottom: 0.08in;
+      position: relative;
+    }
+
+    .panel-2 ul li:before {
+      content: "✓";
+      position: absolute;
+      left: 0;
+      color: #cfa24f;
+      font-weight: bold;
+    }
+
+    /* Inside Center Panel */
+    .panel-3 {
+      background: white;
+      border-right: 2px solid #cfa24f;
+    }
+
+    .panel-3 h2 {
+      color: #7a1f35;
+      font-size: 20pt;
+      margin-bottom: 0.2in;
+      border-bottom: 3px solid #cfa24f;
+      padding-bottom: 0.1in;
+      font-family: 'Arial', sans-serif;
+    }
+
+    .panel-3 h3 {
+      color: #4a0f24;
+      font-size: 13pt;
+      margin: 0.15in 0 0.08in 0;
+      font-family: 'Arial', sans-serif;
+    }
+
+    .panel-3 p {
+      font-size: 10.5pt;
+      margin-bottom: 0.12in;
+    }
+
+    .highlight-box {
+      background: #fff8e7;
+      border-left: 4px solid #cfa24f;
+      padding: 0.15in;
+      margin: 0.15in 0;
+      font-size: 10pt;
+      font-style: italic;
+    }
+
+    /* Back Panel */
+    .panel-4 {
+      background: linear-gradient(135deg, #4a0f24 0%, #7a1f35 100%);
+      color: white;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+    }
+
+    .panel-4 h2 {
+      font-size: 22pt;
+      margin-bottom: 0.2in;
+      font-family: 'Arial', sans-serif;
+      color: #cfa24f;
+    }
+
+    .panel-4 .testimonial {
+      background: rgba(255,255,255,0.1);
+      padding: 0.2in;
+      border-radius: 8px;
+      margin-bottom: 0.15in;
+      backdrop-filter: blur(10px);
+      border: 1px solid rgba(207,162,79,0.3);
+    }
+
+    .panel-4 .testimonial p {
+      font-size: 10pt;
+      font-style: italic;
+      margin-bottom: 0.08in;
+      line-height: 1.4;
+    }
+
+    .panel-4 .testimonial .author {
+      font-size: 9pt;
+      text-align: right;
+      opacity: 0.9;
+    }
+
+    .panel-4 .cta {
+      background: #cfa24f;
+      color: #2f1a1f;
+      padding: 0.2in;
+      border-radius: 8px;
+      text-align: center;
+      margin-top: 0.15in;
+    }
+
+    .panel-4 .cta h3 {
+      font-size: 16pt;
+      margin-bottom: 0.08in;
+    }
+
+    .panel-4 .cta p {
+      font-size: 11pt;
+      margin: 0.05in 0;
+    }
+
+    /* Inside Right Panel */
+    .panel-5 {
+      background: white;
+      border-right: 2px solid #cfa24f;
+    }
+
+    .panel-5 h2 {
+      color: #7a1f35;
+      font-size: 20pt;
+      margin-bottom: 0.2in;
+      border-bottom: 3px solid #cfa24f;
+      padding-bottom: 0.1in;
+      font-family: 'Arial', sans-serif;
+    }
+
+    .panel-5 .step {
+      margin-bottom: 0.2in;
+    }
+
+    .panel-5 .step-number {
+      display: inline-block;
+      width: 0.35in;
+      height: 0.35in;
+      background: linear-gradient(135deg, #8b2540, #4a0f24);
+      color: white;
+      border-radius: 50%;
+      text-align: center;
+      line-height: 0.35in;
+      font-weight: bold;
+      margin-right: 0.1in;
+      font-size: 12pt;
+    }
+
+    .panel-5 .step h3 {
+      display: inline;
+      color: #4a0f24;
+      font-size: 13pt;
+      font-family: 'Arial', sans-serif;
+    }
+
+    .panel-5 .step p {
+      font-size: 10pt;
+      margin: 0.08in 0 0 0.45in;
+      line-height: 1.4;
+    }
+
+    /* Back Cover (left panel when folded) */
+    .panel-6 {
+      background: #f8f4ec;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      text-align: center;
+    }
+
+    .panel-6 .logo {
+      width: 2in;
+      margin-bottom: 0.3in;
+      opacity: 0.4;
+    }
+
+    .panel-6 h2 {
+      color: #7a1f35;
+      font-size: 18pt;
+      margin-bottom: 0.15in;
+      font-family: 'Arial', sans-serif;
+    }
+
+    .panel-6 p {
+      font-size: 11pt;
+      color: #4a0f24;
+      margin-bottom: 0.08in;
+      line-height: 1.5;
+    }
+
+    @media print {
+      body {
+        margin: 0;
+        padding: 0;
+      }
+      .no-print {
+        display: none;
+      }
+    }
+
+    .print-button {
+      position: fixed;
+      top: 20px;
+      right: 20px;
+      background: #7a1f35;
+      color: white;
+      padding: 15px 30px;
+      border: none;
+      border-radius: 5px;
+      font-size: 16px;
+      cursor: pointer;
+      z-index: 1000;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+    }
+
+    .print-button:hover {
+      background: #4a0f24;
+    }
+
+    @media print {
+      .print-button {
+        display: none;
+      }
+    }
+  </style>
+</head>
+<body>
+
+<button class="print-button no-print" onclick="window.print()">🖨️ Print Brochure</button>
+
+<div class="brochure">
+  
+  <!-- Panel 1: Front Cover (Right panel when folded) -->
+  <div class="panel panel-1">
+    <img src="HH logo gold1.jpg" alt="Horizon House Logo" class="logo">
+    <h1>Horizon House<br>Sober Living</h1>
+    <p class="tagline">Your Path to Lasting Recovery Starts Here</p>
+    <div class="contact-box">
+      <p><strong>📞 (760) 766-0300</strong></p>
+      <p>info@horizon-house.org</p>
+      <p>horizon-house.org</p>
+    </div>
+  </div>
+
+  <!-- Panel 2: Inside Left -->
+  <div class="panel panel-2">
+    <h2>About Horizon House</h2>
+    <p>Horizon House provides a safe, structured, and supportive environment for individuals in recovery. We believe in compassionate guidance and giving each resident the space they need to grow, learn, and find their way to lasting sobriety.</p>
+    
+    <h3>What Makes Us Different</h3>
+    <ul>
+      <li><strong>We Care.</strong> Our team has been there and leads with empathy</li>
+      <li><strong>Compassion over Punishment.</strong> Supportive accountability</li>
+      <li><strong>Room to Grow.</strong> Space to learn at your own pace</li>
+      <li><strong>Spacious Living.</strong> No bunk beds—comfortable accommodations</li>
+    </ul>
+
+    <h3>Our Commitment</h3>
+    <p><strong>Drug-Free Environment</strong><br>How it should be. We strive for complete sobriety.</p>
+    <p><strong>24/7 Support</strong><br>Always available when you need us.</p>
+    <p><strong>10+ Years Experience</strong><br>Proven track record of success.</p>
+  </div>
+
+  <!-- Panel 3: Inside Center -->
+  <div class="panel panel-3">
+    <h2>What We Offer</h2>
+    
+    <h3>Living Accommodations</h3>
+    <p>• Private and shared bedroom options<br>
+    • Fully furnished common areas<br>
+    • Spacious, comfortable environment<br>
+    • Clean, safe, secure homes</p>
+
+    <h3>Support Services</h3>
+    <p>• On-site house manager<br>
+    • Weekly house meetings<br>
+    • Peer support community<br>
+    • Accountability partners<br>
+    • Recovery meeting support<br>
+    • Crisis intervention</p>
+
+    <h3>Life Skills & Recovery</h3>
+    <p>• Structured daily schedules<br>
+    • Life skills workshops<br>
+    • Employment support & resources<br>
+    • Financial management guidance<br>
+    • Transportation assistance<br>
+    • Random drug screening</p>
+
+    <div class="highlight-box">
+      <strong>First and foremost, we care.</strong> We don't believe in punishing, but in compassionate guidance toward positive behavioral changes. We believe in giving space—space to grow, space to learn, space to find your way.
+    </div>
+  </div>
+
+  <!-- Panel 4: Back Panel -->
+  <div class="panel panel-4">
+    <div>
+      <h2>Success Stories</h2>
+      
+      <div class="testimonial">
+        <p>"Horizon House gave me the structure and support I needed to rebuild my life. The accountability and peer support made all the difference in my recovery journey."</p>
+        <p class="author">— Former Resident</p>
+      </div>
+
+      <div class="testimonial">
+        <p>"I came to Horizon House with nothing but hope. Today, I have my own apartment, a good job, and most importantly, my sobriety. This place saved my life."</p>
+        <p class="author">— Alumni Member</p>
+      </div>
+
+      <div class="testimonial">
+        <p>"The staff and residents became my family. They believed in me when I didn't believe in myself. I'm forever grateful for this community."</p>
+        <p class="author">— Current Resident</p>
+      </div>
+    </div>
+
+    <div class="cta">
+      <h3>Ready to Start Your Recovery?</h3>
+      <p><strong>Call: (760) 766-0300</strong></p>
+      <p>Visit: horizon-house.org/application.html</p>
+      <p>We're here to support you every step of the way.</p>
+    </div>
+  </div>
+
+  <!-- Panel 5: Inside Right -->
+  <div class="panel panel-5">
+    <h2>Your Journey Starts Here</h2>
+    
+    <div class="step">
+      <span class="step-number">1</span>
+      <h3>Complete Application</h3>
+      <p>Fill out our comprehensive application form online or call us. Be honest—we're here to support you, not judge.</p>
+    </div>
+
+    <div class="step">
+      <span class="step-number">2</span>
+      <h3>Staff Review</h3>
+      <p>Our team reviews your application and determines the best path for your successful recovery journey.</p>
+    </div>
+
+    <div class="step">
+      <span class="step-number">3</span>
+      <h3>Interview & Approval</h3>
+      <p>Meet with our staff to discuss your goals, expectations, and house guidelines. We'll answer all your questions.</p>
+    </div>
+
+    <div class="step">
+      <span class="step-number">4</span>
+      <h3>Move In & Begin</h3>
+      <p>Welcome home! Start your journey with a supportive community and structured program designed for success.</p>
+    </div>
+
+    <div class="highlight-box">
+      <strong>Please Be Honest:</strong> Your answers help us determine the best path for your successful recovery. This information is used to support you, not to disqualify your acceptance.
+    </div>
+  </div>
+
+  <!-- Panel 6: Back Cover (Left panel when folded) -->
+  <div class="panel panel-6">
+    <img src="HH logo gold1.jpg" alt="Horizon House Logo" class="logo">
+    <h2>Horizon House<br>Sober Living</h2>
+    <p><strong>Your Path to Lasting Recovery</strong></p>
+    <p>A safe, structured environment<br>for individuals in recovery.</p>
+    <p style="margin-top: 0.3in; font-size: 13pt; color: #7a1f35;"><strong>(760) 766-0300</strong></p>
+    <p>horizon-house.org</p>
+  </div>
+
+</div>
+
+</body>
+</html>
