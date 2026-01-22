@@ -272,7 +272,8 @@
                 const response = await fetch(`${API_BASE}/api/contactSubmissions`);
                 
                 if (!response.ok) {
-                    throw new Error('Failed to load contact submissions');
+                    const errorText = await response.text();
+                    throw new Error(`Server returned ${response.status}: ${errorText}`);
                 }
 
                 const submissions = await response.json();
@@ -282,7 +283,9 @@
                 document.getElementById('loading').style.display = 'none';
                 document.getElementById('error-message').innerHTML = `
                     <div class="error">
-                        <strong>Error:</strong> ${error.message}
+                        <strong>Error loading submissions:</strong> ${error.message}<br>
+                        <small>Check that the backend is running and the API endpoint is accessible.</small><br>
+                        <small>API URL: ${API_BASE}/api/contactSubmissions</small>
                     </div>
                 `;
             }
