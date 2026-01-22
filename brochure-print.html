@@ -9,6 +9,11 @@
       size: 11in 8.5in landscape;
       margin: 0;
     }
+    
+    @page :first {
+      size: 11in 8.5in landscape;
+      margin: 0;
+    }
 
     * {
       margin: 0;
@@ -29,6 +34,11 @@
       height: 8.5in;
       display: flex;
       page-break-after: always;
+      page-break-inside: avoid;
+    }
+    
+    .brochure.page-2 {
+      page-break-before: always;
     }
 
     .panel {
@@ -340,9 +350,20 @@
 
 <button class="print-button no-print" onclick="window.print()">🖨️ Print Brochure</button>
 
+<!-- PAGE 1: Outside panels (left to right when unfolded) -->
 <div class="brochure">
   
-  <!-- Panel 1: Front Cover (Right panel when folded) -->
+  <!-- Panel 6: Back Cover (Left when folded) -->
+  <div class="panel panel-6">
+    <img src="HH logo gold1.jpg" alt="Horizon House Logo" class="logo">
+    <h2>Horizon House<br>Sober Living</h2>
+    <p><strong>Your Path to Lasting Recovery</strong></p>
+    <p>A safe, structured environment<br>for individuals in recovery.</p>
+    <p style="margin-top: 0.3in; font-size: 13pt; color: #7a1f35;"><strong>(760) 766-0300</strong></p>
+    <p>horizon-house.org</p>
+  </div>
+
+  <!-- Panel 1: Front Cover (Right when folded) -->
   <div class="panel panel-1">
     <img src="HH logo gold1.jpg" alt="Horizon House Logo" class="logo">
     <h1>Horizon House<br>Sober Living</h1>
@@ -354,7 +375,39 @@
     </div>
   </div>
 
-  <!-- Panel 2: Inside Left -->
+  <!-- Panel 4: Success Stories (Center - inside when back opens) -->
+  <div class="panel panel-4">
+    <h2>Success Stories</h2>
+    
+    <div class="testimonial">
+      <p>"Horizon House gave me structure and hope. The staff understood my journey because they've been there."</p>
+      <p><em>— Michael, 2 years sober</em></p>
+    </div>
+
+    <div class="testimonial">
+      <p>"I finally found a place that treats me like a person, not a problem. The support here is real."</p>
+      <p><em>— David, 1 year sober</em></p>
+    </div>
+
+    <div class="testimonial">
+      <p>"Having my own space while being part of a recovery community made all the difference. No bunk beds was huge!"</p>
+      <p><em>— James, 18 months sober</em></p>
+    </div>
+
+    <div class="cta-box">
+      <h3>Ready to Start Your Journey?</h3>
+      <p><strong>Call us today:</strong><br>(760) 766-0300</p>
+      <p>Visit: <strong>horizon-house.org</strong></p>
+      <p>We're here to help, 24/7</p>
+    </div>
+  </div>
+
+</div>
+
+<!-- PAGE 2: Inside panels (left to right when unfolded, print on back) -->
+<div class="brochure page-2">
+
+  <!-- Panel 2: About & What Makes Us Different -->
   <div class="panel panel-2">
     <h2>About Horizon House</h2>
     <p>Horizon House provides a safe, structured, and supportive environment for individuals in recovery. We believe in compassionate guidance and giving each resident the space they need to grow, learn, and find their way to lasting sobriety.</p>
@@ -404,35 +457,6 @@
     </div>
   </div>
 
-  <!-- Panel 4: Back Panel -->
-  <div class="panel panel-4">
-    <div>
-      <h2>Success Stories</h2>
-      
-      <div class="testimonial">
-        <p>"Horizon House gave me the structure and support I needed to rebuild my life. The accountability and peer support made all the difference in my recovery journey."</p>
-        <p class="author">— Former Resident</p>
-      </div>
-
-      <div class="testimonial">
-        <p>"I came to Horizon House with nothing but hope. Today, I have my own apartment, a good job, and most importantly, my sobriety. This place saved my life."</p>
-        <p class="author">— Alumni Member</p>
-      </div>
-
-      <div class="testimonial">
-        <p>"The staff and residents became my family. They believed in me when I didn't believe in myself. I'm forever grateful for this community."</p>
-        <p class="author">— Current Resident</p>
-      </div>
-    </div>
-
-    <div class="cta">
-      <h3>Ready to Start Your Recovery?</h3>
-      <p><strong>Call: (760) 766-0300</strong></p>
-      <p>Visit: horizon-house.org/application.html</p>
-      <p>We're here to support you every step of the way.</p>
-    </div>
-  </div>
-
   <!-- Panel 5: Inside Right -->
   <div class="panel panel-5">
     <h2>Your Journey Starts Here</h2>
@@ -464,16 +488,6 @@
     <div class="highlight-box">
       <strong>Please Be Honest:</strong> Your answers help us determine the best path for your successful recovery. This information is used to support you, not to disqualify your acceptance.
     </div>
-  </div>
-
-  <!-- Panel 6: Back Cover (Left panel when folded) -->
-  <div class="panel panel-6">
-    <img src="HH logo gold1.jpg" alt="Horizon House Logo" class="logo">
-    <h2>Horizon House<br>Sober Living</h2>
-    <p><strong>Your Path to Lasting Recovery</strong></p>
-    <p>A safe, structured environment<br>for individuals in recovery.</p>
-    <p style="margin-top: 0.3in; font-size: 13pt; color: #7a1f35;"><strong>(760) 766-0300</strong></p>
-    <p>horizon-house.org</p>
   </div>
 
 </div>
