@@ -136,6 +136,51 @@
             display: none;
         }
 
+        .observation-row {
+            display: flex;
+            gap: 30px;
+            flex-wrap: wrap;
+            align-items: center;
+            padding: 15px;
+            background: #f7fafc;
+            border-radius: 6px;
+            margin-bottom: 15px;
+        }
+
+        .observation-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .observation-item label {
+            margin: 0;
+            font-weight: 600;
+            color: #4a5568;
+        }
+
+        .observation-item .radio-group {
+            display: flex;
+            gap: 15px;
+        }
+
+        .observation-item .radio-option {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .observation-item input[type="radio"] {
+            width: 18px;
+            height: 18px;
+            cursor: pointer;
+        }
+
+        .observation-item .radio-option label {
+            font-weight: normal;
+            cursor: pointer;
+        }
+
         .result-toggle label {
             padding: 6px 16px;
             border-radius: 4px;
@@ -318,6 +363,34 @@
                 <div class="form-group">
                     <label for="staffName">Staff Member Conducting Test *</label>
                     <input type="text" id="staffName" name="staffName" required>
+                </div>
+                <div class="observation-row">
+                    <div class="observation-item">
+                        <label>Member was observed:</label>
+                        <div class="radio-group">
+                            <div class="radio-option">
+                                <input type="radio" id="observed-yes" name="observed" value="yes" required>
+                                <label for="observed-yes">YES</label>
+                            </div>
+                            <div class="radio-option">
+                                <input type="radio" id="observed-no" name="observed" value="no">
+                                <label for="observed-no">NO</label>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="observation-item">
+                        <label>Temp checked:</label>
+                        <div class="radio-group">
+                            <div class="radio-option">
+                                <input type="radio" id="temp-yes" name="tempChecked" value="yes" required>
+                                <label for="temp-yes">YES</label>
+                            </div>
+                            <div class="radio-option">
+                                <input type="radio" id="temp-no" name="tempChecked" value="no">
+                                <label for="temp-no">NO</label>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
 
@@ -717,6 +790,8 @@
                     testTime: formData.get('testTime'),
                     testType: formData.get('testType'),
                     staffName: formData.get('staffName'),
+                    observed: formData.get('observed'),
+                    tempChecked: formData.get('tempChecked'),
                     results: {
                         thc: formData.get('thc'),
                         cocaine: formData.get('cocaine'),
