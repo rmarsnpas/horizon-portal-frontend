@@ -547,9 +547,21 @@
                     .filter(([_, value]) => value === 'positive')
                     .map(([key, _]) => key);
 
+                // Map substance names to abbreviations
+                const substanceNames = {
+                    'thc': 'THC',
+                    'cocaine': 'COC',
+                    'opiates': 'MOP/OPI 300',
+                    'amphetamines': 'AMP',
+                    'methamphetamine': 'mAMP',
+                    'benzodiazepines': 'BZO',
+                    'fentanyl': 'Fentanyl',
+                    'alcohol': 'Alcohol'
+                };
+
                 const resultsHTML = Object.entries(test.results).map(([substance, result]) => `
                     <div class="result-item ${result}">
-                        <span>${substance.toUpperCase()}</span>
+                        <span>${substanceNames[substance] || substance.toUpperCase()}</span>
                         <span>${result === 'positive' ? '⚠️ POS' : '✓ NEG'}</span>
                     </div>
                 `).join('');
