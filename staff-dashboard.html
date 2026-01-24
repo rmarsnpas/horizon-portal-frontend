@@ -107,6 +107,17 @@
             align-items: center;
         }
 
+        .dashboard-header-content {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+        }
+
+        .dashboard-logo {
+            max-width: 80px;
+            max-height: 80px;
+        }
+
         .dashboard-header h1 {
             color: #2d3748;
             font-size: 32px;
@@ -268,9 +279,12 @@
     <!-- Dashboard -->
     <div class="dashboard-container" id="dashboardContainer">
         <div class="dashboard-header">
-            <div>
-                <h1>📊 Staff Dashboard</h1>
-                <p style="color: #718096; margin-top: 5px;">Welcome to Horizon House Staff Portal</p>
+            <div class="dashboard-header-content">
+                <img src="/hhlogo.png" alt="Horizon House Logo" class="dashboard-logo">
+                <div>
+                    <h1>📊 Staff Dashboard</h1>
+                    <p style="color: #718096; margin-top: 5px;">Welcome to Horizon House Staff Portal</p>
+                </div>
             </div>
             <div class="header-buttons">
                 <a href="/" class="btn-home">🏠 Home</a>
