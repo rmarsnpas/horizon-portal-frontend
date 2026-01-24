@@ -189,6 +189,26 @@
             background: #48bb78;
         }
 
+        .section-header {
+            background: white;
+            padding: 20px 30px;
+            border-radius: 12px;
+            margin-bottom: 20px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+
+        .section-header h2 {
+            color: #2d3748;
+            font-size: 24px;
+            margin: 0;
+        }
+
+        .section-header p {
+            color: #718096;
+            margin: 5px 0 0 0;
+            font-size: 14px;
+        }
+
         .loading {
             text-align: center;
             color: white;
@@ -265,6 +285,35 @@
                 <div class="card-label">Public Website</div>
             </a>
         </div>
+
+        <!-- Forms Section -->
+        <div class="section-header" id="formsSection" style="display: none; margin-top: 30px;">
+            <h2>📝 Forms</h2>
+            <p>Create and manage facility forms</p>
+        </div>
+
+        <div class="dashboard-grid" id="formsGrid" style="display: none;">
+            <a href="/discharge-combined.html" class="dashboard-card">
+                <div class="card-icon">📄</div>
+                <div class="card-title">Discharge Form</div>
+                <div class="card-count" style="font-size: 24px; color: #718096;">Create</div>
+                <div class="card-label">Member Discharge</div>
+            </a>
+
+            <a href="/drug-screen.html" class="dashboard-card">
+                <div class="card-icon">🧪</div>
+                <div class="card-title">Drug Screen Form</div>
+                <div class="card-count" style="font-size: 24px; color: #718096;">New Test</div>
+                <div class="card-label">Record Test Results</div>
+            </a>
+
+            <a href="#" class="dashboard-card" style="opacity: 0.6; cursor: not-allowed;">
+                <div class="card-icon">📞</div>
+                <div class="card-title">Contact Form</div>
+                <div class="card-count" style="font-size: 24px; color: #718096;">Coming Soon</div>
+                <div class="card-label">To Be Built</div>
+            </a>
+        </div>
     </div>
 
     <script>
@@ -334,6 +383,8 @@
 
                 document.getElementById('loading').style.display = 'none';
                 document.getElementById('dashboardGrid').style.display = 'grid';
+                document.getElementById('formsSection').style.display = 'block';
+                document.getElementById('formsGrid').style.display = 'grid';
 
             } catch (error) {
                 console.error('Error loading dashboard data:', error);
