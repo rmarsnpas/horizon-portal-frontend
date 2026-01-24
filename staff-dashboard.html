@@ -126,6 +126,27 @@
             background: #4a5568;
         }
 
+        .btn-home {
+            padding: 10px 20px;
+            background: #667eea;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 600;
+            text-decoration: none;
+            display: inline-block;
+        }
+
+        .btn-home:hover {
+            background: #5568d3;
+        }
+
+        .header-buttons {
+            display: flex;
+            gap: 10px;
+        }
+
         .dashboard-grid {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
@@ -251,10 +272,18 @@
                 <h1>📊 Staff Dashboard</h1>
                 <p style="color: #718096; margin-top: 5px;">Welcome to Horizon House Staff Portal</p>
             </div>
-            <button class="btn-logout" onclick="logout()">Logout</button>
+            <div class="header-buttons">
+                <a href="/" class="btn-home">🏠 Home</a>
+                <button class="btn-logout" onclick="logout()">Logout</button>
+            </div>
         </div>
 
         <div id="loading" class="loading">Loading dashboard data...</div>
+
+        <div class="section-header" id="pendingSection" style="display: none;">
+            <h2>⏳ Pending Review</h2>
+            <p>Items requiring staff attention</p>
+        </div>
 
         <div class="dashboard-grid" id="dashboardGrid" style="display: none;">
             <a href="/staff-reviews.html" class="dashboard-card">
@@ -382,6 +411,7 @@
                 document.getElementById('drugScreenCount').textContent = totalDrugScreens;
 
                 document.getElementById('loading').style.display = 'none';
+                document.getElementById('pendingSection').style.display = 'block';
                 document.getElementById('dashboardGrid').style.display = 'grid';
                 document.getElementById('formsSection').style.display = 'block';
                 document.getElementById('formsGrid').style.display = 'grid';
