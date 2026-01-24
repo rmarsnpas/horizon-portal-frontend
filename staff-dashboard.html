@@ -1,0 +1,353 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Staff Dashboard - Horizon House</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .login-container {
+            background: white;
+            padding: 40px;
+            border-radius: 12px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+            max-width: 400px;
+            width: 100%;
+            text-align: center;
+        }
+
+        .login-container h1 {
+            color: #2d3748;
+            margin-bottom: 10px;
+            font-size: 28px;
+        }
+
+        .login-container p {
+            color: #718096;
+            margin-bottom: 30px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+            text-align: left;
+        }
+
+        .form-group label {
+            display: block;
+            color: #4a5568;
+            font-weight: 600;
+            margin-bottom: 8px;
+        }
+
+        .form-group input {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #cbd5e0;
+            border-radius: 6px;
+            font-size: 15px;
+        }
+
+        .form-group input:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .btn-login {
+            width: 100%;
+            padding: 12px;
+            background: #667eea;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+
+        .btn-login:hover {
+            background: #5568d3;
+        }
+
+        .error-message {
+            color: #e53e3e;
+            margin-top: 10px;
+            display: none;
+        }
+
+        .dashboard-container {
+            display: none;
+            max-width: 1200px;
+            width: 100%;
+        }
+
+        .dashboard-header {
+            background: white;
+            padding: 30px;
+            border-radius: 12px;
+            margin-bottom: 30px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .dashboard-header h1 {
+            color: #2d3748;
+            font-size: 32px;
+        }
+
+        .btn-logout {
+            padding: 10px 20px;
+            background: #718096;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 600;
+        }
+
+        .btn-logout:hover {
+            background: #4a5568;
+        }
+
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 25px;
+        }
+
+        .dashboard-card {
+            background: white;
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            text-align: center;
+            cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.2s;
+            text-decoration: none;
+            color: inherit;
+            display: block;
+        }
+
+        .dashboard-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 20px rgba(0,0,0,0.15);
+        }
+
+        .card-icon {
+            font-size: 48px;
+            margin-bottom: 15px;
+        }
+
+        .card-title {
+            font-size: 20px;
+            font-weight: 600;
+            color: #2d3748;
+            margin-bottom: 10px;
+        }
+
+        .card-count {
+            font-size: 36px;
+            font-weight: bold;
+            color: #667eea;
+            margin-bottom: 5px;
+        }
+
+        .card-label {
+            color: #718096;
+            font-size: 14px;
+        }
+
+        .badge {
+            display: inline-block;
+            background: #e53e3e;
+            color: white;
+            padding: 4px 12px;
+            border-radius: 12px;
+            font-size: 14px;
+            font-weight: 600;
+            margin-left: 10px;
+        }
+
+        .badge.zero {
+            background: #48bb78;
+        }
+
+        .loading {
+            text-align: center;
+            color: white;
+            font-size: 18px;
+            margin-top: 20px;
+        }
+
+        @media (max-width: 768px) {
+            .dashboard-header {
+                flex-direction: column;
+                gap: 15px;
+                text-align: center;
+            }
+
+            .dashboard-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Login Form -->
+    <div class="login-container" id="loginContainer">
+        <h1>🔐 Staff Login</h1>
+        <p>Enter password to access staff dashboard</p>
+        <form id="loginForm">
+            <div class="form-group">
+                <label for="password">Password</label>
+                <input type="password" id="password" name="password" required autofocus>
+            </div>
+            <button type="submit" class="btn-login">Login</button>
+            <div class="error-message" id="errorMessage">Incorrect password. Please try again.</div>
+        </form>
+    </div>
+
+    <!-- Dashboard -->
+    <div class="dashboard-container" id="dashboardContainer">
+        <div class="dashboard-header">
+            <div>
+                <h1>📊 Staff Dashboard</h1>
+                <p style="color: #718096; margin-top: 5px;">Welcome to Horizon House Staff Portal</p>
+            </div>
+            <button class="btn-logout" onclick="logout()">Logout</button>
+        </div>
+
+        <div id="loading" class="loading">Loading dashboard data...</div>
+
+        <div class="dashboard-grid" id="dashboardGrid" style="display: none;">
+            <a href="/staff-reviews.html" class="dashboard-card">
+                <div class="card-icon">📋</div>
+                <div class="card-title">Applications</div>
+                <div class="card-count" id="appCount">-</div>
+                <div class="card-label">Pending Review</div>
+            </a>
+
+            <a href="/contact-view.html" class="dashboard-card">
+                <div class="card-icon">📬</div>
+                <div class="card-title">Contact Forms</div>
+                <div class="card-count" id="contactCount">-</div>
+                <div class="card-label">Unread Messages</div>
+            </a>
+
+            <a href="/drug-screen-history.html" class="dashboard-card">
+                <div class="card-icon">🧪</div>
+                <div class="card-title">Drug Screens</div>
+                <div class="card-count" id="drugScreenCount">-</div>
+                <div class="card-label">Total Tests</div>
+            </a>
+
+            <a href="/" class="dashboard-card">
+                <div class="card-icon">🏠</div>
+                <div class="card-title">Home</div>
+                <div class="card-count" style="font-size: 24px; color: #718096;">Visit Site</div>
+                <div class="card-label">Public Website</div>
+            </a>
+        </div>
+    </div>
+
+    <script>
+        const API_BASE = 'https://horizon-portal-backend-production-3532.up.railway.app';
+        const STAFF_PASSWORD = 'horizon2026'; // Change this password
+        const SESSION_KEY = 'horizonStaffAuth';
+
+        // Check if already logged in
+        if (sessionStorage.getItem(SESSION_KEY) === 'true') {
+            showDashboard();
+        }
+
+        document.getElementById('loginForm').addEventListener('submit', (e) => {
+            e.preventDefault();
+            const password = document.getElementById('password').value;
+            const errorMsg = document.getElementById('errorMessage');
+
+            if (password === STAFF_PASSWORD) {
+                sessionStorage.setItem(SESSION_KEY, 'true');
+                showDashboard();
+            } else {
+                errorMsg.style.display = 'block';
+                document.getElementById('password').value = '';
+            }
+        });
+
+        function logout() {
+            sessionStorage.removeItem(SESSION_KEY);
+            document.getElementById('loginContainer').style.display = 'block';
+            document.getElementById('dashboardContainer').style.display = 'none';
+            document.getElementById('password').value = '';
+        }
+
+        async function showDashboard() {
+            document.getElementById('loginContainer').style.display = 'none';
+            document.getElementById('dashboardContainer').style.display = 'block';
+            
+            await loadDashboardData();
+        }
+
+        async function loadDashboardData() {
+            try {
+                // Fetch all data in parallel
+                const [applicationsRes, contactsRes, drugScreensRes] = await Promise.all([
+                    fetch(`${API_BASE}/api/applications`),
+                    fetch(`${API_BASE}/api/contactSubmissions`),
+                    fetch(`${API_BASE}/api/drugScreens`)
+                ]);
+
+                const applications = await applicationsRes.json();
+                const contacts = await contactsRes.json();
+                const drugScreens = await drugScreensRes.json();
+
+                // Count pending applications
+                const pendingApps = applications.filter(app => app.status === 'pending').length;
+                
+                // Count unread contacts
+                const unreadContacts = contacts.filter(c => c.status !== 'read').length;
+                
+                // Total drug screens
+                const totalDrugScreens = drugScreens.length;
+
+                // Update UI
+                document.getElementById('appCount').textContent = pendingApps;
+                document.getElementById('contactCount').textContent = unreadContacts;
+                document.getElementById('drugScreenCount').textContent = totalDrugScreens;
+
+                document.getElementById('loading').style.display = 'none';
+                document.getElementById('dashboardGrid').style.display = 'grid';
+
+            } catch (error) {
+                console.error('Error loading dashboard data:', error);
+                document.getElementById('loading').textContent = 'Error loading data. Please check backend connection.';
+                document.getElementById('loading').style.color = '#e53e3e';
+            }
+        }
+
+        // Auto-refresh every 30 seconds
+        setInterval(() => {
+            if (sessionStorage.getItem(SESSION_KEY) === 'true') {
+                loadDashboardData();
+            }
+        }, 30000);
+    </script>
+</body>
+</html>
