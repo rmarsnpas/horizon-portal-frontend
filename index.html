@@ -124,6 +124,8 @@
         <input id="contact-name" name="contact-name" type="text" required>
         <label for="contact-email"><strong>Email</strong></label>
         <input id="contact-email" name="contact-email" type="email" required>
+        <label for="contact-phone"><strong>Phone</strong></label>
+        <input id="contact-phone" name="contact-phone" type="tel" placeholder="(760) 555-1234">
         <label for="contact-msg"><strong>Message</strong></label>
         <textarea id="contact-msg" name="contact-msg" rows="4" required></textarea>
         <button class="cta" type="submit">Send message</button>
@@ -143,6 +145,7 @@
             const formData = {
               name: document.getElementById('contact-name').value,
               email: document.getElementById('contact-email').value,
+              phone: document.getElementById('contact-phone').value,
               message: document.getElementById('contact-msg').value
             };
             

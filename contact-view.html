@@ -340,6 +340,14 @@
                                     <a href="mailto:${submission.email}" class="email-link">${submission.email}</a>
                                 </div>
                             </div>
+                            ${submission.phone ? `
+                            <div class="detail-row">
+                                <div class="detail-label">Phone:</div>
+                                <div class="detail-value">
+                                    <a href="tel:${submission.phone}" class="email-link">${submission.phone}</a>
+                                </div>
+                            </div>
+                            ` : ''}
                             <div class="detail-row">
                                 <div class="detail-label">Status:</div>
                                 <div class="detail-value">${isRead ? '✓ Read' : '🔵 New'}</div>
