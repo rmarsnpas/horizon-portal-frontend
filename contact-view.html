@@ -259,6 +259,12 @@
             </div>
         </div>
 
+        <div class="filter-buttons">
+            <button class="filter-btn active" onclick="filterSubmissions('all')">Show All</button>
+            <button class="filter-btn" onclick="filterSubmissions('new')">Show New Only</button>
+            <button class="filter-btn" onclick="filterSubmissions('read')">Show Read Only</button>
+        </div>
+
         <div id="error-message"></div>
         <div id="loading" class="loading">Loading submissions...</div>
         <div id="submissions" class="submissions"></div>
@@ -266,6 +272,28 @@
 
     <script>
         const API_BASE = 'https://horizon-portal-backend-production-3532.up.railway.app';
+        let allSubmissions = [];
+        let currentFilter = 'all';
+
+        function filterSubmissions(filter) {
+            currentFilter = filter;
+            
+            // Update active button
+            document.querySelectorAll('.filter-btn').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            event.target.classList.add('active');
+            
+            // Filter and display
+            let filtered = allSubmissions;
+            if (filter === 'new') {
+                filtered = allSubmissions.filter(s => s.status !== 'read');
+            } else if (filter === 'read') {
+                filtered = allSubmissions.filter(s => s.status === 'read');
+            }
+            
+            displaySubmissions(filtered);
+        }
 
         async function loadSubmissions() {
             try {
@@ -277,7 +305,17 @@
                 }
 
                 const submissions = await response.json();
-                displaySubmissions(submissions);
+                allSubmissions = submissions;
+                
+                // Apply current filter
+                let filtered = submissions;
+                if (currentFilter === 'new') {
+                    filtered = submissions.filter(s => s.status !== 'read');
+                } else if (currentFilter === 'read') {
+                    filtered = submissions.filter(s => s.status === 'read');
+                }
+                
+                displaySubmissions(filtered);
             } catch (error) {
                 console.error('Error:', error);
                 document.getElementById('loading').style.display = 'none';
@@ -294,13 +332,13 @@
         function displaySubmissions(submissions) {
             document.getElementById('loading').style.display = 'none';
 
-            // Update stats
-            const newCount = submissions.filter(s => s.status === 'new').length;
-            const readCount = submissions.filter(s => s.status === 'read').length;
+            // Update stats using all submissions, not filtered
+            const allNewCount = allSubmissions.filter(s => s.status !== 'read').length;
+            const allReadCount = allSubmissions.filter(s => s.status === 'read').length;
             
-            document.getElementById('total-count').textContent = submissions.length;
-            document.getElementById('new-count').textContent = newCount;
-            document.getElementById('read-count').textContent = readCount;
+            document.getElementById('total-count').textContent = allSubmissions.length;
+            document.getElementById('new-count').textContent = allNewCount;
+            document.getElementById('read-count').textContent = allReadCount;
 
             const container = document.getElementById('submissions');
 
