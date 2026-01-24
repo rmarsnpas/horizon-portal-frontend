@@ -409,7 +409,7 @@
                     </div>
 
                     <div class="substance-item">
-                        <span>Fentanyl</span>
+                        <span>FENT</span>
                         <div class="result-toggle">
                             <div class="result-negative">
                                 <input type="radio" id="fent-neg" name="fentanyl" value="negative" checked>
@@ -421,14 +421,96 @@
                             </div>
                         </div>
                     </div>
-                </div>
+                    <div class="substance-item">
+                        <span>BAR</span>
+                        <div class="result-toggle">
+                            <div class="result-negative">
+                                <input type="radio" id="bar-neg" name="barbiturates" value="negative" checked>
+                                <label for="bar-neg">NEG</label>
+                            </div>
+                            <div class="result-positive">
+                                <input type="radio" id="bar-pos" name="barbiturates" value="positive">
+                                <label for="bar-pos">POS</label>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="substance-item">
+                        <span>MDMA</span>
+                        <div class="result-toggle">
+                            <div class="result-negative">
+                                <input type="radio" id="mdma-neg" name="mdma" value="negative" checked>
+                                <label for="mdma-neg">NEG</label>
+                            </div>
+                            <div class="result-positive">
+                                <input type="radio" id="mdma-pos" name="mdma" value="positive">
+                                <label for="mdma-pos">POS</label>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="substance-item">
+                        <span>MTD</span>
+                        <div class="result-toggle">
+                            <div class="result-negative">
+                                <input type="radio" id="mtd-neg" name="methadone" value="negative" checked>
+                                <label for="mtd-neg">NEG</label>
+                            </div>
+                            <div class="result-positive">
+                                <input type="radio" id="mtd-pos" name="methadone" value="positive">
+                                <label for="mtd-pos">POS</label>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="substance-item">
+                        <span>OXY</span>
+                        <div class="result-toggle">
+                            <div class="result-negative">
+                                <input type="radio" id="oxy-neg" name="oxycodone" value="negative" checked>
+                                <label for="oxy-neg">NEG</label>
+                            </div>
+                            <div class="result-positive">
+                                <input type="radio" id="oxy-pos" name="oxycodone" value="positive">
+                                <label for="oxy-pos">POS</label>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="substance-item">
+                        <span>PCP</span>
+                        <div class="result-toggle">
+                            <div class="result-negative">
+                                <input type="radio" id="pcp-neg" name="pcp" value="negative" checked>
+                                <label for="pcp-neg">NEG</label>
+                            </div>
+                            <div class="result-positive">
+                                <input type="radio" id="pcp-pos" name="pcp" value="positive">
+                                <label for="pcp-pos">POS</label>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="substance-item">
+                        <span>TCA</span>
+                        <div class="result-toggle">
+                            <div class="result-negative">
+                                <input type="radio" id="tca-neg" name="tca" value="negative" checked>
+                                <label for="tca-neg">NEG</label>
+                            </div>
+                            <div class="result-positive">
+                                <input type="radio" id="tca-pos" name="tca" value="positive">
+                                <label for="tca-pos">POS</label>
+                            </div>
+                        </div>
+                    </div>                </div>
             </div>
 
             <div class="form-section">
                 <h2>Breathalyzer</h2>
                 <div style="display: flex; gap: 20px; align-items: end; flex-wrap: wrap;">
                     <div class="substance-item" style="max-width: 400px; margin-bottom: 0;">
-                        <span>Alcohol</span>
+                        <span>ALCOH</span>
                         <div class="result-toggle">
                             <div class="result-negative">
                                 <input type="radio" id="alc-neg" name="alcohol" value="negative" checked>
@@ -643,6 +725,12 @@
                         methamphetamine: formData.get('methamphetamine'),
                         benzodiazepines: formData.get('benzodiazepines'),
                         fentanyl: formData.get('fentanyl'),
+                        barbiturates: formData.get('barbiturates'),
+                        mdma: formData.get('mdma'),
+                        methadone: formData.get('methadone'),
+                        oxycodone: formData.get('oxycodone'),
+                        pcp: formData.get('pcp'),
+                        tca: formData.get('tca'),
                         alcohol: formData.get('alcohol')
                     },
                     bac: formData.get('bac'),
