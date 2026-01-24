@@ -309,7 +309,7 @@
             try {
                 // Fetch all data in parallel
                 const [applicationsRes, contactsRes, drugScreensRes] = await Promise.all([
-                    fetch(`${API_BASE}/api/applications`),
+                    fetch(`${API_BASE}/api/pendingApplications`),
                     fetch(`${API_BASE}/api/contactSubmissions`),
                     fetch(`${API_BASE}/api/drugScreens`)
                 ]);
@@ -318,8 +318,8 @@
                 const contacts = await contactsRes.json();
                 const drugScreens = await drugScreensRes.json();
 
-                // Count pending applications
-                const pendingApps = applications.filter(app => app.status === 'pending').length;
+                // Count pending applications (already filtered on backend)
+                const pendingApps = applications.length;
                 
                 // Count unread contacts
                 const unreadContacts = contacts.filter(c => c.status !== 'read').length;
