@@ -305,30 +305,41 @@
             body {
                 background: white;
                 padding: 0;
+                font-size: 14px;
             }
 
             .print-header {
-                display: block;
-                text-align: center;
+                display: flex;
+                align-items: center;
+                gap: 20px;
                 padding: 20px;
                 border-bottom: 3px solid #667eea;
                 margin-bottom: 20px;
             }
 
             .print-header img {
-                max-width: 150px;
-                margin-bottom: 10px;
+                max-width: 120px;
+                max-height: 120px;
+                flex-shrink: 0;
+            }
+
+            .print-header-text {
+                flex: 1;
+                text-align: center;
             }
 
             .print-header h1 {
                 color: #2d3748;
-                font-size: 24px;
+                font-size: 42px;
                 margin: 0;
+                font-weight: bold;
             }
 
             .print-header p {
-                color: #718096;
-                margin: 5px 0 0 0;
+                color: #2d3748;
+                margin: 10px 0 0 0;
+                font-size: 24px;
+                font-weight: 600;
             }
 
             .header, .filters, .stats, .nav-links, .btn-print {
@@ -348,6 +359,54 @@
 
             .test-grid {
                 display: block;
+            }
+
+            .test-info h3 {
+                font-size: 20px;
+            }
+
+            .test-info p {
+                font-size: 14px;
+            }
+
+            .test-badge {
+                font-size: 16px;
+                padding: 8px 16px;
+            }
+
+            .detail-label {
+                font-size: 13px;
+            }
+
+            .detail-value {
+                font-size: 15px;
+            }
+
+            .result-item {
+                font-size: 15px;
+                padding: 10px 14px;
+            }
+
+            .result-item:not(.positive) {
+                background: #c6f6d5 !important;
+                color: #22543d !important;
+                font-weight: 600;
+            }
+
+            .result-item.positive {
+                background: #fc8181 !important;
+                color: white !important;
+                font-weight: bold;
+                border: 2px solid #e53e3e;
+                box-shadow: 0 0 0 3px rgba(245, 101, 101, 0.2);
+            }
+
+            .notes-box {
+                font-size: 14px;
+            }
+
+            .signatures-box strong {
+                font-size: 15px;
             }
         }
 
@@ -522,10 +581,11 @@
                 return `
                     <div class="test-card ${test.overallResult}">
                         <div class="print-header">
-                            <img src="/logo.png" alt="Horizon House Logo" onerror="this.style.display='none'">
-                            <h1>Horizon House</h1>
-                            <p>Substance Abuse Treatment & Recovery</p>
-                            <p style="font-size: 14px; margin-top: 10px;">Drug Screen Results</p>
+                            <img src="/hhlogo.png" alt="Horizon House Logo" onerror="this.style.display='none'">
+                            <div class="print-header-text">
+                                <h1>HORIZON HOUSE</h1>
+                                <p>Drug Screen Results</p>
+                            </div>
                         </div>
                         <div class="test-header">
                             <div class="test-info">
