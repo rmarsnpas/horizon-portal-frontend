@@ -1,0 +1,699 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Drug Screen Form - Horizon House</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            padding: 20px;
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        .header {
+            background: white;
+            padding: 25px;
+            border-radius: 12px;
+            margin-bottom: 25px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+
+        .header h1 {
+            color: #2d3748;
+            margin-bottom: 10px;
+        }
+
+        .nav-links {
+            margin-top: 15px;
+        }
+
+        .nav-links a {
+            color: #667eea;
+            text-decoration: none;
+            margin-right: 20px;
+            font-weight: 500;
+        }
+
+        .form-card {
+            background: white;
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            margin-bottom: 20px;
+        }
+
+        .form-section {
+            margin-bottom: 30px;
+        }
+
+        .form-section h2 {
+            color: #2d3748;
+            font-size: 18px;
+            margin-bottom: 15px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #e2e8f0;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        label {
+            display: block;
+            color: #4a5568;
+            font-weight: 500;
+            margin-bottom: 8px;
+        }
+
+        input[type="text"],
+        input[type="date"],
+        input[type="time"],
+        select,
+        textarea {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #cbd5e0;
+            border-radius: 6px;
+            font-size: 15px;
+            transition: border-color 0.2s;
+        }
+
+        input[type="text"]:focus,
+        input[type="date"]:focus,
+        input[type="time"]:focus,
+        select:focus,
+        textarea:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        textarea {
+            resize: vertical;
+            min-height: 80px;
+        }
+
+        .substance-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-bottom: 15px;
+        }
+
+        .substance-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 12px;
+            background: #f7fafc;
+            border-radius: 6px;
+            border: 1px solid #e2e8f0;
+        }
+
+        .substance-item label {
+            margin: 0;
+            font-weight: normal;
+        }
+
+        .result-toggle {
+            display: flex;
+            gap: 10px;
+        }
+
+        .result-toggle input[type="radio"] {
+            display: none;
+        }
+
+        .result-toggle label {
+            padding: 6px 16px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: all 0.2s;
+        }
+
+        .result-negative label {
+            background: #c6f6d5;
+            color: #22543d;
+        }
+
+        .result-positive label {
+            background: #fed7d7;
+            color: #742a2a;
+        }
+
+        .result-toggle input[type="radio"]:checked + label {
+            font-weight: bold;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        .btn {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 6px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .btn-primary {
+            background: #667eea;
+            color: white;
+            width: 100%;
+        }
+
+        .btn-primary:hover {
+            background: #5568d3;
+        }
+
+        .btn-secondary {
+            background: #718096;
+            color: white;
+            margin-right: 10px;
+        }
+
+        .btn-secondary:hover {
+            background: #4a5568;
+        }
+
+        .status-message {
+            padding: 15px;
+            border-radius: 6px;
+            margin-top: 20px;
+            display: none;
+        }
+
+        .status-message.success {
+            background: #c6f6d5;
+            color: #22543d;
+            display: block;
+        }
+
+        .status-message.error {
+            background: #fed7d7;
+            color: #742a2a;
+            display: block;
+        }
+
+        .button-group {
+            display: flex;
+            gap: 10px;
+            margin-top: 20px;
+        }
+
+        .signature-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+            margin-top: 20px;
+        }
+
+        .signature-box {
+            border: 2px solid #cbd5e0;
+            border-radius: 6px;
+            padding: 10px;
+            background: #f7fafc;
+        }
+
+        .signature-box label {
+            display: block;
+            margin-bottom: 8px;
+            color: #4a5568;
+            font-weight: 600;
+        }
+
+        .signature-canvas {
+            width: 100%;
+            height: 150px;
+            border: 2px dashed #cbd5e0;
+            border-radius: 4px;
+            background: white;
+            cursor: crosshair;
+            touch-action: none;
+        }
+
+        .btn-clear {
+            margin-top: 8px;
+            padding: 6px 12px;
+            background: #e53e3e;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 14px;
+        }
+
+        .btn-clear:hover {
+            background: #c53030;
+        }
+
+        @media (max-width: 768px) {
+            .substance-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .signature-container {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🧪 Drug Screen Form</h1>
+            <p>Record member drug test results</p>
+            <div class="nav-links">
+                <a href="/drug-screen-history.html">View Test History</a>
+                <a href="/staff-reviews.html">Applications</a>
+                <a href="/">Home</a>
+            </div>
+        </div>
+
+        <form id="drugScreenForm" class="form-card">
+            <div class="form-section">
+                <h2>Member Information</h2>
+                <div class="form-group">
+                    <label for="memberId">Member ID *</label>
+                    <input type="text" id="memberId" name="memberId" required>
+                </div>
+                <div class="form-group">
+                    <label for="memberName">Member Name *</label>
+                    <input type="text" id="memberName" name="memberName" required>
+                </div>
+            </div>
+
+            <div class="form-section">
+                <h2>Test Information</h2>
+                <div class="form-group">
+                    <label for="testDate">Test Date *</label>
+                    <input type="date" id="testDate" name="testDate" required>
+                </div>
+                <div class="form-group">
+                    <label for="testTime">Test Time *</label>
+                    <input type="time" id="testTime" name="testTime" required>
+                </div>
+                <div class="form-group">
+                    <label for="testType">Test Type *</label>
+                    <select id="testType" name="testType" required>
+                        <option value="">Select test type...</option>
+                        <option value="urine">Urine Test</option>
+                        <option value="saliva">Saliva Test</option>
+                        <option value="blood">Blood Test</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="staffName">Staff Member Conducting Test *</label>
+                    <input type="text" id="staffName" name="staffName" required>
+                </div>
+            </div>
+
+            <div class="form-section">
+                <h2>Test Results</h2>
+                <div class="substance-grid">
+                    <div class="substance-item">
+                        <span>Marijuana (THC)</span>
+                        <div class="result-toggle">
+                            <div class="result-negative">
+                                <input type="radio" id="thc-neg" name="thc" value="negative" checked>
+                                <label for="thc-neg">NEG</label>
+                            </div>
+                            <div class="result-positive">
+                                <input type="radio" id="thc-pos" name="thc" value="positive">
+                                <label for="thc-pos">POS</label>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="substance-item">
+                        <span>Cocaine</span>
+                        <div class="result-toggle">
+                            <div class="result-negative">
+                                <input type="radio" id="coc-neg" name="cocaine" value="negative" checked>
+                                <label for="coc-neg">NEG</label>
+                            </div>
+                            <div class="result-positive">
+                                <input type="radio" id="coc-pos" name="cocaine" value="positive">
+                                <label for="coc-pos">POS</label>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="substance-item">
+                        <span>Opiates</span>
+                        <div class="result-toggle">
+                            <div class="result-negative">
+                                <input type="radio" id="opi-neg" name="opiates" value="negative" checked>
+                                <label for="opi-neg">NEG</label>
+                            </div>
+                            <div class="result-positive">
+                                <input type="radio" id="opi-pos" name="opiates" value="positive">
+                                <label for="opi-pos">POS</label>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="substance-item">
+                        <span>Amphetamines</span>
+                        <div class="result-toggle">
+                            <div class="result-negative">
+                                <input type="radio" id="amp-neg" name="amphetamines" value="negative" checked>
+                                <label for="amp-neg">NEG</label>
+                            </div>
+                            <div class="result-positive">
+                                <input type="radio" id="amp-pos" name="amphetamines" value="positive">
+                                <label for="amp-pos">POS</label>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="substance-item">
+                        <span>Methamphetamine</span>
+                        <div class="result-toggle">
+                            <div class="result-negative">
+                                <input type="radio" id="meth-neg" name="methamphetamine" value="negative" checked>
+                                <label for="meth-neg">NEG</label>
+                            </div>
+                            <div class="result-positive">
+                                <input type="radio" id="meth-pos" name="methamphetamine" value="positive">
+                                <label for="meth-pos">POS</label>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="substance-item">
+                        <span>Benzodiazepines</span>
+                        <div class="result-toggle">
+                            <div class="result-negative">
+                                <input type="radio" id="benzo-neg" name="benzodiazepines" value="negative" checked>
+                                <label for="benzo-neg">NEG</label>
+                            </div>
+                            <div class="result-positive">
+                                <input type="radio" id="benzo-pos" name="benzodiazepines" value="positive">
+                                <label for="benzo-pos">POS</label>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="substance-item">
+                        <span>Fentanyl</span>
+                        <div class="result-toggle">
+                            <div class="result-negative">
+                                <input type="radio" id="fent-neg" name="fentanyl" value="negative" checked>
+                                <label for="fent-neg">NEG</label>
+                            </div>
+                            <div class="result-positive">
+                                <input type="radio" id="fent-pos" name="fentanyl" value="positive">
+                                <label for="fent-pos">POS</label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="form-section">
+                <h2>Breathalyzer</h2>
+                <div style="display: flex; gap: 20px; align-items: end; flex-wrap: wrap;">
+                    <div class="substance-item" style="max-width: 400px; margin-bottom: 0;">
+                        <span>Alcohol</span>
+                        <div class="result-toggle">
+                            <div class="result-negative">
+                                <input type="radio" id="alc-neg" name="alcohol" value="negative" checked>
+                                <label for="alc-neg">NEG</label>
+                            </div>
+                            <div class="result-positive">
+                                <input type="radio" id="alc-pos" name="alcohol" value="positive">
+                                <label for="alc-pos">POS</label>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-group" style="flex: 1; min-width: 200px; margin-bottom: 0;">
+                        <label for="bac">Blood Alcohol Content (BAC)</label>
+                        <input type="text" id="bac" name="bac" placeholder="Enter BAC (e.g., 0.00)">
+                    </div>
+                </div>
+            </div>
+
+            <div class="form-section">
+                <h2>Other Substances</h2>
+                <div class="form-group">
+                    <label for="otherSubstances">Additional Substances Not Listed</label>
+                    <textarea id="otherSubstances" name="otherSubstances" placeholder="Enter any additional substances tested and results..."></textarea>
+                </div>
+            </div>
+
+            <div class="form-section">
+                <h2>Additional Information</h2>
+                <div class="form-group">
+                    <label for="notes">Notes / Comments</label>
+                    <textarea id="notes" name="notes" placeholder="Any additional observations, circumstances, or follow-up actions..."></textarea>
+                </div>
+                <div class="form-group">
+                    <label for="actionTaken">Action Taken</label>
+                    <select id="actionTaken" name="actionTaken">
+                        <option value="">Select action...</option>
+                        <option value="none">None - All Negative</option>
+                        <option value="warning">Verbal Warning</option>
+                        <option value="written-warning">Written Warning</option>
+                        <option value="counseling">Referred to Counseling</option>
+                        <option value="probation">Placed on Probation</option>
+                        <option value="discharge">Discharged from Program</option>
+                        <option value="other">Other (see notes)</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="form-section">
+                <h2>Signatures</h2>
+                <p style="color: #718096; margin-bottom: 15px;">Sign below using touch or mouse</p>
+                <div class="signature-container">
+                    <div class="signature-box">
+                        <label for="staffSignature">Staff Member Signature *</label>
+                        <canvas id="staffSignature" class="signature-canvas" width="400" height="150"></canvas>
+                        <button type="button" class="btn-clear" onclick="clearSignature('staffSignature')">Clear</button>
+                    </div>
+                    <div class="signature-box">
+                        <label for="memberSignature">Member Signature *</label>
+                        <canvas id="memberSignature" class="signature-canvas" width="400" height="150"></canvas>
+                        <button type="button" class="btn-clear" onclick="clearSignature('memberSignature')">Clear</button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="button-group">
+                <button type="submit" class="btn btn-primary">Submit Drug Screen</button>
+            </div>
+
+            <div id="statusMessage" class="status-message"></div>
+        </form>
+    </div>
+
+    <script>
+        const API_BASE = 'https://horizon-portal-backend-production-3532.up.railway.app';
+
+        // Signature pad functionality
+        const signaturePads = {};
+
+        function initSignaturePad(canvasId) {
+            const canvas = document.getElementById(canvasId);
+            const ctx = canvas.getContext('2d');
+            let isDrawing = false;
+            let lastX = 0;
+            let lastY = 0;
+
+            signaturePads[canvasId] = { canvas, ctx, hasSignature: false };
+
+            function getCoordinates(e) {
+                const rect = canvas.getBoundingClientRect();
+                const scaleX = canvas.width / rect.width;
+                const scaleY = canvas.height / rect.height;
+                
+                if (e.touches && e.touches[0]) {
+                    return {
+                        x: (e.touches[0].clientX - rect.left) * scaleX,
+                        y: (e.touches[0].clientY - rect.top) * scaleY
+                    };
+                }
+                return {
+                    x: (e.clientX - rect.left) * scaleX,
+                    y: (e.clientY - rect.top) * scaleY
+                };
+            }
+
+            function startDrawing(e) {
+                e.preventDefault();
+                isDrawing = true;
+                const coords = getCoordinates(e);
+                lastX = coords.x;
+                lastY = coords.y;
+                signaturePads[canvasId].hasSignature = true;
+            }
+
+            function draw(e) {
+                if (!isDrawing) return;
+                e.preventDefault();
+                
+                const coords = getCoordinates(e);
+                ctx.strokeStyle = '#000';
+                ctx.lineWidth = 2;
+                ctx.lineCap = 'round';
+                ctx.lineJoin = 'round';
+                
+                ctx.beginPath();
+                ctx.moveTo(lastX, lastY);
+                ctx.lineTo(coords.x, coords.y);
+                ctx.stroke();
+                
+                lastX = coords.x;
+                lastY = coords.y;
+            }
+
+            function stopDrawing() {
+                isDrawing = false;
+            }
+
+            // Mouse events
+            canvas.addEventListener('mousedown', startDrawing);
+            canvas.addEventListener('mousemove', draw);
+            canvas.addEventListener('mouseup', stopDrawing);
+            canvas.addEventListener('mouseout', stopDrawing);
+
+            // Touch events
+            canvas.addEventListener('touchstart', startDrawing);
+            canvas.addEventListener('touchmove', draw);
+            canvas.addEventListener('touchend', stopDrawing);
+        }
+
+        function clearSignature(canvasId) {
+            const pad = signaturePads[canvasId];
+            if (pad) {
+                pad.ctx.clearRect(0, 0, pad.canvas.width, pad.canvas.height);
+                pad.hasSignature = false;
+            }
+        }
+
+        function getSignatureData(canvasId) {
+            const pad = signaturePads[canvasId];
+            if (pad && pad.hasSignature) {
+                return pad.canvas.toDataURL('image/png');
+            }
+            return null;
+        }
+
+        // Set default date and time to now
+        document.addEventListener('DOMContentLoaded', () => {
+            const now = new Date();
+            document.getElementById('testDate').valueAsDate = now;
+            document.getElementById('testTime').value = now.toTimeString().slice(0, 5);
+            
+            // Initialize signature pads
+            initSignaturePad('staffSignature');
+            initSignaturePad('memberSignature');
+        });
+
+        document.getElementById('drugScreenForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const statusDiv = document.getElementById('statusMessage');
+            const submitBtn = e.target.querySelector('button[type="submit"]');
+            
+            // Validate signatures
+            const staffSig = getSignatureData('staffSignature');
+            const memberSig = getSignatureData('memberSignature');
+            
+            if (!staffSig || !memberSig) {
+                statusDiv.textContent = '✗ Please provide both staff and member signatures';
+                statusDiv.className = 'status-message error';
+                statusDiv.style.display = 'block';
+                return;
+            }
+            
+            statusDiv.textContent = 'Submitting...';
+            statusDiv.className = 'status-message';
+            statusDiv.style.display = 'block';
+            submitBtn.disabled = true;
+
+            try {
+                const formData = new FormData(e.target);
+                const data = {
+                    memberId: formData.get('memberId'),
+                    memberName: formData.get('memberName'),
+                    testDate: formData.get('testDate'),
+                    testTime: formData.get('testTime'),
+                    testType: formData.get('testType'),
+                    staffName: formData.get('staffName'),
+                    results: {
+                        thc: formData.get('thc'),
+                        cocaine: formData.get('cocaine'),
+                        opiates: formData.get('opiates'),
+                        amphetamines: formData.get('amphetamines'),
+                        methamphetamine: formData.get('methamphetamine'),
+                        benzodiazepines: formData.get('benzodiazepines'),
+                        fentanyl: formData.get('fentanyl'),
+                        alcohol: formData.get('alcohol')
+                    },
+                    bac: formData.get('bac'),
+                    otherSubstances: formData.get('otherSubstances'),
+                    notes: formData.get('notes'),
+                    actionTaken: formData.get('actionTaken'),
+                    staffSignature: staffSig,
+                    memberSignature: memberSig,
+                    timestamp: new Date().toISOString()
+                };
+
+                // Check if any positive results
+                const hasPositive = Object.values(data.results).some(result => result === 'positive');
+                data.overallResult = hasPositive ? 'positive' : 'negative';
+
+                const response = await fetch(`${API_BASE}/api/drugScreen`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(data)
+                });
+
+                const result = await response.json();
+
+                if (response.ok) {
+                    statusDiv.textContent = '✓ Drug screen submitted successfully!';
+                    statusDiv.className = 'status-message success';
+                    e.target.reset();
+                    
+                    // Clear signatures
+                    clearSignature('staffSignature');
+                    clearSignature('memberSignature');
+                    
+                    // Reset date/time to now
+                    const now = new Date();
+                    document.getElementById('testDate').valueAsDate = now;
+                    document.getElementById('testTime').value = now.toTimeString().slice(0, 5);
+                    
+                    submitBtn.disabled = false;
+                    
+                    setTimeout(() => {
+                        statusDiv.style.display = 'none';
+                    }, 5000);
+                } else {
+                    throw new Error(result.error || 'Failed to submit drug screen');
+                }
+            } catch (error) {
+                statusDiv.textContent = '✗ Error: ' + error.message;
+                statusDiv.className = 'status-message error';
+                submitBtn.disabled = false;
+            }
+        });
+    </script>
+</body>
+</html>

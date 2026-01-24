@@ -1,0 +1,598 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Drug Screen History - Horizon House</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            padding: 20px;
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        .header {
+            background: white;
+            padding: 25px;
+            border-radius: 12px;
+            margin-bottom: 25px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+
+        .header h1 {
+            color: #2d3748;
+            margin-bottom: 10px;
+        }
+
+        .nav-links {
+            margin-top: 15px;
+        }
+
+        .nav-links a {
+            color: #667eea;
+            text-decoration: none;
+            margin-right: 20px;
+            font-weight: 500;
+        }
+
+        .filters {
+            background: white;
+            padding: 20px;
+            border-radius: 12px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        .filter-group {
+            display: flex;
+            gap: 15px;
+            flex-wrap: wrap;
+            align-items: end;
+        }
+
+        .filter-item {
+            flex: 1;
+            min-width: 200px;
+        }
+
+        .filter-item label {
+            display: block;
+            color: #4a5568;
+            font-weight: 500;
+            margin-bottom: 5px;
+            font-size: 14px;
+        }
+
+        .filter-item input,
+        .filter-item select {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #cbd5e0;
+            border-radius: 6px;
+        }
+
+        .btn-filter {
+            padding: 10px 20px;
+            background: #667eea;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 500;
+        }
+
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-bottom: 25px;
+        }
+
+        .stat-card {
+            background: white;
+            padding: 20px;
+            border-radius: 12px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        .stat-card h3 {
+            color: #718096;
+            font-size: 14px;
+            margin-bottom: 8px;
+        }
+
+        .stat-card p {
+            color: #2d3748;
+            font-size: 28px;
+            font-weight: bold;
+        }
+
+        .test-grid {
+            display: grid;
+            gap: 15px;
+        }
+
+        .test-card {
+            background: white;
+            padding: 20px;
+            border-radius: 12px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        .test-card.positive {
+            border-left: 4px solid #f56565;
+        }
+
+        .test-card.negative {
+            border-left: 4px solid #48bb78;
+        }
+
+        .test-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: start;
+            margin-bottom: 15px;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        .test-info h3 {
+            color: #2d3748;
+            font-size: 18px;
+            margin-bottom: 5px;
+        }
+
+        .test-info p {
+            color: #718096;
+            font-size: 14px;
+        }
+
+        .test-badge {
+            padding: 6px 12px;
+            border-radius: 6px;
+            font-weight: 600;
+            font-size: 14px;
+        }
+
+        .test-badge.negative {
+            background: #c6f6d5;
+            color: #22543d;
+        }
+
+        .test-badge.positive {
+            background: #fed7d7;
+            color: #742a2a;
+        }
+
+        .test-details {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 15px;
+            margin-top: 15px;
+        }
+
+        .detail-box {
+            background: #f7fafc;
+            padding: 12px;
+            border-radius: 6px;
+        }
+
+        .detail-label {
+            color: #718096;
+            font-size: 12px;
+            font-weight: 500;
+            margin-bottom: 4px;
+        }
+
+        .detail-value {
+            color: #2d3748;
+            font-size: 14px;
+        }
+
+        .results-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 10px;
+            margin-top: 15px;
+        }
+
+        .result-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 8px 12px;
+            background: #f7fafc;
+            border-radius: 4px;
+            font-size: 14px;
+        }
+
+        .result-item.positive {
+            background: #fed7d7;
+            color: #742a2a;
+            font-weight: 600;
+        }
+
+        .notes-box {
+            margin-top: 15px;
+            padding: 12px;
+            background: #fffaf0;
+            border-left: 3px solid #f6ad55;
+            border-radius: 4px;
+        }
+
+        .notes-box strong {
+            color: #744210;
+            display: block;
+            margin-bottom: 5px;
+        }
+
+        .signatures-box {
+            margin-top: 20px;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            padding: 15px;
+            background: #f7fafc;
+            border-radius: 6px;
+        }
+
+        .signature-display {
+            text-align: center;
+        }
+
+        .signature-display strong {
+            display: block;
+            color: #4a5568;
+            margin-bottom: 8px;
+            font-size: 14px;
+        }
+
+        .signature-display img {
+            max-width: 100%;
+            height: auto;
+            border: 1px solid #cbd5e0;
+            border-radius: 4px;
+            background: white;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 40px;
+            color: white;
+            font-size: 18px;
+        }
+
+        .empty-state {
+            background: white;
+            padding: 60px 20px;
+            border-radius: 12px;
+            text-align: center;
+        }
+
+        .btn-print {
+            padding: 8px 16px;
+            background: #4299e1;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 500;
+            font-size: 14px;
+            margin-top: 10px;
+        }
+
+        .btn-print:hover {
+            background: #3182ce;
+        }
+
+        .print-header {
+            display: none;
+        }
+
+        @media print {
+            body {
+                background: white;
+                padding: 0;
+            }
+
+            .print-header {
+                display: block;
+                text-align: center;
+                padding: 20px;
+                border-bottom: 3px solid #667eea;
+                margin-bottom: 20px;
+            }
+
+            .print-header img {
+                max-width: 150px;
+                margin-bottom: 10px;
+            }
+
+            .print-header h1 {
+                color: #2d3748;
+                font-size: 24px;
+                margin: 0;
+            }
+
+            .print-header p {
+                color: #718096;
+                margin: 5px 0 0 0;
+            }
+
+            .header, .filters, .stats, .nav-links, .btn-print {
+                display: none;
+            }
+
+            .container {
+                max-width: 100%;
+            }
+
+            .test-card {
+                page-break-inside: avoid;
+                box-shadow: none;
+                border: 1px solid #e2e8f0;
+                margin-bottom: 20px;
+            }
+
+            .test-grid {
+                display: block;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .test-details {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🧪 Drug Screen History</h1>
+            <p>View and search member drug test records</p>
+            <div class="nav-links">
+                <a href="/drug-screen.html">+ New Drug Screen</a>
+                <a href="/staff-reviews.html">Applications</a>
+                <a href="/">Home</a>
+            </div>
+        </div>
+
+        <div class="filters">
+            <div class="filter-group">
+                <div class="filter-item">
+                    <label>Member ID</label>
+                    <input type="text" id="filterMemberId" placeholder="Search by ID...">
+                </div>
+                <div class="filter-item">
+                    <label>Member Name</label>
+                    <input type="text" id="filterMemberName" placeholder="Search by name...">
+                </div>
+                <div class="filter-item">
+                    <label>Result</label>
+                    <select id="filterResult">
+                        <option value="">All Results</option>
+                        <option value="negative">Negative Only</option>
+                        <option value="positive">Positive Only</option>
+                    </select>
+                </div>
+                <button class="btn-filter" onclick="applyFilters()">Apply Filters</button>
+            </div>
+        </div>
+
+        <div class="stats">
+            <div class="stat-card">
+                <h3>Total Tests</h3>
+                <p id="totalTests">0</p>
+            </div>
+            <div class="stat-card">
+                <h3>Negative Results</h3>
+                <p id="negativeTests" style="color: #48bb78;">0</p>
+            </div>
+            <div class="stat-card">
+                <h3>Positive Results</h3>
+                <p id="positiveTests" style="color: #f56565;">0</p>
+            </div>
+        </div>
+
+        <div id="loading" class="loading">Loading test records...</div>
+        <div id="testGrid" class="test-grid"></div>
+    </div>
+
+    <script>
+        const API_BASE = 'https://horizon-portal-backend-production-3532.up.railway.app';
+        let allTests = [];
+
+        async function loadTests() {
+            try {
+                const response = await fetch(`${API_BASE}/api/drugScreens`);
+                
+                if (!response.ok) {
+                    throw new Error('Failed to load test records');
+                }
+
+                allTests = await response.json();
+                displayTests(allTests);
+            } catch (error) {
+                console.error('Error:', error);
+                document.getElementById('loading').textContent = 'Error loading test records: ' + error.message;
+            }
+        }
+
+        function applyFilters() {
+            const memberId = document.getElementById('filterMemberId').value.toLowerCase();
+            const memberName = document.getElementById('filterMemberName').value.toLowerCase();
+            const result = document.getElementById('filterResult').value;
+
+            let filtered = allTests;
+
+            if (memberId) {
+                filtered = filtered.filter(t => t.memberId.toLowerCase().includes(memberId));
+            }
+
+            if (memberName) {
+                filtered = filtered.filter(t => t.memberName.toLowerCase().includes(memberName));
+            }
+
+            if (result) {
+                filtered = filtered.filter(t => t.overallResult === result);
+            }
+
+            displayTests(filtered);
+        }
+
+        function displayTests(tests) {
+            document.getElementById('loading').style.display = 'none';
+
+            // Update stats
+            const negativeCount = tests.filter(t => t.overallResult === 'negative').length;
+            const positiveCount = tests.filter(t => t.overallResult === 'positive').length;
+            
+            document.getElementById('totalTests').textContent = tests.length;
+            document.getElementById('negativeTests').textContent = negativeCount;
+            document.getElementById('positiveTests').textContent = positiveCount;
+
+            const container = document.getElementById('testGrid');
+
+            if (tests.length === 0) {
+                container.innerHTML = `
+                    <div class="empty-state">
+                        <h2>No test records found</h2>
+                        <p>Drug screen results will appear here</p>
+                    </div>
+                `;
+                return;
+            }
+
+            // Sort by newest first
+            tests.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
+
+            container.innerHTML = tests.map(test => {
+                const date = new Date(test.testDate);
+                const timestamp = new Date(test.timestamp);
+                
+                // Get positive results
+                const positiveResults = Object.entries(test.results)
+                    .filter(([_, value]) => value === 'positive')
+                    .map(([key, _]) => key);
+
+                const resultsHTML = Object.entries(test.results).map(([substance, result]) => `
+                    <div class="result-item ${result}">
+                        <span>${substance.toUpperCase()}</span>
+                        <span>${result === 'positive' ? '⚠️ POS' : '✓ NEG'}</span>
+                    </div>
+                `).join('');
+
+                const notesHTML = test.notes ? `
+                    <div class="notes-box">
+                        <strong>Notes:</strong>
+                        ${test.notes}
+                    </div>
+                ` : '';
+
+                const signaturesHTML = (test.staffSignature || test.memberSignature) ? `
+                    <div class="signatures-box">
+                        ${test.staffSignature ? `
+                            <div class="signature-display">
+                                <strong>Staff Signature</strong>
+                                <img src="${test.staffSignature}" alt="Staff Signature">
+                            </div>
+                        ` : ''}
+                        ${test.memberSignature ? `
+                            <div class="signature-display">
+                                <strong>Member Signature</strong>
+                                <img src="${test.memberSignature}" alt="Member Signature">
+                            </div>
+                        ` : ''}
+                    </div>
+                ` : '';
+
+                return `
+                    <div class="test-card ${test.overallResult}">
+                        <div class="print-header">
+                            <img src="/logo.png" alt="Horizon House Logo" onerror="this.style.display='none'">
+                            <h1>Horizon House</h1>
+                            <p>Substance Abuse Treatment & Recovery</p>
+                            <p style="font-size: 14px; margin-top: 10px;">Drug Screen Results</p>
+                        </div>
+                        <div class="test-header">
+                            <div class="test-info">
+                                <h3>${test.memberName} (ID: ${test.memberId})</h3>
+                                <p>Tested: ${date.toLocaleDateString()} at ${test.testTime} | Recorded: ${timestamp.toLocaleString()}</p>
+                            </div>
+                            <div class="test-badge ${test.overallResult}">
+                                ${test.overallResult === 'positive' ? '⚠️ POSITIVE' : '✓ NEGATIVE'}
+                            </div>
+                        </div>
+
+                        <div class="test-details">
+                            <div class="detail-box">
+                                <div class="detail-label">Test Type</div>
+                                <div class="detail-value">${test.testType}</div>
+                            </div>
+                            <div class="detail-box">
+                                <div class="detail-label">Staff Member</div>
+                                <div class="detail-value">${test.staffName}</div>
+                            </div>
+                            <div class="detail-box">
+                                <div class="detail-label">Action Taken</div>
+                                <div class="detail-value">${test.actionTaken || 'None'}</div>
+                            </div>
+                        </div>
+
+                        <div class="results-grid">
+                            ${resultsHTML}
+                        </div>
+
+                        ${notesHTML}
+
+                        ${signaturesHTML}
+
+                        <button class="btn-print" onclick="printTest(this)">🖨️ Print / Save as PDF</button>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        function printTest(button) {
+            // Hide all other test cards temporarily
+            const allCards = document.querySelectorAll('.test-card');
+            const currentCard = button.closest('.test-card');
+            
+            allCards.forEach(card => {
+                if (card !== currentCard) {
+                    card.style.display = 'none';
+                }
+            });
+
+            // Print
+            window.print();
+
+            // Restore all cards
+            setTimeout(() => {
+                allCards.forEach(card => {
+                    card.style.display = 'block';
+                });
+            }, 100);
+        }
+
+        // Load tests on page load
+        loadTests();
+
+        // Auto-refresh every 30 seconds
+        setInterval(loadTests, 30000);
+    </script>
+</body>
+</html>
