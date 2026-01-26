@@ -50,6 +50,7 @@
     .hover-box:hover{box-shadow:0 6px 16px rgba(0,0,0,0.15);transform:translateY(-4px)}
     .hover-text{max-height:0;overflow:hidden;opacity:0;transition:max-height 0.4s ease,opacity 0.3s ease,margin-top 0.3s ease}
     .hover-box:hover .hover-text{max-height:200px;opacity:1;margin-top:0.5rem}
+    .hover-box.scroll-active .hover-text{max-height:200px;opacity:1;margin-top:0.5rem}
     
     /* Construction Banner */
     .construction-banner{background:linear-gradient(90deg,#ff9800,#ff5722,#ff9800);color:#fff;padding:0.8rem;text-align:center;font-weight:600;font-size:0.95rem;overflow:hidden;position:relative}
@@ -382,6 +383,29 @@
     button.classList.toggle('active');
     const content = button.nextElementSibling;
     content.classList.toggle('active');
+  }
+
+  // Auto-expand boxes on scroll (mobile)
+  if (window.innerWidth <= 768) {
+    const observerOptions = {
+      threshold: 0.5,
+      rootMargin: '0px'
+    };
+
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          entry.target.classList.add('scroll-active');
+        } else {
+          entry.target.classList.remove('scroll-active');
+        }
+      });
+    }, observerOptions);
+
+    // Observe all hover boxes
+    document.querySelectorAll('.hover-box').forEach(box => {
+      observer.observe(box);
+    });
   }
 </script>
   </p>
