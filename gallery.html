@@ -15,6 +15,7 @@
     nav{display:flex;align-items:center;justify-content:space-between}
     nav ul{list-style:none;display:flex;gap:.75rem;margin:0;padding:0}
     nav a{color:#fff;font-weight:600;text-decoration:none}
+    .cta{background:var(--amber);color:#1d1d1d;padding:.8rem 1.4rem;border-radius:.5rem;border:none;font-weight:700;cursor:pointer;font-size:1.1rem}
     .section h2{font-family:Inter;font-size:1.8rem;margin-bottom:.5rem}
     .gallery-grid{
       display:grid;
@@ -28,6 +29,13 @@
       box-shadow:0 2px 6px rgba(0,0,0,.08);
     }
     footer{background:#1f2530;color:#cfd6e6;padding:2rem 0;margin-top:2rem;text-align:center}
+    
+    /* Construction Banner */
+    .construction-banner{background:linear-gradient(90deg,#ff9800,#ff5722,#ff9800);color:#fff;padding:0.8rem;text-align:center;font-weight:600;font-size:0.95rem;overflow:hidden;position:relative}
+    .construction-banner::before{content:'🚧';margin-right:8px}
+    .construction-banner::after{content:'🚧';margin-left:8px}
+    .banner-text{display:inline-block;animation:slide 20s linear infinite}
+    @keyframes slide{0%{transform:translateX(100%);}100%{transform:translateX(-100%);}}
   </style>
 </head>
 
@@ -42,24 +50,33 @@
         <li><a href="what-to-bring.html">What to Bring</a></li>
         <li><a href="#contact">Contact</a></li>
       </ul>
+      <button class="cta">760.766.0300</button>
     </nav>
   </div>
 </header>
+
+<div class="construction-banner">
+  <span class="banner-text">Check back here often as this website is under construction and pages are being updated daily.</span>
+</div>
 
 <main class="wrap section">
   <h2>Photo Gallery</h2>
   <p>Take a look inside our clean, spacious, community‑focused homes.</p>
 
   <div class="gallery-grid">
-    <img src="livingroom1.jpg" alt="Living room interior">
-    <img src="kitchen1.jpg" alt="Kitchen area">
+    <img src="livingroom1.jpg" alt="Living room women's house">
+    <img src="kitchen1.jpg" alt="Kitchen women's house">
     <img src="bedroom1.jpg" alt="Bedroom">
     <img src="bedroom2.jpg" alt="Bedroom">
-    <img src="kit 351.jpg" alt="Kitchen 351">
+    <img src="kit 351.jpg" alt="Kitchen men's house">
     <img src="fire1.jpg" alt="House meeting">
+    <img src="dining 351.jpg" alt="Dining room men's house">
+    <img src="lr 351.jpg" alt="Livingroom men's house">
     <img src="gameroom.jpg" alt="Gameroom">
+    <img src="pool321.jpg" alt="Pool women's house">
+    <img src="pool351.jpg" alt="Pool men's house">
     <img src="gym.jpg" alt="Gym">
-    <img src="pool.jpg" alt="One of the pools">
+    
     <!-- Add as many photos as you want -->
   </div>
 </main>

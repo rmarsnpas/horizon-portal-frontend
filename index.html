@@ -20,7 +20,7 @@
     nav{display:flex;align-items:center;gap:1rem;justify-content:space-between}
     nav ul{list-style:none;display:flex;gap:.75rem;margin:0;padding:0}
     nav a{color:#fff;font-weight:600}
-    .cta{background:var(--amber);color:#1d1d1d;padding:.6rem 1rem;border-radius:.5rem;border:none;font-weight:10px}
+    .cta{background:var(--amber);color:#1d1d1d;padding:.8rem 1.4rem;border-radius:.5rem;border:none;font-weight:700;cursor:pointer;font-size:1.1rem}
     .hero{padding:4rem 0;text-align:center}
     .hero h1{font-family:Inter,system-ui;font-size:2.2rem;margin:.5rem 0}
     .hero p{max-width:720px;margin:0 auto 1rem}
@@ -34,6 +34,59 @@
     form{display:grid;gap:.75rem;max-width:640px}
     input,textarea,select{padding:.6rem;border:1px solid #c9c9c9;border-radius:.4rem;font-size:1rem}
     .error{color:var(--red)}
+    
+    /* Expandable Section */
+    .expandable-section{background:#fff;padding:2rem;margin:2rem auto;border-radius:8px;max-width:900px;box-shadow:0 2px 8px rgba(0,0,0,0.08)}
+    .expand-button{background:linear-gradient(135deg,#003366,#004d99);color:#fff;border:none;padding:1.2rem 2rem;font-size:1.1rem;font-weight:600;border-radius:8px;cursor:pointer;width:100%;text-align:left;display:flex;justify-content:space-between;align-items:center;transition:all 0.3s}
+    .expand-button:hover{background:linear-gradient(135deg,#004d99,#003366);transform:translateY(-2px);box-shadow:0 4px 12px rgba(0,51,102,0.3)}
+    .expand-button::after{content:'▼';font-size:1rem;transition:transform 0.3s}
+    .expand-button.active::after{transform:rotate(180deg)}
+    .expandable-content{max-height:0;overflow:hidden;transition:max-height 0.5s ease-out}
+    .expandable-content.active{max-height:5000px;transition:max-height 0.8s ease-in}
+    .expandable-content > div{padding-top:1.5rem}
+    
+    /* Hover boxes */
+    .hover-box{transition:all 0.3s ease;cursor:pointer;background:#fff;border-radius:8px;box-shadow:0 2px 4px rgba(0,0,0,0.1)}
+    .hover-box:hover{box-shadow:0 6px 16px rgba(0,0,0,0.15);transform:translateY(-4px)}
+    .hover-text{max-height:0;overflow:hidden;opacity:0;transition:max-height 0.4s ease,opacity 0.3s ease,margin-top 0.3s ease}
+    .hover-box:hover .hover-text{max-height:200px;opacity:1;margin-top:0.5rem}
+    
+    /* Construction Banner */
+    .construction-banner{background:linear-gradient(90deg,#ff9800,#ff5722,#ff9800);color:#fff;padding:0.8rem;text-align:center;font-weight:600;font-size:0.95rem;overflow:hidden;position:relative}
+    .construction-banner::before{content:'🚧';margin-right:8px}
+    .construction-banner::after{content:'🚧';margin-left:8px}
+    .banner-text{display:inline-block;animation:slide 20s linear infinite}
+    @keyframes slide{0%{transform:translateX(100%);}100%{transform:translateX(-100%);}}
+    
+    /* Hamburger Menu Styles */
+    .hamburger{display:none;background:none;border:none;cursor:pointer;padding:0.5rem;z-index:1001}
+    .hamburger span{display:block;width:25px;height:3px;background:#fff;margin:5px 0;transition:0.3s}
+    .hamburger.active span:nth-child(1){transform:rotate(45deg) translate(7px,7px)}
+    .hamburger.active span:nth-child(2){opacity:0}
+    .hamburger.active span:nth-child(3){transform:rotate(-45deg) translate(7px,-7px)}
+    
+    @media (max-width:768px){
+      .hamburger{display:block}
+      nav ul{
+        position:fixed;
+        top:0;
+        right:-100%;
+        height:100vh;
+        width:250px;
+        background:var(--slate);
+        flex-direction:column;
+        padding:5rem 2rem 2rem;
+        gap:1.5rem;
+        box-shadow:-2px 0 10px rgba(0,0,0,0.3);
+        transition:right 0.3s ease;
+        z-index:1000;
+      }
+      nav ul.active{right:0}
+      nav ul li a{font-size:1.1rem;display:block;padding:0.5rem 0}
+      .cta-mobile{display:block;width:100%;text-align:center;margin-top:1rem}
+      nav > .cta{display:none}
+    }
+    
     @media (max-width:640px){.hero{padding:2.5rem 0}}
   </style>
 </head>
@@ -45,6 +98,11 @@
         <div>
   <img src="HH logo gold1.jpg" alt="Horizon House logo" style="height:120px;">
 </div>
+        <button class="hamburger" aria-label="Toggle menu" aria-expanded="false">
+          <span></span>
+          <span></span>
+          <span></span>
+        </button>
         <ul>
           <li><a href="#">Home</a></li>
           <li><a href="gallery.html">Gallery</a></li>
@@ -58,6 +116,10 @@
       </nav>
     </div>
   </header>
+
+  <div class="construction-banner">
+    <span class="banner-text">Check back here often as this website is under construction and pages are being updated daily.</span>
+  </div>
 
   <main id="main">
 
@@ -74,52 +136,97 @@
       </div>
     </section>
 
+    <!-- Why Sober Living Matters - Expandable -->
+    <div class="expandable-section">
+      <button class="expand-button" onclick="toggleContent(this)">
+        <span>Why Sober Living Matters — And What Makes Horizon‑House Different</span>
+      </button>
+      <div class="expandable-content">
+        <div>
+          <p style="line-height: 1.8; margin-bottom: 1.2rem;">Sober living has become one of the most important stepping‑stones in recovery. When individuals complete treatment, they leave behind the structure, support, and safety they relied on every day. The "bubble" disappears. And without that safety net, staying sober becomes harder—not because people lack desire, but because early recovery is fragile and real life comes rushing back all at once.</p>
+
+          <p style="line-height: 1.8; margin-bottom: 1.2rem;"><strong>That is where sober living becomes life‑changing.</strong></p>
+
+          <p style="line-height: 1.8; margin-bottom: 1.2rem;">At Horizon‑House, members live in a safe, stable, recovery‑focused community where everyone shares a common goal: staying sober and rebuilding a life they can be proud of. They wake up together, come home together, and face both good days and hard days side by side. The support isn't theoretical—it's happening in real time, in real conversations, with people who understand exactly what the next person is going through.</p>
+
+          <p style="line-height: 1.8; margin-bottom: 1.2rem;">Here, accountability is peer‑driven. It sounds like this:</p>
+
+          <div style="background: #f8f9fa; border-left: 4px solid #c98a22; padding: 1.5rem; margin: 1.5rem 0; font-style: italic;">
+            <p style="margin-bottom: 0.8rem;">"If you want to live here, these are the things you need to do."</p>
+            <p style="margin-bottom: 0.8rem;">"If you want more for yourself, let's help you get there."</p>
+            <p style="margin-bottom: 0;">"If you don't want to live here forever, get a job, save your money, and move forward the right way."</p>
+          </div>
+
+          <p style="line-height: 1.8; margin-bottom: 1.2rem;">This kind of accountability isn't punishment—it's empowerment. It teaches responsibility, routine, and follow‑through. It rebuilds the backbone, the self‑respect, and the confidence that addiction once took away.</p>
+
+          <p style="line-height: 1.8; margin-bottom: 1.2rem;"><strong>And most importantly, it works.</strong></p>
+
+          <p style="line-height: 1.8; margin-bottom: 1.2rem;">Members begin to understand that sobriety isn't only about not using. It's about showing up, one day at a time. It's about doing the quiet work: waking up on time, taking care of your space, being honest, being reliable, and choosing connection over isolation. Those small daily actions are what hold recovery together. Those habits create a foundation that lasts.</p>
+
+          <p style="line-height: 1.8; margin-bottom: 1.2rem;">Living in a peer‑driven environment gives individuals far more than structure—it gives them belonging. It gives them people who won't let them give up. It gives them the courage to take the next right step, even when they're scared.</p>
+
+          <p style="line-height: 1.8; margin-bottom: 1.2rem;">Horizon‑House is different because we believe recovery doesn't happen to someone. It happens within a community that refuses to give up on itself. Here, members don't just stay sober—they learn how to live again. They learn how to move forward. They learn how to build a future that feels possible.</p>
+
+          <p style="line-height: 1.8; margin-bottom: 1.2rem;">For many, that difference is not small.</p>
+
+          <p style="line-height: 1.8; margin-bottom: 1.2rem;"><strong>It's life or death.</strong></p>
+
+          <p style="line-height: 1.8; margin-bottom: 0;">And that is why we do what we do.</p>
+        </div>
+      </div>
+    </div>
+
     <!-- What Makes Us Different -->
     <section class="wrap section" style="background: #f3f7fb; padding: 3rem 1.5rem; margin: 2rem auto; border-radius: 8px; max-width: 1200px;" aria-labelledby="different-title">
       <h2 id="different-title" style="text-align: center; color: #003366; margin-bottom: 1rem;">What Makes Us Different</h2>
       <p style="text-align: center; color: #555; margin-bottom: 2rem; max-width: 800px; margin-left: auto; margin-right: auto;">First and foremost, we care — and we've been there. We focus on compassionate guidance toward positive behavioral change.</p>
 
       <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 1.5rem; max-width: 900px; margin: 0 auto;">
-        <div style="padding: 1.5rem; text-align: center;">
+        <div class="hover-box" style="padding: 1.5rem; text-align: center;">
           <div style="font-size: 2rem; margin-bottom: 0.5rem;">❤️</div>
-          <p><strong>We care, we understand.</strong> Our team knows recovery firsthand and leads with empathy, not judgment.</p>
+          <p style="margin: 0;"><strong>We care, we understand.</strong></p>
+          <p class="hover-text" style="margin: 0; color: #555;">Our team knows recovery firsthand and leads with empathy, not judgment.</p>
         </div>
-        <div style="padding: 1.5rem; text-align: center;">
+        <div class="hover-box" style="padding: 1.5rem; text-align: center;">
           <div style="font-size: 2rem; margin-bottom: 0.5rem;">🤝</div>
-          <p><strong>Compassion over punishment.</strong> Supportive accountability that redirects, not penalizes.</p>
+          <p style="margin: 0;"><strong>Compassion over punishment.</strong></p>
+          <p class="hover-text" style="margin: 0; color: #555;">Supportive accountability that redirects, not penalizes.</p>
         </div>
-        <div style="padding: 1.5rem; text-align: center;">
+        <div class="hover-box" style="padding: 1.5rem; text-align: center;">
           <div style="font-size: 2rem; margin-bottom: 0.5rem;">🌱</div>
-          <p><strong>Room to grow.</strong> Space to learn and find your way at a sustainable pace.</p>
+          <p style="margin: 0;"><strong>Room to grow.</strong></p>
+          <p class="hover-text" style="margin: 0; color: #555;">Space to learn and find your way at a sustainable pace.</p>
         </div>
-        <div style="padding: 1.5rem; text-align: center;">
+        <div class="hover-box" style="padding: 1.5rem; text-align: center;">
           <div style="font-size: 2rem; margin-bottom: 0.5rem;">🛏️</div>
-          <p><strong>Spacious living.</strong> No bunk beds—comfortable, respectful accommodations that feel like home.</p>
+          <p style="margin: 0;"><strong>Spacious living.</strong></p>
+          <p class="hover-text" style="margin: 0; color: #555;">No bunk beds—comfortable, respectful accommodations that feel like home.</p>
         </div>
       </div>
     </section>
 
     <section class="wrap section" id="program" aria-labelledby="program-title">
+      <h2 id="program-title">Why Horizon House</h2>
       <div class="cards">
-        <article class="card">
-          <h3>Structure that supports you</h3>
-          <p>Daily routines, house meetings, and clear expectations help you build momentum and stability.</p>
+        <article class="card hover-box">
+          <h3 style="margin: 0;">Structure that supports you</h3>
+          <p class="hover-text" style="margin: 0; padding-top: 0.5rem;">Daily routines, house meetings, and clear expectations help you build momentum and stability.</p>
         </article>
-        <article class="card">
-          <h3>Respectful accountability</h3>
-          <p>Support and guidance keep the focus on growth, not punishment.</p>
+        <article class="card hover-box">
+          <h3 style="margin: 0;">Respectful accountability</h3>
+          <p class="hover-text" style="margin: 0; padding-top: 0.5rem;">Support and guidance keep the focus on growth, not punishment.</p>
         </article>
-        <article class="card">
-          <h3>Safe, clean housing</h3>
-          <p>Well-maintained, spacious accomodations and community-minded standards.</p>
+        <article class="card hover-box">
+          <h3 style="margin: 0;">Safe, clean housing</h3>
+          <p class="hover-text" style="margin: 0; padding-top: 0.5rem;">Well-maintained, spacious accomodations and community-minded standards.</p>
         </article>
       </div>
     </section>
 
     <section class="wrap section" id="about" aria-labelledby="about-title">
-      <h2 id="about-title">Why Horizon House</h2>
+      <h2 id="about-title">Our Mission</h2>
       <p>We believe structure and compassion can coexist. Our team blends building safety expertise with recovery-minded care to create a place where people feel safe, respected, and supported.</p>
-      <p><strong>Two Houses, One Mission:</strong> Horizon House operates two separate, gender-specific facilities—<strong>His House</strong> for men and <strong>Her House</strong> for women. This ensures a comfortable, focused environment where residents can concentrate on their recovery journey with peers who share similar experiences.</p>
+      <p><strong>Two Houses, One Mission:</strong> Horizon House operates two separate, gender-specific facilities—<strong>His House</strong> for men and <strong>Her House</strong> for women. This ensures a comfortable, focused environment where members can concentrate on their recovery journey with peers who share similar experiences.</p>
     <img src="houses.jpg" alt="Horizon Houses" style="max-width:100%;margin:1rem 0;border-radius:.5rem;">
     <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;text-align:center;font-weight:600;color:var(--amber);margin-bottom:2rem;">
       <div>His House (Men's Facility)</div>
@@ -225,6 +332,35 @@
     </div>
     <script>document.getElementById('y').textContent = new Date().getFullYear();</script>
     <script>
+  // Hamburger menu toggle
+  const hamburger = document.querySelector('.hamburger');
+  const navMenu = document.querySelector('nav ul');
+  
+  hamburger.addEventListener('click', () => {
+    hamburger.classList.toggle('active');
+    navMenu.classList.toggle('active');
+    const isExpanded = hamburger.getAttribute('aria-expanded') === 'true';
+    hamburger.setAttribute('aria-expanded', !isExpanded);
+  });
+  
+  // Close menu when clicking on a link
+  document.querySelectorAll('nav ul li a').forEach(link => {
+    link.addEventListener('click', () => {
+      hamburger.classList.remove('active');
+      navMenu.classList.remove('active');
+      hamburger.setAttribute('aria-expanded', 'false');
+    });
+  });
+  
+  // Close menu when clicking outside
+  document.addEventListener('click', (e) => {
+    if (!e.target.closest('nav')) {
+      hamburger.classList.remove('active');
+      navMenu.classList.remove('active');
+      hamburger.setAttribute('aria-expanded', 'false');
+    }
+  });
+  
   // Check if the URL contains ?submitted=true
   const params = new URLSearchParams(window.location.search);
   if (params.get("submitted") === "true") {
@@ -258,6 +394,13 @@
       msg.style.opacity = "0";
       setTimeout(() => msg.remove(), 1000);
     }, 8000);
+  }
+
+  // Toggle expandable content
+  function toggleContent(button) {
+    button.classList.toggle('active');
+    const content = button.nextElementSibling;
+    content.classList.toggle('active');
   }
 </script>
   </p>
