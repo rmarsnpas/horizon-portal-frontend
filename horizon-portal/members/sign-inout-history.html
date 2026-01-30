@@ -1,0 +1,323 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sign In/Out History - Horizon House</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            padding: 20px;
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        .header {
+            background: white;
+            padding: 25px;
+            border-radius: 12px;
+            margin-bottom: 25px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+
+        .header h1 {
+            color: #2d3748;
+            margin-bottom: 10px;
+        }
+
+        .nav-links {
+            margin-top: 15px;
+        }
+
+        .nav-links a {
+            color: #667eea;
+            text-decoration: none;
+            margin-right: 20px;
+            font-weight: 500;
+        }
+
+        .card {
+            background: white;
+            padding: 25px;
+            border-radius: 12px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            margin-bottom: 20px;
+        }
+
+        .filters {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+
+        .filter-group {
+            flex: 1;
+            min-width: 200px;
+        }
+
+        .filter-group label {
+            display: block;
+            color: #4a5568;
+            font-weight: 500;
+            margin-bottom: 5px;
+            font-size: 14px;
+        }
+
+        .filter-group input,
+        .filter-group select {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #cbd5e0;
+            border-radius: 6px;
+        }
+
+        .btn {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 6px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            background: #667eea;
+            color: white;
+        }
+
+        .btn:hover {
+            background: #5568d3;
+        }
+
+        .history-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+
+        .history-table th {
+            background: #f7fafc;
+            padding: 12px;
+            text-align: left;
+            font-weight: 600;
+            color: #2d3748;
+            border-bottom: 2px solid #e2e8f0;
+        }
+
+        .history-table td {
+            padding: 12px;
+            border-bottom: 1px solid #e2e8f0;
+            color: #4a5568;
+        }
+
+        .history-table tr:hover {
+            background: #f7fafc;
+        }
+
+        .badge {
+            display: inline-block;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+
+        .badge.on-time {
+            background: #c6f6d5;
+            color: #22543d;
+        }
+
+        .badge.late {
+            background: #fed7d7;
+            color: #742a2a;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 40px;
+            color: #718096;
+        }
+
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .stat-card {
+            background: #f7fafc;
+            padding: 20px;
+            border-radius: 8px;
+            text-align: center;
+        }
+
+        .stat-number {
+            font-size: 32px;
+            font-weight: bold;
+            color: #667eea;
+        }
+
+        .stat-label {
+            color: #4a5568;
+            font-size: 14px;
+            margin-top: 5px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>📋 Sign In/Out History</h1>
+            <p>View member movement logs</p>
+            <div class="nav-links">
+                <a href="sign-inout.html">Sign In/Out</a>
+                <a href="dashboard.html">Dashboard</a>
+                <a href="/">Home</a>
+            </div>
+        </div>
+
+        <div class="card">
+            <h2 style="color: #2d3748; margin-bottom: 20px;">Filter History</h2>
+            <div class="filters">
+                <div class="filter-group">
+                    <label for="filterDate">Date</label>
+                    <input type="date" id="filterDate">
+                </div>
+                <div class="filter-group">
+                    <label for="filterMember">Member ID</label>
+                    <input type="text" id="filterMember" placeholder="Enter member ID">
+                </div>
+                <div class="filter-group" style="display: flex; align-items: end;">
+                    <button class="btn" onclick="loadHistory()">Apply Filters</button>
+                </div>
+            </div>
+
+            <div class="stats">
+                <div class="stat-card">
+                    <div class="stat-number" id="totalTrips">0</div>
+                    <div class="stat-label">Total Trips</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number" id="onTimeReturns">0</div>
+                    <div class="stat-label">On-Time Returns</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number" id="lateReturns">0</div>
+                    <div class="stat-label">Late Returns</div>
+                </div>
+            </div>
+
+            <table class="history-table">
+                <thead>
+                    <tr>
+                        <th>Date</th>
+                        <th>Member ID</th>
+                        <th>Member Name</th>
+                        <th>Destination</th>
+                        <th>Time Out</th>
+                        <th>Expected Return</th>
+                        <th>Time In</th>
+                        <th>Status</th>
+                    </tr>
+                </thead>
+                <tbody id="historyTable">
+                    <tr>
+                        <td colspan="8" class="empty-state">Loading...</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <script>
+        // const API_BASE = 'http://localhost:3001';
+        const API_BASE = 'https://horizon-portal-backend-production-3532.up.railway.app';
+
+        // Set default date to today
+        document.getElementById('filterDate').valueAsDate = new Date();
+
+        async function loadHistory() {
+            const date = document.getElementById('filterDate').value;
+            const memberId = document.getElementById('filterMember').value;
+
+            let url = `${API_BASE}/api/signInOut/history?`;
+            if (date) url += `date=${date}&`;
+            if (memberId) url += `memberId=${memberId}&`;
+
+            try {
+                const response = await fetch(url);
+                const data = await response.json();
+
+                const tbody = document.getElementById('historyTable');
+                
+                if (!data.history || data.history.length === 0) {
+                    tbody.innerHTML = '<tr><td colspan="8" class="empty-state">No records found</td></tr>';
+                    updateStats(0, 0, 0);
+                    return;
+                }
+
+                let onTime = 0;
+                let late = 0;
+
+                tbody.innerHTML = data.history.map(record => {
+                    let status = '';
+                    let statusClass = '';
+                    
+                    if (record.timeIn) {
+                        const isLate = record.timeIn > record.estimatedReturn;
+                        if (isLate) {
+                            status = '<span class="badge late">Late</span>';
+                            late++;
+                        } else {
+                            status = '<span class="badge on-time">On Time</span>';
+                            onTime++;
+                        }
+                    } else {
+                        status = '<span class="badge" style="background: #fef5e7; color: #7d6608;">Still Out</span>';
+                    }
+
+                    return `
+                        <tr>
+                            <td>${record.date}</td>
+                            <td>${record.memberId}</td>
+                            <td>${record.memberName}</td>
+                            <td>${record.destination}</td>
+                            <td>${record.timeOut}</td>
+                            <td>${record.estimatedReturn}</td>
+                            <td>${record.timeIn || '-'}</td>
+                            <td>${status}</td>
+                        </tr>
+                    `;
+                }).join('');
+
+                updateStats(data.history.length, onTime, late);
+            } catch (error) {
+                console.error('Error loading history:', error);
+                document.getElementById('historyTable').innerHTML = 
+                    '<tr><td colspan="8" class="empty-state">Error loading history</td></tr>';
+            }
+        }
+
+        function updateStats(total, onTime, late) {
+            document.getElementById('totalTrips').textContent = total;
+            document.getElementById('onTimeReturns').textContent = onTime;
+            document.getElementById('lateReturns').textContent = late;
+        }
+
+        // Load history on page load
+        document.addEventListener('DOMContentLoaded', () => {
+            loadHistory();
+        });
+    </script>
+</body>
+</html>

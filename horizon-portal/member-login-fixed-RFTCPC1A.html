@@ -107,7 +107,18 @@
             <button type="button" onclick="verifyID()">Continue</button>
         </div>
 
-        <!-- STEP 2: ENTER PIN -->
+        <!-- STEP 2A: CREATE PIN -->
+        <div id="createPin" style="display:none;">
+            <label for="newPin">Create Your 4-Digit PIN</label>
+            <input type="text" id="newPin" class="pin-input" inputmode="numeric" maxlength="4" placeholder="Enter PIN">
+
+            <label for="confirmPin">Confirm PIN</label>
+            <input type="text" id="confirmPin" class="pin-input" inputmode="numeric" maxlength="4" placeholder="Confirm PIN">
+
+            <button type="button" onclick="savePin()">Save PIN</button>
+        </div>
+
+        <!-- STEP 2B: ENTER PIN -->
         <div id="enterPin" style="display:none;">
             <label for="pinInput">Enter Your PIN</label>
             <input type="text" id="pinInput" class="pin-input" inputmode="numeric" maxlength="4" placeholder="4-digit PIN">
@@ -125,9 +136,8 @@
     </div>
 
     <script>
-        alert('PAGE LOADED - Version 1.30.2026.1243');
-        console.log('PAGE LOADED - Version 1.30.2026.1243');
         let userRecord = null;
+        let isCreatingPin = false;
 
         function showError(msg) {
             const err = document.getElementById('error');
@@ -148,7 +158,7 @@
             if (!id) { showError('Please enter a Member ID.'); return; }
 
             try {
-                // const res = await fetch(`http://localhost:3001/api/getMember?id=${encodeURIComponent(id)}`);
+                // const res = await fetch(`http://192.168.1.129:3001/api/getMember?id=${encodeURIComponent(id)}`);
                 const res = await fetch(`https://horizon-portal-backend-production-3532.up.railway.app/api/getMember?id=${encodeURIComponent(id)}`);
                 if (!res.ok) throw new Error('Lookup failed');
                 const data = await res.json();
@@ -168,34 +178,64 @@
                     EMAIL: data.EMAIL
                 };
 
-                // Block status code 0 (inactive/discharged)
-                if (userRecord.AccessCode === 0) {
-                    showError('Access denied. Account inactive.');
-                    return;
-                }
-
-                // Check if PIN exists
-                if (!userRecord.PIN) {
-                    showError('No PIN found. Please see your manager to set up your PIN.');
-                    return;
-                }
-
                 document.getElementById('step1').style.display = 'none';
-                document.getElementById('enterPin').style.display = 'block';
+                if (!userRecord.PIN) {
+                    isCreatingPin = true;
+                    document.getElementById('createPin').style.display = 'block';
+                } else {
+                    isCreatingPin = false;
+                    document.getElementById('enterPin').style.display = 'block';
+                }
             } catch (err) {
                 console.error(err);
                 showError('Unable to contact the verification server.');
             }
         }
 
-        // STEP 2 — VERIFY PIN
+        // STEP 2A — SAVE NEW PIN
+        async function savePin() {
+            clearError();
+            const pin1 = document.getElementById('newPin').value.trim();
+            const pin2 = document.getElementById('confirmPin').value.trim();
+            if (!/^\d{4}$/.test(pin1) || pin1 !== pin2) {
+                showError('PINs must match and be 4 digits.');
+                return;
+            }
+            if (!userRecord || !userRecord.MemberID) { showError('Missing member record. Please start again.'); return; }
+
+            try {
+                const body = { id: String(userRecord.MemberID).trim(), pin: pin1 };
+                const res = await fetch('https://horizon-portal-backend-production-3532.up.railway.app/api/savePin', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(body)
+                });
+                const json = await res.json();
+                if (!res.ok) throw new Error(json.error || 'Save failed');
+
+                // update local record
+                userRecord.PIN = pin1;
+                document.getElementById('createPin').style.display = 'none';
+                if (userRecord.AccessCode >= 4) {
+                    document.getElementById('staffPw').style.display = 'block';
+                } else {
+                    if (isCreatingPin) {
+                        isCreatingPin = false;
+                        window.location.href = '/index.html';
+                    } else {
+                        routeUser();
+                    }
+                }
+            } catch (err) {
+                console.error(err);
+                showError(err.message || 'Unable to save PIN');
+            }
+        }
+
+        // STEP 2B — VERIFY EXISTING PIN
         function verifyPin() {
             clearError();
             const pin = document.getElementById('pinInput').value.trim();
-            alert('DEBUG: Entered PIN=' + pin + ' (type:' + typeof pin + '), Stored PIN=' + userRecord.PIN + ' (type:' + typeof userRecord.PIN + '), Match=' + (pin === String(userRecord.PIN)));
-            console.log('Entered PIN:', pin, 'Type:', typeof pin);
-            console.log('Stored PIN:', userRecord.PIN, 'Type:', typeof userRecord.PIN);
-            console.log('Comparison:', pin, '===', String(userRecord.PIN), ':', pin === String(userRecord.PIN));
             if (!/^\d{4}$/.test(pin)) { showError('Enter a 4-digit PIN.'); return; }
             if (!userRecord || pin !== String(userRecord.PIN)) {
                 showError('Incorrect PIN.');
@@ -204,10 +244,8 @@
             document.getElementById('enterPin').style.display = 'none';
             if (userRecord.AccessCode >= 4) {
                 document.getElementById('staffPw').style.display = 'block';
-            } else if ([1,2].includes(userRecord.AccessCode)) {
-                routeUser();
             } else {
-                showError('Access denied.');
+                routeUser();
             }
         }
 
@@ -217,7 +255,6 @@
             const pw = document.getElementById('staffPassword').value;
             if (!userRecord || !userRecord.MemberID) { showError('Missing member record.'); return; }
             try {
-                // const res = await fetch('http://localhost:3001/api/verifyStaff', {
                 const res = await fetch('https://horizon-portal-backend-production-3532.up.railway.app/api/verifyStaff', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
@@ -229,7 +266,6 @@
                 if (json.reason === 'no_staff_pw') {
                     // save the staff password now
                     const saveBody = { id: String(userRecord.MemberID).trim(), pin: userRecord.PIN || '', staffPw: pw };
-                    // const r2 = await fetch('http://localhost:3001/api/savePin', {
                     const r2 = await fetch('https://horizon-portal-backend-production-3532.up.railway.app/api/savePin', {
                         method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(saveBody)
                     });
@@ -247,12 +283,21 @@
 
         // FINAL ROUTING
         function routeUser() {
-            localStorage.setItem('memberId', userRecord.MemberID);
-            console.log('AccessCode:', userRecord.AccessCode);
-            if ([1,2,4,5].includes(userRecord.AccessCode)) {
-                window.location.href = 'members/dashboard.html';
-            } else {
-                showError('Access denied.');
+            switch (userRecord.AccessCode) {
+                case 1:
+                    window.location.href = 'dashboard.html';
+                    break;
+                case 2:
+                    window.location.href = '/members/alumni.html';
+                    break;
+                case 4:
+                    window.location.href = '/members/staff/dashboard.html';
+                    break;
+                case 5:
+                    window.location.href = '/members/admin/dashboard.html';
+                    break;
+                default:
+                    showError('Access denied.');
             }
         }
     </script>

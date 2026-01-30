@@ -1,0 +1,488 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sign In/Out - Horizon House</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            padding: 20px;
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        .header {
+            background: white;
+            padding: 25px;
+            border-radius: 12px;
+            margin-bottom: 25px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+
+        .header h1 {
+            color: #2d3748;
+            margin-bottom: 10px;
+        }
+
+        .nav-links {
+            margin-top: 15px;
+        }
+
+        .nav-links a {
+            color: #667eea;
+            text-decoration: none;
+            margin-right: 20px;
+            font-weight: 500;
+        }
+
+        .card {
+            background: white;
+            padding: 25px;
+            border-radius: 12px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            margin-bottom: 20px;
+        }
+
+        .card h2 {
+            color: #2d3748;
+            margin-bottom: 15px;
+            font-size: 20px;
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        label {
+            display: block;
+            color: #4a5568;
+            font-weight: 500;
+            margin-bottom: 5px;
+            font-size: 14px;
+        }
+
+        input[type="text"],
+        input[type="time"],
+        select {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #cbd5e0;
+            border-radius: 6px;
+            font-size: 14px;
+        }
+
+        input[type="text"]:focus,
+        input[type="time"]:focus,
+        select:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .btn {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 6px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .btn-primary {
+            background: #667eea;
+            color: white;
+            width: 100%;
+        }
+
+        .btn-primary:hover {
+            background: #5568d3;
+        }
+
+        .btn-success {
+            background: #48bb78;
+            color: white;
+            width: 100%;
+        }
+
+        .btn-success:hover {
+            background: #38a169;
+        }
+
+        .status-message {
+            padding: 12px;
+            border-radius: 6px;
+            margin-top: 10px;
+            display: none;
+        }
+
+        .status-message.success {
+            background: #c6f6d5;
+            color: #22543d;
+            display: block;
+        }
+
+        .status-message.error {
+            background: #fed7d7;
+            color: #742a2a;
+            display: block;
+        }
+
+        .current-status {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .status-card {
+            background: #f7fafc;
+            padding: 15px;
+            border-radius: 8px;
+            border-left: 4px solid #e53e3e;
+        }
+
+        .status-card.in-house {
+            border-left-color: #48bb78;
+        }
+
+        .status-card h3 {
+            color: #2d3748;
+            font-size: 16px;
+            margin-bottom: 8px;
+        }
+
+        .status-info {
+            font-size: 13px;
+            color: #4a5568;
+            margin: 4px 0;
+        }
+
+        .status-badge {
+            display: inline-block;
+            padding: 4px 10px;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: 600;
+            margin-bottom: 8px;
+        }
+
+        .status-badge.out {
+            background: #fed7d7;
+            color: #742a2a;
+        }
+
+        .status-badge.in {
+            background: #c6f6d5;
+            color: #22543d;
+        }
+
+        .section-title {
+            color: #2d3748;
+            font-size: 18px;
+            margin-bottom: 15px;
+            font-weight: 600;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 40px;
+            color: #718096;
+        }
+
+        .grid-2col {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+
+        @media (max-width: 768px) {
+            .grid-2col {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🏠 Sign In/Out System</h1>
+            <p>Track member comings and goings</p>
+            <div class="nav-links">
+                <a href="sign-inout-history.html">View History</a>
+                <a href="dashboard.html">Dashboard</a>
+                <a href="/">Home</a>
+            </div>
+        </div>
+
+        <div class="card">
+            <h2 class="section-title">Current Status - Members Out of House</h2>
+            <div id="currentStatus" class="current-status">
+                <div class="empty-state">Loading...</div>
+            </div>
+        </div>
+
+        <div class="grid-2col">
+            <div class="card">
+                <h2>Sign Out</h2>
+                <form id="signOutForm">
+                    <div class="form-group">
+                        <label for="memberIdOut">Member ID *</label>
+                        <input type="text" id="memberIdOut" name="memberId" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="memberNameOut">Member Name *</label>
+                        <input type="text" id="memberNameOut" name="memberName" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="destination">Destination *</label>
+                        <input type="text" id="destination" name="destination" required placeholder="e.g., Doctor appointment, Work, Grocery store">
+                    </div>
+                    <div class="form-group">
+                        <label for="timeOut">Time Out *</label>
+                        <input type="time" id="timeOut" name="timeOut" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="estimatedReturn">Estimated Return Time *</label>
+                        <input type="time" id="estimatedReturn" name="estimatedReturn" required>
+                    </div>
+                    <button type="submit" class="btn btn-primary">Sign Out</button>
+                    <div id="signOutStatus" class="status-message"></div>
+                </form>
+            </div>
+
+            <div class="card">
+                <h2>Sign In</h2>
+                <form id="signInForm">
+                    <div class="form-group">
+                        <label for="memberIdIn">Member ID *</label>
+                        <input type="text" id="memberIdIn" name="memberId" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="memberNameIn">Member Name *</label>
+                        <input type="text" id="memberNameIn" name="memberName" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="timeIn">Actual Time In *</label>
+                        <input type="time" id="timeIn" name="timeIn" required>
+                    </div>
+                    <button type="submit" class="btn btn-success">Sign In</button>
+                    <div id="signInStatus" class="status-message"></div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // const API_BASE = 'http://localhost:3001';
+        const API_BASE = 'https://horizon-portal-backend-production-3532.up.railway.app';
+
+        let currentMember = null;
+
+        // Load logged-in member info
+        async function loadMemberInfo() {
+            const memberId = localStorage.getItem('memberId');
+            if (!memberId) {
+                console.warn('No member logged in');
+                return;
+            }
+
+            try {
+                const response = await fetch(`${API_BASE}/api/getMember?id=${encodeURIComponent(memberId)}`);
+                if (response.ok) {
+                    const data = await response.json();
+                    currentMember = {
+                        id: data.ID,
+                        firstName: data.FIRST_NAME,
+                        lastName: data.LAST_NAME,
+                        fullName: `${data.FIRST_NAME} ${data.LAST_NAME}`
+                    };
+
+                    // Auto-populate forms
+                    document.getElementById('memberIdOut').value = currentMember.id;
+                    document.getElementById('memberNameOut').value = currentMember.fullName;
+                    document.getElementById('memberIdIn').value = currentMember.id;
+                    document.getElementById('memberNameIn').value = currentMember.fullName;
+
+                    // Make fields read-only
+                    document.getElementById('memberIdOut').readOnly = true;
+                    document.getElementById('memberNameOut').readOnly = true;
+                    document.getElementById('memberIdIn').readOnly = true;
+                    document.getElementById('memberNameIn').readOnly = true;
+
+                    // Style read-only fields
+                    const style = 'background-color: #f7fafc; cursor: not-allowed;';
+                    document.getElementById('memberIdOut').style.cssText = style;
+                    document.getElementById('memberNameOut').style.cssText = style;
+                    document.getElementById('memberIdIn').style.cssText = style;
+                    document.getElementById('memberNameIn').style.cssText = style;
+                }
+            } catch (error) {
+                console.error('Error loading member info:', error);
+            }
+        }
+
+        // Set default times
+        function setCurrentTime() {
+            const now = new Date();
+            const timeStr = now.toTimeString().slice(0, 5);
+            document.getElementById('timeOut').value = timeStr;
+            document.getElementById('timeIn').value = timeStr;
+        }
+
+        // Load current status
+        async function loadCurrentStatus() {
+            try {
+                const response = await fetch(`${API_BASE}/api/signInOut/current`);
+                const data = await response.json();
+
+                const container = document.getElementById('currentStatus');
+                
+                if (!data.membersOut || data.membersOut.length === 0) {
+                    container.innerHTML = '<div class="empty-state">✓ All members are currently in the house</div>';
+                    return;
+                }
+
+                container.innerHTML = data.membersOut.map(member => `
+                    <div class="status-card">
+                        <span class="status-badge out">OUT</span>
+                        <h3>${member.memberName}</h3>
+                        <div class="status-info"><strong>ID:</strong> ${member.memberId}</div>
+                        <div class="status-info"><strong>Destination:</strong> ${member.destination}</div>
+                        <div class="status-info"><strong>Left at:</strong> ${member.timeOut}</div>
+                        <div class="status-info"><strong>Expected back:</strong> ${member.estimatedReturn}</div>
+                        ${member.isOverdue ? '<div class="status-info" style="color: #e53e3e; font-weight: 600;">⚠️ OVERDUE</div>' : ''}
+                    </div>
+                `).join('');
+            } catch (error) {
+                console.error('Error loading status:', error);
+                document.getElementById('currentStatus').innerHTML = 
+                    '<div class="empty-state">Error loading current status</div>';
+            }
+        }
+
+        // Handle sign out
+        document.getElementById('signOutForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const statusDiv = document.getElementById('signOutStatus');
+            const submitBtn = e.target.querySelector('button[type="submit"]');
+            
+            statusDiv.textContent = 'Signing out...';
+            statusDiv.className = 'status-message';
+            statusDiv.style.display = 'block';
+            submitBtn.disabled = true;
+
+            try {
+                const formData = new FormData(e.target);
+                const data = {
+                    memberId: formData.get('memberId'),
+                    memberName: formData.get('memberName'),
+                    destination: formData.get('destination'),
+                    timeOut: formData.get('timeOut'),
+                    estimatedReturn: formData.get('estimatedReturn'),
+                    date: new Date().toISOString().split('T')[0]
+                };
+
+                const response = await fetch(`${API_BASE}/api/signInOut/out`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(data)
+                });
+
+                const result = await response.json();
+
+                if (response.ok) {
+                    statusDiv.textContent = '✓ Successfully signed out!';
+                    statusDiv.className = 'status-message success';
+                    e.target.reset();
+                    setCurrentTime();
+                    loadCurrentStatus(); // Refresh the current status
+                    
+                    setTimeout(() => {
+                        statusDiv.style.display = 'none';
+                    }, 3000);
+                } else {
+                    throw new Error(result.error || 'Failed to sign out');
+                }
+            } catch (error) {
+                statusDiv.textContent = '✗ Error: ' + error.message;
+                statusDiv.className = 'status-message error';
+            } finally {
+                submitBtn.disabled = false;
+            }
+        });
+
+        // Handle sign in
+        document.getElementById('signInForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const statusDiv = document.getElementById('signInStatus');
+            const submitBtn = e.target.querySelector('button[type="submit"]');
+            
+            statusDiv.textContent = 'Signing in...';
+            statusDiv.className = 'status-message';
+            statusDiv.style.display = 'block';
+            submitBtn.disabled = true;
+
+            try {
+                const formData = new FormData(e.target);
+                const data = {
+                    memberId: formData.get('memberId'),
+                    memberName: formData.get('memberName'),
+                    timeIn: formData.get('timeIn'),
+                    date: new Date().toISOString().split('T')[0]
+                };
+
+                const response = await fetch(`${API_BASE}/api/signInOut/in`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(data)
+                });
+
+                const result = await response.json();
+
+                if (response.ok) {
+                    statusDiv.textContent = '✓ Successfully signed in!';
+                    statusDiv.className = 'status-message success';
+                    e.target.reset();
+                    setCurrentTime();
+                    loadCurrentStatus(); // Refresh the current status
+                    
+                    setTimeout(() => {
+                        statusDiv.style.display = 'none';
+                    }, 3000);
+                } else {
+                    throw new Error(result.error || 'Failed to sign in');
+                }
+            } catch (error) {
+                statusDiv.textContent = '✗ Error: ' + error.message;
+                statusDiv.className = 'status-message error';
+            } finally {
+                submitBtn.disabled = false;
+            }
+        });
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', () => {
+            loadMemberInfo();
+            setCurrentTime();
+            loadCurrentStatus();
+            
+            // Auto-refresh every 30 seconds
+            setInterval(loadCurrentStatus, 30000);
+        });
+    </script>
+</body>
+</html>
