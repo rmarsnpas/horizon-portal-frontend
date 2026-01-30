@@ -192,15 +192,16 @@
         function verifyPin() {
             clearError();
             const pin = document.getElementById('pinInput').value.trim();
-            alert('DEBUG: Entered PIN=' + pin + ' (type:' + typeof pin + '), Stored PIN=' + userRecord.PIN + ' (type:' + typeof userRecord.PIN + '), Match=' + (pin === String(userRecord.PIN)));
-            console.log('Entered PIN:', pin, 'Type:', typeof pin);
-            console.log('Stored PIN:', userRecord.PIN, 'Type:', typeof userRecord.PIN);
-            console.log('Comparison:', pin, '===', String(userRecord.PIN), ':', pin === String(userRecord.PIN));
+            
             if (!/^\d{4}$/.test(pin)) { showError('Enter a 4-digit PIN.'); return; }
-            if (!userRecord || pin !== String(userRecord.PIN)) {
+            if (!userRecord) { showError('User record missing.'); return; }
+            
+            // Convert both to strings for comparison
+            if (pin !== String(userRecord.PIN)) {
                 showError('Incorrect PIN.');
                 return;
             }
+            
             document.getElementById('enterPin').style.display = 'none';
             if (userRecord.AccessCode >= 4) {
                 document.getElementById('staffPw').style.display = 'block';
