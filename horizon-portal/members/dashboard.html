@@ -76,6 +76,12 @@
     <p>This is your member dashboard. From here you can access announcements, forms, and important house information.</p>
 
     <div class="card">
+        <h3>Sign In/Out</h3>
+        <p>Sign in and out when leaving the house. Track where members are and when they'll return.</p>
+        <a href="sign-inout.html" class="button">Go to Sign In/Out</a>
+    </div>
+
+    <div class="card">
         <h3>Announcements</h3>
         <p>Stay updated with house news, schedule changes, and upcoming events.</p>
         <a href="/members/announcements.html" class="button">View Announcements</a>
@@ -108,11 +114,19 @@
                 if (data) {
                     // Update welcome message with member name
                     const welcomeEl = document.getElementById('welcome');
-                    welcomeEl.textContent = `Welcome, ${data['FIRST NAME']} ${data['LAST NAME']}!`;
+                    const firstName = data.FIRST_NAME || data['FIRST NAME'] || localStorage.getItem('memberFirstName') || '';
+                    const lastName = data.LAST_NAME || data['LAST NAME'] || localStorage.getItem('memberLastName') || '';
+                    welcomeEl.textContent = `Welcome, ${firstName} ${lastName}!`;
                 }
             })
             .catch(error => {
                 console.error('Error loading member data:', error);
+                // Fallback to localStorage if API fails
+                const firstName = localStorage.getItem('memberFirstName') || '';
+                const lastName = localStorage.getItem('memberLastName') || '';
+                if (firstName || lastName) {
+                    document.getElementById('welcome').textContent = `Welcome, ${firstName} ${lastName}!`;
+                }
             });
     }
 </script>
