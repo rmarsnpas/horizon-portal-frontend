@@ -1,0 +1,353 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Horizon House - Sign In/Out</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        body {
+            font-family: 'Segoe UI', Arial, sans-serif;
+            background: linear-gradient(135deg, #003366 0%, #005599 100%);
+            margin: 0;
+            padding: 20px;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .kiosk-container {
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.3);
+            padding: 40px;
+            max-width: 600px;
+            width: 100%;
+            text-align: center;
+        }
+
+        h1 {
+            color: #003366;
+            font-size: 2.5rem;
+            margin: 0 0 10px 0;
+        }
+
+        .subtitle {
+            color: #666;
+            font-size: 1.2rem;
+            margin-bottom: 30px;
+        }
+
+        .status-display {
+            background: #f0f8ff;
+            border: 2px solid #003366;
+            border-radius: 15px;
+            padding: 20px;
+            margin-bottom: 30px;
+            min-height: 80px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .status-display.success {
+            background: #d4edda;
+            border-color: #28a745;
+        }
+
+        .status-display.error {
+            background: #f8d7da;
+            border-color: #dc3545;
+        }
+
+        .status-text {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: #003366;
+            margin: 0;
+        }
+
+        .status-display.success .status-text {
+            color: #28a745;
+        }
+
+        .status-display.error .status-text {
+            color: #dc3545;
+        }
+
+        .input-group {
+            margin-bottom: 20px;
+        }
+
+        label {
+            display: block;
+            color: #003366;
+            font-size: 1.3rem;
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+
+        input[type="text"] {
+            width: 100%;
+            padding: 20px;
+            font-size: 2rem;
+            border: 3px solid #003366;
+            border-radius: 10px;
+            text-align: center;
+            outline: none;
+            transition: border-color 0.3s;
+        }
+
+        input[type="text"]:focus {
+            border-color: #0066cc;
+        }
+
+        .button-group {
+            display: flex;
+            gap: 15px;
+            margin-top: 20px;
+        }
+
+        button {
+            flex: 1;
+            padding: 25px;
+            font-size: 1.5rem;
+            font-weight: bold;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.3s;
+            touch-action: manipulation;
+        }
+
+        .btn-primary {
+            background: #28a745;
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: #218838;
+        }
+
+        .btn-secondary {
+            background: #6c757d;
+            color: white;
+        }
+
+        .btn-secondary:hover {
+            background: #5a6268;
+        }
+
+        .timestamp {
+            color: #999;
+            font-size: 0.9rem;
+            margin-top: 20px;
+        }
+
+        .loading {
+            display: none;
+            margin-top: 15px;
+        }
+
+        .loading.active {
+            display: block;
+        }
+
+        .spinner {
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #003366;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        @media (max-width: 600px) {
+            .kiosk-container {
+                padding: 30px 20px;
+            }
+
+            h1 {
+                font-size: 2rem;
+            }
+
+            .subtitle {
+                font-size: 1rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="kiosk-container">
+        <h1>Horizon House</h1>
+        <div class="subtitle">Member Sign In/Out</div>
+
+        <div id="statusDisplay" class="status-display">
+            <p class="status-text">Enter your Member ID</p>
+        </div>
+
+        <div class="input-group">
+            <label for="memberIdInput">Member ID</label>
+            <input 
+                type="text" 
+                id="memberIdInput" 
+                placeholder="Enter ID" 
+                autocomplete="off"
+                inputmode="numeric"
+                pattern="[0-9]*"
+            >
+        </div>
+
+        <div class="button-group">
+            <button class="btn-primary" onclick="processSignInOut()">Sign In/Out</button>
+            <button class="btn-secondary" onclick="clearForm()">Clear</button>
+        </div>
+
+        <div id="loading" class="loading">
+            <div class="spinner"></div>
+        </div>
+
+        <div class="timestamp" id="timestamp"></div>
+    </div>
+
+    <script>
+        const API_URL = 'https://horizon-portal-backend-production-3532.up.railway.app';
+        let autoResetTimer = null;
+
+        // Update timestamp
+        function updateTimestamp() {
+            const now = new Date();
+            document.getElementById('timestamp').textContent = now.toLocaleString();
+        }
+        updateTimestamp();
+        setInterval(updateTimestamp, 1000);
+
+        // Focus input on load
+        document.getElementById('memberIdInput').focus();
+
+        // Allow Enter key to submit
+        document.getElementById('memberIdInput').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                processSignInOut();
+            }
+        });
+
+        function showStatus(message, type = 'info') {
+            const statusDisplay = document.getElementById('statusDisplay');
+            const statusText = statusDisplay.querySelector('.status-text');
+            
+            statusDisplay.className = 'status-display' + (type !== 'info' ? ' ' + type : '');
+            statusText.textContent = message;
+
+            // Auto-reset after success/error
+            clearTimeout(autoResetTimer);
+            if (type === 'success' || type === 'error') {
+                autoResetTimer = setTimeout(() => {
+                    clearForm();
+                }, 3000);
+            }
+        }
+
+        function showLoading(show) {
+            const loading = document.getElementById('loading');
+            loading.className = show ? 'loading active' : 'loading';
+        }
+
+        function clearForm() {
+            document.getElementById('memberIdInput').value = '';
+            showStatus('Enter your Member ID', 'info');
+            document.getElementById('memberIdInput').focus();
+        }
+
+        async function processSignInOut() {
+            const memberId = document.getElementById('memberIdInput').value.trim();
+            
+            if (!memberId) {
+                showStatus('Please enter a Member ID', 'error');
+                return;
+            }
+
+            showLoading(true);
+            showStatus('Processing...', 'info');
+
+            try {
+                // First, verify the member exists
+                const memberResponse = await fetch(`${API_URL}/api/getMember?id=${encodeURIComponent(memberId)}`);
+                
+                if (!memberResponse.ok) {
+                    showLoading(false);
+                    showStatus('Member ID not found', 'error');
+                    return;
+                }
+
+                const memberData = await memberResponse.json();
+                if (!memberData || !memberData.ID) {
+                    showLoading(false);
+                    showStatus('Member ID not found', 'error');
+                    return;
+                }
+
+                const memberName = `${memberData.FIRST_NAME || ''} ${memberData.LAST_NAME || ''}`.trim();
+
+                // Check current sign-in status
+                const statusResponse = await fetch(`${API_URL}/api/signInOut/current?id=${encodeURIComponent(memberId)}`);
+                const statusData = await statusResponse.json();
+
+                let actionUrl, actionMethod, actionBody, actionType;
+
+                if (statusData.signedIn) {
+                    // Currently signed in, so sign OUT
+                    actionUrl = `${API_URL}/api/signInOut/out`;
+                    actionMethod = 'POST';
+                    actionBody = JSON.stringify({ id: memberId });
+                    actionType = 'out';
+                } else {
+                    // Currently signed out, so sign IN
+                    actionUrl = `${API_URL}/api/signInOut/in`;
+                    actionMethod = 'POST';
+                    actionBody = JSON.stringify({ id: memberId });
+                    actionType = 'in';
+                }
+
+                // Perform the action
+                const actionResponse = await fetch(actionUrl, {
+                    method: actionMethod,
+                    headers: { 'Content-Type': 'application/json' },
+                    body: actionBody
+                });
+
+                const result = await actionResponse.json();
+
+                showLoading(false);
+
+                if (result.success) {
+                    const message = actionType === 'in' 
+                        ? `✓ ${memberName} signed IN` 
+                        : `✓ ${memberName} signed OUT`;
+                    showStatus(message, 'success');
+                } else {
+                    showStatus('Error: ' + (result.message || 'Unknown error'), 'error');
+                }
+
+            } catch (error) {
+                console.error('Error:', error);
+                showLoading(false);
+                showStatus('Connection error. Please try again.', 'error');
+            }
+        }
+    </script>
+</body>
+</html>
