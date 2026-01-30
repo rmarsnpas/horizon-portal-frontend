@@ -288,6 +288,11 @@
 
         // FINAL ROUTING
         function routeUser() {
+            localStorage.setItem('memberId', userRecord.MemberID);
+            localStorage.setItem('memberFirstName', userRecord.FIRST_NAME || '');
+            localStorage.setItem('memberLastName', userRecord.LAST_NAME || '');
+            localStorage.setItem('memberEmail', userRecord.EMAIL || '');
+            
             switch (userRecord.AccessCode) {
                 case 1:
                     window.location.href = 'dashboard.html';

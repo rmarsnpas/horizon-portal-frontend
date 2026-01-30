@@ -249,6 +249,9 @@
         // FINAL ROUTING
         function routeUser() {
             localStorage.setItem('memberId', userRecord.MemberID);
+            localStorage.setItem('memberFirstName', userRecord.FIRST_NAME || '');
+            localStorage.setItem('memberLastName', userRecord.LAST_NAME || '');
+            localStorage.setItem('memberEmail', userRecord.EMAIL || '');
             console.log('AccessCode:', userRecord.AccessCode);
             if ([1,2,4,5].includes(userRecord.AccessCode)) {
                 window.location.href = 'members/dashboard.html';
