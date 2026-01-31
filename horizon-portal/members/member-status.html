@@ -239,8 +239,23 @@
                 const membersResponse = await fetch(`${API_BASE}/api/members`);
                 const allMembers = await membersResponse.json();
                 
+                console.log('Total members loaded:', allMembers.length);
+                console.log('First 5 members:', allMembers.slice(0, 5));
+                
                 // Filter to only active members (status 1)
-                const activeMembers = allMembers.filter(m => m.STATU === 1 || m.STATUS === 1);
+                const activeMembers = allMembers.filter(m => {
+                    const status = m.STATU || m.STATUS || m.STATU;
+                    const isActive = status === 1 || status === '1';
+                    return isActive;
+                });
+                
+                console.log('Active members (status=1):', activeMembers.length);
+                console.log('Active members:', activeMembers.map(m => ({
+                    id: m.ID,
+                    name: `${m.FIRST_NAME || m['FIRST\nNAME']} ${m.LAST_NAME || m['LAST\nNAME']}`,
+                    status: m.STATU || m.STATUS,
+                    gender: m.GENDER || m.SEX
+                })));
                 
                 // Get current sign-out status
                 const statusResponse = await fetch(`${API_BASE}/api/signInOut/current`);
