@@ -246,6 +246,38 @@
         // Set default date to today
         document.getElementById('filterDate').valueAsDate = new Date();
 
+        async function loadCurrentStatus() {
+            try {
+                const response = await fetch(`${API_BASE}/api/signInOut/current`);
+                const data = await response.json();
+                
+                const statusGrid = document.getElementById('currentStatusGrid');
+                const statusSection = document.getElementById('currentStatusSection');
+                
+                const membersOut = data.membersOut || [];
+                
+                if (membersOut.length === 0) {
+                    statusSection.style.background = '#d4edda';
+                    statusSection.style.borderColor = '#28a745';
+                    statusGrid.innerHTML = '<div style="color: #28a745; font-weight: bold;">✅ All members are currently signed in!</div>';
+                } else {
+                    statusSection.style.background = '#fff5e6';
+                    statusSection.style.borderColor = '#ff9800';
+                    statusGrid.innerHTML = membersOut.map(member => `
+                        <div class="member-card${member.isOverdue ? ' overdue' : ''}">
+                            <div class="member-card-name">${member.memberName} (${member.memberId})</div>
+                            <div class="member-card-detail">📍 ${member.destination}</div>
+                            <div class="member-card-detail">🕐 Out: ${member.timeOut}</div>
+                            <div class="member-card-detail">⏰ Return: ${member.estimatedReturn}${member.isOverdue ? ' <span class="overdue-badge">OVERDUE</span>' : ''}</div>
+                        </div>
+                    `).join('');
+                }
+            } catch (error) {
+                console.error('Error loading current status:', error);
+                document.getElementById('currentStatusGrid').innerHTML = '<div style="color: #dc3545;">Error loading current status</div>';
+            }
+        }
+
         async function loadHistory() {
             const date = document.getElementById('filterDate').value;
             const memberId = document.getElementById('filterMember').value;
@@ -316,7 +348,11 @@
 
         // Load history on page load
         document.addEventListener('DOMContentLoaded', () => {
+            loadCurrentStatus();
             loadHistory();
+            
+            // Auto-refresh current status every 10 seconds
+            setInterval(loadCurrentStatus, 10000);
         });
     </script>
 </body>
