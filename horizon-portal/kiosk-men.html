@@ -541,6 +541,14 @@
                     showStatus('Member ID not found', 'error');
                     return;
                 }
+                
+                // Check if member is male
+                const memberGender = (memberData.GENDER || memberData.SEX || '').toString().toUpperCase().trim();
+                if (!memberGender.startsWith('M')) {
+                    showLoading(false);
+                    showStatus('This kiosk is for men only', 'error');
+                    return;
+                }
 
                 const memberName = `${memberData.FIRST_NAME || ''} ${memberData.LAST_NAME || ''}`.trim();
 
