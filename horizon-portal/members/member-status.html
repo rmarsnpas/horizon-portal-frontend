@@ -1,0 +1,327 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Member Status - Horizon House</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            padding: 20px;
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        .header {
+            background: white;
+            padding: 25px;
+            border-radius: 12px;
+            margin-bottom: 25px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+
+        .header h1 {
+            color: #2d3748;
+            margin-bottom: 10px;
+        }
+
+        .nav-links {
+            margin-top: 15px;
+        }
+
+        .nav-links a {
+            color: #667eea;
+            text-decoration: none;
+            margin-right: 20px;
+            font-weight: 500;
+        }
+
+        .nav-links a:hover {
+            text-decoration: underline;
+        }
+
+        .stats-bar {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 25px;
+        }
+
+        .stat-box {
+            background: white;
+            padding: 20px;
+            border-radius: 12px;
+            flex: 1;
+            text-align: center;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+
+        .stat-number {
+            font-size: 2em;
+            font-weight: bold;
+            color: #667eea;
+        }
+
+        .stat-label {
+            color: #718096;
+            margin-top: 5px;
+            font-size: 0.9em;
+        }
+
+        .stat-box.in {
+            border-left: 4px solid #28a745;
+        }
+
+        .stat-box.out {
+            border-left: 4px solid #ff9800;
+        }
+
+        .stat-box.overdue {
+            border-left: 4px solid #dc3545;
+        }
+
+        .members-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            gap: 15px;
+            margin-bottom: 30px;
+        }
+
+        .member-card {
+            background: white;
+            padding: 20px;
+            border-radius: 12px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            transition: transform 0.2s;
+        }
+
+        .member-card:hover {
+            transform: translateY(-2px);
+        }
+
+        .member-card.in {
+            border-left: 5px solid #28a745;
+        }
+
+        .member-card.out {
+            border-left: 5px solid #ff9800;
+        }
+
+        .member-card.overdue {
+            border-left: 5px solid #dc3545;
+            background: #fff5f5;
+        }
+
+        .member-name {
+            font-size: 1.2em;
+            font-weight: bold;
+            color: #2d3748;
+            margin-bottom: 5px;
+        }
+
+        .member-id {
+            color: #718096;
+            font-size: 0.9em;
+            margin-bottom: 10px;
+        }
+
+        .member-status {
+            display: inline-block;
+            padding: 5px 12px;
+            border-radius: 20px;
+            font-size: 0.85em;
+            font-weight: 600;
+            margin-top: 8px;
+        }
+
+        .member-status.in {
+            background: #d4edda;
+            color: #155724;
+        }
+
+        .member-status.out {
+            background: #fff5e6;
+            color: #7d6608;
+        }
+
+        .member-status.overdue {
+            background: #f8d7da;
+            color: #721c24;
+        }
+
+        .member-details {
+            margin-top: 10px;
+            font-size: 0.9em;
+            color: #4a5568;
+        }
+
+        .member-details div {
+            margin: 3px 0;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 40px;
+            color: white;
+            font-size: 1.2em;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+            background: white;
+            border-radius: 12px;
+            color: #718096;
+        }
+
+        @media (max-width: 768px) {
+            .members-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .stats-bar {
+                flex-direction: column;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>👥 Member Status Board</h1>
+            <p>Current in/out status of all active members</p>
+            <div class="nav-links">
+                <a href="sign-inout-history.html">📋 View History</a>
+                <a href="../../staff-dashboard.html">← Back to Dashboard</a>
+            </div>
+        </div>
+
+        <div class="stats-bar">
+            <div class="stat-box in">
+                <div class="stat-number" id="totalIn">-</div>
+                <div class="stat-label">Signed In</div>
+            </div>
+            <div class="stat-box out">
+                <div class="stat-number" id="totalOut">-</div>
+                <div class="stat-label">Signed Out</div>
+            </div>
+            <div class="stat-box overdue">
+                <div class="stat-number" id="totalOverdue">-</div>
+                <div class="stat-label">Overdue</div>
+            </div>
+            <div class="stat-box">
+                <div class="stat-number" id="totalMembers">-</div>
+                <div class="stat-label">Total Active</div>
+            </div>
+        </div>
+
+        <div id="loading" class="loading">Loading member status...</div>
+        <div id="membersGrid" class="members-grid" style="display: none;"></div>
+    </div>
+
+    <script>
+        // const API_BASE = 'http://localhost:3001';
+        const API_BASE = 'https://horizon-portal-backend-production-3532.up.railway.app';
+
+        async function loadMemberStatus() {
+            try {
+                // Get all active members (status = 1)
+                const membersResponse = await fetch(`${API_BASE}/api/members`);
+                const allMembers = await membersResponse.json();
+                
+                // Filter to only active members (status 1)
+                const activeMembers = allMembers.filter(m => m.STATU === 1 || m.STATUS === 1);
+                
+                // Get current sign-out status
+                const statusResponse = await fetch(`${API_BASE}/api/signInOut/current`);
+                const statusData = await statusResponse.json();
+                const membersOut = statusData.membersOut || [];
+                
+                // Create lookup map for signed out members
+                const outMap = {};
+                membersOut.forEach(m => {
+                    outMap[m.memberId] = m;
+                });
+                
+                // Count stats
+                let totalIn = 0;
+                let totalOut = 0;
+                let totalOverdue = 0;
+                
+                // Build member cards
+                const grid = document.getElementById('membersGrid');
+                grid.innerHTML = activeMembers.map(member => {
+                    const memberId = String(member.ID);
+                    const firstName = member.FIRST_NAME || member['FIRST\nNAME'] || '';
+                    const lastName = member.LAST_NAME || member['LAST\nNAME'] || '';
+                    const memberName = `${firstName} ${lastName}`.trim() || 'Unknown';
+                    
+                    const outInfo = outMap[memberId];
+                    const isOut = !!outInfo;
+                    const isOverdue = outInfo && outInfo.isOverdue;
+                    
+                    if (isOut) {
+                        totalOut++;
+                        if (isOverdue) totalOverdue++;
+                    } else {
+                        totalIn++;
+                    }
+                    
+                    let statusClass = isOverdue ? 'overdue' : (isOut ? 'out' : 'in');
+                    let statusText = isOverdue ? '🚨 OVERDUE' : (isOut ? '🚪 Signed Out' : '✅ Signed In');
+                    
+                    let detailsHtml = '';
+                    if (isOut) {
+                        detailsHtml = `
+                            <div class="member-details">
+                                <div>📍 ${outInfo.destination}</div>
+                                <div>🕐 Out: ${outInfo.timeOut}</div>
+                                <div>⏰ Return: ${outInfo.estimatedReturn}</div>
+                            </div>
+                        `;
+                    }
+                    
+                    return `
+                        <div class="member-card ${statusClass}">
+                            <div class="member-name">${memberName}</div>
+                            <div class="member-id">ID: ${memberId}</div>
+                            <span class="member-status ${statusClass}">${statusText}</span>
+                            ${detailsHtml}
+                        </div>
+                    `;
+                }).join('');
+                
+                // Update stats
+                document.getElementById('totalIn').textContent = totalIn;
+                document.getElementById('totalOut').textContent = totalOut;
+                document.getElementById('totalOverdue').textContent = totalOverdue;
+                document.getElementById('totalMembers').textContent = activeMembers.length;
+                
+                // Show grid
+                document.getElementById('loading').style.display = 'none';
+                grid.style.display = 'grid';
+                
+            } catch (error) {
+                console.error('Error loading member status:', error);
+                document.getElementById('loading').innerHTML = '<div style="color: #dc3545;">Error loading member status</div>';
+            }
+        }
+
+        // Load on page load
+        document.addEventListener('DOMContentLoaded', loadMemberStatus);
+        
+        // Auto-refresh every 30 seconds
+        setInterval(loadMemberStatus, 30000);
+    </script>
+</body>
+</html>
