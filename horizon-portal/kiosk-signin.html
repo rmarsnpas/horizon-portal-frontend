@@ -211,8 +211,31 @@
             >
         </div>
 
+        <div id="signOutFields" style="display: none;">
+            <div class="input-group">
+                <label for="destinationInput">Where are you going?</label>
+                <input 
+                    type="text" 
+                    id="destinationInput" 
+                    placeholder="e.g., Work, Store, Appointment" 
+                    autocomplete="off"
+                >
+            </div>
+
+            <div class="input-group">
+                <label for="returnTimeInput">Expected Return Time</label>
+                <input 
+                    type="time" 
+                    id="returnTimeInput"
+                    style="font-size: 1.5rem;"
+                >
+            </div>
+        </div>
+
         <div class="button-group">
-            <button class="btn-primary" onclick="processSignInOut()">Sign In/Out</button>
+            <button class="btn-primary" onclick="processSignInOut()">
+                <span id="actionButtonText">Sign In/Out</span>
+            </button>
             <button class="btn-secondary" onclick="clearForm()">Clear</button>
         </div>
 
@@ -226,6 +249,8 @@
     <script>
         const API_URL = 'https://horizon-portal-backend-production-3532.up.railway.app';
         let autoResetTimer = null;
+        let pendingSignOutAction = false;
+        let currentMemberData = null;
 
         // Update timestamp
         function updateTimestamp() {
@@ -268,8 +293,14 @@
 
         function clearForm() {
             document.getElementById('memberIdInput').value = '';
+            document.getElementById('destinationInput').value = '';
+            document.getElementById('returnTimeInput').value = '';
+            document.getElementById('signOutFields').style.display = 'none';
+            document.getElementById('actionButtonText').textContent = 'Sign In/Out';
             showStatus('Enter your Member ID', 'info');
             document.getElementById('memberIdInput').focus();
+            pendingSignOutAction = false;
+            currentMemberData = null;
         }
 
         async function processSignInOut() {
@@ -277,6 +308,25 @@
             
             if (!memberId) {
                 showStatus('Please enter a Member ID', 'error');
+                return;
+            }
+
+            // If we're at the sign-out confirmation stage
+            if (pendingSignOutAction && currentMemberData) {
+                const destination = document.getElementById('destinationInput').value.trim();
+                const returnTime = document.getElementById('returnTimeInput').value;
+
+                if (!destination) {
+                    showStatus('Please enter a destination', 'error');
+                    return;
+                }
+
+                if (!returnTime) {
+                    showStatus('Please enter expected return time', 'error');
+                    return;
+                }
+
+                await completeSignOut(currentMemberData, destination, returnTime);
                 return;
             }
 
@@ -306,44 +356,82 @@
                 const statusResponse = await fetch(`${API_URL}/api/signInOut/current?id=${encodeURIComponent(memberId)}`);
                 const statusData = await statusResponse.json();
 
-                let actionUrl, actionMethod, actionBody, actionType;
-
-                if (statusData.signedIn) {
-                    // Currently signed in, so sign OUT
-                    actionUrl = `${API_URL}/api/signInOut/out`;
-                    actionMethod = 'POST';
-                    actionBody = JSON.stringify({ id: memberId });
-                    actionType = 'out';
-                } else {
-                    // Currently signed out, so sign IN
-                    actionUrl = `${API_URL}/api/signInOut/in`;
-                    actionMethod = 'POST';
-                    actionBody = JSON.stringify({ id: memberId });
-                    actionType = 'in';
-                }
-
-                // Perform the action
-                const actionResponse = await fetch(actionUrl, {
-                    method: actionMethod,
-                    headers: { 'Content-Type': 'application/json' },
-                    body: actionBody
-                });
-
-                const result = await actionResponse.json();
-
                 showLoading(false);
 
-                if (result.success) {
-                    const message = actionType === 'in' 
-                        ? `✓ ${memberName} signed IN` 
-                        : `✓ ${memberName} signed OUT`;
-                    showStatus(message, 'success');
+                if (statusData.signedIn) {
+                    // Currently signed in, need to collect sign-out info
+                    currentMemberData = { id: memberId, name: memberName };
+                    pendingSignOutAction = true;
+                    
+                    showStatus(`${memberName} - Please provide details`, 'info');
+                    document.getElementById('signOutFields').style.display = 'block';
+                    document.getElementById('actionButtonText').textContent = 'Complete Sign Out';
+                    
+                    // Set default return time to 2 hours from now
+                    const defaultReturn = new Date();
+                    defaultReturn.setHours(defaultReturn.getHours() + 2);
+                    document.getElementById('returnTimeInput').value = defaultReturn.toTimeString().slice(0, 5);
+                    
+                    document.getElementById('destinationInput').focus();
                 } else {
-                    showStatus('Error: ' + (result.message || 'Unknown error'), 'error');
+                    // Currently signed out, so sign IN
+                    await completeSignIn(memberId, memberName);
                 }
 
             } catch (error) {
                 console.error('Error:', error);
+                showLoading(false);
+                showStatus('Connection error. Please try again.', 'error');
+            }
+        }
+
+        async function completeSignIn(memberId, memberName) {
+            showLoading(true);
+            
+            try {
+                const actionResponse = await fetch(`${API_URL}/api/signInOut/in`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ id: memberId })
+                });
+
+                const result = await actionResponse.json();
+                showLoading(false);
+
+                if (result.success) {
+                    showStatus(`✓ ${memberName} signed IN`, 'success');
+                } else {
+                    showStatus('Error: ' + (result.message || 'Unknown error'), 'error');
+                }
+            } catch (error) {
+                showLoading(false);
+                showStatus('Connection error. Please try again.', 'error');
+            }
+        }
+
+        async function completeSignOut(memberData, destination, returnTime) {
+            showLoading(true);
+            
+            try {
+                const actionResponse = await fetch(`${API_URL}/api/signInOut/out`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ 
+                        id: memberData.id,
+                        destination: destination,
+                        expectedReturn: returnTime
+                    })
+                });
+
+                const result = await actionResponse.json();
+                showLoading(false);
+
+                if (result.success) {
+                    showStatus(`✓ ${memberData.name} signed OUT`, 'success');
+                } else {
+                    showStatus('Error: ' + (result.message || 'Unknown error'), 'error');
+                }
+            } catch (error) {
                 showLoading(false);
                 showStatus('Connection error. Please try again.', 'error');
             }
