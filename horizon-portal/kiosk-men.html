@@ -1,0 +1,663 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Horizon House - Men's Sign In/Out</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        body {
+            font-family: 'Segoe UI', Arial, sans-serif;
+            background: linear-gradient(135deg, #003366 0%, #005599 100%);
+            margin: 0;
+            padding: 20px;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .kiosk-container {
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.3);
+            padding: 40px;
+            max-width: 900px;
+            width: 100%;
+        }
+
+        .status-screen {
+            display: block;
+        }
+
+        .sign-in-screen {
+            display: none;
+        }
+
+        .screen-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+            border-bottom: 3px solid #003366;
+            padding-bottom: 20px;
+        }
+
+        h1 {
+            color: #003366;
+            font-size: 2.5rem;
+            margin: 0;
+        }
+
+        h2 {
+            color: #003366;
+            font-size: 2rem;
+            margin: 0;
+        }
+
+        .subtitle {
+            color: #666;
+            font-size: 1.2rem;
+            margin: 0;
+        }
+
+        .btn-action {
+            padding: 15px 30px;
+            font-size: 1.2rem;
+            font-weight: bold;
+            background: #28a745;
+            color: white;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .btn-action:hover {
+            background: #218838;
+        }
+
+        .btn-back {
+            padding: 10px 20px;
+            font-size: 1rem;
+            background: #6c757d;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+        }
+
+        .btn-back:hover {
+            background: #5a6268;
+        }
+
+        .status-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            gap: 15px;
+            margin-top: 20px;
+        }
+
+        .status-card {
+            background: #f8f9fa;
+            border: 2px solid #dee2e6;
+            border-radius: 10px;
+            padding: 15px;
+        }
+
+        .status-card.overdue {
+            border-color: #dc3545;
+            background: #fff5f5;
+        }
+
+        .member-name {
+            font-size: 1.2rem;
+            font-weight: bold;
+            color: #003366;
+            margin-bottom: 5px;
+        }
+
+        .member-info {
+            font-size: 0.9rem;
+            color: #666;
+            margin: 3px 0;
+        }
+
+        .overdue-badge {
+            display: inline-block;
+            background: #dc3545;
+            color: white;
+            padding: 2px 8px;
+            border-radius: 5px;
+            font-size: 0.8rem;
+            font-weight: bold;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 40px;
+            color: #999;
+        }
+
+        .empty-state-icon {
+            font-size: 4rem;
+            margin-bottom: 10px;
+        }
+
+        .sign-in-form {
+            text-align: center;
+        }
+
+        .status-display {
+            background: #f0f8ff;
+            border: 2px solid #003366;
+            border-radius: 15px;
+            padding: 20px;
+            margin-bottom: 30px;
+            min-height: 80px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .status-display.success {
+            background: #d4edda;
+            border-color: #28a745;
+        }
+
+        .status-display.error {
+            background: #f8d7da;
+            border-color: #dc3545;
+        }
+
+        .status-text {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: #003366;
+            margin: 0;
+        }
+
+        .status-display.success .status-text {
+            color: #28a745;
+        }
+
+        .status-display.error .status-text {
+            color: #dc3545;
+        }
+
+        .input-group {
+            margin-bottom: 20px;
+        }
+
+        label {
+            display: block;
+            color: #003366;
+            font-size: 1.3rem;
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+
+        input[type="text"] {
+            width: 100%;
+            padding: 20px;
+            font-size: 2rem;
+            border: 3px solid #003366;
+            border-radius: 10px;
+            text-align: center;
+            outline: none;
+            transition: border-color 0.3s;
+        }
+
+        input[type="text"]:focus {
+            border-color: #0066cc;
+        }
+
+        .button-group {
+            display: flex;
+            gap: 15px;
+            margin-top: 20px;
+        }
+
+        button {
+            flex: 1;
+            padding: 25px;
+            font-size: 1.5rem;
+            font-weight: bold;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.3s;
+            touch-action: manipulation;
+        }
+
+        .btn-primary {
+            background: #28a745;
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: #218838;
+        }
+
+        .btn-secondary {
+            background: #6c757d;
+            color: white;
+        }
+
+        .btn-secondary:hover {
+            background: #5a6268;
+        }
+
+        .timestamp {
+            color: #999;
+            font-size: 0.9rem;
+            margin-top: 20px;
+        }
+
+        .loading {
+            display: none;
+            margin-top: 15px;
+        }
+
+        .loading.active {
+            display: block;
+        }
+
+        .spinner {
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #003366;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        @media (max-width: 600px) {
+            .kiosk-container {
+                padding: 30px 20px;
+            }
+
+            h1 {
+                font-size: 2rem;
+            }
+
+            .subtitle {
+                font-size: 1rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="kiosk-container">
+        <!-- Status Screen -->
+        <div id="statusScreen" class="status-screen">
+            <div class="screen-header">
+                <div>
+                    <h1>Horizon House - Men</h1>
+                    <p class="subtitle">Men's Status Board</p>
+                </div>
+                <button class="btn-action" onclick="showSignInScreen()">Sign In/Out</button>
+            </div>
+
+            <h2 style="margin-bottom: 10px;">Currently Signed Out</h2>
+            <p style="color: #666; margin-bottom: 20px;" id="statusSummary">Loading...</p>
+            
+            <div id="statusGrid" class="status-grid"></div>
+            
+            <div class="timestamp" id="statusTimestamp" style="margin-top: 20px;"></div>
+        </div>
+
+        <!-- Sign In/Out Screen -->
+        <div id="signInScreen" class="sign-in-screen">
+            <div class="screen-header">
+                <div>
+                    <h2>Member Sign In/Out</h2>
+                </div>
+                <button class="btn-back" onclick="showStatusScreen()">← Back to Status</button>
+            </div>
+
+            <div class="sign-in-form">
+                <div id="statusDisplay" class="status-display">
+                    <p class="status-text">Enter your Member ID</p>
+                </div>
+
+                <div class="input-group">
+                    <label for="memberIdInput">Member ID</label>
+                    <input 
+                        type="text" 
+                        id="memberIdInput" 
+                        placeholder="Enter ID" 
+                        autocomplete="off"
+                        inputmode="numeric"
+                        pattern="[0-9]*"
+                    >
+                </div>
+
+                <div id="signOutFields" style="display: none;">
+                    <div class="input-group">
+                        <label for="destinationInput">Where are you going?</label>
+                        <input 
+                            type="text" 
+                            id="destinationInput" 
+                            placeholder="e.g., Work, Store, Appointment" 
+                            autocomplete="off"
+                        >
+                    </div>
+
+                    <div class="input-group">
+                        <label for="returnTimeInput">Expected Return Time</label>
+                        <input 
+                            type="time" 
+                            id="returnTimeInput"
+                            style="font-size: 1.5rem;"
+                        >
+                    </div>
+                </div>
+
+                <div class="button-group">
+                    <button class="btn-primary" onclick="processSignInOut()">
+                        <span id="actionButtonText">Sign In/Out</span>
+                    </button>
+                    <button class="btn-secondary" onclick="clearForm()">Clear</button>
+                </div>
+
+                <div id="loading" class="loading">
+                    <div class="spinner"></div>
+                </div>
+
+                <div class="timestamp" id="timestamp"></div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const API_URL = 'https://horizon-portal-backend-production-3532.up.railway.app';
+        let autoResetTimer = null;
+        let pendingSignOutAction = false;
+        let currentMemberData = null;
+
+        // Update timestamp
+        function updateTimestamp() {
+            const now = new Date();
+            const timeStr = now.toLocaleString();
+            document.getElementById('timestamp').textContent = timeStr;
+            document.getElementById('statusTimestamp').textContent = timeStr;
+        }
+        updateTimestamp();
+        setInterval(updateTimestamp, 1000);
+
+        // Load status on page load
+        loadStatusBoard();
+        setInterval(loadStatusBoard, 10000); // Refresh every 10 seconds
+
+        // Focus input on load
+        document.getElementById('memberIdInput').focus();
+
+        // Allow Enter key to submit
+        document.getElementById('memberIdInput').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                processSignInOut();
+            }
+        });
+
+        function showStatusScreen() {
+            document.getElementById('statusScreen').style.display = 'block';
+            document.getElementById('signInScreen').style.display = 'none';
+            loadStatusBoard();
+        }
+
+        function showSignInScreen() {
+            document.getElementById('statusScreen').style.display = 'none';
+            document.getElementById('signInScreen').style.display = 'block';
+            clearForm();
+            document.getElementById('memberIdInput').focus();
+        }
+
+        async function loadStatusBoard() {
+            try {
+                const response = await fetch(`${API_URL}/api/signInOut/current`);
+                const data = await response.json();
+                
+                const statusGrid = document.getElementById('statusGrid');
+                const statusSummary = document.getElementById('statusSummary');
+                
+                const membersOut = data.membersOut || [];
+                const total = membersOut.length;
+                const overdue = membersOut.filter(m => m.isOverdue).length;
+                
+                statusSummary.textContent = `${total} member${total !== 1 ? 's' : ''} currently out${overdue > 0 ? ` • ${overdue} overdue` : ''}`;
+                
+                if (total === 0) {
+                    statusGrid.innerHTML = `
+                        <div class="empty-state" style="grid-column: 1 / -1;">
+                            <div class="empty-state-icon">✅</div>
+                            <p style="font-size: 1.5rem;">All members are signed in!</p>
+                        </div>
+                    `;
+                } else {
+                    statusGrid.innerHTML = membersOut.map(member => `
+                        <div class="status-card${member.isOverdue ? ' overdue' : ''}">
+                            <div class="member-name">${member.memberName}</div>
+                            <div class="member-info">📍 ${member.destination}</div>
+                            <div class="member-info">🕐 Out: ${member.timeOut}</div>
+                            <div class="member-info">⏰ Return: ${member.estimatedReturn} ${member.isOverdue ? '<span class="overdue-badge">OVERDUE</span>' : ''}</div>
+                        </div>
+                    `).join('');
+                }
+            } catch (error) {
+                console.error('Error loading status:', error);
+                document.getElementById('statusSummary').textContent = 'Error loading status';
+            }
+        }
+
+        function showStatus(message, type = 'info') {
+            const statusDisplay = document.getElementById('statusDisplay');
+            const statusText = statusDisplay.querySelector('.status-text');
+            
+            statusDisplay.className = 'status-display' + (type !== 'info' ? ' ' + type : '');
+            statusText.textContent = message;
+
+            // Auto-reset after success/error
+            clearTimeout(autoResetTimer);
+            if (type === 'success' || type === 'error') {
+                autoResetTimer = setTimeout(() => {
+                    clearForm();
+                }, 3000);
+            }
+        }
+
+        function showLoading(show) {
+            const loading = document.getElementById('loading');
+            loading.className = show ? 'loading active' : 'loading';
+        }
+
+        function clearForm() {
+            document.getElementById('memberIdInput').value = '';
+            document.getElementById('destinationInput').value = '';
+            document.getElementById('returnTimeInput').value = '';
+            document.getElementById('signOutFields').style.display = 'none';
+            document.getElementById('actionButtonText').textContent = 'Sign In/Out';
+            showStatus('Enter your Member ID', 'info');
+            document.getElementById('memberIdInput').focus();
+            pendingSignOutAction = false;
+            currentMemberData = null;
+        }
+
+        async function processSignInOut() {
+            const memberId = document.getElementById('memberIdInput').value.trim();
+            
+            if (!memberId) {
+                showStatus('Please enter a Member ID', 'error');
+                return;
+            }
+
+            // If we're at the sign-out confirmation stage
+            if (pendingSignOutAction && currentMemberData) {
+                const destination = document.getElementById('destinationInput').value.trim();
+                const returnTime = document.getElementById('returnTimeInput').value;
+
+                if (!destination) {
+                    showStatus('Please enter a destination', 'error');
+                    return;
+                }
+
+                if (!returnTime) {
+                    showStatus('Please enter expected return time', 'error');
+                    return;
+                }
+
+                await completeSignOut(currentMemberData, destination, returnTime);
+                return;
+            }
+
+            showLoading(true);
+            showStatus('Processing...', 'info');
+
+            try {
+                // First, verify the member exists
+                const memberResponse = await fetch(`${API_URL}/api/getMember?id=${encodeURIComponent(memberId)}`);
+                
+                if (!memberResponse.ok) {
+                    showLoading(false);
+                    showStatus('Member ID not found', 'error');
+                    return;
+                }
+
+                const memberData = await memberResponse.json();
+                if (!memberData || !memberData.ID) {
+                    showLoading(false);
+                    showStatus('Member ID not found', 'error');
+                    return;
+                }
+
+                const memberName = `${memberData.FIRST_NAME || ''} ${memberData.LAST_NAME || ''}`.trim();
+
+                // Check current sign-in status - get list of all signed-out members
+                // Filter to show only men (M gender)
+                const statusResponse = await fetch(`${API_URL}/api/signInOut/current`);
+                const statusData = await statusResponse.json();
+                
+                // Get all members to check gender
+                const membersResponse = await fetch(`${API_URL}/api/members?gender=M`);
+                const menMembers = await membersResponse.json();
+                const menIds = new Set(menMembers.filter(m => m.STATU === 1 || m.STATUS === 1).map(m => String(m.ID)));
+                
+                // Filter status to only show men
+                statusData.membersOut = (statusData.membersOut || []).filter(m => menIds.has(m.memberId));
+
+                showLoading(false);
+
+                // Check if this member is in the signed-out list
+                const isSignedOut = statusData.membersOut && statusData.membersOut.some(m => m.memberId === memberId);
+
+                if (isSignedOut) {
+                    // Currently signed OUT, so sign IN
+                    await completeSignIn(memberId, memberName);
+                } else {
+                    // Currently signed IN (or never signed out), need to collect sign-out info
+                    currentMemberData = { id: memberId, name: memberName };
+                    pendingSignOutAction = true;
+                    
+                    showStatus(`${memberName} - Please provide details`, 'info');
+                    document.getElementById('signOutFields').style.display = 'block';
+                    document.getElementById('actionButtonText').textContent = 'Complete Sign Out';
+                    
+                    // Set default return time to 2 hours from now
+                    const defaultReturn = new Date();
+                    defaultReturn.setHours(defaultReturn.getHours() + 2);
+                    document.getElementById('returnTimeInput').value = defaultReturn.toTimeString().slice(0, 5);
+                    
+                    document.getElementById('destinationInput').focus();
+                }
+
+            } catch (error) {
+                console.error('Error:', error);
+                showLoading(false);
+                showStatus('Connection error. Please try again.', 'error');
+            }
+        }
+
+        async function completeSignIn(memberId, memberName) {
+            showLoading(true);
+            
+            try {
+                const now = new Date();
+                const timeIn = now.toTimeString().slice(0, 5);
+                const date = now.toISOString().split('T')[0];
+                
+                const actionResponse = await fetch(`${API_URL}/api/signInOut/in`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ 
+                        memberId: memberId,
+                        memberName: memberName,
+                        timeIn: timeIn,
+                        date: date
+                    })
+                });
+
+                const result = await actionResponse.json();
+                showLoading(false);
+
+                if (result.success) {
+                    showStatus(`✓ ${memberName} signed IN`, 'success');
+                    setTimeout(showStatusScreen, 2000); // Return to status after 2 seconds
+                } else {
+                    showStatus('Error: ' + (result.message || 'Unknown error'), 'error');
+                }
+            } catch (error) {
+                showLoading(false);
+                showStatus('Connection error. Please try again.', 'error');
+            }
+        }
+
+        async function completeSignOut(memberData, destination, returnTime) {
+            showLoading(true);
+            
+            try {
+                const now = new Date();
+                const timeOut = now.toTimeString().slice(0, 5);
+                const date = now.toISOString().split('T')[0];
+                
+                const actionResponse = await fetch(`${API_URL}/api/signInOut/out`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ 
+                        memberId: memberData.id,
+                        memberName: memberData.name,
+                        destination: destination,
+                        timeOut: timeOut,
+                        estimatedReturn: returnTime,
+                        date: date
+                    })
+                });
+
+                const result = await actionResponse.json();
+                showLoading(false);
+
+                if (result.success) {
+                    showStatus(`✓ ${memberData.name} signed OUT`, 'success');
+                    setTimeout(showStatusScreen, 2000); // Return to status after 2 seconds
+                } else {
+                    showStatus('Error: ' + (result.message || 'Unknown error'), 'error');
+                }
+            } catch (error) {
+                showLoading(false);
+                showStatus('Connection error. Please try again.', 'error');
+            }
+        }
+    </script>
+</body>
+</html>
