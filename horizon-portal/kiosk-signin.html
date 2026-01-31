@@ -27,21 +27,130 @@
             border-radius: 20px;
             box-shadow: 0 10px 40px rgba(0,0,0,0.3);
             padding: 40px;
-            max-width: 600px;
+            max-width: 900px;
             width: 100%;
-            text-align: center;
+        }
+
+        .status-screen {
+            display: block;
+        }
+
+        .sign-in-screen {
+            display: none;
+        }
+
+        .screen-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+            border-bottom: 3px solid #003366;
+            padding-bottom: 20px;
         }
 
         h1 {
             color: #003366;
             font-size: 2.5rem;
-            margin: 0 0 10px 0;
+            margin: 0;
+        }
+
+        h2 {
+            color: #003366;
+            font-size: 2rem;
+            margin: 0;
         }
 
         .subtitle {
             color: #666;
             font-size: 1.2rem;
-            margin-bottom: 30px;
+            margin: 0;
+        }
+
+        .btn-action {
+            padding: 15px 30px;
+            font-size: 1.2rem;
+            font-weight: bold;
+            background: #28a745;
+            color: white;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .btn-action:hover {
+            background: #218838;
+        }
+
+        .btn-back {
+            padding: 10px 20px;
+            font-size: 1rem;
+            background: #6c757d;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+        }
+
+        .btn-back:hover {
+            background: #5a6268;
+        }
+
+        .status-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            gap: 15px;
+            margin-top: 20px;
+        }
+
+        .status-card {
+            background: #f8f9fa;
+            border: 2px solid #dee2e6;
+            border-radius: 10px;
+            padding: 15px;
+        }
+
+        .status-card.overdue {
+            border-color: #dc3545;
+            background: #fff5f5;
+        }
+
+        .member-name {
+            font-size: 1.2rem;
+            font-weight: bold;
+            color: #003366;
+            margin-bottom: 5px;
+        }
+
+        .member-info {
+            font-size: 0.9rem;
+            color: #666;
+            margin: 3px 0;
+        }
+
+        .overdue-badge {
+            display: inline-block;
+            background: #dc3545;
+            color: white;
+            padding: 2px 8px;
+            border-radius: 5px;
+            font-size: 0.8rem;
+            font-weight: bold;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 40px;
+            color: #999;
+        }
+
+        .empty-state-icon {
+            font-size: 4rem;
+            margin-bottom: 10px;
+        }
+
+        .sign-in-form {
+            text-align: center;
         }
 
         .status-display {
@@ -192,58 +301,85 @@
 </head>
 <body>
     <div class="kiosk-container">
-        <h1>Horizon House</h1>
-        <div class="subtitle">Member Sign In/Out</div>
-
-        <div id="statusDisplay" class="status-display">
-            <p class="status-text">Enter your Member ID</p>
-        </div>
-
-        <div class="input-group">
-            <label for="memberIdInput">Member ID</label>
-            <input 
-                type="text" 
-                id="memberIdInput" 
-                placeholder="Enter ID" 
-                autocomplete="off"
-                inputmode="numeric"
-                pattern="[0-9]*"
-            >
-        </div>
-
-        <div id="signOutFields" style="display: none;">
-            <div class="input-group">
-                <label for="destinationInput">Where are you going?</label>
-                <input 
-                    type="text" 
-                    id="destinationInput" 
-                    placeholder="e.g., Work, Store, Appointment" 
-                    autocomplete="off"
-                >
+        <!-- Status Screen -->
+        <div id="statusScreen" class="status-screen">
+            <div class="screen-header">
+                <div>
+                    <h1>Horizon House</h1>
+                    <p class="subtitle">Member Status Board</p>
+                </div>
+                <button class="btn-action" onclick="showSignInScreen()">Sign In/Out</button>
             </div>
 
-            <div class="input-group">
-                <label for="returnTimeInput">Expected Return Time</label>
-                <input 
-                    type="time" 
-                    id="returnTimeInput"
-                    style="font-size: 1.5rem;"
-                >
+            <h2 style="margin-bottom: 10px;">Currently Signed Out</h2>
+            <p style="color: #666; margin-bottom: 20px;" id="statusSummary">Loading...</p>
+            
+            <div id="statusGrid" class="status-grid"></div>
+            
+            <div class="timestamp" id="statusTimestamp" style="margin-top: 20px;"></div>
+        </div>
+
+        <!-- Sign In/Out Screen -->
+        <div id="signInScreen" class="sign-in-screen">
+            <div class="screen-header">
+                <div>
+                    <h2>Member Sign In/Out</h2>
+                </div>
+                <button class="btn-back" onclick="showStatusScreen()">← Back to Status</button>
+            </div>
+
+            <div class="sign-in-form">
+                <div id="statusDisplay" class="status-display">
+                    <p class="status-text">Enter your Member ID</p>
+                </div>
+
+                <div class="input-group">
+                    <label for="memberIdInput">Member ID</label>
+                    <input 
+                        type="text" 
+                        id="memberIdInput" 
+                        placeholder="Enter ID" 
+                        autocomplete="off"
+                        inputmode="numeric"
+                        pattern="[0-9]*"
+                    >
+                </div>
+
+                <div id="signOutFields" style="display: none;">
+                    <div class="input-group">
+                        <label for="destinationInput">Where are you going?</label>
+                        <input 
+                            type="text" 
+                            id="destinationInput" 
+                            placeholder="e.g., Work, Store, Appointment" 
+                            autocomplete="off"
+                        >
+                    </div>
+
+                    <div class="input-group">
+                        <label for="returnTimeInput">Expected Return Time</label>
+                        <input 
+                            type="time" 
+                            id="returnTimeInput"
+                            style="font-size: 1.5rem;"
+                        >
+                    </div>
+                </div>
+
+                <div class="button-group">
+                    <button class="btn-primary" onclick="processSignInOut()">
+                        <span id="actionButtonText">Sign In/Out</span>
+                    </button>
+                    <button class="btn-secondary" onclick="clearForm()">Clear</button>
+                </div>
+
+                <div id="loading" class="loading">
+                    <div class="spinner"></div>
+                </div>
+
+                <div class="timestamp" id="timestamp"></div>
             </div>
         </div>
-
-        <div class="button-group">
-            <button class="btn-primary" onclick="processSignInOut()">
-                <span id="actionButtonText">Sign In/Out</span>
-            </button>
-            <button class="btn-secondary" onclick="clearForm()">Clear</button>
-        </div>
-
-        <div id="loading" class="loading">
-            <div class="spinner"></div>
-        </div>
-
-        <div class="timestamp" id="timestamp"></div>
     </div>
 
     <script>
@@ -255,10 +391,16 @@
         // Update timestamp
         function updateTimestamp() {
             const now = new Date();
-            document.getElementById('timestamp').textContent = now.toLocaleString();
+            const timeStr = now.toLocaleString();
+            document.getElementById('timestamp').textContent = timeStr;
+            document.getElementById('statusTimestamp').textContent = timeStr;
         }
         updateTimestamp();
         setInterval(updateTimestamp, 1000);
+
+        // Load status on page load
+        loadStatusBoard();
+        setInterval(loadStatusBoard, 10000); // Refresh every 10 seconds
 
         // Focus input on load
         document.getElementById('memberIdInput').focus();
@@ -269,6 +411,56 @@
                 processSignInOut();
             }
         });
+
+        function showStatusScreen() {
+            document.getElementById('statusScreen').style.display = 'block';
+            document.getElementById('signInScreen').style.display = 'none';
+            loadStatusBoard();
+        }
+
+        function showSignInScreen() {
+            document.getElementById('statusScreen').style.display = 'none';
+            document.getElementById('signInScreen').style.display = 'block';
+            clearForm();
+            document.getElementById('memberIdInput').focus();
+        }
+
+        async function loadStatusBoard() {
+            try {
+                const response = await fetch(`${API_URL}/api/signInOut/current`);
+                const data = await response.json();
+                
+                const statusGrid = document.getElementById('statusGrid');
+                const statusSummary = document.getElementById('statusSummary');
+                
+                const membersOut = data.membersOut || [];
+                const total = membersOut.length;
+                const overdue = membersOut.filter(m => m.isOverdue).length;
+                
+                statusSummary.textContent = `${total} member${total !== 1 ? 's' : ''} currently out${overdue > 0 ? ` • ${overdue} overdue` : ''}`;
+                
+                if (total === 0) {
+                    statusGrid.innerHTML = `
+                        <div class="empty-state" style="grid-column: 1 / -1;">
+                            <div class="empty-state-icon">✅</div>
+                            <p style="font-size: 1.5rem;">All members are signed in!</p>
+                        </div>
+                    `;
+                } else {
+                    statusGrid.innerHTML = membersOut.map(member => `
+                        <div class="status-card${member.isOverdue ? ' overdue' : ''}">
+                            <div class="member-name">${member.memberName}</div>
+                            <div class="member-info">📍 ${member.destination}</div>
+                            <div class="member-info">🕐 Out: ${member.timeOut}</div>
+                            <div class="member-info">⏰ Return: ${member.estimatedReturn} ${member.isOverdue ? '<span class="overdue-badge">OVERDUE</span>' : ''}</div>
+                        </div>
+                    `).join('');
+                }
+            } catch (error) {
+                console.error('Error loading status:', error);
+                document.getElementById('statusSummary').textContent = 'Error loading status';
+            }
+        }
 
         function showStatus(message, type = 'info') {
             const statusDisplay = document.getElementById('statusDisplay');
@@ -412,6 +604,7 @@
 
                 if (result.success) {
                     showStatus(`✓ ${memberName} signed IN`, 'success');
+                    setTimeout(showStatusScreen, 2000); // Return to status after 2 seconds
                 } else {
                     showStatus('Error: ' + (result.message || 'Unknown error'), 'error');
                 }
@@ -447,6 +640,7 @@
 
                 if (result.success) {
                     showStatus(`✓ ${memberData.name} signed OUT`, 'success');
+                    setTimeout(showStatusScreen, 2000); // Return to status after 2 seconds
                 } else {
                     showStatus('Error: ' + (result.message || 'Unknown error'), 'error');
                 }
