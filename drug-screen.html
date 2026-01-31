@@ -305,6 +305,194 @@
             background: #c53030;
         }
 
+        @media print {
+            @page {
+                margin: 0.2in;
+                size: letter;
+            }
+
+            * {
+                print-color-adjust: exact;
+                -webkit-print-color-adjust: exact;
+            }
+
+            body {
+                background: none !important;
+                padding: 0 !important;
+                margin: 0 !important;
+                font-size: 7px !important;
+            }
+
+            .container {
+                max-width: 100% !important;
+                margin: 0 !important;
+                transform: scale(0.8) !important;
+                transform-origin: top left !important;
+                width: 125% !important;
+            }
+
+            .header,
+            .form-card {
+                box-shadow: none !important;
+                padding: 1px 3px !important;
+                margin: 0 !important;
+                border-radius: 0 !important;
+            }
+
+            .header {
+                padding: 1px 3px !important;
+                margin-bottom: 1px !important;
+            }
+
+            .header h1 {
+                font-size: 11px !important;
+                margin-bottom: 0 !important;
+            }
+
+            .header p {
+                font-size: 6px !important;
+                margin: 0 !important;
+            }
+
+            .nav-links {
+                display: none !important;
+            }
+
+            .form-section {
+                margin-bottom: 1px !important;
+                page-break-inside: avoid !important;
+            }
+
+            .form-section h2 {
+                font-size: 8px !important;
+                margin-bottom: 1px !important;
+                padding-bottom: 1px !important;
+                border-bottom: 1px solid #000 !important;
+            }
+
+            .form-section:nth-of-type(1) .form-group,
+            .form-section:nth-of-type(2) .form-group {
+                display: inline-block !important;
+                width: 49% !important;
+                vertical-align: top !important;
+                margin-bottom: 1px !important;
+            }
+
+            .form-group {
+                margin-bottom: 1px !important;
+            }
+
+            label {
+                font-size: 6px !important;
+                margin-bottom: 0 !important;
+            }
+
+            input[type="text"],
+            input[type="date"],
+            input[type="time"],
+            select,
+            textarea {
+                padding: 1px 2px !important;
+                font-size: 6px !important;
+                border: 1px solid #000 !important;
+            }
+
+            textarea {
+                min-height: 12px !important;
+            }
+
+            .substance-grid {
+                grid-template-columns: repeat(13, 1fr) !important;
+                gap: 1px !important;
+                margin-bottom: 1px !important;
+            }
+
+            .substance-item {
+                padding: 0 1px !important;
+                font-size: 5px !important;
+            }
+
+            .substance-item span {
+                font-size: 5px !important;
+            }
+
+            .observation-row {
+                padding: 1px !important;
+                margin-bottom: 1px !important;
+                gap: 3px !important;
+            }
+
+            .observation-item {
+                gap: 2px !important;
+            }
+
+            .observation-item label {
+                font-size: 6px !important;
+            }
+
+            .observation-item .radio-group {
+                gap: 2px !important;
+            }
+
+            .observation-item .radio-option {
+                gap: 1px !important;
+            }
+
+            .observation-item .radio-option label {
+                font-size: 5px !important;
+            }
+
+            .observation-item input[type="radio"] {
+                width: 7px !important;
+                height: 7px !important;
+            }
+
+            .result-toggle {
+                gap: 1px !important;
+            }
+
+            .result-toggle label {
+                padding: 0 3px !important;
+                font-size: 5px !important;
+            }
+
+            .signature-container {
+                grid-template-columns: 1fr 1fr !important;
+                gap: 3px !important;
+                margin-top: 1px !important;
+            }
+
+            .signature-box {
+                padding: 1px !important;
+                border: 1px solid #000 !important;
+            }
+
+            .signature-box label {
+                font-size: 6px !important;
+                margin-bottom: 0 !important;
+            }
+
+            .signature-canvas {
+                height: 25px !important;
+                border: 1px solid #000 !important;
+            }
+
+            .form-section p {
+                font-size: 6px !important;
+                margin-bottom: 0 !important;
+            }
+
+            .form-section:last-of-type p {
+                display: none !important;
+            }
+
+            .btn-clear,
+            .button-group,
+            .status-message {
+                display: none !important;
+            }
+        }
+
         @media (max-width: 768px) {
             .substance-grid {
                 grid-template-columns: 1fr;
@@ -322,9 +510,7 @@
             <h1>🧪 Drug Screen Form</h1>
             <p>Record member drug test results</p>
             <div class="nav-links">
-                <a href="/drug-screen-history.html">View Test History</a>
-                <a href="/staff-reviews.html">Applications</a>
-                <a href="/">Home</a>
+                <a href="/staff-dashboard.html">← Back to Dashboard</a>
             </div>
         </div>
 
@@ -587,11 +773,11 @@
                         <div class="result-toggle">
                             <div class="result-negative">
                                 <input type="radio" id="alc-neg" name="alcohol" value="negative" checked>
-                                <label for="alc-neg">NEG</label>
+                                <label for="alc-neg">NO</label>
                             </div>
                             <div class="result-positive">
                                 <input type="radio" id="alc-pos" name="alcohol" value="positive">
-                                <label for="alc-pos">POS</label>
+                                <label for="alc-pos">YES</label>
                             </div>
                         </div>
                     </div>

@@ -423,9 +423,7 @@
             <h1>🧪 Drug Screen History</h1>
             <p>View and search member drug test records</p>
             <div class="nav-links">
-                <a href="/drug-screen.html">+ New Drug Screen</a>
-                <a href="/staff-reviews.html">Applications</a>
-                <a href="/">Home</a>
+                <a href="/staff-dashboard.html">← Back to Dashboard</a>
             </div>
         </div>
 
@@ -572,6 +570,12 @@
                     </div>
                 `).join('');
 
+                const bacHTML = test.bac ? `
+                    <div class="notes-box" style="margin-top: 10px;">
+                        <strong>BAC:</strong> ${test.bac}
+                    </div>
+                ` : '';
+
                 const notesHTML = test.notes ? `
                     <div class="notes-box">
                         <strong>Notes:</strong>
@@ -598,6 +602,7 @@
 
                 return `
                     <div class="test-card ${test.overallResult}">
+                        ${bacHTML}
                         <div class="print-header">
                             <img src="/hhlogo.png" alt="Horizon House Logo" onerror="this.style.display='none'">
                             <div class="print-header-text">
