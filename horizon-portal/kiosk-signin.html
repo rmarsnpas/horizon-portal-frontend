@@ -389,10 +389,19 @@
             showLoading(true);
             
             try {
+                const now = new Date();
+                const timeIn = now.toTimeString().slice(0, 5);
+                const date = now.toISOString().split('T')[0];
+                
                 const actionResponse = await fetch(`${API_URL}/api/signInOut/in`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ id: memberId })
+                    body: JSON.stringify({ 
+                        memberId: memberId,
+                        memberName: memberName,
+                        timeIn: timeIn,
+                        date: date
+                    })
                 });
 
                 const result = await actionResponse.json();
@@ -413,13 +422,20 @@
             showLoading(true);
             
             try {
+                const now = new Date();
+                const timeOut = now.toTimeString().slice(0, 5);
+                const date = now.toISOString().split('T')[0];
+                
                 const actionResponse = await fetch(`${API_URL}/api/signInOut/out`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ 
-                        id: memberData.id,
+                        memberId: memberData.id,
+                        memberName: memberData.name,
                         destination: destination,
-                        expectedReturn: returnTime
+                        timeOut: timeOut,
+                        estimatedReturn: returnTime,
+                        date: date
                     })
                 });
 
