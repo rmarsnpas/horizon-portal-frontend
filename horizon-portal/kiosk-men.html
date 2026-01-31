@@ -543,7 +543,7 @@
                 }
                 
                 // Check if member is male
-                const memberGender = (memberData.GENDER || memberData.SEX || '').toString().toUpperCase().trim();
+                const memberGender = (memberData['M/F'] || memberData.GENDER || memberData.SEX || '').toString().toUpperCase().trim();
                 if (!memberGender.startsWith('M')) {
                     showLoading(false);
                     showStatus('This kiosk is for men only', 'error');
