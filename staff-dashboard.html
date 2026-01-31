@@ -320,6 +320,13 @@
                 <div class="card-count" id="drugScreenCount">-</div>
                 <div class="card-label">Total Tests</div>
             </a>
+
+            <a href="/horizon-portal/members/sign-inout-history.html" class="dashboard-card">
+                <div class="card-icon">🚪</div>
+                <div class="card-title">Sign In/Out</div>
+                <div class="card-count" id="signInOutCount">-</div>
+                <div class="card-label">Currently Out</div>
+            </a>
         </div>
 
         <!-- Forms Section -->
@@ -400,15 +407,17 @@
         async function loadDashboardData() {
             try {
                 // Fetch all data in parallel
-                const [applicationsRes, contactsRes, drugScreensRes] = await Promise.all([
+                const [applicationsRes, contactsRes, drugScreensRes, signInOutRes] = await Promise.all([
                     fetch(`${API_BASE}/api/pendingApplications`),
                     fetch(`${API_BASE}/api/contactSubmissions`),
-                    fetch(`${API_BASE}/api/drugScreens`)
+                    fetch(`${API_BASE}/api/drugScreens`),
+                    fetch(`${API_BASE}/api/signInOut/current`)
                 ]);
 
                 const applications = await applicationsRes.json();
                 const contacts = await contactsRes.json();
                 const drugScreens = await drugScreensRes.json();
+                const signInOut = await signInOutRes.json();
 
                 // Count pending applications (already filtered on backend)
                 const pendingApps = applications.length;
@@ -419,10 +428,14 @@
                 // Total drug screens
                 const totalDrugScreens = drugScreens.length;
 
+                // Members currently signed out
+                const membersOut = signInOut.total || 0;
+
                 // Update UI
                 document.getElementById('appCount').textContent = pendingApps;
                 document.getElementById('contactCount').textContent = unreadContacts;
                 document.getElementById('drugScreenCount').textContent = totalDrugScreens;
+                document.getElementById('signInOutCount').textContent = membersOut;
 
                 document.getElementById('loading').style.display = 'none';
                 document.getElementById('pendingSection').style.display = 'block';
