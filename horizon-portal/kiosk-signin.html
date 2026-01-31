@@ -352,14 +352,20 @@
 
                 const memberName = `${memberData.FIRST_NAME || ''} ${memberData.LAST_NAME || ''}`.trim();
 
-                // Check current sign-in status
-                const statusResponse = await fetch(`${API_URL}/api/signInOut/current?id=${encodeURIComponent(memberId)}`);
+                // Check current sign-in status - get list of all signed-out members
+                const statusResponse = await fetch(`${API_URL}/api/signInOut/current`);
                 const statusData = await statusResponse.json();
 
                 showLoading(false);
 
-                if (statusData.signedIn) {
-                    // Currently signed in, need to collect sign-out info
+                // Check if this member is in the signed-out list
+                const isSignedOut = statusData.membersOut && statusData.membersOut.some(m => m.memberId === memberId);
+
+                if (isSignedOut) {
+                    // Currently signed OUT, so sign IN
+                    await completeSignIn(memberId, memberName);
+                } else {
+                    // Currently signed IN (or never signed out), need to collect sign-out info
                     currentMemberData = { id: memberId, name: memberName };
                     pendingSignOutAction = true;
                     
@@ -373,9 +379,6 @@
                     document.getElementById('returnTimeInput').value = defaultReturn.toTimeString().slice(0, 5);
                     
                     document.getElementById('destinationInput').focus();
-                } else {
-                    // Currently signed out, so sign IN
-                    await completeSignIn(memberId, memberName);
                 }
 
             } catch (error) {
