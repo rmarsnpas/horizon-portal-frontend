@@ -425,7 +425,7 @@
     </div>
 
     <script>
-        const API_URL = 'http://localhost:3001';
+        const API_URL = 'https://horizon-portal-backend-production-3532.up.railway.app';
         let currentMemberId = null;
         let currentMemberName = null;
         let currentConversationId = null;
@@ -461,7 +461,13 @@
                         // For 1-on-1, get the other person's name
                         const otherMemberId = conv.participants.find(p => p !== currentMemberId);
                         const otherMember = allMembers.find(m => m.ID === otherMemberId);
-                        convName = otherMember ? `${otherMember['FIRST\r\nNAME']} ${otherMember['LAST\r\nNAME']}` : 'Unknown';
+                        if (otherMember) {
+                            const firstName = otherMember['FIRST\r\nNAME'] || otherMember['FIRST NAME'] || otherMember.FIRST_NAME || '';
+                            const lastName = otherMember['LAST\r\nNAME'] || otherMember['LAST NAME'] || otherMember.LAST_NAME || '';
+                            convName = `${firstName} ${lastName}`.trim() || 'Unknown';
+                        } else {
+                            convName = 'Unknown';
+                        }
                     }
 
                     const lastMessageText = conv.lastMessage ? conv.lastMessage.text : 'No messages yet';
@@ -591,12 +597,16 @@
             const membersList = document.getElementById('membersList');
             membersList.innerHTML = allMembers
                 .filter(m => m.ID !== currentMemberId) // Exclude self
-                .map(m => `
-                    <label class="member-checkbox">
-                        <input type="checkbox" value="${m.ID}" />
-                        ${m['FIRST\r\nNAME']} ${m['LAST\r\nNAME']}
-                    </label>
-                `).join('');
+                .map(m => {
+                    const firstName = m['FIRST\r\nNAME'] || m['FIRST NAME'] || m.FIRST_NAME || '';
+                    const lastName = m['LAST\r\nNAME'] || m['LAST NAME'] || m.LAST_NAME || '';
+                    return `
+                        <label class="member-checkbox">
+                            <input type="checkbox" value="${m.ID}" />
+                            ${firstName} ${lastName}
+                        </label>
+                    `;
+                }).join('');
 
             document.getElementById('newMessageModal').classList.add('show');
         }
@@ -637,7 +647,13 @@
                     let convName = result.conversation.name;
                     if (!convName) {
                         const otherMember = allMembers.find(m => m.ID === recipientIds[0]);
-                        convName = otherMember ? `${otherMember['FIRST\r\nNAME']} ${otherMember['LAST\r\nNAME']}` : 'Unknown';
+                        if (otherMember) {
+                            const firstName = otherMember['FIRST\r\nNAME'] || otherMember['FIRST NAME'] || otherMember.FIRST_NAME || '';
+                            const lastName = otherMember['LAST\r\nNAME'] || otherMember['LAST NAME'] || otherMember.LAST_NAME || '';
+                            convName = `${firstName} ${lastName}`.trim() || 'Unknown';
+                        } else {
+                            convName = 'Unknown';
+                        }
                     }
                     
                     selectConversation(result.conversation.id, convName);
