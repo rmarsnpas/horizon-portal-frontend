@@ -155,6 +155,34 @@
             border-bottom: 1px solid #e0e0e0;
             font-weight: 600;
             font-size: 16px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .conversation-title {
+            flex: 1;
+            cursor: pointer;
+            padding: 5px;
+            border-radius: 3px;
+        }
+
+        .conversation-title:hover {
+            background: #f0f0f0;
+        }
+
+        .edit-name-btn {
+            background: transparent;
+            border: none;
+            color: #667eea;
+            cursor: pointer;
+            padding: 5px 10px;
+            border-radius: 3px;
+            font-size: 12px;
+        }
+
+        .edit-name-btn:hover {
+            background: #f0f0f0;
         }
 
         .messages-container {
@@ -304,6 +332,26 @@
             margin-bottom: 20px;
         }
 
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: 600;
+            color: #333;
+        }
+
+        .form-input {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #e0e0e0;
+            border-radius: 5px;
+            font-size: 14px;
+            font-family: inherit;
+        }
+
         .modal-footer {
             display: flex;
             gap: 10px;
@@ -387,7 +435,8 @@
             <!-- Messages Panel -->
             <div class="messages-panel" id="messagesPanel">
                 <div id="messagesHeader" class="messages-header" style="display:none;">
-                    Select a conversation
+                    <span class="conversation-title" id="conversationTitle" onclick="editConversationName()">Select a conversation</span>
+                    <button class="edit-name-btn" id="editNameBtn" onclick="editConversationName()" style="display:none;">✏️ Rename</button>
                 </div>
                 <div class="messages-container" id="messagesContainer">
                     <div class="empty-state">
@@ -412,9 +461,15 @@
         <div class="modal-content">
             <div class="modal-header">New Message</div>
             <div class="modal-body">
-                <p style="margin-bottom: 15px;">Select members to message:</p>
-                <div id="membersList">
-                    <!-- Members will be loaded here -->
+                <div class="form-group">
+                    <label for="conversationName">Conversation Name (optional):</label>
+                    <input type="text" id="conversationName" class="form-input" placeholder="e.g., Study Group, Weekend Plans..." />
+                </div>
+                <div class="form-group">
+                    <label>Select members to message:</label>
+                    <div id="membersList">
+                        <!-- Members will be loaded here -->
+                    </div>
                 </div>
             </div>
             <div class="modal-footer">
@@ -494,8 +549,9 @@
         // Select conversation
         async function selectConversation(conversationId, name) {
             currentConversationId = conversationId;
-            document.getElementById('messagesHeader').textContent = name;
-            document.getElementById('messagesHeader').style.display = 'block';
+            document.getElementById('conversationTitle').textContent = name;
+            document.getElementById('messagesHeader').style.display = 'flex';
+            document.getElementById('editNameBtn').style.display = 'block';
             document.getElementById('messageInputArea').style.display = 'flex';
             
             loadMessages();
@@ -614,12 +670,14 @@
         // Close new message modal
         function closeNewMessageModal() {
             document.getElementById('newMessageModal').classList.remove('show');
+            document.getElementById('conversationName').value = '';
         }
 
         // Create conversation
         async function createConversation() {
             const checkboxes = document.querySelectorAll('#membersList input[type="checkbox"]:checked');
             const recipientIds = Array.from(checkboxes).map(cb => cb.value);
+            const conversationName = document.getElementById('conversationName').value.trim();
 
             if (recipientIds.length === 0) {
                 alert('Please select at least one member');
@@ -633,7 +691,7 @@
                     body: JSON.stringify({
                         memberId: currentMemberId,
                         recipientIds,
-                        name: recipientIds.length > 1 ? 'Group Chat' : null
+                        name: conversationName || (recipientIds.length > 1 ? 'Group Chat' : null)
                     })
                 });
 
@@ -661,6 +719,41 @@
             } catch (error) {
                 console.error('Error creating conversation:', error);
                 alert('Failed to create conversation');
+            }
+        }
+
+        // Edit conversation name
+        async function editConversationName() {
+            if (!currentConversationId) return;
+
+            const currentName = document.getElementById('conversationTitle').textContent;
+            const newName = prompt('Enter new conversation name:', currentName);
+            
+            if (newName === null || newName.trim() === '' || newName === currentName) {
+                return; // User cancelled or entered same name
+            }
+
+            try {
+                const response = await fetch(`${API_URL}/api/messages/conversation/${currentConversationId}`, {
+                    method: 'PATCH',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        name: newName.trim(),
+                        memberId: currentMemberId
+                    })
+                });
+
+                const result = await response.json();
+                
+                if (result.success) {
+                    document.getElementById('conversationTitle').textContent = newName.trim();
+                    loadConversations(); // Refresh conversation list
+                } else {
+                    alert('Failed to update conversation name');
+                }
+            } catch (error) {
+                console.error('Error updating conversation name:', error);
+                alert('Failed to update conversation name');
             }
         }
 
