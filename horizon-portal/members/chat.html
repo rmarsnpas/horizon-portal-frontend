@@ -734,6 +734,8 @@
             }
 
             try {
+                console.log('Updating conversation:', { conversationId: currentConversationId, name: newName.trim(), memberId: currentMemberId });
+                
                 const response = await fetch(`${API_URL}/api/messages/conversation/${currentConversationId}`, {
                     method: 'PATCH',
                     headers: { 'Content-Type': 'application/json' },
@@ -743,17 +745,22 @@
                     })
                 });
 
+                console.log('Response status:', response.status);
                 const result = await response.json();
+                console.log('Response data:', result);
                 
                 if (result.success) {
                     document.getElementById('conversationTitle').textContent = newName.trim();
                     loadConversations(); // Refresh conversation list
+                    alert('Conversation name updated successfully!');
                 } else {
-                    alert('Failed to update conversation name');
+                    const errorMsg = result.error || result.details || 'Unknown error';
+                    console.error('Server error:', errorMsg);
+                    alert(`Failed to update conversation name: ${errorMsg}`);
                 }
             } catch (error) {
                 console.error('Error updating conversation name:', error);
-                alert('Failed to update conversation name');
+                alert(`Failed to update conversation name: ${error.message}`);
             }
         }
 
