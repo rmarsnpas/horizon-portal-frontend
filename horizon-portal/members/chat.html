@@ -393,6 +393,11 @@
             margin-right: 10px;
         }
 
+        .status-1 { color: #28a745; }
+        .status-2 { color: #007bff; }
+        .status-3 { color: #dc3545; }
+        .status-4, .status-5 { color: #28a745; text-decoration: underline; }
+
         @media (max-width: 768px) {
             .conversations-panel {
                 width: 100%;
@@ -656,10 +661,13 @@
                 .map(m => {
                     const firstName = m['FIRST\r\nNAME'] || m['FIRST NAME'] || m.FIRST_NAME || '';
                     const lastName = m['LAST\r\nNAME'] || m['LAST NAME'] || m.LAST_NAME || '';
+                    const status = m.STATUS || m['STATUS'] || '';
+                    const statusClass = status ? `status-${status}` : '';
+                    
                     return `
                         <label class="member-checkbox">
                             <input type="checkbox" value="${m.ID}" />
-                            ${firstName} ${lastName}
+                            <span class="${statusClass}">${firstName} ${lastName}</span>
                         </label>
                     `;
                 }).join('');
