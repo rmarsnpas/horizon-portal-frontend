@@ -250,11 +250,14 @@
                 });
                 
                 console.log('Active members (status=1):', activeMembers.length);
-                console.log('Active members:', activeMembers.map(m => ({
+                console.log('First active member sample:', activeMembers[0]);
+                console.log('Active members:', activeMembers.slice(0,3).map(m => ({
                     id: m.ID,
-                    name: `${m.FIRST_NAME || m['FIRST\nNAME']} ${m.LAST_NAME || m['LAST\nNAME']}`,
+                    allKeys: Object.keys(m),
+                    firstName: m.FIRST_NAME || m['FIRST\r\nNAME'] || m['FIRST\nNAME'],
+                    lastName: m.LAST_NAME || m['LAST\r\nNAME'] || m['LAST\nNAME'],
                     status: m.STATU || m.STATUS,
-                    gender: m.GENDER || m.SEX
+                    gender: m['M/F'] || m.GENDER || m.SEX
                 })));
                 
                 // Get current sign-out status
@@ -277,8 +280,8 @@
                 const grid = document.getElementById('membersGrid');
                 grid.innerHTML = activeMembers.map(member => {
                     const memberId = String(member.ID);
-                    const firstName = member.FIRST_NAME || member['FIRST\nNAME'] || '';
-                    const lastName = member.LAST_NAME || member['LAST\nNAME'] || '';
+                    const firstName = member.FIRST_NAME || member['FIRST\r\nNAME'] || member['FIRST\nNAME'] || '';
+                    const lastName = member.LAST_NAME || member['LAST\r\nNAME'] || member['LAST\nNAME'] || '';
                     const memberName = `${firstName} ${lastName}`.trim() || 'Unknown';
                     
                     const outInfo = outMap[memberId];

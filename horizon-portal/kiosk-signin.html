@@ -384,6 +384,22 @@
 
     <script>
         const API_URL = 'https://horizon-portal-backend-production-3532.up.railway.app';
+        // Helper utilities to normalize IDs across backend variations
+        function normalizeId(v) {
+            return String(v ?? '').trim();
+        }
+        function memberIdFrom(obj) {
+            return normalizeId(obj && (obj.memberId ?? obj.ID ?? obj.id));
+        }
+        function displayNameFrom(m) {
+            if (!m) return 'Unknown';
+            const nameCandidates = [m.memberName, m.name, m.MEMBER_NAME, m.MEMBERNAME, m.member_name, `${m.FIRST_NAME || m.first_name || ''} ${m.LAST_NAME || m.last_name || ''}`];
+            for (const c of nameCandidates) {
+                if (c && String(c).trim()) return String(c).trim();
+            }
+            const id = memberIdFrom(m);
+            return id || 'Unknown';
+        }
         let autoResetTimer = null;
         let pendingSignOutAction = false;
         let currentMemberData = null;
@@ -449,10 +465,10 @@
                 } else {
                     statusGrid.innerHTML = membersOut.map(member => `
                         <div class="status-card${member.isOverdue ? ' overdue' : ''}">
-                            <div class="member-name">${member.memberName}</div>
-                            <div class="member-info">📍 ${member.destination}</div>
-                            <div class="member-info">🕐 Out: ${member.timeOut}</div>
-                            <div class="member-info">⏰ Return: ${member.estimatedReturn} ${member.isOverdue ? '<span class="overdue-badge">OVERDUE</span>' : ''}</div>
+                            <div class="member-name">${displayNameFrom(member)}</div>
+                            <div class="member-info">📍 ${member.destination || ''}</div>
+                            <div class="member-info">🕐 Out: ${member.timeOut || ''}</div>
+                            <div class="member-info">⏰ Return: ${member.estimatedReturn || ''} ${member.isOverdue ? '<span class="overdue-badge">OVERDUE</span>' : ''}</div>
                         </div>
                     `).join('');
                 }
@@ -550,8 +566,8 @@
 
                 showLoading(false);
 
-                // Check if this member is in the signed-out list
-                const isSignedOut = statusData.membersOut && statusData.membersOut.some(m => m.memberId === memberId);
+                // Check if this member is in the signed-out list (robust to id field variations)
+                const isSignedOut = (statusData.membersOut || []).some(m => memberIdFrom(m) === normalizeId(memberId));
 
                 if (isSignedOut) {
                     // Currently signed OUT, so sign IN
