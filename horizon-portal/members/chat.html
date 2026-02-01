@@ -246,7 +246,63 @@
             border-top: 1px solid #e0e0e0;
             background: white;
             display: flex;
+            flex-direction: column;
             gap: 10px;
+        }
+
+        .input-row {
+            display: flex;
+            gap: 10px;
+        }
+
+        .image-upload-btn {
+            background: #f0f0f0;
+            border: none;
+            padding: 12px;
+            border-radius: 25px;
+            cursor: pointer;
+            font-size: 20px;
+            transition: background 0.2s;
+        }
+
+        .image-upload-btn:hover {
+            background: #e0e0e0;
+        }
+
+        .image-preview {
+            position: relative;
+            display: inline-block;
+            margin: 5px;
+        }
+
+        .image-preview img {
+            max-width: 200px;
+            max-height: 150px;
+            border-radius: 8px;
+            border: 2px solid #e0e0e0;
+        }
+
+        .image-preview-close {
+            position: absolute;
+            top: -8px;
+            right: -8px;
+            background: #dc3545;
+            color: white;
+            border: none;
+            border-radius: 50%;
+            width: 24px;
+            height: 24px;
+            cursor: pointer;
+            font-size: 16px;
+            line-height: 1;
+        }
+
+        .message-image {
+            max-width: 300px;
+            max-height: 400px;
+            border-radius: 8px;
+            margin-top: 8px;
+            cursor: pointer;
         }
 
         .message-input {
@@ -450,12 +506,17 @@
                     </div>
                 </div>
                 <div class="message-input-area" id="messageInputArea" style="display:none;">
-                    <textarea 
-                        id="messageInput" 
-                        class="message-input" 
-                        placeholder="Type a message..."
-                        rows="1"></textarea>
-                    <button class="send-btn" id="sendBtn" onclick="sendMessage()">Send</button>
+                    <div id="imagePreviewContainer"></div>
+                    <div class="input-row">
+                        <input type="file" id="imageInput" accept="image/*" style="display:none;" onchange="handleImageSelect(event)" />
+                        <button class="image-upload-btn" onclick="document.getElementById('imageInput').click()" title="Upload image">📷</button>
+                        <textarea 
+                            id="messageInput" 
+                            class="message-input" 
+                            placeholder="Type a message..."
+                            rows="1"></textarea>
+                        <button class="send-btn" id="sendBtn" onclick="sendMessage()">Send</button>
+                    </div>
                 </div>
             </div>
         </div>
@@ -491,6 +552,8 @@
         let currentConversationId = null;
         let allMembers = [];
         let pollInterval = null;
+        let selectedImageFile = null;
+        let uploadedImageUrl = null;
 
         // Get member ID from session storage
         currentMemberId = sessionStorage.getItem('memberId');
@@ -499,6 +562,42 @@
         if (!currentMemberId) {
             alert('Please log in first');
             window.location.href = 'login.html';
+        }
+
+        // Handle image selection
+        function handleImageSelect(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+
+            // Validate file size (5MB max)
+            if (file.size > 5 * 1024 * 1024) {
+                alert('Image size must be less than 5MB');
+                event.target.value = '';
+                return;
+            }
+
+            selectedImageFile = file;
+
+            // Show preview
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                const previewContainer = document.getElementById('imagePreviewContainer');
+                previewContainer.innerHTML = `
+                    <div class="image-preview">
+                        <img src="${e.target.result}" alt="Preview" />
+                        <button class="image-preview-close" onclick="clearImageSelection()">&times;</button>
+                    </div>
+                `;
+            };
+            reader.readAsDataURL(file);
+        }
+
+        // Clear image selection
+        function clearImageSelection() {
+            selectedImageFile = null;
+            uploadedImageUrl = null;
+            document.getElementById('imageInput').value = '';
+            document.getElementById('imagePreviewContainer').innerHTML = '';
         }
 
         // Load conversations
@@ -580,11 +679,13 @@
 
                 container.innerHTML = messages.map(msg => {
                     const isSent = msg.senderId === currentMemberId;
+                    const imageHtml = msg.imageUrl ? `<img src="${API_URL}${msg.imageUrl}" class="message-image" alt="Shared image" onclick="window.open('${API_URL}${msg.imageUrl}', '_blank')" />` : '';
                     return `
                         <div class="message ${isSent ? 'sent' : 'received'}">
                             <div class="message-bubble">
                                 ${!isSent ? `<div class="message-sender">${msg.senderName}</div>` : ''}
-                                <div class="message-text">${escapeHtml(msg.text)}</div>
+                                ${msg.text ? `<div class="message-text">${escapeHtml(msg.text)}</div>` : ''}
+                                ${imageHtml}
                                 <div class="message-timestamp">${formatTime(msg.timestamp)}</div>
                             </div>
                         </div>
@@ -603,9 +704,30 @@
             const input = document.getElementById('messageInput');
             const text = input.value.trim();
             
-            if (!text || !currentConversationId) return;
+            if ((!text && !selectedImageFile) || !currentConversationId) return;
 
             try {
+                let imageUrl = null;
+
+                // Upload image if selected
+                if (selectedImageFile) {
+                    const formData = new FormData();
+                    formData.append('image', selectedImageFile);
+
+                    const uploadResponse = await fetch(`${API_URL}/api/messages/upload-image`, {
+                        method: 'POST',
+                        body: formData
+                    });
+
+                    const uploadResult = await uploadResponse.json();
+                    if (uploadResult.success) {
+                        imageUrl = uploadResult.imageUrl;
+                    } else {
+                        throw new Error('Failed to upload image');
+                    }
+                }
+
+                // Send message
                 const response = await fetch(`${API_URL}/api/messages/send`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
@@ -613,7 +735,8 @@
                         conversationId: currentConversationId,
                         senderId: currentMemberId,
                         senderName: currentMemberName,
-                        text
+                        text,
+                        imageUrl
                     })
                 });
 
@@ -621,6 +744,7 @@
                 
                 if (result.success) {
                     input.value = '';
+                    clearImageSelection();
                     loadMessages();
                     loadConversations(); // Refresh conversations
                 }
