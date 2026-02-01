@@ -76,12 +76,6 @@
     <p>This is your member dashboard. From here you can access announcements, forms, and important house information.</p>
 
     <div class="card">
-        <h3>Sign In/Out</h3>
-        <p>Sign in and out when leaving the house. Track where members are and when they'll return.</p>
-        <a href="sign-inout.html" class="button">Go to Sign In/Out</a>
-    </div>
-
-    <div class="card">
         <h3>Announcements</h3>
         <p>Stay updated with house news, schedule changes, and upcoming events.</p>
         <a href="/members/announcements.html" class="button">View Announcements</a>
@@ -99,6 +93,12 @@
         <a href="/members/progress.html" class="button">View Progress</a>
     </div>
 
+    <div class="card">
+        <h3>Messages</h3>
+        <p>Chat with other members and staff privately or in groups.</p>
+        <a href="chat.html" class="button">Open Messages</a>
+    </div>
+
 </div>
 
 <script>
@@ -107,6 +107,9 @@
     const memberId = urlParams.get('id') || localStorage.getItem('memberId');
 
     if (memberId) {
+        // Store in sessionStorage for chat
+        sessionStorage.setItem('memberId', memberId);
+        
         // Fetch member data from API
         fetch(`https://horizon-portal-backend-production-3532.up.railway.app/api/getMember?id=${encodeURIComponent(memberId)}`)
             .then(response => response.json())
@@ -114,9 +117,12 @@
                 if (data) {
                     // Update welcome message with member name
                     const welcomeEl = document.getElementById('welcome');
-                    const firstName = data.FIRST_NAME || data['FIRST NAME'] || localStorage.getItem('memberFirstName') || '';
-                    const lastName = data.LAST_NAME || data['LAST NAME'] || localStorage.getItem('memberLastName') || '';
+                    const firstName = data.FIRST_NAME || data['FIRST NAME'] || data['FIRST\r\nNAME'] || localStorage.getItem('memberFirstName') || '';
+                    const lastName = data.LAST_NAME || data['LAST NAME'] || data['LAST\r\nNAME'] || localStorage.getItem('memberLastName') || '';
                     welcomeEl.textContent = `Welcome, ${firstName} ${lastName}!`;
+                    
+                    // Store name in sessionStorage for chat
+                    sessionStorage.setItem('memberName', `${firstName} ${lastName}`.trim());
                 }
             })
             .catch(error => {
@@ -126,6 +132,7 @@
                 const lastName = localStorage.getItem('memberLastName') || '';
                 if (firstName || lastName) {
                     document.getElementById('welcome').textContent = `Welcome, ${firstName} ${lastName}!`;
+                    sessionStorage.setItem('memberName', `${firstName} ${lastName}`.trim());
                 }
             });
     }

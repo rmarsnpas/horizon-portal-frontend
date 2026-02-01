@@ -448,17 +448,24 @@
             try {
                 const response = await fetch(`${API_URL}/api/signInOut/current`);
                 const data = await response.json();
-                
-                // Get all female members to filter by gender
-                const membersResponse = await fetch(`${API_URL}/api/members?gender=F`);
-                const womenMembers = await membersResponse.json();
-                const womenIds = new Set(womenMembers.filter(m => m.STATU === 1 || m.STATUS === 1).map(m => String(m.ID)));
-                
+
+                // Build a set of female member IDs from the members endpoint (robust to field names)
+                const membersResponse = await fetch(`${API_URL}/api/members`);
+                const allMembers = await membersResponse.json();
+                const womenIds = new Set((allMembers || [])
+                    .filter(isActiveMember)
+                    .filter(m => {
+                        const g = ((m['M/F'] || m.GENDER || m.SEX || m.gender) || '').toString().toUpperCase().trim();
+                        return g.startsWith('F');
+                    })
+                    .map(m => memberIdFrom(m))
+                );
+
                 const statusGrid = document.getElementById('statusGrid');
                 const statusSummary = document.getElementById('statusSummary');
-                
-                // Filter to only show women
-                const membersOut = (data.membersOut || []).filter(m => womenIds.has(m.memberId));
+
+                // Filter status entries to only show women (normalize IDs)
+                const membersOut = (data.membersOut || []).filter(m => womenIds.has(memberIdFrom(m)));
                 const total = membersOut.length;
                 const overdue = membersOut.filter(m => m.isOverdue).length;
                 
