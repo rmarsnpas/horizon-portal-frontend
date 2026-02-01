@@ -60,6 +60,75 @@
         a.button:hover {
             background-color: #00264d;
         }
+
+        .sobriety-card {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 30px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            text-align: center;
+            box-shadow: 0 6px 20px rgba(102, 126, 234, 0.3);
+        }
+
+        .sobriety-card h3 {
+            margin-top: 0;
+            color: white;
+            font-size: 24px;
+        }
+
+        .days-counter {
+            font-size: 72px;
+            font-weight: bold;
+            margin: 20px 0;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.2);
+        }
+
+        .days-label {
+            font-size: 18px;
+            opacity: 0.9;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+        }
+
+        .sober-date {
+            margin-top: 15px;
+            opacity: 0.8;
+            font-size: 14px;
+        }
+
+        .milestone {
+            background: rgba(255,255,255,0.2);
+            padding: 15px;
+            border-radius: 8px;
+            margin-top: 20px;
+            animation: pulse 2s infinite;
+        }
+
+        .milestone-icon {
+            font-size: 48px;
+            margin-bottom: 10px;
+        }
+
+        .milestone-text {
+            font-size: 20px;
+            font-weight: bold;
+        }
+
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+        }
+
+        .confetti {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 9999;
+        }
     </style>
 </head>
 
@@ -74,6 +143,14 @@
 
     <h2>Welcome!</h2>
     <p>This is your member dashboard. From here you can access announcements, forms, and important house information.</p>
+
+    <div class="sobriety-card" id="sobrietyCard" style="display:none;">
+        <h3>🌟 Your Sobriety Journey 🌟</h3>
+        <div class="days-counter" id="daysCounter">0</div>
+        <div class="days-label">Days Strong</div>
+        <div class="sober-date" id="soberDate"></div>
+        <div id="milestoneDisplay"></div>
+    </div>
 
     <div class="card">
         <h3>Announcements</h3>
@@ -123,6 +200,12 @@
                     
                     // Store name in sessionStorage for chat
                     sessionStorage.setItem('memberName', `${firstName} ${lastName}`.trim());
+
+                    // Calculate and display sobriety days
+                    const soberDate = data['SOBER\r\nDATE'] || data['SOBER DATE'] || data.SOBER_DATE;
+                    if (soberDate) {
+                        displaySobrietyInfo(soberDate);
+                    }
                 }
             })
             .catch(error => {
@@ -135,6 +218,112 @@
                     sessionStorage.setItem('memberName', `${firstName} ${lastName}`.trim());
                 }
             });
+    }
+
+    function displaySobrietyInfo(soberDate) {
+        // Parse the sober date
+        const sober = new Date(soberDate);
+        const today = new Date();
+        
+        // Calculate days sober
+        const diffTime = today - sober;
+        const daysSober = Math.floor(diffTime / (1000 * 60 * 60 * 24));
+        
+        if (daysSober >= 0) {
+            // Show the sobriety card
+            document.getElementById('sobrietyCard').style.display = 'block';
+            
+            // Update counter
+            document.getElementById('daysCounter').textContent = daysSober;
+            
+            // Format and display sober date
+            const formattedDate = sober.toLocaleDateString('en-US', { 
+                year: 'numeric', 
+                month: 'long', 
+                day: 'numeric' 
+            });
+            document.getElementById('soberDate').textContent = `Clean since ${formattedDate}`;
+            
+            // Check for milestones and celebrate
+            checkMilestone(daysSober);
+        }
+    }
+
+    function checkMilestone(days) {
+        const milestones = [
+            { days: 30, icon: '🎉', text: '30 Days - One Month Strong!' },
+            { days: 60, icon: '🌟', text: '60 Days - Two Months of Freedom!' },
+            { days: 90, icon: '🏆', text: '90 Days - Three Months Achievement!' },
+            { days: 120, icon: '💪', text: '120 Days - Four Months of Strength!' },
+            { days: 150, icon: '🎊', text: '150 Days - Five Months Milestone!' },
+            { days: 180, icon: '⭐', text: '180 Days - Half Year Celebration!' },
+            { days: 210, icon: '🎯', text: '210 Days - Seven Months Victory!' },
+            { days: 240, icon: '🔥', text: '240 Days - Eight Months Strong!' },
+            { days: 270, icon: '👑', text: '270 Days - Nine Months Champion!' },
+            { days: 300, icon: '💎', text: '300 Days - Ten Months Diamond!' },
+            { days: 330, icon: '🌈', text: '330 Days - Eleven Months Rainbow!' },
+            { days: 365, icon: '🎆', text: 'ONE YEAR - Amazing Achievement!' },
+            { days: 730, icon: '🏅', text: 'TWO YEARS - Incredible Journey!' },
+            { days: 1095, icon: '👏', text: 'THREE YEARS - Outstanding!' }
+        ];
+
+        // Find if current days match any milestone
+        const milestone = milestones.find(m => m.days === days);
+        
+        if (milestone) {
+            const milestoneDisplay = document.getElementById('milestoneDisplay');
+            milestoneDisplay.innerHTML = `
+                <div class="milestone">
+                    <div class="milestone-icon">${milestone.icon}</div>
+                    <div class="milestone-text">${milestone.text}</div>
+                </div>
+            `;
+            
+            // Show confetti for major milestones
+            if (days === 30 || days === 90 || days === 180 || days === 365 || days === 730 || days === 1095) {
+                showConfetti();
+            }
+        }
+    }
+
+    function showConfetti() {
+        // Create confetti effect
+        const colors = ['#667eea', '#764ba2', '#f093fb', '#4facfe', '#43e97b'];
+        const confettiContainer = document.createElement('div');
+        confettiContainer.className = 'confetti';
+        document.body.appendChild(confettiContainer);
+
+        for (let i = 0; i < 50; i++) {
+            setTimeout(() => {
+                const confetti = document.createElement('div');
+                confetti.style.position = 'absolute';
+                confetti.style.left = Math.random() * 100 + '%';
+                confetti.style.top = '-10px';
+                confetti.style.width = '10px';
+                confetti.style.height = '10px';
+                confetti.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
+                confetti.style.opacity = Math.random();
+                confetti.style.transform = `rotate(${Math.random() * 360}deg)`;
+                confetti.style.animation = `fall ${2 + Math.random() * 3}s linear`;
+                confettiContainer.appendChild(confetti);
+
+                setTimeout(() => confetti.remove(), 5000);
+            }, i * 30);
+        }
+
+        // Add fall animation
+        const style = document.createElement('style');
+        style.textContent = `
+            @keyframes fall {
+                to {
+                    transform: translateY(100vh) rotate(720deg);
+                    opacity: 0;
+                }
+            }
+        `;
+        document.head.appendChild(style);
+
+        setTimeout(() => confettiContainer.remove(), 6000);
     }
 </script>
 
