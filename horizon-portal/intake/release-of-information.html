@@ -601,12 +601,15 @@
                 const result = await response.json();
 
                 if (result.success) {
-                    alert(`Thank you, ${formData.memberInfo.firstName}! Your Release of Information has been submitted successfully.\n\nPlease continue to the next intake form.`);
-                    
-                    setTimeout(() => {
-                        // Redirect to next form or dashboard
-                        window.location.href = '../members/dashboard.html';
-                    }, 1500);
+                    if (typeof goToNextForm !== 'undefined' && isIntakeMode()) {
+                        alert(`Thank you, ${formData.memberInfo.firstName}! Your Release of Information has been submitted successfully.\n\nMoving to next form...`);
+                        setTimeout(() => goToNextForm(3), 1000);
+                    } else {
+                        alert(`Thank you, ${formData.memberInfo.firstName}! Your Release of Information has been submitted successfully.`);
+                        setTimeout(() => {
+                            window.location.href = '../members/dashboard.html';
+                        }, 1500);
+                    }
                 } else {
                     throw new Error('Failed to submit form');
                 }
@@ -615,6 +618,12 @@
                 alert('There was an error submitting your form. Please try again or contact staff.');
             }
         });
+
+        // Initialize intake mode if applicable
+        if (typeof initializeIntakeMode !== 'undefined') {
+            initializeIntakeMode(3);
+        }
     </script>
+    <script src="intake-flow.js"></script>
 </body>
 </html>

@@ -618,12 +618,15 @@
                 const result = await response.json();
 
                 if (result.success) {
-                    alert(`Thank you, ${formData.participantInfo.firstName}! Your Release of Liability has been submitted successfully.\n\nYou may now use the facilities. Please remember to follow all safety rules.`);
-                    
-                    setTimeout(() => {
-                        // Redirect to next form or dashboard
-                        window.location.href = '../members/dashboard.html';
-                    }, 1500);
+                    if (typeof goToNextForm !== 'undefined' && isIntakeMode()) {
+                        alert(`Thank you, ${formData.participantInfo.firstName}! Your Release of Liability has been submitted successfully.\n\nMoving to next form...`);
+                        setTimeout(() => goToNextForm(5), 1000);
+                    } else {
+                        alert(`Thank you, ${formData.participantInfo.firstName}! Your Release of Liability has been submitted successfully.\n\nYou may now use the facilities. Please remember to follow all safety rules.`);
+                        setTimeout(() => {
+                            window.location.href = '../members/dashboard.html';
+                        }, 1500);
+                    }
                 } else {
                     throw new Error('Failed to submit form');
                 }
@@ -632,6 +635,12 @@
                 alert('There was an error submitting your form. Please try again or contact staff.');
             }
         });
+
+        // Initialize intake mode if applicable
+        if (typeof initializeIntakeMode !== 'undefined') {
+            initializeIntakeMode(5);
+        }
     </script>
+    <script src="intake-flow.js"></script>
 </body>
 </html>

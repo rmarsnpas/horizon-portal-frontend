@@ -671,14 +671,16 @@
                 const result = await response.json();
                 
                 if (result.success) {
-                    alert(`Thank you, ${memberName}! Your agreement has been submitted successfully.\n\nPlease continue to the next intake form.`);
-                    
-                    // Redirect to next form or intake dashboard
-                    setTimeout(() => {
-                        // window.location.href = 'next-intake-form.html';
-                        // For now, go back to dashboard
-                        window.location.href = '../members/dashboard.html';
-                    }, 1500);
+                    // Check if in intake mode
+                    if (typeof goToNextForm !== 'undefined' && isIntakeMode()) {
+                        alert(`Thank you, ${memberName}! Your agreement has been submitted successfully.\n\nMoving to next form...`);
+                        setTimeout(() => goToNextForm(1), 1000);
+                    } else {
+                        alert(`Thank you, ${memberName}! Your agreement has been submitted successfully.`);
+                        setTimeout(() => {
+                            window.location.href = '../members/dashboard.html';
+                        }, 1500);
+                    }
                 } else {
                     throw new Error('Failed to submit agreement');
                 }
@@ -690,6 +692,12 @@
 
         // Initialize
         renderItem(0);
+
+        // Initialize intake mode if applicable
+        if (typeof initializeIntakeMode !== 'undefined') {
+            initializeIntakeMode(1);
+        }
     </script>
+    <script src="intake-flow.js"></script>
 </body>
 </html>
