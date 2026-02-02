@@ -328,6 +328,24 @@
     </div>
 
     <script>
+        // Intro slides (no checkbox required)
+        const introSlides = [
+            {
+                title: "Welcome to Horizon House Sober Living",
+                text: `<p style="margin-bottom: 20px; font-size: 18px; line-height: 1.8;">HORIZON HOUSE SOBER LIVING is made up of HIS HORIZON-HOUSE and HER HORIZON-HOUSE (His House and/or Her House). There are 2 separate houses offering beds for men and women 18 years of age and over whose primary goal is to overcome alcoholism and drug dependency.</p>
+                <p style="font-size: 18px; line-height: 1.8;">HHSL's program is designed to assist alcohol and drug-dependent individuals in the transition to a sober and productive life. Learning (or relearning) the life skills to become an active member of today's society.</p>`,
+                isIntro: true
+            },
+            {
+                title: "Member Agreement Overview",
+                text: `<p style="margin-bottom: 15px; font-size: 18px; line-height: 1.8;">The following list of rules and requirements is subject to change at any time, and members will be notified of any changes or additions to this agreement. This is an abbreviated version of the house rules.</p>
+                <p style="font-size: 18px; line-height: 1.8; margin-bottom: 15px;">By becoming a member of <strong>Horizon House Sober Living (HHSL)</strong>, a mutually managed and democratically operated sober living environment, you agree to follow the rules and expectations.</p>
+                <p style="font-size: 18px; line-height: 1.8; font-weight: 600; color: #c53030;">(In no specific order)</p>
+                <p style="font-size: 16px; line-height: 1.8; margin-top: 15px; color: #666;"><em>Horizon-House members are not renters or tenants, and therefore, Horizon-House properties are not subject to State or Local Tenant/Landlord regulations.</em></p>`,
+                isIntro: true
+            }
+        ];
+
         // Member Agreement Items - Replace these with actual content from your PDF
         const agreementItems = [
             {
@@ -428,6 +446,7 @@
             }
         ];
 
+        const totalSlides = introSlides.length + agreementItems.length;
         let currentIndex = 0;
         let agreements = new Array(agreementItems.length).fill(false);
         let canvas, ctx, isDrawing = false, hasSignature = false;
@@ -508,39 +527,67 @@
 
         function renderItem(index) {
             const content = document.getElementById('content');
-            const item = agreementItems[index];
-            const isLast = index === agreementItems.length - 1;
+            const isIntro = index < introSlides.length;
+            const isLast = index === totalSlides - 1;
 
-            content.innerHTML = `
-                <div class="item-container active">
-                    <div class="item-number">Item ${index + 1} of ${agreementItems.length}</div>
-                    <div class="item-text">${item.text}</div>
-                    
-                    <div class="agreement-checkbox ${agreements[index] ? 'checked' : ''}" onclick="toggleAgreement()">
-                        <input type="checkbox" id="checkbox${index}" ${agreements[index] ? 'checked' : ''} onchange="toggleAgreement()">
-                        <label for="checkbox${index}">
-                            I have read, fully understand, and agree to abide by this policy regarding: <strong>${item.title}</strong>
-                        </label>
+            if (isIntro) {
+                // Render intro slide (no checkbox)
+                const slide = introSlides[index];
+                content.innerHTML = `
+                    <div class="item-container active">
+                        <div class="item-number">Introduction ${index + 1} of ${introSlides.length}</div>
+                        <h2 style="font-size: 28px; color: #667eea; margin-bottom: 20px;">${slide.title}</h2>
+                        <div class="item-text">${slide.text}</div>
+                        
+                        <div class="button-container">
+                            <button class="btn btn-back" onclick="previousItem()" ${index === 0 ? 'disabled' : ''}>
+                                ← Back
+                            </button>
+                            <button class="btn btn-next" onclick="nextItem()">
+                                Next →
+                            </button>
+                        </div>
                     </div>
+                `;
+            } else {
+                // Render agreement item (with checkbox)
+                const agreementIndex = index - introSlides.length;
+                const item = agreementItems[agreementIndex];
+                
+                content.innerHTML = `
+                    <div class="item-container active">
+                        <div class="item-number">Item ${agreementIndex + 1} of ${agreementItems.length}</div>
+                        <div class="item-text">${item.text}</div>
+                        
+                        <div class="agreement-checkbox ${agreements[agreementIndex] ? 'checked' : ''}" onclick="toggleAgreement()">
+                            <input type="checkbox" id="checkbox${agreementIndex}" ${agreements[agreementIndex] ? 'checked' : ''} onchange="toggleAgreement()">
+                            <label for="checkbox${agreementIndex}">
+                                I have read, fully understand, and agree to abide by this policy regarding: <strong>${item.title}</strong>
+                            </label>
+                        </div>
 
-                    <div class="button-container">
-                        <button class="btn btn-back" onclick="previousItem()" ${index === 0 ? 'disabled' : ''}>
-                            ← Back
-                        </button>
-                        <button class="btn btn-next" id="nextBtn" onclick="nextItem()" disabled>
-                            ${isLast ? 'Complete Agreement →' : 'Next →'}
-                        </button>
+                        <div class="button-container">
+                            <button class="btn btn-back" onclick="previousItem()">
+                                ← Back
+                            </button>
+                            <button class="btn btn-next" id="nextBtn" onclick="nextItem()" disabled>
+                                ${isLast ? 'Complete Agreement →' : 'Next →'}
+                            </button>
+                        </div>
                     </div>
-                </div>
-            `;
+                `;
+                updateNextButton();
+            }
 
-            updateNextButton();
             updateProgress();
         }
 
         function toggleAgreement() {
-            const checkbox = document.getElementById(`checkbox${currentIndex}`);
-            agreements[currentIndex] = checkbox.checked;
+            if (currentIndex < introSlides.length) return; // Skip for intro slides
+            
+            const agreementIndex = currentIndex - introSlides.length;
+            const checkbox = document.getElementById(`checkbox${agreementIndex}`);
+            agreements[agreementIndex] = checkbox.checked;
             updateNextButton();
             
             // Update visual feedback
@@ -553,22 +600,29 @@
         }
 
         function updateNextButton() {
+            if (currentIndex < introSlides.length) return; // Intro slides don't need validation
+            
             const nextBtn = document.getElementById('nextBtn');
             if (nextBtn) {
-                nextBtn.disabled = !agreements[currentIndex];
+                const agreementIndex = currentIndex - introSlides.length;
+                nextBtn.disabled = !agreements[agreementIndex];
             }
         }
 
         function updateProgress() {
             const progressBar = document.getElementById('progressBar');
-            const percentage = ((currentIndex + 1) / agreementItems.length) * 100;
+            const percentage = ((currentIndex + 1) / totalSlides) * 100;
             progressBar.style.width = percentage + '%';
         }
 
         function nextItem() {
-            if (!agreements[currentIndex]) return;
+            // Check if on an agreement item (not intro)
+            if (currentIndex >= introSlides.length) {
+                const agreementIndex = currentIndex - introSlides.length;
+                if (!agreements[agreementIndex]) return;
+            }
 
-            if (currentIndex < agreementItems.length - 1) {
+            if (currentIndex < totalSlides - 1) {
                 currentIndex++;
                 renderItem(currentIndex);
             } else {
