@@ -331,11 +331,32 @@
 
         <!-- Forms Section -->
         <div class="section-header" id="formsSection" style="display: none; margin-top: 30px;">
-            <h2>📝 Forms</h2>
-            <p>Create and manage facility forms</p>
+            <h2>📝 Forms & Intake</h2>
+            <p>Create, manage, and review facility forms</p>
         </div>
 
         <div class="dashboard-grid" id="formsGrid" style="display: none;">
+            <a href="/horizon-portal/staff-intake-portal.html" class="dashboard-card" style="grid-column: span 2; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white;">
+                <div class="card-icon" style="font-size: 48px;">📋</div>
+                <div class="card-title" style="color: white; font-size: 28px;">Intake Forms Portal</div>
+                <div class="card-count" id="totalIntakeForms" style="font-size: 32px; color: white;">-</div>
+                <div class="card-label" style="color: rgba(255,255,255,0.9);">Manage All 6 Intake Forms</div>
+            </a>
+
+            <a href="/horizon-portal/intake/member-agreement.html" class="dashboard-card">
+                <div class="card-icon">📝</div>
+                <div class="card-title">Member Agreement</div>
+                <div class="card-count" style="font-size: 24px; color: #718096;">New</div>
+                <div class="card-label">24-Point Agreement</div>
+            </a>
+
+            <a href="/horizon-portal/intake/licensee-agreement.html" class="dashboard-card">
+                <div class="card-icon">⚖️</div>
+                <div class="card-title">Licensee Agreement</div>
+                <div class="card-count" style="font-size: 24px; color: #718096;">New</div>
+                <div class="card-label">No Tenancy Rights</div>
+            </a>
+
             <a href="/discharge-combined.html" class="dashboard-card">
                 <div class="card-icon">📄</div>
                 <div class="card-title">Discharge Form</div>
@@ -348,6 +369,8 @@
                 <div class="card-title">Drug Screen Form</div>
                 <div class="card-count" style="font-size: 24px; color: #718096;">New Test</div>
                 <div class="card-label">Record Test Results</div>
+            </a>
+        </div>
             </a>
 
             <a href="/application.html" class="dashboard-card">
@@ -407,17 +430,40 @@
         async function loadDashboardData() {
             try {
                 // Fetch all data in parallel
-                const [applicationsRes, contactsRes, drugScreensRes, signInOutRes] = await Promise.all([
+                const [
+                    applicationsRes, 
+                    contactsRes, 
+                    drugScreensRes, 
+                    signInOutRes, 
+                    agreementsRes,
+                    licenseeRes,
+                    roiRes,
+                    emergencyRes,
+                    liabilityRes,
+                    propertyRes
+                ] = await Promise.all([
                     fetch(`${API_BASE}/api/pendingApplications`),
                     fetch(`${API_BASE}/api/contactSubmissions`),
                     fetch(`${API_BASE}/api/drugScreens`),
-                    fetch(`${API_BASE}/api/signInOut/current`)
+                    fetch(`${API_BASE}/api/signInOut/current`),
+                    fetch(`${API_BASE}/api/intake/member-agreement`),
+                    fetch(`${API_BASE}/api/intake/licensee-agreement`),
+                    fetch(`${API_BASE}/api/intake/release-of-information`),
+                    fetch(`${API_BASE}/api/intake/emergency-contact`),
+                    fetch(`${API_BASE}/api/intake/release-of-liability`),
+                    fetch(`${API_BASE}/api/intake/personal-property-release`)
                 ]);
 
                 const applications = await applicationsRes.json();
                 const contacts = await contactsRes.json();
                 const drugScreens = await drugScreensRes.json();
                 const signInOut = await signInOutRes.json();
+                const agreements = await agreementsRes.json();
+                const licensee = await licenseeRes.json();
+                const roi = await roiRes.json();
+                const emergency = await emergencyRes.json();
+                const liability = await liabilityRes.json();
+                const property = await propertyRes.json();
 
                 // Count pending applications (already filtered on backend)
                 const pendingApps = applications.length;
@@ -431,11 +477,21 @@
                 // Members currently signed out
                 const membersOut = signInOut.total || 0;
 
+                // Total intake agreements
+                const totalAgreements = agreements.length;
+                
+                // Total all intake forms
+                const totalIntakeForms = agreements.length + licensee.length + roi.length + 
+                                        emergency.length + liability.length + property.length;
+
                 // Update UI
                 document.getElementById('appCount').textContent = pendingApps;
                 document.getElementById('contactCount').textContent = unreadContacts;
                 document.getElementById('drugScreenCount').textContent = totalDrugScreens;
                 document.getElementById('signInOutCount').textContent = membersOut;
+                if (document.getElementById('totalIntakeForms')) {
+                    document.getElementById('totalIntakeForms').textContent = totalIntakeForms;
+                }
 
                 document.getElementById('loading').style.display = 'none';
                 document.getElementById('pendingSection').style.display = 'block';

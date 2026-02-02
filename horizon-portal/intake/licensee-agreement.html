@@ -1,0 +1,649 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Licensee Agreement - Horizon House</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 16px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 40px;
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 36px;
+            margin-bottom: 10px;
+        }
+
+        .header p {
+            font-size: 18px;
+            opacity: 0.95;
+        }
+
+        .content {
+            padding: 40px;
+        }
+
+        .intro-text {
+            background: #fff5f5;
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 30px;
+            border-left: 4px solid #e53e3e;
+        }
+
+        .intro-text p {
+            color: #742a2a;
+            line-height: 1.6;
+            margin-bottom: 10px;
+        }
+
+        .intro-text strong {
+            color: #c53030;
+        }
+
+        .form-section {
+            margin-bottom: 35px;
+        }
+
+        .section-title {
+            font-size: 22px;
+            color: #2d3748;
+            font-weight: 600;
+            margin-bottom: 20px;
+            padding-bottom: 12px;
+            border-bottom: 2px solid #e2e8f0;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .section-icon {
+            font-size: 28px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            color: #4a5568;
+            font-weight: 600;
+            margin-bottom: 8px;
+            font-size: 15px;
+        }
+
+        .form-group input,
+        .form-group select,
+        .form-group textarea {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e2e8f0;
+            border-radius: 8px;
+            font-size: 16px;
+            font-family: inherit;
+            transition: border-color 0.2s;
+        }
+
+        .form-group input:focus,
+        .form-group select:focus,
+        .form-group textarea:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+
+        .required {
+            color: #e53e3e;
+        }
+
+        .agreement-text {
+            background: #f7fafc;
+            padding: 25px;
+            border-radius: 8px;
+            border: 2px solid #e2e8f0;
+            margin-bottom: 20px;
+        }
+
+        .agreement-text p {
+            color: #2d3748;
+            line-height: 1.8;
+            margin-bottom: 15px;
+            text-align: justify;
+        }
+
+        .agreement-text strong {
+            color: #1a202c;
+            font-size: 16px;
+        }
+
+        .agreement-text ul {
+            margin-left: 20px;
+            margin-bottom: 15px;
+        }
+
+        .agreement-text li {
+            color: #2d3748;
+            margin-bottom: 8px;
+            line-height: 1.6;
+        }
+
+        .highlight-box {
+            background: #fffaf0;
+            border: 2px solid #ed8936;
+            padding: 20px;
+            border-radius: 8px;
+            margin: 20px 0;
+        }
+
+        .highlight-box p {
+            color: #7c2d12;
+            font-weight: 600;
+            font-size: 16px;
+            line-height: 1.8;
+        }
+
+        .signature-section {
+            background: #f7fafc;
+            padding: 25px;
+            border-radius: 10px;
+            margin-top: 30px;
+        }
+
+        .signature-pad-container {
+            background: white;
+            border: 3px solid #667eea;
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+
+        .signature-pad-label {
+            font-size: 16px;
+            font-weight: 600;
+            color: #2d3748;
+            margin-bottom: 10px;
+            display: block;
+        }
+
+        #signaturePad {
+            border: 2px dashed #cbd5e0;
+            border-radius: 8px;
+            cursor: crosshair;
+            touch-action: none;
+            width: 100%;
+            background: white;
+        }
+
+        .signature-controls {
+            display: flex;
+            gap: 10px;
+            margin-top: 15px;
+        }
+
+        .btn {
+            padding: 16px 32px;
+            border: none;
+            border-radius: 8px;
+            font-size: 18px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .btn-small {
+            padding: 10px 20px;
+            font-size: 14px;
+        }
+
+        .btn-primary {
+            background: #667eea;
+            color: white;
+            width: 100%;
+        }
+
+        .btn-primary:hover {
+            background: #5568d3;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+        }
+
+        .btn-primary:disabled {
+            background: #cbd5e0;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .btn-secondary {
+            background: #718096;
+            color: white;
+        }
+
+        .btn-secondary:hover {
+            background: #4a5568;
+        }
+
+        .checkbox-group {
+            background: #f7fafc;
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 15px;
+        }
+
+        .checkbox-item {
+            display: flex;
+            align-items: center;
+            margin-bottom: 12px;
+            cursor: pointer;
+        }
+
+        .checkbox-item input[type="checkbox"] {
+            width: 20px;
+            height: 20px;
+            margin-right: 12px;
+            cursor: pointer;
+        }
+
+        .checkbox-item label {
+            margin: 0;
+            font-weight: 500;
+            color: #2d3748;
+            cursor: pointer;
+        }
+
+        .warning-box {
+            background: #fffaf0;
+            border-left: 4px solid #ed8936;
+            padding: 15px;
+            margin-bottom: 20px;
+            border-radius: 4px;
+        }
+
+        .warning-box p {
+            color: #7c2d12;
+            font-size: 14px;
+            line-height: 1.5;
+        }
+
+        @media (max-width: 768px) {
+            .form-row {
+                grid-template-columns: 1fr;
+            }
+
+            .content {
+                padding: 25px;
+            }
+
+            .header h1 {
+                font-size: 28px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🏠 Horizon House</h1>
+            <p>Licensee Agreement - No Tenancy Rights</p>
+        </div>
+
+        <div class="content">
+            <div class="intro-text">
+                <p><strong>⚠️ CRITICAL LEGAL NOTICE:</strong> This is NOT a lease or rental agreement. You are a licensee, not a tenant. You have NO tenant rights under landlord-tenant law.</p>
+                <p>By signing this agreement, you acknowledge that you can be required to leave the premises immediately for violations of house rules or program requirements.</p>
+            </div>
+
+            <form id="licenseeForm">
+                <!-- Member Information -->
+                <div class="form-section">
+                    <div class="section-title">
+                        <span class="section-icon">👤</span>
+                        Member Information
+                    </div>
+                    
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>First Name <span class="required">*</span></label>
+                            <input type="text" id="firstName" required>
+                        </div>
+                        <div class="form-group">
+                            <label>Last Name <span class="required">*</span></label>
+                            <input type="text" id="lastName" required>
+                        </div>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>Date of Admission <span class="required">*</span></label>
+                            <input type="date" id="admissionDate" required>
+                        </div>
+                        <div class="form-group">
+                            <label>Monthly Fee Amount <span class="required">*</span></label>
+                            <input type="text" id="monthlyFee" placeholder="e.g., $800" required>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Licensee Agreement -->
+                <div class="form-section">
+                    <div class="section-title">
+                        <span class="section-icon">⚖️</span>
+                        Licensee Agreement & No Tenancy Declaration
+                    </div>
+
+                    <div class="agreement-text">
+                        <p><strong>1. LICENSEE STATUS - NOT A TENANT:</strong> I acknowledge and agree that I am a LICENSEE, not a tenant, of Horizon House. This agreement creates a license to use the premises, not a lease or tenancy. I understand that I have NO rights under any landlord-tenant laws, including but not limited to:</p>
+                        <ul>
+                            <li>No right to eviction proceedings or notice requirements</li>
+                            <li>No protection under residential tenancy acts</li>
+                            <li>No right to withhold payments for any reason</li>
+                            <li>No right to remain on premises after license termination</li>
+                            <li>No right to dispute immediate discharge</li>
+                        </ul>
+
+                        <p><strong>2. REVOCABLE LICENSE:</strong> My license to occupy and use Horizon House facilities is revocable at any time, with or without cause, at the sole discretion of Horizon House management. This license may be terminated immediately without notice for any violation of program rules or requirements.</p>
+
+                        <p><strong>3. IMMEDIATE DISCHARGE - GROUNDS:</strong> I understand that my license may be immediately terminated and I will be required to leave the premises within 24 hours for any of the following reasons, including but not limited to:</p>
+                        <ul>
+                            <li><strong>Relapse:</strong> Any use of alcohol or illegal drugs</li>
+                            <li><strong>Positive Drug Test:</strong> Failing or refusing to submit to drug/alcohol testing</li>
+                            <li><strong>Curfew Violations:</strong> Missing curfew or repeated late returns</li>
+                            <li><strong>Violence or Threats:</strong> Any violent behavior or threats to staff or residents</li>
+                            <li><strong>Theft:</strong> Stealing from residents, staff, or the facility</li>
+                            <li><strong>Contraband:</strong> Possession of drugs, alcohol, weapons, or prohibited items</li>
+                            <li><strong>Non-Payment:</strong> Failure to pay monthly fees on time</li>
+                            <li><strong>Rule Violations:</strong> Repeated or serious violations of house rules</li>
+                            <li><strong>Failure to Participate:</strong> Not attending required meetings, IOP, or activities</li>
+                            <li><strong>Disruptive Behavior:</strong> Creating disturbances or negative environment</li>
+                            <li><strong>Unauthorized Absence:</strong> Leaving without permission or notification</li>
+                            <li><strong>Safety Concerns:</strong> Any behavior deemed a safety risk to self or others</li>
+                        </ul>
+
+                        <div class="highlight-box">
+                            <p>I UNDERSTAND THAT IF I AM DISCHARGED FOR ANY REASON, I MUST VACATE THE PREMISES WITHIN 24 HOURS AND REMOVE ALL PERSONAL PROPERTY. FAILURE TO DO SO MAY RESULT IN LAW ENFORCEMENT INVOLVEMENT FOR TRESPASSING.</p>
+                        </div>
+
+                        <p><strong>4. NO REFUNDS:</strong> I understand that all fees paid to Horizon House are NON-REFUNDABLE under any circumstances, including early departure, discharge, or voluntary withdrawal. If I am discharged mid-month, I am not entitled to any refund or prorated amount.</p>
+
+                        <p><strong>5. NO LEASE OR RENTAL AGREEMENT:</strong> I acknowledge that this is NOT a residential lease, rental agreement, or any form of tenancy. No landlord-tenant relationship is created. I am not renting a room or property. I am purchasing services and have been granted a revocable license to use the premises while participating in the program.</p>
+
+                        <p><strong>6. VOLUNTARY PARTICIPATION:</strong> I acknowledge that my participation in Horizon House is completely voluntary. I may choose to leave at any time by providing proper notice, but I understand that fees are non-refundable.</p>
+
+                        <p><strong>7. NO APPEAL RIGHTS:</strong> I understand that discharge decisions are final and not subject to appeal, review, or dispute. Horizon House management has sole and absolute discretion to terminate my license for any reason or no reason.</p>
+
+                        <p><strong>8. CRIMINAL TRESPASS:</strong> I understand that if I refuse to leave the premises after my license is terminated, I may be subject to arrest for criminal trespass and may face criminal charges.</p>
+
+                        <p><strong>9. WAIVER OF TENANT RIGHTS:</strong> I hereby knowingly and voluntarily waive any and all rights I may have as a tenant under federal, state, or local landlord-tenant laws. I agree that no implied tenancy is created by my payment of fees or my occupancy of the premises.</p>
+                    </div>
+
+                    <div class="checkbox-group" style="background: #fff5f5; border: 2px solid #e53e3e;">
+                        <div class="checkbox-item">
+                            <input type="checkbox" id="agreeLicensee" required>
+                            <label for="agreeLicensee" style="font-weight: 600; color: #c53030;">
+                                I have read and fully understand the Licensee Agreement. I acknowledge that I am NOT a tenant and have NO tenant rights. I agree that I can be required to leave immediately for rule violations. <span class="required">*</span>
+                            </label>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Acknowledgments -->
+                <div class="form-section">
+                    <div class="section-title">
+                        <span class="section-icon">✅</span>
+                        Required Acknowledgments
+                    </div>
+
+                    <div class="checkbox-group">
+                        <div class="checkbox-item">
+                            <input type="checkbox" id="ack-tenant" required>
+                            <label for="ack-tenant">I acknowledge I am a LICENSEE, NOT a tenant <span class="required">*</span></label>
+                        </div>
+                        <div class="checkbox-item">
+                            <input type="checkbox" id="ack-discharge" required>
+                            <label for="ack-discharge">I can be discharged immediately for rule violations, relapse, or other grounds <span class="required">*</span></label>
+                        </div>
+                        <div class="checkbox-item">
+                            <input type="checkbox" id="ack-vacate" required>
+                            <label for="ack-vacate">I must vacate within 24 hours if my license is terminated <span class="required">*</span></label>
+                        </div>
+                        <div class="checkbox-item">
+                            <input type="checkbox" id="ack-refund" required>
+                            <label for="ack-refund">All fees are non-refundable under any circumstances <span class="required">*</span></label>
+                        </div>
+                        <div class="checkbox-item">
+                            <input type="checkbox" id="ack-rights" required>
+                            <label for="ack-rights">I have NO tenant rights and waive all protections under landlord-tenant law <span class="required">*</span></label>
+                        </div>
+                        <div class="checkbox-item">
+                            <input type="checkbox" id="ack-trespass" required>
+                            <label for="ack-trespass">Refusing to leave after discharge may result in criminal trespass charges <span class="required">*</span></label>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Signature Section -->
+                <div class="signature-section">
+                    <div class="section-title">
+                        <span class="section-icon">✍️</span>
+                        Electronic Signature
+                    </div>
+                    
+                    <div class="warning-box" style="margin-top: 15px;">
+                        <p><strong>LEGAL NOTICE:</strong> By signing below, I certify that I have read this entire agreement, understand that I am NOT a tenant and have NO tenant rights, and agree to all terms. I understand this is a legally binding agreement.</p>
+                    </div>
+
+                    <div class="form-group" style="margin-top: 20px;">
+                        <label>Print Name <span class="required">*</span></label>
+                        <input type="text" id="printedName" required placeholder="Type your full legal name">
+                    </div>
+
+                    <div class="signature-pad-container">
+                        <label class="signature-pad-label">Draw Your Signature Below (use finger or stylus) <span class="required">*</span></label>
+                        <canvas id="signaturePad" width="800" height="200"></canvas>
+                        <div class="signature-controls">
+                            <button type="button" class="btn btn-secondary btn-small" onclick="clearSignature()">Clear Signature</button>
+                            <span style="color: #718096; font-size: 14px; margin-left: auto; align-self: center;" id="signatureStatus">Signature required</span>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Date <span class="required">*</span></label>
+                        <input type="date" id="signatureDate" required>
+                    </div>
+
+                    <div class="checkbox-group" style="background: #fff5f5; border: 2px solid #e53e3e; margin-top: 20px;">
+                        <div class="checkbox-item">
+                            <input type="checkbox" id="certify" required>
+                            <label for="certify" style="font-weight: 600; color: #c53030;">
+                                I certify that I am at least 18 years of age, have read and understand this agreement, and voluntarily waive any tenant rights I may have. I acknowledge this is a revocable license, not a lease or tenancy. <span class="required">*</span>
+                            </label>
+                        </div>
+                    </div>
+
+                    <button type="submit" class="btn btn-primary">
+                        Submit Licensee Agreement
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        const API_URL = 'https://horizon-portal-backend-production-3532.up.railway.app';
+
+        // Set today's date as default
+        document.getElementById('signatureDate').valueAsDate = new Date();
+
+        // Signature Pad Setup
+        const canvas = document.getElementById('signaturePad');
+        const ctx = canvas.getContext('2d');
+        let isDrawing = false;
+        let hasSignature = false;
+
+        // Set canvas size properly for high DPI displays
+        const setCanvasSize = () => {
+            const rect = canvas.getBoundingClientRect();
+            canvas.width = rect.width * 2;
+            canvas.height = rect.height * 2;
+            canvas.style.width = rect.width + 'px';
+            canvas.style.height = rect.height + 'px';
+            ctx.scale(2, 2);
+            ctx.strokeStyle = '#000';
+            ctx.lineWidth = 2;
+            ctx.lineCap = 'round';
+            ctx.lineJoin = 'round';
+        };
+
+        setCanvasSize();
+        window.addEventListener('resize', setCanvasSize);
+
+        // Get coordinates relative to canvas
+        const getCoordinates = (e) => {
+            const rect = canvas.getBoundingClientRect();
+            const touch = e.touches ? e.touches[0] : e;
+            return {
+                x: touch.clientX - rect.left,
+                y: touch.clientY - rect.top
+            };
+        };
+
+        // Drawing functions
+        const startDrawing = (e) => {
+            e.preventDefault();
+            isDrawing = true;
+            const coords = getCoordinates(e);
+            ctx.beginPath();
+            ctx.moveTo(coords.x, coords.y);
+        };
+
+        const draw = (e) => {
+            e.preventDefault();
+            if (!isDrawing) return;
+            const coords = getCoordinates(e);
+            ctx.lineTo(coords.x, coords.y);
+            ctx.stroke();
+            hasSignature = true;
+            document.getElementById('signatureStatus').textContent = 'Signature captured ✓';
+            document.getElementById('signatureStatus').style.color = '#48bb78';
+        };
+
+        const stopDrawing = (e) => {
+            e.preventDefault();
+            isDrawing = false;
+        };
+
+        // Mouse events
+        canvas.addEventListener('mousedown', startDrawing);
+        canvas.addEventListener('mousemove', draw);
+        canvas.addEventListener('mouseup', stopDrawing);
+        canvas.addEventListener('mouseout', stopDrawing);
+
+        // Touch events for mobile/tablet
+        canvas.addEventListener('touchstart', startDrawing);
+        canvas.addEventListener('touchmove', draw);
+        canvas.addEventListener('touchend', stopDrawing);
+
+        // Clear signature
+        function clearSignature() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            hasSignature = false;
+            document.getElementById('signatureStatus').textContent = 'Signature required';
+            document.getElementById('signatureStatus').style.color = '#718096';
+        }
+
+        document.getElementById('licenseeForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+
+            if (!hasSignature) {
+                alert('Please provide your signature before submitting.');
+                return;
+            }
+
+            // Get signature as base64 image
+            const signatureDataURL = canvas.toDataURL('image/png');
+
+            // Prepare form data
+            const formData = {
+                memberInfo: {
+                    firstName: document.getElementById('firstName').value,
+                    lastName: document.getElementById('lastName').value,
+                    admissionDate: document.getElementById('admissionDate').value,
+                    monthlyFee: document.getElementById('monthlyFee').value
+                },
+                acknowledgments: {
+                    licenseeStatus: document.getElementById('agreeLicensee').checked,
+                    notTenant: document.getElementById('ack-tenant').checked,
+                    immediateDischarge: document.getElementById('ack-discharge').checked,
+                    vacateWithin24Hours: document.getElementById('ack-vacate').checked,
+                    noRefunds: document.getElementById('ack-refund').checked,
+                    noTenantRights: document.getElementById('ack-rights').checked,
+                    trespassConsequences: document.getElementById('ack-trespass').checked,
+                    legalCapacity: document.getElementById('certify').checked
+                },
+                printedName: document.getElementById('printedName').value,
+                signature: signatureDataURL,
+                signatureDate: document.getElementById('signatureDate').value,
+                submittedAt: new Date().toISOString(),
+                ipAddress: await fetch('https://api.ipify.org?format=json')
+                    .then(r => r.json())
+                    .then(d => d.ip)
+                    .catch(() => 'unknown')
+            };
+
+            try {
+                const response = await fetch(`${API_URL}/api/intake/licensee-agreement`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(formData)
+                });
+
+                const result = await response.json();
+
+                if (result.success) {
+                    alert(`Thank you, ${formData.memberInfo.firstName}! Your Licensee Agreement has been submitted successfully.\n\nREMINDER: You are a licensee, not a tenant. You can be required to leave immediately for rule violations.`);
+                    
+                    setTimeout(() => {
+                        // Redirect to next form or dashboard
+                        window.location.href = '../members/dashboard.html';
+                    }, 1500);
+                } else {
+                    throw new Error('Failed to submit form');
+                }
+            } catch (error) {
+                console.error('Error submitting form:', error);
+                alert('There was an error submitting your form. Please try again or contact staff.');
+            }
+        });
+    </script>
+</body>
+</html>

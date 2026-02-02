@@ -1,0 +1,695 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>Member Agreement - Horizon House</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .container {
+            max-width: 800px;
+            width: 100%;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 32px;
+            margin-bottom: 10px;
+        }
+
+        .header p {
+            font-size: 18px;
+            opacity: 0.9;
+        }
+
+        .progress-bar {
+            height: 8px;
+            background: #e0e0e0;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #667eea 0%, #764ba2 100%);
+            transition: width 0.3s ease;
+        }
+
+        .content {
+            padding: 40px;
+            min-height: 400px;
+        }
+
+        .item-container {
+            display: none;
+            animation: fadeIn 0.5s ease;
+        }
+
+        .item-container.active {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .item-number {
+            font-size: 18px;
+            font-weight: 600;
+            color: #667eea;
+            margin-bottom: 20px;
+        }
+
+        .item-text {
+            font-size: 20px;
+            line-height: 1.6;
+            color: #333;
+            margin-bottom: 30px;
+            padding: 20px;
+            background: #f8f9fa;
+            border-radius: 10px;
+            border-left: 4px solid #667eea;
+        }
+
+        .agreement-checkbox {
+            display: flex;
+            align-items: flex-start;
+            gap: 15px;
+            padding: 20px;
+            background: #fff;
+            border: 2px solid #e0e0e0;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-bottom: 30px;
+        }
+
+        .agreement-checkbox:hover {
+            border-color: #667eea;
+            background: #f8f9fa;
+        }
+
+        .agreement-checkbox.checked {
+            border-color: #28a745;
+            background: #f0f9f4;
+        }
+
+        .agreement-checkbox input[type="checkbox"] {
+            width: 30px;
+            height: 30px;
+            cursor: pointer;
+            flex-shrink: 0;
+        }
+
+        .agreement-checkbox label {
+            font-size: 18px;
+            color: #333;
+            cursor: pointer;
+            user-select: none;
+            line-height: 1.5;
+        }
+
+        .button-container {
+            display: flex;
+            gap: 15px;
+            justify-content: space-between;
+        }
+
+        .btn {
+            padding: 18px 40px;
+            font-size: 18px;
+            font-weight: 600;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            flex: 1;
+        }
+
+        .btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .btn-back {
+            background: #e0e0e0;
+            color: #333;
+        }
+
+        .btn-back:hover:not(:disabled) {
+            background: #d0d0d0;
+        }
+
+        .btn-next {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .btn-next:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+
+        .completion-screen {
+            display: none;
+            text-align: center;
+            padding: 40px;
+        }
+
+        .completion-screen.active {
+            display: block;
+            animation: fadeIn 0.5s ease;
+        }
+
+        .completion-icon {
+            font-size: 100px;
+            margin-bottom: 30px;
+        }
+
+        .completion-screen h2 {
+            font-size: 32px;
+            color: #28a745;
+            margin-bottom: 20px;
+        }
+
+        .completion-screen p {
+            font-size: 18px;
+            color: #666;
+            margin-bottom: 30px;
+            line-height: 1.6;
+        }
+
+        .signature-section {
+            background: #f8f9fa;
+            padding: 30px;
+            border-radius: 10px;
+            margin: 30px 0;
+        }
+
+        .signature-input {
+            width: 100%;
+            padding: 15px;
+            font-size: 24px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            margin-bottom: 15px;
+            font-family: 'Brush Script MT', cursive;
+        }
+
+        .signature-pad-container {
+            background: white;
+            border: 3px solid #667eea;
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+
+        .signature-pad-label {
+            font-size: 16px;
+            font-weight: 600;
+            color: #2d3748;
+            margin-bottom: 10px;
+            display: block;
+        }
+
+        #signaturePad {
+            border: 2px dashed #cbd5e0;
+            border-radius: 8px;
+            cursor: crosshair;
+            touch-action: none;
+            width: 100%;
+            background: white;
+        }
+
+        .signature-controls {
+            display: flex;
+            gap: 10px;
+            margin-top: 15px;
+        }
+
+        .btn-clear {
+            padding: 10px 20px;
+            background: #718096;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+        }
+
+        .btn-clear:hover {
+            background: #4a5568;
+        }
+
+        .signature-date {
+            font-size: 16px;
+            color: #666;
+            margin-bottom: 15px;
+        }
+
+        .btn-submit {
+            background: #28a745;
+            color: white;
+            width: 100%;
+            padding: 20px;
+            font-size: 20px;
+        }
+
+        .btn-submit:hover {
+            background: #218838;
+        }
+
+        @media (max-width: 768px) {
+            .content {
+                padding: 25px;
+            }
+
+            .item-text {
+                font-size: 18px;
+            }
+
+            .agreement-checkbox label {
+                font-size: 16px;
+            }
+
+            .btn {
+                padding: 15px 30px;
+                font-size: 16px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🏠 Horizon House</h1>
+            <p>Member Agreement</p>
+        </div>
+        
+        <div class="progress-bar">
+            <div class="progress-fill" id="progressBar" style="width: 0%"></div>
+        </div>
+
+        <div class="content" id="content">
+            <!-- Agreement items will be populated here -->
+        </div>
+    </div>
+
+    <script>
+        // Member Agreement Items - Replace these with actual content from your PDF
+        const agreementItems = [
+            {
+                title: "House Rules & Curfew",
+                text: "I understand that all residents must adhere to the house curfew of 10:00 PM Sunday through Thursday and 12:00 AM (midnight) Friday and Saturday. I must not be late. If any circumstance will prevent me from returning by curfew, I must notify the house manager before curfew time. I must sign in and out using the kiosk system and notify staff of my whereabouts at all times."
+            },
+            {
+                title: "Zero Tolerance Policy",
+                text: "I understand and agree to the zero-tolerance policy regarding drugs and alcohol. Any use or possession of illegal substances or alcohol will result in immediate discharge from the program."
+            },
+            {
+                title: "Random Drug Testing",
+                text: "I agree to submit to random drug and alcohol testing at any time as requested by staff. Refusal to test or a positive result will be grounds for immediate discharge."
+            },
+            {
+                title: "Meeting Attendance",
+                text: "I commit to attending a minimum of 5 recovery meetings per week (AA/NA/SMART Recovery) and will provide verification of attendance to house staff."
+            },
+            {
+                title: "Work or Education Requirement",
+                text: "I understand that I must maintain employment or be enrolled in an educational program within 30 days of admission. I will work with staff to achieve this goal."
+            },
+            {
+                title: "Active Participation & Daily Structure",
+                text: "I agree to remain actively involved in my recovery by attending IOP (Intensive Outpatient Program), maintaining employment, attending school, or participating in volunteer work. I understand that sitting around the house all day is not acceptable. If I am not engaged in approved activities, I will be expected to assist with housekeeping, maintenance, and other facility needs."
+            },
+            {
+                title: "Chores & House Responsibilities",
+                text: "I agree to complete my assigned weekly chores and maintain cleanliness in common areas and my personal living space. Failure to do so may result in warnings or discharge."
+            },
+            {
+                title: "Fees & Financial Obligations",
+                text: "I agree to pay my monthly fees on time each month. Late payments may result in discharge. I understand that fees are non-refundable."
+            },
+            {
+                title: "Guest Policy",
+                text: "I understand that guests are not permitted in the house without prior approval from staff. Overnight guests are strictly prohibited."
+            },
+            {
+                title: "Respect & Conduct",
+                text: "I agree to treat all residents and staff with respect. Violent behavior, threats, or harassment of any kind will not be tolerated and will result in immediate discharge."
+            },
+            {
+                title: "Community Participation & No Isolation",
+                text: "I understand that bedrooms are for sleeping only and that I am expected to be an active participant in the Horizon House community. I will not isolate in my room during waking hours. I commit to spending time in common areas, engaging with fellow residents, and contributing to a supportive, recovery-focused environment."
+            },
+            {
+                title: "Privacy & Personal Boundaries",
+                text: "I agree to respect the privacy of all residents by not entering another resident's bedroom or using their assigned bathroom without explicit permission. I understand that each resident's personal space is to be respected at all times. Violation of this policy may result in disciplinary action or discharge."
+            },
+            {
+                title: "No Theft or Unauthorized Use",
+                text: "I agree that I will not take, use, or consume another resident's property, food, beverages, or personal items without explicit permission. This includes but is not limited to clothing, electronics, toiletries, and groceries. Theft of any kind will result in immediate discharge and may involve law enforcement."
+            },
+            {
+                title: "Privacy & Searches",
+                text: "I understand that my room and belongings may be subject to search at any time. I have no expectation of privacy regarding contraband or prohibited items."
+            },
+            {
+                title: "Communication & Honesty",
+                text: "I commit to honest and open communication with staff and fellow residents. I will report any violations of house rules and participate in house meetings."
+            },
+            {
+                title: "Cell Phone & Electronics Policy",
+                text: "I understand that cell phones and personal electronics must be used responsibly. Phones must be silenced during quiet hours (10 PM - 7 AM). I will not use devices to engage in illegal activities, access inappropriate content, or violate others' privacy."
+            },
+            {
+                title: "Vehicle & Parking Rules",
+                text: "I agree to register any vehicle I own or operate with house staff. I will park only in designated areas and maintain valid registration, insurance, and a valid driver's license. Vehicles may not be used to transport drugs, alcohol, or unauthorized persons."
+            },
+            {
+                title: "Medication Policy",
+                text: "I agree to disclose all prescribed medications to staff and store them in designated secure areas. I will take medications only as prescribed and will not share, sell, or misuse any medications. All medications must be in original containers with current prescriptions."
+            },
+            {
+                title: "Family Contact & Visitation",
+                text: "I understand that family visits must be approved by staff in advance and will take place in designated common areas only. I will maintain appropriate boundaries with family members and inform staff of any concerns or conflicts that may arise."
+            },
+            {
+                title: "Smoking & Vaping Policy",
+                text: "I agree that smoking and vaping are only permitted in designated outdoor areas. I will dispose of all cigarette butts and vaping devices properly and will not smoke or vape in bedrooms, bathrooms, or common indoor areas."
+            },
+            {
+                title: "Personal Property & Belongings",
+                text: "I understand that I am responsible for my personal property. Horizon House is not liable for lost, stolen, or damaged items. I will not bring excessive belongings, weapons, or prohibited items into the house."
+            },
+            {
+                title: "Emergency Procedures",
+                text: "I agree to familiarize myself with all emergency exits, fire extinguisher locations, and emergency procedures. I will participate in emergency drills and immediately report any safety hazards to staff. In case of emergency, I will follow all staff instructions."
+            },
+            {
+                title: "Program Discharge Process",
+                text: "I understand that discharge from the program may occur due to rule violations or non-payment. I agree to provide at least 2 weeks notice if I choose to leave voluntarily. Upon discharge, I will vacate the premises within 24 hours and return all house property."
+            },
+            {
+                title: "Relapse Prevention & Accountability",
+                text: "I commit to actively working on my recovery and relapse prevention plan. I will be honest about any cravings, triggers, or challenges I face. I understand that asking for help is a sign of strength and that staff and peers are here to support my recovery journey."
+            }
+        ];
+
+        let currentIndex = 0;
+        let agreements = new Array(agreementItems.length).fill(false);
+        let canvas, ctx, isDrawing = false, hasSignature = false;
+
+        // Signature Pad Setup
+        function initializeSignaturePad() {
+            canvas = document.getElementById('signaturePad');
+            if (!canvas) return;
+            
+            ctx = canvas.getContext('2d');
+
+            // Set canvas size properly for high DPI displays
+            const rect = canvas.getBoundingClientRect();
+            canvas.width = rect.width * 2;
+            canvas.height = rect.height * 2;
+            canvas.style.width = rect.width + 'px';
+            canvas.style.height = rect.height + 'px';
+            ctx.scale(2, 2);
+            ctx.strokeStyle = '#000';
+            ctx.lineWidth = 2;
+            ctx.lineCap = 'round';
+            ctx.lineJoin = 'round';
+
+            // Get coordinates relative to canvas
+            const getCoordinates = (e) => {
+                const rect = canvas.getBoundingClientRect();
+                const touch = e.touches ? e.touches[0] : e;
+                return {
+                    x: touch.clientX - rect.left,
+                    y: touch.clientY - rect.top
+                };
+            };
+
+            // Drawing functions
+            const startDrawing = (e) => {
+                e.preventDefault();
+                isDrawing = true;
+                const coords = getCoordinates(e);
+                ctx.beginPath();
+                ctx.moveTo(coords.x, coords.y);
+            };
+
+            const draw = (e) => {
+                e.preventDefault();
+                if (!isDrawing) return;
+                const coords = getCoordinates(e);
+                ctx.lineTo(coords.x, coords.y);
+                ctx.stroke();
+                hasSignature = true;
+                document.getElementById('signatureStatus').textContent = 'Signature captured ✓';
+                document.getElementById('signatureStatus').style.color = '#48bb78';
+            };
+
+            const stopDrawing = (e) => {
+                e.preventDefault();
+                isDrawing = false;
+            };
+
+            // Mouse events
+            canvas.addEventListener('mousedown', startDrawing);
+            canvas.addEventListener('mousemove', draw);
+            canvas.addEventListener('mouseup', stopDrawing);
+            canvas.addEventListener('mouseout', stopDrawing);
+
+            // Touch events for mobile/tablet
+            canvas.addEventListener('touchstart', startDrawing);
+            canvas.addEventListener('touchmove', draw);
+            canvas.addEventListener('touchend', stopDrawing);
+        }
+
+        function clearSignature() {
+            if (!canvas || !ctx) return;
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            hasSignature = false;
+            document.getElementById('signatureStatus').textContent = 'Signature required';
+            document.getElementById('signatureStatus').style.color = '#718096';
+        }
+
+        function renderItem(index) {
+            const content = document.getElementById('content');
+            const item = agreementItems[index];
+            const isLast = index === agreementItems.length - 1;
+
+            content.innerHTML = `
+                <div class="item-container active">
+                    <div class="item-number">Item ${index + 1} of ${agreementItems.length}</div>
+                    <div class="item-text">${item.text}</div>
+                    
+                    <div class="agreement-checkbox ${agreements[index] ? 'checked' : ''}" onclick="toggleAgreement()">
+                        <input type="checkbox" id="checkbox${index}" ${agreements[index] ? 'checked' : ''} onchange="toggleAgreement()">
+                        <label for="checkbox${index}">
+                            I have read, fully understand, and agree to abide by this policy regarding: <strong>${item.title}</strong>
+                        </label>
+                    </div>
+
+                    <div class="button-container">
+                        <button class="btn btn-back" onclick="previousItem()" ${index === 0 ? 'disabled' : ''}>
+                            ← Back
+                        </button>
+                        <button class="btn btn-next" id="nextBtn" onclick="nextItem()" disabled>
+                            ${isLast ? 'Complete Agreement →' : 'Next →'}
+                        </button>
+                    </div>
+                </div>
+            `;
+
+            updateNextButton();
+            updateProgress();
+        }
+
+        function toggleAgreement() {
+            const checkbox = document.getElementById(`checkbox${currentIndex}`);
+            agreements[currentIndex] = checkbox.checked;
+            updateNextButton();
+            
+            // Update visual feedback
+            const container = document.querySelector('.agreement-checkbox');
+            if (checkbox.checked) {
+                container.classList.add('checked');
+            } else {
+                container.classList.remove('checked');
+            }
+        }
+
+        function updateNextButton() {
+            const nextBtn = document.getElementById('nextBtn');
+            if (nextBtn) {
+                nextBtn.disabled = !agreements[currentIndex];
+            }
+        }
+
+        function updateProgress() {
+            const progressBar = document.getElementById('progressBar');
+            const percentage = ((currentIndex + 1) / agreementItems.length) * 100;
+            progressBar.style.width = percentage + '%';
+        }
+
+        function nextItem() {
+            if (!agreements[currentIndex]) return;
+
+            if (currentIndex < agreementItems.length - 1) {
+                currentIndex++;
+                renderItem(currentIndex);
+            } else {
+                showCompletionScreen();
+            }
+        }
+
+        function previousItem() {
+            if (currentIndex > 0) {
+                currentIndex--;
+                renderItem(currentIndex);
+            }
+        }
+
+        function showCompletionScreen() {
+            const content = document.getElementById('content');
+            const today = new Date().toLocaleDateString('en-US', { 
+                year: 'numeric', 
+                month: 'long', 
+                day: 'numeric' 
+            });
+
+            content.innerHTML = `
+                <div class="completion-screen active">
+                    <div class="completion-icon">✅</div>
+                    <h2>Agreement Complete!</h2>
+                    <p>You have read and agreed to all ${agreementItems.length} items of the Horizon House Member Agreement.</p>
+                    
+                    <div class="signature-section">
+                        <h3 style="margin-bottom: 20px; color: #333;">Electronic Signature</h3>
+                        <input type="text" id="memberName" class="signature-input" placeholder="Type your full name here" required style="font-size: 18px; font-family: inherit; margin-bottom: 25px;">
+                        
+                        <div class="signature-pad-container">
+                            <label class="signature-pad-label">Draw Your Signature Below (use finger or stylus)</label>
+                            <canvas id="signaturePad" width="800" height="200"></canvas>
+                            <div class="signature-controls">
+                                <button type="button" class="btn-clear" onclick="clearSignature()">Clear Signature</button>
+                                <span style="color: #718096; font-size: 14px; margin-left: auto; align-self: center;" id="signatureStatus">Signature required</span>
+                            </div>
+                        </div>
+
+                        <div class="signature-date">Date: ${today}</div>
+                        <p style="font-size: 14px; color: #666; margin-top: 15px;">
+                            By providing my name and signature above, I acknowledge that this constitutes my electronic signature 
+                            and I agree to be bound by the terms of this agreement.
+                        </p>
+                    </div>
+
+                    <button class="btn btn-submit" onclick="submitAgreement()">
+                        Submit Agreement
+                    </button>
+                </div>
+            `;
+
+            updateProgress();
+            
+            // Initialize signature pad after DOM is updated
+            setTimeout(initializeSignaturePad, 100);
+        }
+
+        async function submitAgreement() {
+            const memberName = document.getElementById('memberName').value.trim();
+            
+            if (!memberName) {
+                alert('Please enter your full name to sign the agreement.');
+                return;
+            }
+
+            if (!hasSignature) {
+                alert('Please provide your signature before submitting.');
+                return;
+            }
+
+            // Get signature as base64 image
+            const signatureDataURL = canvas.toDataURL('image/png');
+
+            // Prepare agreement data
+            const agreementData = {
+                memberName: memberName,
+                signedDate: new Date().toISOString(),
+                signature: signatureDataURL,
+                items: agreementItems.map((item, index) => ({
+                    title: item.title,
+                    agreed: agreements[index]
+                })),
+                ipAddress: await fetch('https://api.ipify.org?format=json')
+                    .then(r => r.json())
+                    .then(d => d.ip)
+                    .catch(() => 'unknown')
+            };
+
+            try {
+                // Send to backend API
+                const response = await fetch('https://horizon-portal-backend-production-3532.up.railway.app/api/intake/member-agreement', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(agreementData)
+                });
+
+                const result = await response.json();
+                
+                if (result.success) {
+                    alert(`Thank you, ${memberName}! Your agreement has been submitted successfully.\n\nPlease continue to the next intake form.`);
+                    
+                    // Redirect to next form or intake dashboard
+                    setTimeout(() => {
+                        // window.location.href = 'next-intake-form.html';
+                        // For now, go back to dashboard
+                        window.location.href = '../members/dashboard.html';
+                    }, 1500);
+                } else {
+                    throw new Error('Failed to submit agreement');
+                }
+            } catch (error) {
+                console.error('Error submitting agreement:', error);
+                alert('There was an error submitting your agreement. Please try again or contact staff.');
+            }
+        }
+
+        // Initialize
+        renderItem(0);
+    </script>
+</body>
+</html>

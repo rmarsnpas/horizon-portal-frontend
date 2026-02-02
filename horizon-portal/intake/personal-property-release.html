@@ -1,0 +1,655 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Personal Property Release - Horizon House</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 16px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 40px;
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 36px;
+            margin-bottom: 10px;
+        }
+
+        .header p {
+            font-size: 18px;
+            opacity: 0.95;
+        }
+
+        .content {
+            padding: 40px;
+        }
+
+        .intro-text {
+            background: #fff5f5;
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 30px;
+            border-left: 4px solid #e53e3e;
+        }
+
+        .intro-text p {
+            color: #742a2a;
+            line-height: 1.6;
+            margin-bottom: 10px;
+        }
+
+        .intro-text strong {
+            color: #c53030;
+        }
+
+        .form-section {
+            margin-bottom: 35px;
+        }
+
+        .section-title {
+            font-size: 22px;
+            color: #2d3748;
+            font-weight: 600;
+            margin-bottom: 20px;
+            padding-bottom: 12px;
+            border-bottom: 2px solid #e2e8f0;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .section-icon {
+            font-size: 28px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            color: #4a5568;
+            font-weight: 600;
+            margin-bottom: 8px;
+            font-size: 15px;
+        }
+
+        .form-group input,
+        .form-group select,
+        .form-group textarea {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e2e8f0;
+            border-radius: 8px;
+            font-size: 16px;
+            font-family: inherit;
+            transition: border-color 0.2s;
+        }
+
+        .form-group input:focus,
+        .form-group select:focus,
+        .form-group textarea:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+
+        .required {
+            color: #e53e3e;
+        }
+
+        .liability-text {
+            background: #f7fafc;
+            padding: 20px;
+            border-radius: 8px;
+            border: 2px solid #e2e8f0;
+            margin-bottom: 20px;
+        }
+
+        .liability-text p {
+            color: #2d3748;
+            line-height: 1.8;
+            margin-bottom: 15px;
+            text-align: justify;
+        }
+
+        .liability-text strong {
+            color: #1a202c;
+        }
+
+        .liability-text ul {
+            margin-left: 20px;
+            margin-bottom: 15px;
+        }
+
+        .liability-text li {
+            color: #2d3748;
+            margin-bottom: 8px;
+        }
+
+        .signature-section {
+            background: #f7fafc;
+            padding: 25px;
+            border-radius: 10px;
+            margin-top: 30px;
+        }
+
+        .signature-pad-container {
+            background: white;
+            border: 3px solid #667eea;
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+
+        .signature-pad-label {
+            font-size: 16px;
+            font-weight: 600;
+            color: #2d3748;
+            margin-bottom: 10px;
+            display: block;
+        }
+
+        #signaturePad {
+            border: 2px dashed #cbd5e0;
+            border-radius: 8px;
+            cursor: crosshair;
+            touch-action: none;
+            width: 100%;
+            background: white;
+        }
+
+        .signature-controls {
+            display: flex;
+            gap: 10px;
+            margin-top: 15px;
+        }
+
+        .btn {
+            padding: 16px 32px;
+            border: none;
+            border-radius: 8px;
+            font-size: 18px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .btn-small {
+            padding: 10px 20px;
+            font-size: 14px;
+        }
+
+        .btn-primary {
+            background: #667eea;
+            color: white;
+            width: 100%;
+        }
+
+        .btn-primary:hover {
+            background: #5568d3;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+        }
+
+        .btn-primary:disabled {
+            background: #cbd5e0;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .btn-secondary {
+            background: #718096;
+            color: white;
+        }
+
+        .btn-secondary:hover {
+            background: #4a5568;
+        }
+
+        .checkbox-group {
+            background: #f7fafc;
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 15px;
+        }
+
+        .checkbox-item {
+            display: flex;
+            align-items: center;
+            margin-bottom: 12px;
+            cursor: pointer;
+        }
+
+        .checkbox-item input[type="checkbox"] {
+            width: 20px;
+            height: 20px;
+            margin-right: 12px;
+            cursor: pointer;
+        }
+
+        .checkbox-item label {
+            margin: 0;
+            font-weight: 500;
+            color: #2d3748;
+            cursor: pointer;
+        }
+
+        .info-box {
+            background: #edf2f7;
+            border-left: 4px solid #4299e1;
+            padding: 15px;
+            margin-bottom: 20px;
+            border-radius: 4px;
+        }
+
+        .info-box p {
+            color: #2d3748;
+            font-size: 14px;
+            line-height: 1.5;
+        }
+
+        .warning-box {
+            background: #fffaf0;
+            border-left: 4px solid #ed8936;
+            padding: 15px;
+            margin-bottom: 20px;
+            border-radius: 4px;
+        }
+
+        .warning-box p {
+            color: #7c2d12;
+            font-size: 14px;
+            line-height: 1.5;
+        }
+
+        @media (max-width: 768px) {
+            .form-row {
+                grid-template-columns: 1fr;
+            }
+
+            .content {
+                padding: 25px;
+            }
+
+            .header h1 {
+                font-size: 28px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🏠 Horizon House</h1>
+            <p>Personal Property Release of Liability</p>
+        </div>
+
+        <div class="content">
+            <div class="intro-text">
+                <p><strong>⚠️ Important Notice:</strong> Horizon House is not responsible for lost, stolen, damaged, or destroyed personal property.</p>
+                <p>By signing this form, you acknowledge that you bring personal belongings to Horizon House at your own risk.</p>
+            </div>
+
+            <form id="propertyForm">
+                <!-- Member Information -->
+                <div class="form-section">
+                    <div class="section-title">
+                        <span class="section-icon">👤</span>
+                        Member Information
+                    </div>
+                    
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>First Name <span class="required">*</span></label>
+                            <input type="text" id="firstName" required>
+                        </div>
+                        <div class="form-group">
+                            <label>Last Name <span class="required">*</span></label>
+                            <input type="text" id="lastName" required>
+                        </div>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>Date of Admission <span class="required">*</span></label>
+                            <input type="date" id="admissionDate" required>
+                        </div>
+                        <div class="form-group">
+                            <label>Room/Bed Assignment</label>
+                            <input type="text" id="roomAssignment" placeholder="e.g., Room 5, Bed A">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Personal Property List -->
+                <div class="form-section">
+                    <div class="section-title">
+                        <span class="section-icon">📦</span>
+                        Personal Property Inventory (Optional)
+                    </div>
+
+                    <div class="info-box">
+                        <p>While not required, you may list valuable items you are bringing for your own records. This does NOT make Horizon House responsible for these items.</p>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Electronics (phones, laptops, tablets, etc.)</label>
+                        <textarea id="electronics" rows="3" placeholder="List any electronics..."></textarea>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Jewelry & Valuables</label>
+                        <textarea id="jewelry" rows="2" placeholder="List any jewelry or valuables..."></textarea>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Clothing & Personal Items</label>
+                        <textarea id="clothing" rows="2" placeholder="General description of clothing and personal items..."></textarea>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Vehicles (make, model, year, license plate)</label>
+                        <textarea id="vehicles" rows="2" placeholder="List any vehicles..."></textarea>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Other Items</label>
+                        <textarea id="otherItems" rows="2" placeholder="List any other personal property..."></textarea>
+                    </div>
+                </div>
+
+                <!-- Release of Liability -->
+                <div class="form-section">
+                    <div class="section-title">
+                        <span class="section-icon">⚖️</span>
+                        Release of Liability for Personal Property
+                    </div>
+
+                    <div class="liability-text">
+                        <p><strong>ACKNOWLEDGMENT OF RISK:</strong> I understand and acknowledge that Horizon House is a shared living environment and that there are inherent risks associated with storing personal property in such an environment, including but not limited to theft, loss, damage, destruction, or unauthorized use by other residents or third parties.</p>
+
+                        <p><strong>ASSUMPTION OF RESPONSIBILITY:</strong> I accept full and sole responsibility for all personal property that I bring to, store at, or keep on the premises of Horizon House. I understand that Horizon House does not provide secure storage for personal belongings and that I bring items at my own risk.</p>
+
+                        <p><strong>RELEASE AND WAIVER:</strong> I hereby release, waive, discharge, and covenant not to sue Horizon House, its owners, operators, employees, volunteers, and agents from any and all liability, claims, demands, actions, and causes of action whatsoever arising out of or related to any loss, theft, damage, or destruction of my personal property, regardless of the cause.</p>
+
+                        <p><strong>PROHIBITED ITEMS:</strong> I understand that the following items are prohibited and may be confiscated:</p>
+                        <ul>
+                            <li>Drugs, alcohol, drug paraphernalia</li>
+                            <li>Weapons of any kind (firearms, knives, brass knuckles, etc.)</li>
+                            <li>Stolen property</li>
+                            <li>Pornographic materials</li>
+                            <li>Items that violate house rules or pose a safety risk</li>
+                        </ul>
+
+                        <p><strong>SEARCH POLICY:</strong> I understand that my room and belongings may be searched at any time without notice. I have no expectation of privacy regarding contraband or prohibited items.</p>
+
+                        <p><strong>DISCHARGE POLICY:</strong> I understand that upon discharge from the program, I am responsible for removing all personal property within 24 hours. Any property left behind will be considered abandoned and may be disposed of without further notice.</p>
+
+                        <p><strong>RECOMMENDATION:</strong> Horizon House recommends that residents:</p>
+                        <ul>
+                            <li>Keep valuable items to a minimum</li>
+                            <li>Do not bring expensive jewelry, large amounts of cash, or irreplaceable items</li>
+                            <li>Obtain personal property insurance if desired</li>
+                            <li>Keep important documents in a secure location</li>
+                            <li>Label personal items with your name</li>
+                        </ul>
+                    </div>
+
+                    <div class="checkbox-group" style="background: #fff5f5; border: 2px solid #e53e3e;">
+                        <div class="checkbox-item">
+                            <input type="checkbox" id="agreeRelease" required>
+                            <label for="agreeRelease" style="font-weight: 600; color: #c53030;">
+                                I have read and understand the Personal Property Release of Liability. I agree to bring personal property at my own risk and release Horizon House from all liability. <span class="required">*</span>
+                            </label>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Acknowledgments -->
+                <div class="form-section">
+                    <div class="section-title">
+                        <span class="section-icon">✅</span>
+                        Additional Acknowledgments
+                    </div>
+
+                    <div class="checkbox-group">
+                        <div class="checkbox-item">
+                            <input type="checkbox" id="ack-secure" required>
+                            <label for="ack-secure">I understand Horizon House does not provide secure storage for valuables <span class="required">*</span></label>
+                        </div>
+                        <div class="checkbox-item">
+                            <input type="checkbox" id="ack-responsible" required>
+                            <label for="ack-responsible">I am solely responsible for my personal property <span class="required">*</span></label>
+                        </div>
+                        <div class="checkbox-item">
+                            <input type="checkbox" id="ack-insurance" required>
+                            <label for="ack-insurance">I understand Horizon House carries no insurance for my personal property <span class="required">*</span></label>
+                        </div>
+                        <div class="checkbox-item">
+                            <input type="checkbox" id="ack-removal" required>
+                            <label for="ack-removal">I will remove all property within 24 hours of discharge <span class="required">*</span></label>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Signature Section -->
+                <div class="signature-section">
+                    <div class="section-title">
+                        <span class="section-icon">✍️</span>
+                        Electronic Signature
+                    </div>
+                    
+                    <div class="warning-box" style="margin-top: 15px;">
+                        <p><strong>LEGAL NOTICE:</strong> By signing below, I certify that I have read this entire document, understand its contents, and sign it as my own free act.</p>
+                    </div>
+
+                    <div class="form-group" style="margin-top: 20px;">
+                        <label>Print Name <span class="required">*</span></label>
+                        <input type="text" id="printedName" required placeholder="Type your full legal name">
+                    </div>
+
+                    <div class="signature-pad-container">
+                        <label class="signature-pad-label">Draw Your Signature Below (use finger or stylus) <span class="required">*</span></label>
+                        <canvas id="signaturePad" width="800" height="200"></canvas>
+                        <div class="signature-controls">
+                            <button type="button" class="btn btn-secondary btn-small" onclick="clearSignature()">Clear Signature</button>
+                            <span style="color: #718096; font-size: 14px; margin-left: auto; align-self: center;" id="signatureStatus">Signature required</span>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Date <span class="required">*</span></label>
+                        <input type="date" id="signatureDate" required>
+                    </div>
+
+                    <button type="submit" class="btn btn-primary" id="submitBtn">
+                        Submit Personal Property Release
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        const API_URL = 'https://horizon-portal-backend-production-3532.up.railway.app';
+
+        // Set today's date as default
+        document.getElementById('signatureDate').valueAsDate = new Date();
+
+        // Signature Pad Setup
+        const canvas = document.getElementById('signaturePad');
+        const ctx = canvas.getContext('2d');
+        let isDrawing = false;
+        let hasSignature = false;
+
+        // Set canvas size properly for high DPI displays
+        const setCanvasSize = () => {
+            const rect = canvas.getBoundingClientRect();
+            canvas.width = rect.width * 2;
+            canvas.height = rect.height * 2;
+            canvas.style.width = rect.width + 'px';
+            canvas.style.height = rect.height + 'px';
+            ctx.scale(2, 2);
+            ctx.strokeStyle = '#000';
+            ctx.lineWidth = 2;
+            ctx.lineCap = 'round';
+            ctx.lineJoin = 'round';
+        };
+
+        setCanvasSize();
+        window.addEventListener('resize', setCanvasSize);
+
+        // Get coordinates relative to canvas
+        const getCoordinates = (e) => {
+            const rect = canvas.getBoundingClientRect();
+            const touch = e.touches ? e.touches[0] : e;
+            return {
+                x: touch.clientX - rect.left,
+                y: touch.clientY - rect.top
+            };
+        };
+
+        // Drawing functions
+        const startDrawing = (e) => {
+            e.preventDefault();
+            isDrawing = true;
+            const coords = getCoordinates(e);
+            ctx.beginPath();
+            ctx.moveTo(coords.x, coords.y);
+        };
+
+        const draw = (e) => {
+            e.preventDefault();
+            if (!isDrawing) return;
+            const coords = getCoordinates(e);
+            ctx.lineTo(coords.x, coords.y);
+            ctx.stroke();
+            hasSignature = true;
+            document.getElementById('signatureStatus').textContent = 'Signature captured ✓';
+            document.getElementById('signatureStatus').style.color = '#48bb78';
+        };
+
+        const stopDrawing = (e) => {
+            e.preventDefault();
+            isDrawing = false;
+        };
+
+        // Mouse events
+        canvas.addEventListener('mousedown', startDrawing);
+        canvas.addEventListener('mousemove', draw);
+        canvas.addEventListener('mouseup', stopDrawing);
+        canvas.addEventListener('mouseout', stopDrawing);
+
+        // Touch events for mobile/tablet
+        canvas.addEventListener('touchstart', startDrawing);
+        canvas.addEventListener('touchmove', draw);
+        canvas.addEventListener('touchend', stopDrawing);
+
+        // Clear signature
+        function clearSignature() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            hasSignature = false;
+            document.getElementById('signatureStatus').textContent = 'Signature required';
+            document.getElementById('signatureStatus').style.color = '#718096';
+        }
+
+        document.getElementById('propertyForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+
+            if (!hasSignature) {
+                alert('Please provide your signature before submitting.');
+                return;
+            }
+
+            // Get signature as base64 image
+            const signatureDataURL = canvas.toDataURL('image/png');
+
+            // Prepare form data
+            const formData = {
+                memberInfo: {
+                    firstName: document.getElementById('firstName').value,
+                    lastName: document.getElementById('lastName').value,
+                    admissionDate: document.getElementById('admissionDate').value,
+                    roomAssignment: document.getElementById('roomAssignment').value
+                },
+                propertyInventory: {
+                    electronics: document.getElementById('electronics').value,
+                    jewelry: document.getElementById('jewelry').value,
+                    clothing: document.getElementById('clothing').value,
+                    vehicles: document.getElementById('vehicles').value,
+                    otherItems: document.getElementById('otherItems').value
+                },
+                acknowledgments: {
+                    releaseOfLiability: document.getElementById('agreeRelease').checked,
+                    noSecureStorage: document.getElementById('ack-secure').checked,
+                    soleResponsibility: document.getElementById('ack-responsible').checked,
+                    noInsurance: document.getElementById('ack-insurance').checked,
+                    removalPolicy: document.getElementById('ack-removal').checked
+                },
+                printedName: document.getElementById('printedName').value,
+                signature: signatureDataURL,
+                signatureDate: document.getElementById('signatureDate').value,
+                submittedAt: new Date().toISOString(),
+                ipAddress: await fetch('https://api.ipify.org?format=json')
+                    .then(r => r.json())
+                    .then(d => d.ip)
+                    .catch(() => 'unknown')
+            };
+
+            try {
+                const response = await fetch(`${API_URL}/api/intake/personal-property-release`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(formData)
+                });
+
+                const result = await response.json();
+
+                if (result.success) {
+                    alert(`Thank you, ${formData.memberInfo.firstName}! Your Personal Property Release has been submitted successfully.\n\nRemember: Horizon House is not responsible for lost, stolen, or damaged property.`);
+                    
+                    setTimeout(() => {
+                        // Redirect to next form or dashboard
+                        window.location.href = '../members/dashboard.html';
+                    }, 1500);
+                } else {
+                    throw new Error('Failed to submit form');
+                }
+            } catch (error) {
+                console.error('Error submitting form:', error);
+                alert('There was an error submitting your form. Please try again or contact staff.');
+            }
+        });
+    </script>
+</body>
+</html>

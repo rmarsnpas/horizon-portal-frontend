@@ -1,0 +1,547 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Emergency Contact Information - Horizon House</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 16px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 40px;
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 36px;
+            margin-bottom: 10px;
+        }
+
+        .header p {
+            font-size: 18px;
+            opacity: 0.95;
+        }
+
+        .content {
+            padding: 40px;
+        }
+
+        .intro-text {
+            background: #f7fafc;
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 30px;
+            border-left: 4px solid #667eea;
+        }
+
+        .intro-text p {
+            color: #4a5568;
+            line-height: 1.6;
+            margin-bottom: 10px;
+        }
+
+        .intro-text strong {
+            color: #2d3748;
+        }
+
+        .form-section {
+            margin-bottom: 35px;
+        }
+
+        .section-title {
+            font-size: 22px;
+            color: #2d3748;
+            font-weight: 600;
+            margin-bottom: 20px;
+            padding-bottom: 12px;
+            border-bottom: 2px solid #e2e8f0;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .section-icon {
+            font-size: 28px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            color: #4a5568;
+            font-weight: 600;
+            margin-bottom: 8px;
+            font-size: 15px;
+        }
+
+        .form-group input,
+        .form-group select,
+        .form-group textarea {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e2e8f0;
+            border-radius: 8px;
+            font-size: 16px;
+            font-family: inherit;
+            transition: border-color 0.2s;
+        }
+
+        .form-group input:focus,
+        .form-group select:focus,
+        .form-group textarea:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+
+        .required {
+            color: #e53e3e;
+        }
+
+        .contact-card {
+            background: #f7fafc;
+            border: 2px solid #e2e8f0;
+            border-radius: 12px;
+            padding: 25px;
+            margin-bottom: 25px;
+            position: relative;
+        }
+
+        .contact-card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .contact-card-title {
+            font-size: 18px;
+            font-weight: 600;
+            color: #2d3748;
+        }
+
+        .btn-remove {
+            background: #e53e3e;
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 6px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+
+        .btn-remove:hover {
+            background: #c53030;
+        }
+
+        .btn {
+            padding: 16px 32px;
+            border: none;
+            border-radius: 8px;
+            font-size: 18px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .btn-primary {
+            background: #667eea;
+            color: white;
+            width: 100%;
+        }
+
+        .btn-primary:hover {
+            background: #5568d3;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+        }
+
+        .btn-secondary {
+            background: #48bb78;
+            color: white;
+            width: 100%;
+            margin-bottom: 20px;
+        }
+
+        .btn-secondary:hover {
+            background: #38a169;
+        }
+
+        .signature-section {
+            background: #f7fafc;
+            padding: 25px;
+            border-radius: 10px;
+            margin-top: 30px;
+        }
+
+        .signature-input {
+            width: 100%;
+            padding: 15px;
+            font-size: 24px;
+            border: 2px solid #e2e8f0;
+            border-radius: 8px;
+            margin-bottom: 15px;
+            font-family: 'Brush Script MT', cursive;
+        }
+
+        .info-box {
+            background: #edf2f7;
+            border-left: 4px solid #4299e1;
+            padding: 15px;
+            margin-bottom: 20px;
+            border-radius: 4px;
+        }
+
+        .info-box p {
+            color: #2d3748;
+            font-size: 14px;
+            line-height: 1.5;
+        }
+
+        @media (max-width: 768px) {
+            .form-row {
+                grid-template-columns: 1fr;
+            }
+
+            .content {
+                padding: 25px;
+            }
+
+            .header h1 {
+                font-size: 28px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🏠 Horizon House</h1>
+            <p>Emergency Contact Information</p>
+        </div>
+
+        <div class="content">
+            <div class="intro-text">
+                <p><strong>Important:</strong> Please provide at least one emergency contact. This person will be contacted in case of medical emergency, safety concern, or other urgent matters.</p>
+                <p>You may add multiple emergency contacts. Please list them in order of priority.</p>
+            </div>
+
+            <form id="emergencyContactForm">
+                <!-- Member Information -->
+                <div class="form-section">
+                    <div class="section-title">
+                        <span class="section-icon">👤</span>
+                        Member Information
+                    </div>
+                    
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>First Name <span class="required">*</span></label>
+                            <input type="text" id="memberFirstName" required>
+                        </div>
+                        <div class="form-group">
+                            <label>Last Name <span class="required">*</span></label>
+                            <input type="text" id="memberLastName" required>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Emergency Contacts -->
+                <div class="form-section">
+                    <div class="section-title">
+                        <span class="section-icon">🚨</span>
+                        Emergency Contacts
+                    </div>
+
+                    <div id="contactsList">
+                        <!-- Primary Contact -->
+                        <div class="contact-card" data-index="0">
+                            <div class="contact-card-header">
+                                <div class="contact-card-title">Primary Contact</div>
+                            </div>
+
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label>Full Name <span class="required">*</span></label>
+                                    <input type="text" class="contact-name" required>
+                                </div>
+                                <div class="form-group">
+                                    <label>Relationship <span class="required">*</span></label>
+                                    <select class="contact-relationship" required>
+                                        <option value="">Select...</option>
+                                        <option value="Parent">Parent</option>
+                                        <option value="Spouse">Spouse</option>
+                                        <option value="Sibling">Sibling</option>
+                                        <option value="Child">Child</option>
+                                        <option value="Partner">Partner</option>
+                                        <option value="Friend">Friend</option>
+                                        <option value="Other Family">Other Family</option>
+                                        <option value="Legal Guardian">Legal Guardian</option>
+                                        <option value="Other">Other</option>
+                                    </select>
+                                </div>
+                            </div>
+
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label>Primary Phone <span class="required">*</span></label>
+                                    <input type="tel" class="contact-phone" placeholder="(555) 555-5555" required>
+                                </div>
+                                <div class="form-group">
+                                    <label>Alternate Phone</label>
+                                    <input type="tel" class="contact-alt-phone" placeholder="(555) 555-5555">
+                                </div>
+                            </div>
+
+                            <div class="form-group">
+                                <label>Email Address</label>
+                                <input type="email" class="contact-email" placeholder="contact@example.com">
+                            </div>
+
+                            <div class="form-group">
+                                <label>Home Address</label>
+                                <textarea class="contact-address" rows="2" placeholder="Street Address, City, State ZIP"></textarea>
+                            </div>
+
+                            <div class="info-box">
+                                <p><strong>Authorization:</strong> I authorize Horizon House to contact this person in case of emergency.</p>
+                                <label style="display: flex; align-items: center; margin-top: 10px; cursor: pointer;">
+                                    <input type="checkbox" class="contact-authorized" required style="width: 20px; height: 20px; margin-right: 10px;">
+                                    <span style="color: #2d3748; font-weight: 600;">Yes, I authorize contact with this person</span>
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+
+                    <button type="button" class="btn btn-secondary" onclick="addContact()">
+                        + Add Another Emergency Contact
+                    </button>
+                </div>
+
+                <!-- Additional Information -->
+                <div class="form-section">
+                    <div class="section-title">
+                        <span class="section-icon">📋</span>
+                        Additional Information
+                    </div>
+
+                    <div class="form-group">
+                        <label>Medical Conditions or Allergies Staff Should Know About</label>
+                        <textarea id="medicalInfo" rows="3" placeholder="List any allergies, medical conditions, or important health information..."></textarea>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Special Instructions for Emergency Situations</label>
+                        <textarea id="specialInstructions" rows="3" placeholder="Any special instructions or preferences in case of emergency..."></textarea>
+                    </div>
+                </div>
+
+                <!-- Signature Section -->
+                <div class="signature-section">
+                    <div class="section-title">
+                        <span class="section-icon">✍️</span>
+                        Certification
+                    </div>
+                    
+                    <div class="info-box" style="margin-top: 15px;">
+                        <p>I certify that the emergency contact information provided is accurate and current. I understand that this information will be kept confidential and used only in case of emergency or urgent situations requiring notification of family or designated contacts.</p>
+                    </div>
+
+                    <div class="form-group" style="margin-top: 20px;">
+                        <label>Full Name (Type to Sign) <span class="required">*</span></label>
+                        <input type="text" id="signature" class="signature-input" required placeholder="Type your full name here">
+                    </div>
+
+                    <div class="form-group">
+                        <label>Date <span class="required">*</span></label>
+                        <input type="date" id="signatureDate" required>
+                    </div>
+
+                    <button type="submit" class="btn btn-primary">
+                        Submit Emergency Contact Information
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        const API_URL = 'https://horizon-portal-backend-production-3532.up.railway.app';
+        let contactCount = 1;
+
+        // Set today's date as default
+        document.getElementById('signatureDate').valueAsDate = new Date();
+
+        function addContact() {
+            const contactsList = document.getElementById('contactsList');
+            const newContact = document.createElement('div');
+            newContact.className = 'contact-card';
+            newContact.dataset.index = contactCount;
+            
+            newContact.innerHTML = `
+                <div class="contact-card-header">
+                    <div class="contact-card-title">Emergency Contact #${contactCount + 1}</div>
+                    <button type="button" class="btn-remove" onclick="removeContact(${contactCount})">
+                        Remove Contact
+                    </button>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Full Name <span class="required">*</span></label>
+                        <input type="text" class="contact-name" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Relationship <span class="required">*</span></label>
+                        <select class="contact-relationship" required>
+                            <option value="">Select...</option>
+                            <option value="Parent">Parent</option>
+                            <option value="Spouse">Spouse</option>
+                            <option value="Sibling">Sibling</option>
+                            <option value="Child">Child</option>
+                            <option value="Partner">Partner</option>
+                            <option value="Friend">Friend</option>
+                            <option value="Other Family">Other Family</option>
+                            <option value="Legal Guardian">Legal Guardian</option>
+                            <option value="Other">Other</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Primary Phone <span class="required">*</span></label>
+                        <input type="tel" class="contact-phone" placeholder="(555) 555-5555" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Alternate Phone</label>
+                        <input type="tel" class="contact-alt-phone" placeholder="(555) 555-5555">
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label>Email Address</label>
+                    <input type="email" class="contact-email" placeholder="contact@example.com">
+                </div>
+
+                <div class="form-group">
+                    <label>Home Address</label>
+                    <textarea class="contact-address" rows="2" placeholder="Street Address, City, State ZIP"></textarea>
+                </div>
+
+                <div class="info-box">
+                    <p><strong>Authorization:</strong> I authorize Horizon House to contact this person in case of emergency.</p>
+                    <label style="display: flex; align-items: center; margin-top: 10px; cursor: pointer;">
+                        <input type="checkbox" class="contact-authorized" required style="width: 20px; height: 20px; margin-right: 10px;">
+                        <span style="color: #2d3748; font-weight: 600;">Yes, I authorize contact with this person</span>
+                    </label>
+                </div>
+            `;
+            
+            contactsList.appendChild(newContact);
+            contactCount++;
+        }
+
+        function removeContact(index) {
+            const contact = document.querySelector(`.contact-card[data-index="${index}"]`);
+            if (contact) {
+                contact.remove();
+            }
+        }
+
+        document.getElementById('emergencyContactForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+
+            // Collect all emergency contacts
+            const contacts = [];
+            document.querySelectorAll('.contact-card').forEach((card, index) => {
+                const authorized = card.querySelector('.contact-authorized').checked;
+                
+                contacts.push({
+                    priority: index + 1,
+                    name: card.querySelector('.contact-name').value,
+                    relationship: card.querySelector('.contact-relationship').value,
+                    primaryPhone: card.querySelector('.contact-phone').value,
+                    alternatePhone: card.querySelector('.contact-alt-phone').value,
+                    email: card.querySelector('.contact-email').value,
+                    address: card.querySelector('.contact-address').value,
+                    authorized: authorized
+                });
+            });
+
+            // Prepare form data
+            const formData = {
+                memberInfo: {
+                    firstName: document.getElementById('memberFirstName').value,
+                    lastName: document.getElementById('memberLastName').value
+                },
+                emergencyContacts: contacts,
+                medicalInfo: document.getElementById('medicalInfo').value,
+                specialInstructions: document.getElementById('specialInstructions').value,
+                signature: document.getElementById('signature').value,
+                signatureDate: document.getElementById('signatureDate').value,
+                submittedAt: new Date().toISOString(),
+                ipAddress: await fetch('https://api.ipify.org?format=json')
+                    .then(r => r.json())
+                    .then(d => d.ip)
+                    .catch(() => 'unknown')
+            };
+
+            try {
+                const response = await fetch(`${API_URL}/api/intake/emergency-contact`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(formData)
+                });
+
+                const result = await response.json();
+
+                if (result.success) {
+                    alert(`Thank you, ${formData.memberInfo.firstName}! Your emergency contact information has been submitted successfully.\n\nPlease continue to the next intake form.`);
+                    
+                    setTimeout(() => {
+                        // Redirect to next form or dashboard
+                        window.location.href = '../members/dashboard.html';
+                    }, 1500);
+                } else {
+                    throw new Error('Failed to submit form');
+                }
+            } catch (error) {
+                console.error('Error submitting form:', error);
+                alert('There was an error submitting your form. Please try again or contact staff.');
+            }
+        });
+    </script>
+</body>
+</html>
