@@ -435,7 +435,7 @@
                     liabilityRes,
                     propertyRes
                 ] = await Promise.all([
-                    fetch(`${API_URL}/api/intake/member-agreement`),
+                    fetch(`${API_URL}/api/intake/agreements`),
                     fetch(`${API_URL}/api/intake/licensee-agreement`),
                     fetch(`${API_URL}/api/intake/release-of-information`),
                     fetch(`${API_URL}/api/intake/emergency-contact`),
