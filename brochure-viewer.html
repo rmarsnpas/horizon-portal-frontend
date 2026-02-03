@@ -32,8 +32,7 @@
       flex: 1;
     }
 
-    .print-btn {
-      background: #1e73be;
+    .btn {
       color: white;
       border: none;
       padding: 10px 24px;
@@ -42,10 +41,25 @@
       cursor: pointer;
       font-weight: bold;
       transition: background 0.3s;
+      margin-left: 8px;
+      text-decoration: none;
+      display: inline-block;
+    }
+
+    .print-btn {
+      background: #1e73be;
     }
 
     .print-btn:hover {
       background: #155a8a;
+    }
+
+    .home-btn {
+      background: #2e6a4f;
+    }
+
+    .home-btn:hover {
+      background: #1f4a36;
     }
 
     .viewer-container {
@@ -79,7 +93,8 @@
 <header>
   <img src="data:image/png;base64, YOUR_BASE64_LOGO_HERE" alt="Horizon House Logo">
   <h1>Horizon House Sober Living — Brochure</h1>
-  <button class="print-btn" onclick="printBrochure()">🖨️ Print Brochure</button>
+  <a href="index.html" class="btn home-btn">🏠 Return to Home Page</a>
+  <button class="btn print-btn" onclick="printBrochure()">🖨️ Print Brochure</button>
 </header>
 
 <div class="viewer-container">
