@@ -1,6 +1,6 @@
 # Horizon House Portal - Project Status
 
-**Last Updated:** February 3, 2026 6:20 PM  
+**Last Updated:** February 3, 2026 11:45 PM  
 **Developer:** rmars + GitHub Copilot  
 **Active Branch:** main  
 **Deployment Status:** ✅ Live
@@ -43,9 +43,10 @@
 ## 🎯 Next Priorities
 
 ### Immediate (This Week)
-- [ ] Test brochure print functionality on all browsers
+- [x] ~~Test brochure print functionality on all browsers~~ ✅ Done
+- [x] ~~Clean up any unused files in workspace~~ ✅ Done
+- [ ] Set up physical iPad kiosk using instructions
 - [ ] Monitor message system for any issues
-- [ ] Clean up any unused files in workspace
 
 ### Short-term (This Month)
 - [ ] Add push notifications for new messages
@@ -63,7 +64,18 @@
 
 ## 📝 Recent Changes (Last 5 Sessions)
 
-### Feb 3, 2026 - Brochure Viewer Updates
+### Feb 3, 2026 PM - Project Cleanup & Documentation
+- ✅ Created PROJECT_STATUS.md for session continuity
+- ✅ Created README.md for quick reference
+- ✅ Created PROJECT_REVIEW.md with cleanup analysis
+- ✅ Cleaned up 13 duplicate/temp files (backups, old versions, MS Office temps)
+- ✅ Added Return to Home button on brochure viewer
+- ✅ Updated logo from gold to green tree version (HH logo grntree.jpg/png)
+- ✅ Fixed logo filename typos across all HTML files
+- ✅ Created iPad-Kiosk-Setup-Instructions.txt for physical kiosk setup
+- 📦 Deployed: Commits `6057165`, `fb01caa`, `946e47c`, `04adcac`
+
+### Feb 3, 2026 AM - Brochure Viewer Updates
 - ✅ Updated to new PDF: `brochure 012726.pdf`
 - ✅ Added print button with JavaScript functionality
 - ✅ Cleaned up old brochure files (brochure.pdf, brochure.html, brochure-print.html)
@@ -246,14 +258,15 @@ index_files/
 ## 💡 Session Handoff Notes
 
 ### What's Working Well
-- Messaging system is stable and feature-complete
-- Kiosks properly filtering by gender
-- Sobriety counter with milestones is engaging
-- Brochure viewer with print is deployed
+- Documentation system in place (PROJECT_STATUS, README, DEVELOPMENT_LOG)
+- Project cleanup completed - much easier to navigate
+- Brochure viewer fully functional with print and home buttons
+- Logo updated to green tree version across all pages
+- All changes deployed and live
 
 ### What Needs Attention
 - Nothing urgent
-- Consider testing print function across browsers
+- Consider setting up physical iPad kiosk
 
 ### Blocked/Waiting On
 - Nothing currently blocked
