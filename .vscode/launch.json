@@ -1,19 +1,29 @@
 {
-    // Use IntelliSense to learn about possible attributes.
-    // Hover to view descriptions of existing attributes.
-    // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
     "version": "0.2.0",
     "configurations": [
-        
-    
-
-
-
         {
+            "name": "Open Kiosk - Men (starts local server)",
             "type": "chrome",
             "request": "launch",
-            "name": "Open index.html",
-            "file": "c:\\Users\\rmars\\OneDrive\\Documents\\Documents\\marsliz\\Horizon-House\\website\\index_files\\brochure-print.html"
+            "url": "http://localhost:8000/horizon-portal/kiosk-men.html",
+            "webRoot": "${workspaceFolder}",
+            "preLaunchTask": "Run Python HTTP Server"
+        },
+        {
+            "name": "Open Kiosk - Women (starts local server)",
+            "type": "chrome",
+            "request": "launch",
+            "url": "http://localhost:8000/horizon-portal/kiosk-women.html",
+            "webRoot": "${workspaceFolder}",
+            "preLaunchTask": "Run Python HTTP Server"
+        },
+        {
+            "name": "Open Kiosk - Sign In/Out (starts local server)",
+            "type": "chrome",
+            "request": "launch",
+            "url": "http://localhost:8000/horizon-portal/kiosk-signin.html",
+            "webRoot": "${workspaceFolder}",
+            "preLaunchTask": "Run Python HTTP Server"
         }
     ]
 }

@@ -495,6 +495,58 @@ curl http://localhost:3001/api/getMember?id=0101
 
 ---
 
-*Last Updated: February 1, 2026*
-*Total Development Time: ~6 hours*
-*Lines of Code Added: ~2,500+*
+### Session 5: Brochure Viewer Updates (February 3, 2026)
+
+#### Features Added
+- **Print functionality** added to brochure viewer
+- **Updated brochure PDF** to latest version (January 27, 2026)
+- **File cleanup** - removed outdated brochure files
+
+#### Changes Made
+
+**Brochure Updates:**
+- Updated `brochure-viewer.html` to use new PDF: `brochure 012726.pdf`
+- Added print button to header with printer icon emoji
+- Added print link to fallback section
+- Implemented JavaScript `printBrochure()` function
+
+**Print Functionality:**
+```javascript
+function printBrochure() {
+  // Try to trigger print on the iframe content
+  const iframe = document.querySelector('iframe');
+  try {
+    iframe.contentWindow.print();
+  } catch (e) {
+    // If iframe print fails, open PDF in new window and print
+    window.open('brochure 012726.pdf', '_blank');
+  }
+}
+```
+
+**UI Enhancements:**
+- Added styled print button to header (blue with hover effect)
+- Updated header layout with flexbox for proper alignment
+- Print button positioned in top-right of header
+
+**Files Removed:**
+- `brochure.pdf` (old version from December 2025)
+- `brochure.html` (HTML version)
+- `brochure-print.html` (print version)
+- `brochure-inside-012726.html` (unused file)
+
+**Files Modified:**
+- `brochure-viewer.html`: Updated PDF reference and added print functionality
+
+**Git Commits:**
+- `c5ca041` - Update brochure viewer with new PDF and add print functionality
+
+**Deployment:**
+- Pushed to GitHub repository (horizon-portal-frontend)
+- Auto-deployed via Vercel/Railway integration
+
+---
+
+*Last Updated: February 3, 2026*
+*Total Development Time: ~6.5 hours*
+*Lines of Code Added: ~2,550+*
