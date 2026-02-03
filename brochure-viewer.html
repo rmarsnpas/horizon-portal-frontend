@@ -29,6 +29,23 @@
       font-size: 1.4rem;
       margin: 0;
       color: #2b3440;
+      flex: 1;
+    }
+
+    .print-btn {
+      background: #1e73be;
+      color: white;
+      border: none;
+      padding: 10px 24px;
+      font-size: 1rem;
+      border-radius: 4px;
+      cursor: pointer;
+      font-weight: bold;
+      transition: background 0.3s;
+    }
+
+    .print-btn:hover {
+      background: #155a8a;
     }
 
     .viewer-container {
@@ -62,16 +79,31 @@
 <header>
   <img src="data:image/png;base64, YOUR_BASE64_LOGO_HERE" alt="Horizon House Logo">
   <h1>Horizon House Sober Living — Brochure</h1>
+  <button class="print-btn" onclick="printBrochure()">🖨️ Print Brochure</button>
 </header>
 
 <div class="viewer-container">
-  <iframe src="brochure.pdf"></iframe>
+  <iframe src="brochure 012726.pdf"></iframe>
 </div>
 
 <div class="fallback">
   If the brochure does not load, 
-  <a href="brochure.pdf" target="_blank">click here to download it</a>.
+  <a href="brochure 012726.pdf" target="_blank">click here to download it</a>
+  or <a href="javascript:printBrochure()">print it directly</a>.
 </div>
+
+<script>
+  function printBrochure() {
+    // Try to trigger print on the iframe content
+    const iframe = document.querySelector('iframe');
+    try {
+      iframe.contentWindow.print();
+    } catch (e) {
+      // If iframe print fails, open PDF in new window and print
+      window.open('brochure 012726.pdf', '_blank');
+    }
+  }
+</script>
 
 </body>
 </html>
