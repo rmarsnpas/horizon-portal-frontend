@@ -1,0 +1,313 @@
+═══════════════════════════════════════════════════════════════════════════════
+           SETTING UP GITHUB AUTHENTICATION ON YOUR OTHER PC
+                    Step-by-Step Guide for Two-PC Workflow
+═══════════════════════════════════════════════════════════════════════════════
+
+GOAL: Enable both PCs to push changes to GitHub so you can work seamlessly
+      from either computer.
+
+═══════════════════════════════════════════════════════════════════════════════
+PART 1: CREATE A GITHUB PERSONAL ACCESS TOKEN (5 minutes)
+═══════════════════════════════════════════════════════════════════════════════
+
+Do this ONCE on ANY computer (this PC is fine):
+
+STEP 1: Go to GitHub Token Settings
+─────────────────────────────────────────────────────────────────────────────
+1. Open your web browser
+2. Go to: https://github.com/settings/tokens
+3. Click the "Generate new token" button
+4. Select "Generate new token (classic)"
+
+
+STEP 2: Configure the Token
+─────────────────────────────────────────────────────────────────────────────
+1. Note: Enter "Horizon House Project - Multi-PC Access"
+2. Expiration: Select "No expiration" (or 90 days if you prefer)
+3. Select scopes:
+   ☑ repo (check this box - it will check all sub-items)
+   
+   This gives access to:
+   - repo:status
+   - repo_deployment
+   - public_repo
+   - repo:invite
+   - security_events
+
+
+STEP 3: Generate and Save the Token
+─────────────────────────────────────────────────────────────────────────────
+1. Scroll down and click "Generate token" (green button)
+
+2. 🚨 IMPORTANT: Copy the token NOW!
+   It looks like: ghp_xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+   
+3. Save it somewhere safe:
+   - Notepad file on your desktop
+   - Password manager
+   - Secure note
+   
+   ⚠️ You won't be able to see it again after leaving this page!
+
+
+═══════════════════════════════════════════════════════════════════════════════
+PART 2: SET UP GIT ON THE OTHER PC (10 minutes)
+═══════════════════════════════════════════════════════════════════════════════
+
+Now go to your OTHER PC and follow these steps:
+
+STEP 1: Open PowerShell
+─────────────────────────────────────────────────────────────────────────────
+1. Press Windows Key + X
+2. Select "Windows PowerShell" or "Terminal"
+
+
+STEP 2: Navigate to Project Folder
+─────────────────────────────────────────────────────────────────────────────
+cd "C:\Users\rmars\OneDrive\Documents\Documents\marsliz\Horizon-House\website\index_files"
+
+
+STEP 3: Configure Git User Info (One-Time Setup)
+─────────────────────────────────────────────────────────────────────────────
+git config --global user.name "rmars"
+git config --global user.email "your-email@example.com"
+
+Replace "your-email@example.com" with your actual email
+
+
+STEP 4: Check Git Remote
+─────────────────────────────────────────────────────────────────────────────
+git remote -v
+
+Expected output:
+  origin  https://github.com/rmarsnpas/horizon-portal-frontend.git (fetch)
+  origin  https://github.com/rmarsnpas/horizon-portal-frontend.git (push)
+
+If you see "fatal: not a git repository" or no output:
+  git init
+  git remote add origin https://github.com/rmarsnpas/horizon-portal-frontend.git
+
+
+STEP 5: Pull Latest Changes
+─────────────────────────────────────────────────────────────────────────────
+git pull origin main
+
+OR if that fails:
+  git pull origin main --allow-unrelated-histories
+
+
+STEP 6: Test Push with Authentication
+─────────────────────────────────────────────────────────────────────────────
+Create a test file:
+  echo "Test from Other PC - $(Get-Date)" > test-pc2.txt
+
+Add and commit it:
+  git add test-pc2.txt
+  git commit -m "Test push from other PC"
+
+Push it:
+  git push origin main
+
+
+STEP 7: Enter Credentials When Prompted
+─────────────────────────────────────────────────────────────────────────────
+Windows will show a credential prompt:
+
+  Username: [Your GitHub username]
+  Password: [Paste your Personal Access Token here]
+           (NOT your GitHub password - use the token from Part 1!)
+
+Check the box: "Remember my credentials" or "Always use this credential"
+
+Click "OK"
+
+
+STEP 8: Verify Push Succeeded
+─────────────────────────────────────────────────────────────────────────────
+You should see:
+  Enumerating objects: 3, done.
+  Counting objects: 100% (3/3), done.
+  ...
+  To https://github.com/rmarsnpas/horizon-portal-frontend.git
+     xxxxx..xxxxx  main -> main
+
+✅ SUCCESS! Your other PC can now push!
+
+
+═══════════════════════════════════════════════════════════════════════════════
+PART 3: DAILY WORKFLOW (Both PCs)
+═══════════════════════════════════════════════════════════════════════════════
+
+STARTING WORK (On Any PC):
+─────────────────────────────────────────────────────────────────────────────
+1. Wait for OneDrive to finish syncing (check taskbar icon)
+
+2. Open PowerShell in project folder
+
+3. Pull latest changes:
+   git pull origin main
+
+4. Open VS Code:
+   code .
+
+5. In Copilot chat:
+   "Continue where we left off"
+
+
+AFTER MAKING CHANGES (On Any PC):
+─────────────────────────────────────────────────────────────────────────────
+1. Save all files in VS Code
+
+2. In PowerShell:
+   git add -A
+   git commit -m "Brief description of what you changed"
+   git push origin main
+
+3. Update PROJECT_STATUS.md if you made significant changes
+
+4. OneDrive will sync files to other PC automatically
+
+
+SWITCHING TO OTHER PC:
+─────────────────────────────────────────────────────────────────────────────
+1. Wait for OneDrive sync to complete
+
+2. Open PowerShell in project folder
+
+3. Pull changes:
+   git pull origin main
+
+4. Continue working!
+
+
+═══════════════════════════════════════════════════════════════════════════════
+TROUBLESHOOTING
+═══════════════════════════════════════════════════════════════════════════════
+
+PROBLEM: "Authentication failed"
+─────────────────────────────────────────────────────────────────────────────
+SOLUTION: 
+  - Make sure you're using the Personal Access Token, not your password
+  - Check token hasn't expired
+  - Generate a new token if needed
+
+
+PROBLEM: "fatal: not a git repository"
+─────────────────────────────────────────────────────────────────────────────
+SOLUTION:
+  cd "C:\Users\rmars\OneDrive\Documents\Documents\marsliz\Horizon-House\website\index_files"
+  git init
+  git remote add origin https://github.com/rmarsnpas/horizon-portal-frontend.git
+  git pull origin main
+
+
+PROBLEM: "Your branch and 'origin/main' have diverged"
+─────────────────────────────────────────────────────────────────────────────
+SOLUTION:
+  git pull origin main --rebase
+  (Fix any conflicts if they appear)
+  git push origin main
+
+
+PROBLEM: Windows keeps asking for credentials
+─────────────────────────────────────────────────────────────────────────────
+SOLUTION: Store credentials permanently:
+  git config --global credential.helper wincred
+
+
+PROBLEM: Merge conflicts
+─────────────────────────────────────────────────────────────────────────────
+SOLUTION:
+  1. Open the conflicted file in VS Code
+  2. VS Code will show conflict markers
+  3. Choose which version to keep
+  4. Save the file
+  5. git add .
+  6. git commit -m "Resolved merge conflict"
+  7. git push origin main
+
+
+PROBLEM: Forgot to pull before making changes
+─────────────────────────────────────────────────────────────────────────────
+SOLUTION:
+  git stash              # Save your changes temporarily
+  git pull origin main   # Get latest from GitHub
+  git stash pop          # Reapply your changes
+  (Resolve any conflicts)
+  git add -A
+  git commit -m "Your changes"
+  git push origin main
+
+
+═══════════════════════════════════════════════════════════════════════════════
+VERIFICATION CHECKLIST
+═══════════════════════════════════════════════════════════════════════════════
+
+On OTHER PC, verify:
+☐ Git is installed (git --version)
+☐ User name configured (git config user.name)
+☐ User email configured (git config user.email)
+☐ Remote is set (git remote -v shows GitHub URL)
+☐ Can pull successfully (git pull origin main)
+☐ Can push successfully (git push origin main)
+☐ Windows remembered credentials (no prompt on second push)
+☐ VS Code installed with GitHub Copilot
+☐ PROJECT_STATUS.md opens correctly
+☐ Copilot responds when asked to "continue where we left off"
+
+
+═══════════════════════════════════════════════════════════════════════════════
+BEST PRACTICES
+═══════════════════════════════════════════════════════════════════════════════
+
+✅ Always pull before starting work
+✅ Commit and push at the end of each session
+✅ Update PROJECT_STATUS.md when making significant changes
+✅ Use descriptive commit messages
+✅ Let OneDrive sync complete before switching PCs
+✅ Keep the Personal Access Token in a safe place
+
+❌ Don't work on both PCs simultaneously
+❌ Don't forget to push before switching PCs
+❌ Don't share your Personal Access Token with anyone
+
+
+═══════════════════════════════════════════════════════════════════════════════
+QUICK REFERENCE
+═══════════════════════════════════════════════════════════════════════════════
+
+Essential Commands:
+──────────────────
+git pull origin main                    # Get latest changes
+git add -A                              # Stage all changes
+git commit -m "message"                 # Commit with message
+git push origin main                    # Push to GitHub
+git status                              # Check what's changed
+git log --oneline                       # View commit history
+
+GitHub URLs:
+────────────
+Frontend Repo: https://github.com/rmarsnpas/horizon-portal-frontend.git
+Token Settings: https://github.com/settings/tokens
+
+Important Files for Copilot:
+─────────────────────────────
+horizon-portal/PROJECT_STATUS.md        # Current status
+horizon-portal/README.md                # Technical reference
+horizon-portal/DEVELOPMENT_LOG.md       # History
+
+Magic Phrase for Copilot:
+──────────────────────────
+"Continue where we left off"
+
+
+═══════════════════════════════════════════════════════════════════════════════
+
+Need Help?
+──────────
+If you run into issues, take a screenshot of the error and ask Copilot!
+
+Last Updated: February 3, 2026
+Document Version: 1.0
+
+═══════════════════════════════════════════════════════════════════════════════
