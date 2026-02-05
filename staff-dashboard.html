@@ -515,7 +515,10 @@
                     <div class="card-count" style="font-size: 24px; color: #718096;">View Form</div>
                     <div class="card-label">Member Application</div>
                 </a>
-                <a href="#" onclick="emailApplicationLink(event)" class="card-email-btn">✉️ Email Link</a>
+                <div style="display: flex; gap: 8px; margin-top: 10px;">
+                    <a href="#" onclick="emailApplicationLink(event)" class="card-email-btn" style="flex: 1;">✉️ Email Link</a>
+                    <button onclick="copyApplicationLink(event)" class="card-email-btn" style="flex: 1; border: none;">📋 Copy Link</button>
+                </div>
             </div>
 
             <a href="#" class="dashboard-card" style="opacity: 0.6; cursor: not-allowed;">
@@ -698,6 +701,27 @@
                 'mars@horizon-house.org'
             );
             window.location.href = `mailto:?subject=${subject}&body=${body}`;
+        }
+
+        // Copy application link to clipboard
+        async function copyApplicationLink(event) {
+            event.preventDefault();
+            const applicationURL = window.location.origin + '/application.html';
+            
+            try {
+                await navigator.clipboard.writeText(applicationURL);
+                const btn = event.target;
+                const originalText = btn.innerHTML;
+                btn.innerHTML = '✅ Copied!';
+                btn.style.background = '#48bb78';
+                setTimeout(() => {
+                    btn.innerHTML = originalText;
+                    btn.style.background = '#48bb78';
+                }, 2000);
+            } catch (err) {
+                console.error('Failed to copy:', err);
+                alert('Failed to copy link. Please copy manually: ' + applicationURL);
+            }
         }
 
         // Upload modal functions
