@@ -39,6 +39,78 @@
       animation: slideDown 0.3s ease;
     }
     
+    .signature-options {
+      display: flex;
+      gap: 10px;
+      margin-bottom: 15px;
+    }
+    
+    .sig-option-btn {
+      flex: 1;
+      padding: 12px;
+      border: 2px solid #ccc;
+      background: white;
+      border-radius: 8px;
+      cursor: pointer;
+      font-weight: 600;
+      transition: all 0.2s;
+    }
+    
+    .sig-option-btn.active {
+      border-color: #667eea;
+      background: #eef2ff;
+      color: #667eea;
+    }
+    
+    .sig-option-btn:hover {
+      border-color: #667eea;
+    }
+    
+    .signature-area {
+      display: none;
+      margin-top: 15px;
+    }
+    
+    .signature-area.active {
+      display: block;
+    }
+    
+    .signature-canvas {
+      border: 2px solid #ccc;
+      border-radius: 8px;
+      cursor: crosshair;
+      background: white;
+      width: 100%;
+      height: 200px;
+      touch-action: none;
+    }
+    
+    .sig-controls {
+      display: flex;
+      gap: 10px;
+      margin-top: 10px;
+    }
+    
+    .sig-controls button {
+      padding: 8px 16px;
+      background: #666;
+      font-size: 14px;
+    }
+    
+    .typed-signature {
+      font-family: 'Brush Script MT', cursive;
+      font-size: 32px;
+      padding: 20px;
+      border: 2px solid #ccc;
+      border-radius: 8px;
+      text-align: center;
+      background: white;
+      min-height: 80px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    
     @keyframes slideDown {
       from {
         opacity: 0;
@@ -343,20 +415,59 @@
       <label class="checkbox-group"><input type="radio" name="structured_schedule" value="no"> No</label>
     </div>
 
-    <h2 class="section-title">Certification</h2>
+    <h2 class="section-title">Signature & Certification</h2>
 
-    <label>Name (Typed Signature)</label>
-    <input type="text" name="signature" required>
-
-    <label>Date</label>
-    <input type="date" name="signature_date" required>
-
-    <div style="background-color: #f0f0f0; padding: 15px; border-left: 4px solid #003366; margin-top: 20px; border-radius: 4px;">
-      <strong>⚠️ Staff Approval Required</strong>
-      <p>This application will be reviewed and approved by Horizon House staff before being processed. You will receive confirmation once approved.</p>
+    <div style="background-color: #e8f4f8; padding: 20px; border-left: 4px solid #0066cc; margin-bottom: 25px; border-radius: 4px;">
+      <p style="margin: 0; line-height: 1.6; font-size: 15px;">Thank you for your interest in Horizon House. We will carefully review your application to determine the best pathway for your success in lasting sobriety and will be in touch with you promptly. Your honesty and commitment to recovery are the foundation of our community.</p>
     </div>
 
-    <div style="display: flex; gap: 10px; margin-top: 20px;">
+    <label style="font-weight: 600; font-size: 1.1rem; margin-bottom: 15px; display: block;">Choose how you'd like to sign:</label>
+    
+    <div class="signature-options">
+      <button type="button" class="sig-option-btn active" onclick="selectSignatureMethod('draw')" id="btn-draw">
+        ✍️ Draw
+      </button>
+      <button type="button" class="sig-option-btn" onclick="selectSignatureMethod('type')" id="btn-type">
+        ⌨️ Type
+      </button>
+      <button type="button" class="sig-option-btn" onclick="selectSignatureMethod('upload')" id="btn-upload">
+        📄 Upload
+      </button>
+    </div>
+
+    <!-- Draw Signature -->
+    <div id="draw-signature" class="signature-area active">
+      <label>Draw your signature below:</label>
+      <canvas id="signatureCanvas" class="signature-canvas"></canvas>
+      <div class="sig-controls">
+        <button type="button" onclick="clearSignature()">🗑️ Clear</button>
+      </div>
+    </div>
+
+    <!-- Type Signature -->
+    <div id="type-signature" class="signature-area">
+      <label>Type your full name:</label>
+      <input type="text" id="typedName" placeholder="John Doe" style="margin-bottom: 10px;">
+      <div class="typed-signature" id="typedPreview"></div>
+    </div>
+
+    <!-- Upload Signature -->
+    <div id="upload-signature" class="signature-area">
+      <label>Upload signature image:</label>
+      <input type="file" id="signatureUpload" accept="image/*" style="margin-bottom: 10px;">
+      <div style="border: 2px solid #ccc; border-radius: 8px; padding: 20px; text-align: center; background: white; min-height: 120px;">
+        <img id="uploadedPreview" style="max-width: 100%; max-height: 100px; display: none;">
+        <p id="uploadPlaceholder" style="color: #999;">No file selected</p>
+      </div>
+    </div>
+
+    <input type="hidden" name="signature" id="signatureData" required>
+    <input type="hidden" name="signature_method" id="signatureMethod" value="draw">
+
+    <label style="margin-top: 20px;">Date</label>
+    <input type="date" name="signature_date" required id="signatureDate">
+
+    <div style="display: flex; gap: 10px; margin-top: 30px;">
       <button type="button" onclick="saveDraft()" style="background-color: #666; flex: 1;">Save Draft</button>
       <button type="submit" style="flex: 1;">Submit Application</button>
     </div>
@@ -383,6 +494,123 @@
 
 <script>
   const DRAFT_KEY = 'hhApplicationDraft';
+
+  // Signature functionality
+  let canvas, ctx, isDrawing = false;
+
+  function initSignatureCanvas() {
+    canvas = document.getElementById('signatureCanvas');
+    if (!canvas) return;
+    
+    ctx = canvas.getContext('2d');
+    canvas.width = canvas.offsetWidth;
+    canvas.height = 200;
+    
+    ctx.strokeStyle = '#000';
+    ctx.lineWidth = 2;
+    ctx.lineCap = 'round';
+    
+    // Mouse events
+    canvas.addEventListener('mousedown', startDrawing);
+    canvas.addEventListener('mousemove', draw);
+    canvas.addEventListener('mouseup', stopDrawing);
+    canvas.addEventListener('mouseout', stopDrawing);
+    
+    // Touch events for mobile
+    canvas.addEventListener('touchstart', handleTouch);
+    canvas.addEventListener('touchmove', handleTouch);
+    canvas.addEventListener('touchend', stopDrawing);
+  }
+
+  function startDrawing(e) {
+    isDrawing = true;
+    const rect = canvas.getBoundingClientRect();
+    ctx.beginPath();
+    ctx.moveTo(e.clientX - rect.left, e.clientY - rect.top);
+  }
+
+  function draw(e) {
+    if (!isDrawing) return;
+    const rect = canvas.getBoundingClientRect();
+    ctx.lineTo(e.clientX - rect.left, e.clientY - rect.top);
+    ctx.stroke();
+    updateSignatureData();
+  }
+
+  function stopDrawing() {
+    isDrawing = false;
+  }
+
+  function handleTouch(e) {
+    e.preventDefault();
+    const touch = e.touches[0];
+    const mouseEvent = new MouseEvent(e.type === 'touchstart' ? 'mousedown' : 'mousemove', {
+      clientX: touch.clientX,
+      clientY: touch.clientY
+    });
+    canvas.dispatchEvent(mouseEvent);
+  }
+
+  function clearSignature() {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    document.getElementById('signatureData').value = '';
+  }
+
+  function updateSignatureData() {
+    if (canvas) {
+      document.getElementById('signatureData').value = canvas.toDataURL();
+    }
+  }
+
+  function selectSignatureMethod(method) {
+    // Update buttons
+    document.querySelectorAll('.sig-option-btn').forEach(btn => btn.classList.remove('active'));
+    document.getElementById(`btn-${method}`).classList.add('active');
+    
+    // Update areas
+    document.querySelectorAll('.signature-area').forEach(area => area.classList.remove('active'));
+    document.getElementById(`${method}-signature`).classList.add('active');
+    
+    // Update hidden field
+    document.getElementById('signatureMethod').value = method;
+    
+    // Initialize canvas if draw is selected
+    if (method === 'draw' && !canvas) {
+      setTimeout(initSignatureCanvas, 100);
+    }
+  }
+
+  // Typed signature preview
+  document.getElementById('typedName')?.addEventListener('input', function(e) {
+    const preview = document.getElementById('typedPreview');
+    preview.textContent = e.target.value || '';
+    document.getElementById('signatureData').value = e.target.value;
+  });
+
+  // Upload signature
+  document.getElementById('signatureUpload')?.addEventListener('change', function(e) {
+    const file = e.target.files[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onload = function(event) {
+        const img = document.getElementById('uploadedPreview');
+        img.src = event.target.result;
+        img.style.display = 'block';
+        document.getElementById('uploadPlaceholder').style.display = 'none';
+        document.getElementById('signatureData').value = event.target.result;
+      };
+      reader.readAsDataURL(file);
+    }
+  });
+
+  // Set today's date
+  document.addEventListener('DOMContentLoaded', function() {
+    const today = new Date().toISOString().split('T')[0];
+    document.getElementById('signatureDate').value = today;
+    
+    // Initialize signature canvas
+    initSignatureCanvas();
+  });
 
   // Progressive disclosure event listeners
   document.addEventListener('DOMContentLoaded', function() {
