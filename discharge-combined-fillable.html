@@ -157,7 +157,42 @@
       margin-top: 2px;
     }
 
-    
+    .button-row {
+      display: flex;
+      gap: 12px;
+      margin: 20px 0;
+      justify-content: center;
+    }
+
+    .btn-print, .btn-pdf {
+      padding: 12px 24px;
+      font-size: 16px;
+      font-weight: 600;
+      border: 2px solid var(--blue);
+      border-radius: 6px;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .btn-print {
+      background: var(--blue);
+      color: white;
+    }
+
+    .btn-print:hover {
+      background: #155a99;
+      border-color: #155a99;
+    }
+
+    .btn-pdf {
+      background: white;
+      color: var(--blue);
+    }
+
+    .btn-pdf:hover {
+      background: var(--blue);
+      color: white;
+    }
 
     @media print {
       body {
@@ -170,6 +205,9 @@
       input, textarea {
         -webkit-print-color-adjust: exact;
         print-color-adjust: exact;
+      }
+      .button-row {
+        display: none;
       }
     }
   </style>
@@ -469,86 +507,13 @@
         <input type="datetime-local" name="departure_datetime_value" class="text-input" style="margin-top:4px;">
       </div>
     </div>
-    <span class="label" style="margin-top:8px;">Right click to print or save to PDF</span>
-  </label>
+
+    <div class="button-row">
+      <button type="button" onclick="window.print()" class="btn-print">🖨️ Print</button>
+      <button type="button" onclick="saveToPDF()" class="btn-pdf">📄 Save to PDF</button>
+    </div>
+
     <div class="footer-page">Page 2 of 2</div>
-
-  </div>
-
-  <!-- PAGE 3 — PROPERTY STORAGE LOG -->
-  <div class="page">
-
-    <div class="header">
-      <img src="HH logo grntree.png" alt="Horizon House logo" style="height:120px;">
-      <div class="header-text">
-        <h1>Horizon House Sober Living</h1>
-        <div class="subheading">Property Storage Log</div>
-      </div>
-    </div>
-
-    <h2>Member & Storage Information</h2>
-
-    <div class="row">
-      <div class="field">
-        <span class="label">Member Name</span>
-        <input type="text" name="storage_member_name" class="text-input">
-      </div>
-      <div class="field">
-        <span class="label">Date Stored</span>
-        <input type="date" name="storage_date" class="date-input">
-      </div>
-    </div>
-
-        <span class="label">Expected Pick-up Date  (Items not picked up by expected pick-up date will be disposed of.)</span>
-    <input type="date" name="storage_pick-up" class="date-input">
-
-    <span class="label">Storage Location</span>
-    <input type="text" name="storage_location" class="text-input">
-
-    <h2>Inventory of Stored Property</h2>
-    <textarea name="storage_inventory" style="min-height:90px;"></textarea>
-
-    <h2>Condition of Items</h2>
-    <textarea name="storage_condition" style="min-height:20px;"></textarea>
-
-    <h2>Final Disposition of Property</h2>
-    
-    <label class="checkbox-group">
-      <input type="checkbox" name="final_disposed_of"> Disposed of
-    </label>
-
-   <label class="input">Disposed of by
-    <input type="text" name="disposed_by" class="text-input">
-    </label>
-
-    <label class="checkbox-group"style="margin-top:8px;">
-      <input type="checkbox" name="final_donated"> Donated
-    </label>
-    <label class="input"></label>Donated to
-        <input type="text" name="donated_to" class="text-input">
-    </label>
-
-    <label class="checkbox-group" style="margin-top:8px;">
-      <input type="checkbox" name="final_picked_up_by"> Picked up by Member or Member Representative
-    </label>   
-      <label class="input">Person Picking Up Property
-        <input type="text" name="pickup_person" class="text-input">
-      
-    <div class="signature-row">
-      <div class="signature-block">
-        <input type="text" name="member_signature" class="signature-input">
-        <div class="signature-label">Pick-up Persons Signature
-        </div>
-      </div>
-      <div class="signature-block">
-        <input type="date" name="member_signature_date" class="signature-input">
-        <div class="signature-label">Date</div>
-      </div>
-    </div>
-        <input type="text" name="staff_final_signature" class="signature-input">
-        <div class="signature-label">Staff Verifying Final Disposition</div>
-      </div>
-    </div>
 
   </div>
 
@@ -731,6 +696,11 @@ function checkStorageFormNeeded() {
     return true;
   }
   return false;
+}
+
+// Save to PDF function
+function saveToPDF() {
+  window.print();
 }
 
 </script>
