@@ -240,6 +240,124 @@
             background: #38a169;
         }
 
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.5);
+            animation: fadeIn 0.3s;
+        }
+
+        .modal-content {
+            background-color: white;
+            margin: 10% auto;
+            padding: 40px;
+            border-radius: 12px;
+            width: 90%;
+            max-width: 500px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .modal-header h2 {
+            color: #2d3748;
+            font-size: 24px;
+            margin: 0;
+        }
+
+        .close {
+            color: #718096;
+            font-size: 32px;
+            font-weight: bold;
+            cursor: pointer;
+            line-height: 1;
+        }
+
+        .close:hover {
+            color: #2d3748;
+        }
+
+        .upload-area {
+            border: 3px dashed #cbd5e0;
+            border-radius: 12px;
+            padding: 40px;
+            text-align: center;
+            margin: 20px 0;
+            background: #f7fafc;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .upload-area:hover {
+            border-color: #667eea;
+            background: #eef2ff;
+        }
+
+        .upload-area.dragover {
+            border-color: #667eea;
+            background: #e0e7ff;
+        }
+
+        .upload-icon {
+            font-size: 48px;
+            margin-bottom: 15px;
+        }
+
+        .file-input {
+            display: none;
+        }
+
+        .btn-upload {
+            width: 100%;
+            padding: 12px;
+            background: #48bb78;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+
+        .btn-upload:hover {
+            background: #38a169;
+        }
+
+        .btn-upload:disabled {
+            background: #a0aec0;
+            cursor: not-allowed;
+        }
+
+        .upload-status {
+            margin-top: 15px;
+            padding: 12px;
+            border-radius: 6px;
+            display: none;
+        }
+
+        .upload-status.success {
+            background: #c6f6d5;
+            color: #22543d;
+            border: 1px solid #9ae6b4;
+        }
+
+        .upload-status.error {
+            background: #fed7d7;
+            color: #742a2a;
+            border: 1px solid #fc8181;
+        }
+
         .section-header {
             background: white;
             padding: 20px 30px;
@@ -407,12 +525,37 @@
                 <div class="card-label">Behavioral Contract</div>
             </a>
 
-            <a href="https://horizon-portal-backend-production-3532.up.railway.app/api/members/download" class="dashboard-card" style="background: linear-gradient(135deg, #48bb78 0%, #38a169 100%); color: white;" download>
-                <div class="card-icon" style="font-size: 48px;">📊</div>
-                <div class="card-title" style="color: white;">Members Database</div>
-                <div class="card-count" style="font-size: 24px; color: white;">Download</div>
-                <div class="card-label" style="color: rgba(255,255,255,0.9);">members.xlsx</div>
-            </a>
+            <div class="dashboard-card" style="background: linear-gradient(135deg, #48bb78 0%, #38a169 100%); color: white; display: flex; flex-direction: column; justify-content: space-between;">
+                <div>
+                    <div class="card-icon" style="font-size: 48px;">📊</div>
+                    <div class="card-title" style="color: white;">Members Database</div>
+                    <div class="card-count" style="font-size: 18px; color: white;">Edit & Manage</div>
+                    <div class="card-label" style="color: rgba(255,255,255,0.9);">members.xlsx</div>
+                </div>
+                <div style="display: flex; gap: 8px; margin-top: 15px;">
+                    <a href="https://horizon-portal-backend-production-3532.up.railway.app/api/members/download" style="flex: 1; padding: 10px; background: rgba(255,255,255,0.2); color: white; text-decoration: none; border-radius: 6px; text-align: center; font-weight: 600; font-size: 14px;" download>⬇️ Download</a>
+                    <button onclick="openUploadModal()" style="flex: 1; padding: 10px; background: rgba(255,255,255,0.2); color: white; border: none; border-radius: 6px; cursor: pointer; font-weight: 600; font-size: 14px;">⬆️ Upload</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Upload Modal -->
+    <div id="uploadModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>📤 Upload members.xlsx</h2>
+                <span class="close" onclick="closeUploadModal()">&times;</span>
+            </div>
+            <div class="upload-area" id="uploadArea" onclick="document.getElementById('fileInput').click()">
+                <div class="upload-icon">📂</div>
+                <p style="color: #4a5568; font-size: 18px; margin: 0;"><strong>Click to select file</strong> or drag and drop</p>
+                <p style="color: #718096; font-size: 14px; margin-top: 8px;">Only .xlsx files accepted</p>
+                <p id="selectedFileName" style="color: #667eea; font-weight: 600; margin-top: 12px; display: none;"></p>
+            </div>
+            <input type="file" id="fileInput" class="file-input" accept=".xlsx" onchange="handleFileSelect(event)">
+            <button id="uploadButton" class="btn-upload" onclick="uploadFile()" disabled>Upload File</button>
+            <div id="uploadStatus" class="upload-status"></div>
         </div>
     </div>
 
@@ -554,6 +697,101 @@
                 'Horizon House Staff'
             );
             window.location.href = `mailto:?subject=${subject}&body=${body}`;
+        }
+
+        // Upload modal functions
+        let selectedFile = null;
+
+        function openUploadModal() {
+            document.getElementById('uploadModal').style.display = 'block';
+        }
+
+        function closeUploadModal() {
+            document.getElementById('uploadModal').style.display = 'none';
+            selectedFile = null;
+            document.getElementById('selectedFileName').style.display = 'none';
+            document.getElementById('uploadButton').disabled = true;
+            document.getElementById('uploadStatus').style.display = 'none';
+        }
+
+        function handleFileSelect(event) {
+            const file = event.target.files[0];
+            if (file && file.name.endsWith('.xlsx')) {
+                selectedFile = file;
+                document.getElementById('selectedFileName').textContent = '✅ ' + file.name;
+                document.getElementById('selectedFileName').style.display = 'block';
+                document.getElementById('uploadButton').disabled = false;
+            } else {
+                alert('Please select a valid .xlsx file');
+            }
+        }
+
+        // Drag and drop functionality
+        const uploadArea = document.getElementById('uploadArea');
+        
+        uploadArea.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            uploadArea.classList.add('dragover');
+        });
+
+        uploadArea.addEventListener('dragleave', () => {
+            uploadArea.classList.remove('dragover');
+        });
+
+        uploadArea.addEventListener('drop', (e) => {
+            e.preventDefault();
+            uploadArea.classList.remove('dragover');
+            const file = e.dataTransfer.files[0];
+            if (file && file.name.endsWith('.xlsx')) {
+                selectedFile = file;
+                document.getElementById('selectedFileName').textContent = '✅ ' + file.name;
+                document.getElementById('selectedFileName').style.display = 'block';
+                document.getElementById('uploadButton').disabled = false;
+            } else {
+                alert('Please select a valid .xlsx file');
+            }
+        });
+
+        async function uploadFile() {
+            if (!selectedFile) return;
+
+            const uploadButton = document.getElementById('uploadButton');
+            const uploadStatus = document.getElementById('uploadStatus');
+
+            uploadButton.disabled = true;
+            uploadButton.textContent = 'Uploading...';
+            uploadStatus.style.display = 'none';
+
+            const formData = new FormData();
+            formData.append('file', selectedFile);
+
+            try {
+                const response = await fetch(`${API_BASE}/api/members/upload`, {
+                    method: 'POST',
+                    body: formData
+                });
+
+                const result = await response.json();
+
+                if (response.ok) {
+                    uploadStatus.className = 'upload-status success';
+                    uploadStatus.textContent = '✅ File uploaded successfully! Members database updated.';
+                    uploadStatus.style.display = 'block';
+                    setTimeout(() => {
+                        closeUploadModal();
+                        loadDashboardData(); // Refresh dashboard data
+                    }, 2000);
+                } else {
+                    throw new Error(result.message || 'Upload failed');
+                }
+            } catch (error) {
+                console.error('Upload error:', error);
+                uploadStatus.className = 'upload-status error';
+                uploadStatus.textContent = '❌ Upload failed: ' + error.message;
+                uploadStatus.style.display = 'block';
+                uploadButton.disabled = false;
+                uploadButton.textContent = 'Upload File';
+            }
         }
     </script>
 </body>
