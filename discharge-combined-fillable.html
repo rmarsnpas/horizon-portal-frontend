@@ -330,14 +330,24 @@
       <label class="checkbox-group">
         <input type="checkbox" name="exit_property_stored" id="property_stored_checkbox"> Property stored
       </label>
-      <label class="checkbox-group" style="margin-left:10px;">
-        <input type="radio" name="property_stored_yesno" value="yes" id="property_yes"> Yes
-      </label>
-      <label class="checkbox-group">
-        <input type="radio" name="property_stored_yesno" value="no"> No
-      </label>
     </div>
-    <span class="label" style="font-size:0.8rem;font-style:italic;color:#666;">If yes, Property Storage Log will open upon completion of this form</span>
+    
+    <div id="property_stored_options" style="margin-left:26px;margin-top:6px;display:none;">
+      <div class="inline-checkboxes">
+        <label class="checkbox-group">
+          <input type="radio" name="property_stored_yesno" value="yes" id="property_stored_yes"> Yes
+        </label>
+        <label class="checkbox-group">
+          <input type="radio" name="property_stored_yesno" value="no" id="property_stored_no"> No
+        </label>
+      </div>
+      <span class="label" style="font-size:0.8rem;font-style:italic;color:#666;">If yes, Property Storage Log will open upon completion of this form</span>
+      
+      <div id="property_disposed_details" style="margin-top:12px;display:none;">
+        <span class="label" style="font-size:0.9rem;">Property disposed of - provide details:</span>
+        <textarea name="property_disposal_details" style="min-height:60px;margin-top:4px;" placeholder="Describe what was disposed of and how..."></textarea>
+      </div>
+    </div>
 
     <div class="inline-checkboxes" style="margin-top:12px;">
       <span class="label" style="margin-right:10px;">Member left without incident:</span>
@@ -555,11 +565,33 @@ document.getElementById('client_id').addEventListener('blur', async function() {
   }
 });
 
-// Property storage form trigger - updated to check multiple conditions
-document.getElementById('property_yes').addEventListener('change', function() {
+// Property Stored checkbox in Safety & Exit - show/hide Yes/No options
+document.getElementById('property_stored_checkbox').addEventListener('change', function() {
+  const options = document.getElementById('property_stored_options');
   if (this.checked) {
-    // Show alert that property storage form will open
-    alert('Property Storage Log will be available for completion at the end of this form.');
+    options.style.display = 'block';
+  } else {
+    options.style.display = 'none';
+    // Clear selections when unchecked
+    document.getElementById('property_stored_yes').checked = false;
+    document.getElementById('property_stored_no').checked = false;
+    document.getElementById('property_disposed_details').style.display = 'none';
+  }
+});
+
+// Property Stored Yes - trigger storage form alert
+document.getElementById('property_stored_yes').addEventListener('change', function() {
+  if (this.checked) {
+    alert('Property Storage Log will open upon completion of this form.');
+    document.getElementById('property_disposed_details').style.display = 'none';
+  }
+});
+
+// Property Stored No - show disposal details
+document.getElementById('property_stored_no').addEventListener('change', function() {
+  const disposalDetails = document.getElementById('property_disposed_details');
+  if (this.checked) {
+    disposalDetails.style.display = 'block';
   }
 });
 
