@@ -31,6 +31,25 @@
     button { background:var(--amber); border:none; padding:.8rem 1.2rem; border-radius:.4rem; font-weight:700; cursor:pointer; }
     footer { text-align:center; padding:2rem 0; color:#555; font-size:.9rem; }
     
+    .conditional-field {
+      display: none;
+      padding-left: 1rem;
+      border-left: 3px solid #667eea;
+      margin-top: 0.5rem;
+      animation: slideDown 0.3s ease;
+    }
+    
+    @keyframes slideDown {
+      from {
+        opacity: 0;
+        transform: translateY(-10px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+    
     #successModal {
       display: none;
       position: fixed;
@@ -187,36 +206,42 @@
 
     <label>Inpatient Completed?</label>
     <div class="inline">
-      <label class="checkbox-group"><input type="radio" name="inpatient" value="yes"> Yes</label>
-      <label class="checkbox-group"><input type="radio" name="inpatient" value="no"> No</label>
+      <label class="checkbox-group"><input type="radio" name="inpatient" value="yes" id="inpatient_yes"> Yes</label>
+      <label class="checkbox-group"><input type="radio" name="inpatient" value="no" id="inpatient_no"> No</label>
     </div>
 
-    <label>Total Days</label>
-    <input type="number" name="inpatient_days">
+    <div id="inpatient_details" class="conditional-field">
+      <label>Total Days</label>
+      <input type="number" name="inpatient_days">
 
-    <label>Treatment Facility</label>
-    <input type="text" name="facility">
+      <label>Treatment Facility</label>
+      <input type="text" name="facility">
 
-    <label>Facility Phone</label>
-    <input type="tel" name="facility_phone">
+      <label>Facility Phone</label>
+      <input type="tel" name="facility_phone">
+    </div>
 
     <label>Attending IOP?</label>
     <div class="inline">
-      <label class="checkbox-group"><input type="radio" name="iop" value="yes"> Yes</label>
-      <label class="checkbox-group"><input type="radio" name="iop" value="no"> No</label>
+      <label class="checkbox-group"><input type="radio" name="iop" value="yes" id="iop_yes"> Yes</label>
+      <label class="checkbox-group"><input type="radio" name="iop" value="no" id="iop_no"> No</label>
     </div>
 
-    <label>If yes, where?</label>
-    <input type="text" name="iop_where">
+    <div id="iop_details" class="conditional-field">
+      <label>If yes, where?</label>
+      <input type="text" name="iop_where">
+    </div>
 
     <label>Do you have a job?</label>
     <div class="inline">
-      <label class="checkbox-group"><input type="radio" name="job" value="yes"> Yes</label>
-      <label class="checkbox-group"><input type="radio" name="job" value="no"> No</label>
+      <label class="checkbox-group"><input type="radio" name="job" value="yes" id="job_yes"> Yes</label>
+      <label class="checkbox-group"><input type="radio" name="job" value="no" id="job_no"> No</label>
     </div>
 
-    <label>If yes, where?</label>
-    <input type="text" name="job_where">
+    <div id="job_details" class="conditional-field">
+      <label>If yes, where?</label>
+      <input type="text" name="job_where">
+    </div>
 
     <label>IOP / Work Schedule</label>
     <textarea name="schedule" rows="3"></textarea>
@@ -235,59 +260,66 @@
 
     <label>Do you have a sponsor?</label>
     <div class="inline">
-      <label class="checkbox-group"><input type="radio" name="sponsor" value="yes"> Yes</label>
-      <label class="checkbox-group"><input type="radio" name="sponsor" value="no"> No</label>
+      <label class="checkbox-group"><input type="radio" name="sponsor" value="yes" id="sponsor_yes"> Yes</label>
+      <label class="checkbox-group"><input type="radio" name="sponsor" value="no" id="sponsor_no"> No</label>
     </div>
 
-    <label>If no, are you willing to get one?</label>
-    <div class="inline">
-      <label class="checkbox-group"><input type="radio" name="willing_sponsor" value="yes"> Yes</label>
-      <label class="checkbox-group"><input type="radio" name="willing_sponsor" value="no"> No</label>
-      <label class="checkbox-group"><input type="radio" name="willing_sponsor" value="na"> N/A (I have a sponsor)</label>
+    <div id="sponsor_willingness" class="conditional-field">
+      <label>If no, are you willing to get one?</label>
+      <div class="inline">
+        <label class="checkbox-group"><input type="radio" name="willing_sponsor" value="yes"> Yes</label>
+        <label class="checkbox-group"><input type="radio" name="willing_sponsor" value="no"> No</label>
+      </div>
     </div>
 
     <h2 class="section-title">Sober Living History</h2>
 
     <label>Is this your first time in sober living?</label>
     <div class="inline">
-      <label class="checkbox-group"><input type="radio" name="first_sober_living" value="yes"> Yes</label>
-      <label class="checkbox-group"><input type="radio" name="first_sober_living" value="no"> No</label>
+      <label class="checkbox-group"><input type="radio" name="first_sober_living" value="yes" id="first_sl_yes"> Yes</label>
+      <label class="checkbox-group"><input type="radio" name="first_sober_living" value="no" id="first_sl_no"> No</label>
     </div>
 
-    <label>If no, how many sober living homes have you previously stayed in?</label>
-    <input type="number" name="previous_sober_living_count" min="0" placeholder="Enter number">
+    <div id="previous_sl_details" class="conditional-field">
+      <label>If no, how many sober living homes have you previously stayed in?</label>
+      <input type="number" name="previous_sober_living_count" min="0" placeholder="Enter number">
+    </div>
 
     <label>Have you ever been asked to leave a treatment facility or sober living house?</label>
     <div class="inline">
-      <label class="checkbox-group"><input type="radio" name="asked_to_leave" value="yes"> Yes</label>
-      <label class="checkbox-group"><input type="radio" name="asked_to_leave" value="no"> No</label>
+      <label class="checkbox-group"><input type="radio" name="asked_to_leave" value="yes" id="asked_leave_yes"> Yes</label>
+      <label class="checkbox-group"><input type="radio" name="asked_to_leave" value="no" id="asked_leave_no"> No</label>
     </div>
 
-    <label>If yes, please explain the circumstances</label>
-    <textarea name="asked_to_leave_explanation" rows="3" placeholder="Please provide details if you answered yes above"></textarea>
+    <div id="asked_leave_explanation" class="conditional-field">
+      <label>If yes, please explain the circumstances</label>
+      <textarea name="asked_to_leave_explanation" rows="3" placeholder="Please provide details"></textarea>
+    </div>
 
     <h2 class="section-title">Legal Status</h2>
 
     <label>Are you a 290 PC registrant?</label>
     <div class="inline">
-      <label class="checkbox-group"><input type="radio" name="pc290" value="yes"> Yes</label>
-      <label class="checkbox-group"><input type="radio" name="pc290" value="no"> No</label>
+      <label class="checkbox-group"><input type="radio" name="pc290" value="yes" id="pc290_yes"> Yes</label>
+      <label class="checkbox-group"><input type="radio" name="pc290" value="no" id="pc290_no"> No</label>
     </div>
 
     <label>Currently on probation or parole?</label>
     <div class="inline">
-      <label class="checkbox-group"><input type="radio" name="probation" value="yes"> Yes</label>
-      <label class="checkbox-group"><input type="radio" name="probation" value="no"> No</label>
+      <label class="checkbox-group"><input type="radio" name="probation" value="yes" id="probation_yes"> Yes</label>
+      <label class="checkbox-group"><input type="radio" name="probation" value="no" id="probation_no"> No</label>
     </div>
 
     <label>Any legal matters pending?</label>
     <div class="inline">
-      <label class="checkbox-group"><input type="radio" name="legal_pending" value="yes"> Yes</label>
-      <label class="checkbox-group"><input type="radio" name="legal_pending" value="no"> No</label>
+      <label class="checkbox-group"><input type="radio" name="legal_pending" value="yes" id="legal_pending_yes"> Yes</label>
+      <label class="checkbox-group"><input type="radio" name="legal_pending" value="no" id="legal_pending_no"> No</label>
     </div>
 
-    <label>If yes to any, provide details</label>
-    <textarea name="legal_details" rows="3"></textarea>
+    <div id="legal_details_section" class="conditional-field">
+      <label>Please provide details</label>
+      <textarea name="legal_details" rows="3" placeholder="Explain any legal matters"></textarea>
+    </div>
 
     <h2 class="section-title">Medical Information</h2>
 
@@ -351,6 +383,77 @@
 
 <script>
   const DRAFT_KEY = 'hhApplicationDraft';
+
+  // Progressive disclosure event listeners
+  document.addEventListener('DOMContentLoaded', function() {
+    // Inpatient details
+    document.getElementById('inpatient_yes')?.addEventListener('change', function() {
+      document.getElementById('inpatient_details').style.display = 'block';
+    });
+    document.getElementById('inpatient_no')?.addEventListener('change', function() {
+      document.getElementById('inpatient_details').style.display = 'none';
+    });
+
+    // IOP details
+    document.getElementById('iop_yes')?.addEventListener('change', function() {
+      document.getElementById('iop_details').style.display = 'block';
+    });
+    document.getElementById('iop_no')?.addEventListener('change', function() {
+      document.getElementById('iop_details').style.display = 'none';
+    });
+
+    // Job details
+    document.getElementById('job_yes')?.addEventListener('change', function() {
+      document.getElementById('job_details').style.display = 'block';
+    });
+    document.getElementById('job_no')?.addEventListener('change', function() {
+      document.getElementById('job_details').style.display = 'none';
+    });
+
+    // Sponsor willingness
+    document.getElementById('sponsor_no')?.addEventListener('change', function() {
+      document.getElementById('sponsor_willingness').style.display = 'block';
+    });
+    document.getElementById('sponsor_yes')?.addEventListener('change', function() {
+      document.getElementById('sponsor_willingness').style.display = 'none';
+    });
+
+    // Previous sober living details
+    document.getElementById('first_sl_no')?.addEventListener('change', function() {
+      document.getElementById('previous_sl_details').style.display = 'block';
+    });
+    document.getElementById('first_sl_yes')?.addEventListener('change', function() {
+      document.getElementById('previous_sl_details').style.display = 'none';
+    });
+
+    // Asked to leave explanation
+    document.getElementById('asked_leave_yes')?.addEventListener('change', function() {
+      document.getElementById('asked_leave_explanation').style.display = 'block';
+    });
+    document.getElementById('asked_leave_no')?.addEventListener('change', function() {
+      document.getElementById('asked_leave_explanation').style.display = 'none';
+    });
+
+    // Legal details
+    function checkLegalDetails() {
+      const pc290 = document.getElementById('pc290_yes')?.checked;
+      const probation = document.getElementById('probation_yes')?.checked;
+      const pending = document.getElementById('legal_pending_yes')?.checked;
+      
+      if (pc290 || probation || pending) {
+        document.getElementById('legal_details_section').style.display = 'block';
+      } else {
+        document.getElementById('legal_details_section').style.display = 'none';
+      }
+    }
+
+    document.getElementById('pc290_yes')?.addEventListener('change', checkLegalDetails);
+    document.getElementById('pc290_no')?.addEventListener('change', checkLegalDetails);
+    document.getElementById('probation_yes')?.addEventListener('change', checkLegalDetails);
+    document.getElementById('probation_no')?.addEventListener('change', checkLegalDetails);
+    document.getElementById('legal_pending_yes')?.addEventListener('change', checkLegalDetails);
+    document.getElementById('legal_pending_no')?.addEventListener('change', checkLegalDetails);
+  });
 
   // Load draft on page load
   window.addEventListener('load', () => {
