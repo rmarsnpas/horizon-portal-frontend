@@ -241,6 +241,36 @@
         .close:hover {
             color: #2d3748;
         }
+
+        .filter-tabs {
+            background: white;
+            padding: 15px 20px;
+            border-radius: 12px;
+            margin-bottom: 20px;
+            display: flex;
+            gap: 10px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+        }
+
+        .filter-tab {
+            padding: 10px 20px;
+            border: 2px solid #e2e8f0;
+            background: white;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.2s;
+        }
+
+        .filter-tab:hover {
+            border-color: #667eea;
+        }
+
+        .filter-tab.active {
+            background: #667eea;
+            color: white;
+            border-color: #667eea;
+        }
     </style>
 </head>
 <body>
@@ -248,6 +278,13 @@
         <div class="header">
             <h1>📋 Application Reviews</h1>
             <a href="/staff-dashboard.html" class="btn-back">← Back to Dashboard</a>
+        </div>
+
+        <div class="filter-tabs">
+            <button class="filter-tab active" onclick="filterApplications('pending')">⏳ Pending</button>
+            <button class="filter-tab" onclick="filterApplications('approved')">✓ Approved</button>
+            <button class="filter-tab" onclick="filterApplications('rejected')">✗ Rejected</button>
+            <button class="filter-tab" onclick="filterApplications('all')">📋 All</button>
         </div>
 
         <div id="loading" class="loading">Loading applications...</div>
@@ -273,29 +310,66 @@
 
     <script>
         const API_BASE = 'https://horizon-portal-backend-production-3532.up.railway.app';
+        let allApplications = [];
+        let currentFilter = 'pending';
 
         async function loadApplications() {
             try {
-                const response = await fetch(`${API_BASE}/api/pendingApplications`);
-                const applications = await response.json();
+                // Load all applications from the JSON file
+                const response = await fetch(`${API_BASE}/api/allApplications`);
+                allApplications = await response.json();
 
                 document.getElementById('loading').style.display = 'none';
-
-                if (applications.length === 0) {
-                    document.getElementById('emptyState').style.display = 'block';
-                } else {
-                    const container = document.getElementById('applicationsContainer');
-                    container.style.display = 'grid';
-                    
-                    applications.forEach(app => {
-                        container.appendChild(createApplicationCard(app));
-                    });
-                }
+                displayFilteredApplications();
             } catch (error) {
                 console.error('Error loading applications:', error);
                 document.getElementById('loading').textContent = '❌ Error loading applications';
             }
         }
+
+        function filterApplications(filter) {
+            currentFilter = filter;
+            
+            // Update active tab
+            document.querySelectorAll('.filter-tab').forEach(tab => {
+                tab.classList.remove('active');
+            });
+            event.target.classList.add('active');
+            
+            displayFilteredApplications();
+        }
+
+        function displayFilteredApplications() {
+            const container = document.getElementById('applicationsContainer');
+            const emptyState = document.getElementById('emptyState');
+            
+            container.innerHTML = '';
+            
+            let filtered = allApplications;
+            if (currentFilter !== 'all') {
+                filtered = allApplications.filter(app => {
+                    if (currentFilter === 'pending') {
+                        return app.status !== 'approved' && app.status !== 'rejected';
+                    }
+                    return app.status === currentFilter;
+                });
+            }
+
+            if (filtered.length === 0) {
+                container.style.display = 'none';
+                emptyState.style.display = 'block';
+                emptyState.querySelector('h2').textContent = `No ${currentFilter} applications`;
+                emptyState.querySelector('p').textContent = currentFilter === 'pending' 
+                    ? 'No pending applications at this time.'
+                    : `No ${currentFilter} applications found.`;
+            } else {
+                container.style.display = 'grid';
+                emptyState.style.display = 'none';
+                
+                filtered.forEach(app => {
+                    container.appendChild(createApplicationCard(app));
+                });
+            }
 
         function createApplicationCard(app) {
             const card = document.createElement('div');
