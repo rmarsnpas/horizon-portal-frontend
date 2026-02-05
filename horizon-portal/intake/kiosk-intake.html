@@ -1,0 +1,401 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="HH Intake">
+    <link rel="apple-touch-icon" href="/hhlogo.png">
+    <link rel="apple-touch-icon" sizes="152x152" href="/hhlogo.png">
+    <link rel="apple-touch-icon" sizes="180x180" href="/hhlogo.png">
+    <link rel="apple-touch-icon" sizes="167x167" href="/hhlogo.png">
+    <title>Horizon House - Intake Kiosk</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
+            -webkit-touch-callout: none;
+            -webkit-user-select: none;
+            user-select: none;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 40px;
+            overflow: hidden;
+        }
+
+        .container {
+            max-width: 700px;
+            width: 100%;
+            background: white;
+            border-radius: 30px;
+            box-shadow: 0 30px 80px rgba(0,0,0,0.4);
+            overflow: hidden;
+            animation: slideIn 0.5s ease;
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: scale(0.9);
+            }
+            to {
+                opacity: 1;
+                transform: scale(1);
+            }
+        }
+
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 60px 40px;
+            text-align: center;
+        }
+
+        .logo {
+            width: 120px;
+            height: 120px;
+            margin: 0 auto 20px;
+            background: white;
+            border-radius: 25px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 60px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+        }
+
+        .header h1 {
+            font-size: 48px;
+            margin-bottom: 15px;
+            font-weight: 700;
+        }
+
+        .header p {
+            font-size: 24px;
+            opacity: 0.95;
+        }
+
+        .content {
+            padding: 50px 40px;
+        }
+
+        .staff-info {
+            background: #fff3cd;
+            border-left: 5px solid #ffc107;
+            padding: 25px;
+            border-radius: 12px;
+            margin-bottom: 35px;
+        }
+
+        .staff-info h3 {
+            color: #856404;
+            margin-bottom: 12px;
+            font-size: 22px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .staff-info p {
+            color: #856404;
+            line-height: 1.8;
+            font-size: 18px;
+            margin-bottom: 10px;
+        }
+
+        .staff-info strong {
+            color: #664300;
+        }
+
+        .form-group {
+            margin-bottom: 30px;
+        }
+
+        .form-group label {
+            display: block;
+            color: #2d3748;
+            font-weight: 700;
+            margin-bottom: 15px;
+            font-size: 24px;
+        }
+
+        .form-group input {
+            width: 100%;
+            padding: 25px;
+            border: 3px solid #e2e8f0;
+            border-radius: 15px;
+            font-size: 28px;
+            font-family: inherit;
+            transition: border-color 0.2s;
+            text-align: center;
+            font-weight: 600;
+        }
+
+        .form-group input:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 4px rgba(102, 126, 234, 0.1);
+        }
+
+        .required {
+            color: #e53e3e;
+        }
+
+        .btn-start {
+            width: 100%;
+            padding: 28px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 15px;
+            font-size: 26px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.2s;
+            box-shadow: 0 10px 30px rgba(102, 126, 234, 0.4);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 15px;
+        }
+
+        .btn-start:active {
+            transform: scale(0.98);
+            box-shadow: 0 5px 20px rgba(102, 126, 234, 0.3);
+        }
+
+        .btn-start:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+
+        .loading {
+            display: none;
+            text-align: center;
+            margin-top: 30px;
+        }
+
+        .loading-spinner {
+            width: 60px;
+            height: 60px;
+            border: 6px solid #e2e8f0;
+            border-top-color: #667eea;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 20px;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        .loading p {
+            color: #4a5568;
+            font-size: 20px;
+        }
+
+        .error-message {
+            display: none;
+            background: #fee;
+            border-left: 5px solid #e53e3e;
+            color: #c53030;
+            padding: 20px;
+            border-radius: 12px;
+            margin-top: 25px;
+            font-size: 18px;
+            font-weight: 600;
+        }
+
+        .forms-preview {
+            margin-top: 40px;
+            padding-top: 30px;
+            border-top: 2px solid #e2e8f0;
+        }
+
+        .forms-preview h3 {
+            color: #2d3748;
+            font-size: 22px;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .forms-preview ol {
+            list-style: none;
+            counter-reset: form-counter;
+            padding: 0;
+        }
+
+        .forms-preview li {
+            counter-increment: form-counter;
+            padding: 15px 20px;
+            margin-bottom: 12px;
+            background: #f8f9fa;
+            border-radius: 10px;
+            font-size: 18px;
+            position: relative;
+            padding-left: 60px;
+        }
+
+        .forms-preview li::before {
+            content: counter(form-counter);
+            position: absolute;
+            left: 20px;
+            top: 50%;
+            transform: translateY(-50%);
+            background: #667eea;
+            color: white;
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            font-size: 16px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <div class="logo">🏠</div>
+            <h1>New Member Intake</h1>
+            <p>Horizon House Sober Living</p>
+        </div>
+
+        <div class="content">
+            <div class="staff-info">
+                <h3>👨‍💼 Staff Instructions</h3>
+                <p><strong>Step 1:</strong> Enter the Member ID from members.xlsx</p>
+                <p><strong>Step 2:</strong> Tap "Start Intake Process"</p>
+                <p><strong>Step 3:</strong> Hand iPad to new member</p>
+                <p><strong>Note:</strong> Forms will auto-advance. Member completes all 6 forms sequentially.</p>
+            </div>
+
+            <form id="kioskIntakeForm">
+                <div class="form-group">
+                    <label>Member ID <span class="required">*</span></label>
+                    <input 
+                        type="text" 
+                        id="memberId" 
+                        placeholder="Enter ID" 
+                        required
+                        autocomplete="off"
+                        inputmode="numeric"
+                        pattern="[0-9]+"
+                        autofocus
+                    >
+                </div>
+
+                <button type="submit" class="btn-start" id="startButton">
+                    <span>▶️</span>
+                    <span>Start Intake Process</span>
+                </button>
+
+                <div class="loading" id="loading">
+                    <div class="loading-spinner"></div>
+                    <p>Loading member information...</p>
+                </div>
+
+                <div class="error-message" id="errorMessage"></div>
+            </form>
+
+            <div class="forms-preview">
+                <h3>📋 Forms to Complete (6 total)</h3>
+                <ol>
+                    <li>Member Agreement (24 house rules)</li>
+                    <li>Licensee Agreement (no tenancy rights)</li>
+                    <li>Release of Information</li>
+                    <li>Emergency Contact Information</li>
+                    <li>Facilities Liability Release</li>
+                    <li>Personal Property Release</li>
+                </ol>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const API_URL = 'https://horizon-portal-backend-production-3532.up.railway.app';
+
+        document.getElementById('kioskIntakeForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+
+            const memberId = document.getElementById('memberId').value.trim();
+            const startButton = document.getElementById('startButton');
+            const loading = document.getElementById('loading');
+            const errorMessage = document.getElementById('errorMessage');
+
+            // Hide error, show loading
+            errorMessage.style.display = 'none';
+            startButton.disabled = true;
+            loading.style.display = 'block';
+
+            try {
+                // Fetch member data from backend
+                const response = await fetch(`${API_URL}/api/members/${memberId}`);
+                
+                if (!response.ok) {
+                    throw new Error('Member not found');
+                }
+
+                const memberData = await response.json();
+
+                // Store member data in sessionStorage for use across forms
+                const intakeData = {
+                    memberId: memberId,
+                    firstName: memberData['First Name'] || memberData.firstName || '',
+                    lastName: memberData['Last Name'] || memberData.lastName || '',
+                    dateOfBirth: memberData['Date of Birth'] || memberData.dob || '',
+                    phone: memberData['Phone'] || memberData.phone || '',
+                    admissionDate: memberData['Admission Date'] || new Date().toISOString().split('T')[0],
+                    roomAssignment: memberData['Room'] || memberData.room || '',
+                    monthlyFee: memberData['Monthly Fee'] || memberData.fee || '$800',
+                    startedAt: new Date().toISOString()
+                };
+
+                sessionStorage.setItem('intakeData', JSON.stringify(intakeData));
+                sessionStorage.setItem('intakeProgress', JSON.stringify({
+                    currentForm: 1,
+                    completedForms: []
+                }));
+
+                // Redirect to first form
+                window.location.href = 'member-agreement.html?intake=true';
+
+            } catch (error) {
+                console.error('Error loading member:', error);
+                errorMessage.textContent = `❌ Member ID "${memberId}" not found. Please verify the ID and try again.`;
+                errorMessage.style.display = 'block';
+                startButton.disabled = false;
+                loading.style.display = 'none';
+            }
+        });
+
+        // Auto-focus on member ID input when page loads
+        window.addEventListener('load', function() {
+            document.getElementById('memberId').focus();
+        });
+
+        // Prevent accidental navigation
+        window.addEventListener('beforeunload', function(e) {
+            const memberId = document.getElementById('memberId').value;
+            if (memberId && !confirm('Are you sure you want to leave? Member ID will be lost.')) {
+                e.preventDefault();
+                e.returnValue = '';
+            }
+        });
+    </script>
+</body>
+</html>
