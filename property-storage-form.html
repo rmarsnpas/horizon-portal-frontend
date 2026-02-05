@@ -1,0 +1,332 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Horizon House — Property Storage Log</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="robots" content="noindex, nofollow">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@500;700&family=Nunito:wght@400;600&display=swap" rel="stylesheet">
+
+  <style>
+    :root { --slate:#2b3440; --blue:#1e73be; }
+
+    body {
+      margin: 0;
+      font-family: Nunito, system-ui;
+      color: #000;
+      background: #fff;
+    }
+
+    .page {
+      max-width: 800px;
+      margin: 0 auto;
+      padding: 24px 32px 40px 32px;
+      box-sizing: border-box;
+    }
+
+    .header {
+      display: flex;
+      align-items: center;
+      margin-bottom: 8px;
+    }
+
+    .logo {
+      width: 120px;
+      height: auto;
+      margin-right: 12px;
+    }
+
+    .header-text {
+      flex: 1;
+    }
+
+    h1 {
+      font-family: Inter, system-ui;
+      font-size: 1.2rem;
+      margin: 0;
+      text-transform: uppercase;
+      letter-spacing: 0.03em;
+      color: var(--slate);
+    }
+
+    .subheading {
+      font-size: 0.9rem;
+      margin-top: 2px;
+      color: var(--blue);
+      font-weight: 600;
+    }
+
+    h2 {
+      font-family: Inter, system-ui;
+      font-size: 1rem;
+      margin: 16px 0 6px 0;
+      border-bottom: 1px solid #000;
+      padding-bottom: 2px;
+    }
+
+    .row {
+      display: flex;
+      gap: 12px;
+      margin-bottom: 6px;
+    }
+
+    .field {
+      flex: 1;
+      font-size: 0.9rem;
+    }
+
+    .label {
+      font-weight: 600;
+      display: block;
+      margin-bottom: 2px;
+    }
+
+    .text-input {
+      width: 100%;
+      border: 1px solid #000;
+      padding: 3px 4px;
+      font-size: 0.88rem;
+      box-sizing: border-box;
+    }
+
+    .date-input {
+      width: 100%;
+      border: 1px solid #000;
+      padding: 3px 4px;
+      font-size: 0.88rem;
+      box-sizing: border-box;
+    }
+
+    .checkbox-group {
+      font-size: 0.9rem;
+      margin-bottom: 3px;
+      display: flex;
+      align-items: center;
+    }
+
+    .checkbox-group input[type="checkbox"] {
+      margin-right: 8px;
+      width: 16px;
+      height: 16px;
+      vertical-align: middle;
+    }
+
+    textarea {
+      width: 100%;
+      min-height: 90px;
+      border: 1px solid #000;
+      padding: 4px;
+      font-family: inherit;
+      font-size: 0.9rem;
+      resize: vertical;
+      box-sizing: border-box;
+    }
+
+    .signature-row {
+      display: flex;
+      gap: 24px;
+      margin-top: 12px;
+    }
+
+    .signature-block {
+      flex: 1;
+      font-size: 0.9rem;
+    }
+
+    .signature-input {
+      width: 100%;
+      border: 1px solid #000;
+      padding: 3px 4px;
+      font-size: 0.88rem;
+      box-sizing: border-box;
+      margin-top: 18px;
+    }
+
+    .signature-label {
+      font-size: 0.8rem;
+      margin-top: 2px;
+    }
+
+    .input {
+      font-size: 0.9rem;
+      margin-top: 8px;
+    }
+
+    .button-row {
+      display: flex;
+      gap: 12px;
+      margin-top: 20px;
+      justify-content: flex-end;
+    }
+
+    button {
+      padding: 10px 20px;
+      font-size: 0.95rem;
+      font-family: Inter, system-ui;
+      cursor: pointer;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+      background: #fff;
+    }
+
+    button.primary {
+      background: var(--blue);
+      color: #fff;
+      border-color: var(--blue);
+    }
+
+    button.primary:hover {
+      background: #155a99;
+    }
+
+    button:hover {
+      background: #f0f0f0;
+    }
+
+    @media print {
+      body {
+        margin: 0;
+      }
+      .page {
+        margin: 0;
+        padding: 16px 24px 30px 24px;
+      }
+      input, textarea {
+        -webkit-print-color-adjust: exact;
+        print-color-adjust: exact;
+      }
+      .button-row {
+        display: none;
+      }
+    }
+  </style>
+</head>
+
+<body>
+
+<form id="storageForm">
+  <div class="page">
+
+    <div class="header">
+      <img src="HH logo grntree.png" alt="Horizon House logo" class="logo">
+      <div class="header-text">
+        <h1>Horizon House Sober Living</h1>
+        <div class="subheading">Property Storage Log</div>
+      </div>
+    </div>
+
+    <h2>Member & Storage Information</h2>
+
+    <div class="row">
+      <div class="field">
+        <span class="label">Member Name</span>
+        <input type="text" name="storage_member_name" class="text-input">
+      </div>
+      <div class="field">
+        <span class="label">Date Stored</span>
+        <input type="date" name="storage_date" class="date-input">
+      </div>
+    </div>
+
+    <div class="field" style="margin-bottom: 12px;">
+      <span class="label">Expected Pick-up Date (Items not picked up by expected pick-up date will be disposed of.)</span>
+      <input type="date" name="storage_pick_up" class="date-input">
+    </div>
+
+    <div class="field" style="margin-bottom: 12px;">
+      <span class="label">Storage Location</span>
+      <input type="text" name="storage_location" class="text-input">
+    </div>
+
+    <h2>Inventory of Stored Property</h2>
+    <textarea name="storage_inventory" style="min-height:90px;"></textarea>
+
+    <h2>Condition of Items</h2>
+    <textarea name="storage_condition" style="min-height:60px;"></textarea>
+
+    <h2>Final Disposition of Property</h2>
+    
+    <label class="checkbox-group">
+      <input type="checkbox" name="final_disposed_of"> Disposed of
+    </label>
+
+    <label class="input">Disposed of by
+      <input type="text" name="disposed_by" class="text-input">
+    </label>
+
+    <label class="checkbox-group" style="margin-top:8px;">
+      <input type="checkbox" name="final_donated"> Donated
+    </label>
+    <label class="input">Donated to
+      <input type="text" name="donated_to" class="text-input">
+    </label>
+
+    <label class="checkbox-group" style="margin-top:8px;">
+      <input type="checkbox" name="final_picked_up_by"> Picked up by Member or Member Representative
+    </label>
+    <label class="input">Person Picking Up Property
+      <input type="text" name="pickup_person" class="text-input">
+    </label>
+
+    <div class="signature-row">
+      <div class="signature-block">
+        <input type="text" name="pickup_signature" class="signature-input">
+        <div class="signature-label">Pick-up Person's Signature</div>
+      </div>
+      <div class="signature-block">
+        <input type="date" name="pickup_signature_date" class="signature-input">
+        <div class="signature-label">Date</div>
+      </div>
+    </div>
+
+    <div class="signature-block" style="margin-top: 16px;">
+      <input type="text" name="staff_final_signature" class="signature-input">
+      <div class="signature-label">Staff Verifying Final Disposition</div>
+    </div>
+
+    <div class="button-row">
+      <button type="button" onclick="window.print()">Print</button>
+      <button type="button" onclick="saveForm()" class="primary">Save</button>
+    </div>
+
+  </div>
+</form>
+
+<script>
+// Auto-populate member name if passed via URL parameter
+window.addEventListener('DOMContentLoaded', function() {
+  const urlParams = new URLSearchParams(window.location.search);
+  const memberName = urlParams.get('memberName');
+  if (memberName) {
+    document.querySelector('input[name="storage_member_name"]').value = decodeURIComponent(memberName);
+  }
+});
+
+// Save form data to backend
+async function saveForm() {
+  const formData = new FormData(document.getElementById('storageForm'));
+  const data = Object.fromEntries(formData.entries());
+  
+  try {
+    const response = await fetch('https://horizon-portal-backend-production.up.railway.app/api/storage-logs', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify(data)
+    });
+    
+    if (response.ok) {
+      alert('Storage log saved successfully!');
+    } else {
+      alert('Error saving storage log. Please try again.');
+    }
+  } catch (error) {
+    console.error('Error saving form:', error);
+    alert('Error saving storage log. Please check your connection.');
+  }
+}
+</script>
+
+</body>
+</html>

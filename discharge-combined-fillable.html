@@ -182,10 +182,12 @@
   <!-- PAGE 1 — DISCHARGE REPORT -->
   <div class="page">
 
-    <div style="text-align:center;margin-bottom:16px;">
-      <img src="HH logo grntree.png" alt="Horizon House logo" style="height:120px;margin-bottom:8px;">
-      <h1 style="text-align:center;margin:8px 0;">Horizon House Sober Living</h1>
-      <div class="subheading" style="text-align:center;">Discharge Report</div>
+    <div class="header">
+      <img src="HH logo grntree.png" alt="Horizon House logo" style="height:120px;">
+      <div class="header-text">
+        <h1>Horizon House Sober Living</h1>
+        <div class="subheading">Discharge Report</div>
+      </div>
     </div>
 
     <h2>Member Information</h2>
@@ -588,10 +590,14 @@ document.getElementById('property_stored_checkbox').addEventListener('change', f
   }
 });
 
-// Property Stored Yes - trigger storage form alert
+// Property Stored Yes - open storage form in new window
 document.getElementById('property_stored_yes').addEventListener('change', function() {
   if (this.checked) {
-    alert('Property Storage Log will open upon completion of this form.');
+    const memberName = document.getElementById('member_name').value;
+    const url = memberName 
+      ? `property-storage-form.html?memberName=${encodeURIComponent(memberName)}`
+      : 'property-storage-form.html';
+    window.open(url, '_blank');
     document.getElementById('property_disposed_details').style.display = 'none';
   }
 });
@@ -668,10 +674,14 @@ document.getElementById('property_left_check').addEventListener('change', functi
   }
 });
 
-// Property Stored option - trigger alert
+// Property Stored option - open storage form in new window
 document.getElementById('property_stored_option').addEventListener('change', function() {
   if (this.checked) {
-    alert('Property Storage Form will open after completion of this form.');
+    const memberName = document.getElementById('member_name').value;
+    const url = memberName 
+      ? `property-storage-form.html?memberName=${encodeURIComponent(memberName)}`
+      : 'property-storage-form.html';
+    window.open(url, '_blank');
   }
 });
 
