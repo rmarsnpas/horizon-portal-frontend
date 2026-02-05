@@ -221,6 +221,25 @@
             background: #48bb78;
         }
 
+        .card-email-btn {
+            display: inline-block;
+            margin-top: 10px;
+            padding: 8px 16px;
+            background: #48bb78;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            text-decoration: none;
+            transition: background 0.2s;
+        }
+
+        .card-email-btn:hover {
+            background: #38a169;
+        }
+
         .section-header {
             background: white;
             padding: 20px 30px;
@@ -371,12 +390,15 @@
                 <div class="card-label">Record Test Results</div>
             </a>
 
-            <a href="/application.html" class="dashboard-card">
-                <div class="card-icon">📝</div>
-                <div class="card-title">Application Form</div>
-                <div class="card-count" style="font-size: 24px; color: #718096;">View Form</div>
-                <div class="card-label">Member Application</div>
-            </a>
+            <div class="dashboard-card" style="display: flex; flex-direction: column;">
+                <a href="/application.html" style="text-decoration: none; color: inherit; flex: 1;">
+                    <div class="card-icon">📝</div>
+                    <div class="card-title">Application Form</div>
+                    <div class="card-count" style="font-size: 24px; color: #718096;">View Form</div>
+                    <div class="card-label">Member Application</div>
+                </a>
+                <a href="#" onclick="emailApplicationLink(event)" class="card-email-btn">✉️ Email Link</a>
+            </div>
 
             <a href="#" class="dashboard-card" style="opacity: 0.6; cursor: not-allowed;">
                 <div class="card-icon">📋</div>
@@ -510,6 +532,22 @@
                 loadDashboardData();
             }
         }, 30000);
+
+        // Email application link function
+        function emailApplicationLink(event) {
+            event.preventDefault();
+            const applicationURL = window.location.origin + '/application.html';
+            const subject = encodeURIComponent('Horizon House Sober Living - Application Form');
+            const body = encodeURIComponent(
+                'Hello,\n\n' +
+                'Please complete the Horizon House Sober Living application form at the link below:\n\n' +
+                applicationURL + '\n\n' +
+                'If you have any questions, please don\'t hesitate to contact us.\n\n' +
+                'Best regards,\n' +
+                'Horizon House Staff'
+            );
+            window.location.href = `mailto:?subject=${subject}&body=${body}`;
+        }
     </script>
 </body>
 </html>
