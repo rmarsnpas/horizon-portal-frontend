@@ -352,14 +352,13 @@
     <div class="inline-checkboxes" style="margin-top:12px;">
       <span class="label" style="margin-right:10px;">Member left without incident:</span>
       <label class="checkbox-group">
-        <input type="radio" name="left_without_incident" value="yes"> Yes
+        <input type="radio" name="left_without_incident" value="yes" id="incident_yes"> Yes
       </label>
       <label class="checkbox-group">
         <input type="radio" name="left_without_incident" value="no" id="incident_no"> No
       </label>
-      <span class="label" style="font-size:0.85rem;font-style:italic;margin-left:10px;">(if no, explain below)</span>
     </div>
-    <textarea name="incident_explanation" id="incident_explanation" style="min-height:50px;margin-top:6px;" placeholder="Explain incident..."></textarea>
+    <textarea name="incident_explanation" id="incident_explanation" style="min-height:50px;margin-top:6px;display:none;" placeholder="Explain incident..."></textarea></textarea>
 
     <div class="row" style="margin-top:12px;">
       <div class="field">
@@ -374,10 +373,10 @@
         <input type="checkbox" name="transport_self"> Self
       </label>
       <label class="checkbox-group">
-        <input type="checkbox" name="transport_other" id="transport_other_check"> Other:
+        <input type="checkbox" name="transport_other" id="transport_other_check"> Other
       </label>
-      <input type="text" name="transport_other_text" class="text-input" style="width:300px;margin-left:5px;" placeholder="Specify...">
     </div>
+    <input type="text" name="transport_other_text" id="transport_other_text" class="text-input" style="width:100%;margin-top:6px;display:none;" placeholder="Specify transportation method...">
 
     <div style="margin-top:12px;">
       <span class="label">Member Status:</span>
@@ -456,6 +455,16 @@
       <div class="signature-block">
         <input type="date" name="member_signature_date" class="signature-input">
         <div class="signature-label">Date</div>
+      </div>
+    </div>
+
+    <div style="margin-top:16px;">
+      <label class="checkbox-group">
+        <input type="checkbox" name="member_departed_early" id="member_departed_check"> Member departed prior to completion of this form
+      </label>
+      <div id="departure_datetime" style="margin-left:26px;margin-top:8px;display:none;">
+        <span class="label" style="font-size:0.9rem;">Actual date and time of departure:</span>
+        <input type="datetime-local" name="departure_datetime_value" class="text-input" style="margin-top:4px;">
       </div>
     </div>
     <span class="label" style="margin-top:8px;">Right click to print or save to PDF</span>
@@ -611,9 +620,30 @@ document.getElementById('incident_no').addEventListener('change', function() {
   }
 });
 
-document.querySelector('input[name="left_without_incident"][value="yes"]').addEventListener('change', function() {
+document.getElementById('incident_yes').addEventListener('change', function() {
   if (this.checked) {
     document.getElementById('incident_explanation').style.display = 'none';
+  }
+});
+
+// Show/hide transportation Other text box
+document.getElementById('transport_other_check').addEventListener('change', function() {
+  const textbox = document.getElementById('transport_other_text');
+  if (this.checked) {
+    textbox.style.display = 'block';
+    textbox.focus();
+  } else {
+    textbox.style.display = 'none';
+  }
+});
+
+// Show/hide member departure date/time field
+document.getElementById('member_departed_check').addEventListener('change', function() {
+  const datetimeField = document.getElementById('departure_datetime');
+  if (this.checked) {
+    datetimeField.style.display = 'block';
+  } else {
+    datetimeField.style.display = 'none';
   }
 });
 
