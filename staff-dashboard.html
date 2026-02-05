@@ -536,7 +536,7 @@
                     <div class="card-label" style="color: rgba(255,255,255,0.9);">members.xlsx</div>
                 </div>
                 <div style="display: flex; gap: 8px; margin-top: 15px;">
-                    <a href="https://horizon-portal-backend-production-3532.up.railway.app/api/members/download" style="flex: 1; padding: 10px; background: rgba(255,255,255,0.2); color: white; text-decoration: none; border-radius: 6px; text-align: center; font-weight: 600; font-size: 14px;" download>⬇️ Download</a>
+                    <a href="https://horizon-portal-backend-production-3532.up.railway.app/api/downloadMembers" style="flex: 1; padding: 10px; background: rgba(255,255,255,0.2); color: white; text-decoration: none; border-radius: 6px; text-align: center; font-weight: 600; font-size: 14px;" download>⬇️ Download</a>
                     <button onclick="openUploadModal()" style="flex: 1; padding: 10px; background: rgba(255,255,255,0.2); color: white; border: none; border-radius: 6px; cursor: pointer; font-weight: 600; font-size: 14px;">⬆️ Upload</button>
                 </div>
             </div>
@@ -791,7 +791,7 @@
             formData.append('file', selectedFile);
 
             try {
-                const response = await fetch(`${API_BASE}/api/members/upload`, {
+                const response = await fetch(`${API_BASE}/api/uploadMembers`, {
                     method: 'POST',
                     body: formData
                 });
