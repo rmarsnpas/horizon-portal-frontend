@@ -378,6 +378,41 @@
       </div>
     </div>
 
+    <div style="margin-top:16px;">
+      <span class="label" style="font-weight:700;">Room Inspected:</span>
+      <div style="margin-top:8px;">
+        <label class="checkbox-group">
+          <input type="checkbox" name="room_cleaned"> Room cleaned and ready to occupy
+        </label>
+      </div>
+      <div style="margin-top:4px;">
+        <label class="checkbox-group">
+          <input type="checkbox" name="room_maintenance" id="room_maintenance_check"> Maintenance or repairs needed
+        </label>
+        <span class="label" style="font-size:0.8rem;font-style:italic;color:#666;margin-left:26px;">(Maintenance Request Form will open after completion)</span>
+      </div>
+      <div style="margin-top:8px;">
+        <label class="checkbox-group">
+          <input type="checkbox" name="room_property_left" id="property_left_check"> Property left
+        </label>
+        <div id="property_left_options" style="margin-left:26px;margin-top:6px;display:none;">
+          <label class="checkbox-group" style="margin-bottom:6px;">
+            <input type="checkbox" name="property_stored_option" id="property_stored_option"> Stored
+          </label>
+          <span class="label" style="font-size:0.8rem;font-style:italic;color:#666;margin-left:26px;">(Property Storage Form will open after completion of this form)</span>
+          <div style="margin-top:6px;">
+            <label class="checkbox-group">
+              <input type="checkbox" name="property_disposed" id="property_disposed_check"> Disposed of
+            </label>
+            <div id="disposal_description" style="margin-left:26px;margin-top:6px;display:none;">
+              <span class="label" style="font-size:0.9rem;">Brief description of property and how disposed of:</span>
+              <textarea name="disposal_details" style="min-height:60px;margin-top:4px;" placeholder="Describe property and disposal method..."></textarea>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
     <span class="label" style="margin-top:12px;">Additional Notes:</span>
     <textarea name="additional_notes" style="min-height:70px;"></textarea>
     
@@ -531,6 +566,44 @@ document.getElementById('incident_no').addEventListener('change', function() {
 document.querySelector('input[name="left_without_incident"][value="yes"]').addEventListener('change', function() {
   if (this.checked) {
     document.getElementById('incident_explanation').style.display = 'none';
+  }
+});
+
+// Room Inspected - Maintenance Request Form trigger
+document.getElementById('room_maintenance_check').addEventListener('change', function() {
+  if (this.checked) {
+    alert('Maintenance Request Form will open after completion of this form.');
+  }
+});
+
+// Property Left checkbox - show/hide sub-options
+document.getElementById('property_left_check').addEventListener('change', function() {
+  const options = document.getElementById('property_left_options');
+  if (this.checked) {
+    options.style.display = 'block';
+  } else {
+    options.style.display = 'none';
+    // Uncheck sub-options when parent is unchecked
+    document.getElementById('property_stored_option').checked = false;
+    document.getElementById('property_disposed_check').checked = false;
+    document.getElementById('disposal_description').style.display = 'none';
+  }
+});
+
+// Property Stored option - trigger alert
+document.getElementById('property_stored_option').addEventListener('change', function() {
+  if (this.checked) {
+    alert('Property Storage Form will open after completion of this form.');
+  }
+});
+
+// Property Disposed checkbox - show/hide description textarea
+document.getElementById('property_disposed_check').addEventListener('change', function() {
+  const description = document.getElementById('disposal_description');
+  if (this.checked) {
+    description.style.display = 'block';
+  } else {
+    description.style.display = 'none';
   }
 });
 </script>
