@@ -602,8 +602,7 @@
 
                 if (result.success) {
                     if (typeof goToNextForm !== 'undefined' && isIntakeMode()) {
-                        alert(`Thank you, ${formData.memberInfo.firstName}! Your Release of Information has been submitted successfully.\n\nMoving to next form...`);
-                        setTimeout(() => goToNextForm(3), 1000);
+                        goToNextForm(3);
                     } else {
                         alert(`Thank you, ${formData.memberInfo.firstName}! Your Release of Information has been submitted successfully.`);
                         setTimeout(() => {

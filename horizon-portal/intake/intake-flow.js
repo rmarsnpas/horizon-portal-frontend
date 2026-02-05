@@ -46,9 +46,9 @@ function goToNextForm(currentFormId) {
         // All forms complete - go to completion page
         window.location.href = 'intake-complete.html';
     } else {
-        // Go to next form
+        // Go to next form immediately for iPad guided access mode
         const nextForm = INTAKE_FORMS[currentFormId];
-        window.location.href = `${nextForm.name}?intake=true`;
+        window.location.replace(`${nextForm.name}?intake=true`);
     }
 }
 

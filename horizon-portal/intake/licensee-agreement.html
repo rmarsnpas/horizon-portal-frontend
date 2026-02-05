@@ -631,8 +631,7 @@
 
                 if (result.success) {
                     if (typeof goToNextForm !== 'undefined' && isIntakeMode()) {
-                        alert(`Thank you, ${formData.memberInfo.firstName}! Your Licensee Agreement has been submitted successfully.\n\nMoving to next form...`);
-                        setTimeout(() => goToNextForm(2), 1000);
+                        goToNextForm(2);
                     } else {
                         alert(`Thank you, ${formData.memberInfo.firstName}! Your Licensee Agreement has been submitted successfully.\n\nREMINDER: You are a licensee, not a tenant. You can be required to leave immediately for rule violations.`);
                         setTimeout(() => {

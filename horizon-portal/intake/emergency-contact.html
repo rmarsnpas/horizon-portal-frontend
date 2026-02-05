@@ -529,8 +529,7 @@
 
                 if (result.success) {
                     if (typeof goToNextForm !== 'undefined' && isIntakeMode()) {
-                        alert(`Thank you, ${formData.memberInfo.firstName}! Your emergency contact information has been submitted successfully.\n\nMoving to next form...`);
-                        setTimeout(() => goToNextForm(4), 1000);
+                        goToNextForm(4);
                     } else {
                         alert(`Thank you, ${formData.memberInfo.firstName}! Your emergency contact information has been submitted successfully.`);
                         setTimeout(() => {

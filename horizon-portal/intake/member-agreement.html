@@ -727,8 +727,8 @@
                 if (result.success) {
                     // Check if in intake mode
                     if (typeof goToNextForm !== 'undefined' && isIntakeMode()) {
-                        alert(`Thank you, ${memberName}! Your agreement has been submitted successfully.\n\nMoving to next form...`);
-                        setTimeout(() => goToNextForm(1), 1000);
+                        // Transition immediately to next form for iPad guided access
+                        goToNextForm(1);
                     } else {
                         alert(`Thank you, ${memberName}! Your agreement has been submitted successfully.`);
                         setTimeout(() => {

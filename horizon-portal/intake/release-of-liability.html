@@ -619,8 +619,7 @@
 
                 if (result.success) {
                     if (typeof goToNextForm !== 'undefined' && isIntakeMode()) {
-                        alert(`Thank you, ${formData.participantInfo.firstName}! Your Release of Liability has been submitted successfully.\n\nMoving to next form...`);
-                        setTimeout(() => goToNextForm(5), 1000);
+                        goToNextForm(5);
                     } else {
                         alert(`Thank you, ${formData.participantInfo.firstName}! Your Release of Liability has been submitted successfully.\n\nYou may now use the facilities. Please remember to follow all safety rules.`);
                         setTimeout(() => {

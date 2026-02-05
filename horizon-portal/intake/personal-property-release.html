@@ -637,8 +637,7 @@
 
                 if (result.success) {
                     if (typeof goToNextForm !== 'undefined' && isIntakeMode()) {
-                        alert(`Thank you, ${formData.memberInfo.firstName}! Your Personal Property Release has been submitted successfully.\n\nIntake process complete!`);
-                        setTimeout(() => goToNextForm(6), 1000);
+                        goToNextForm(6);
                     } else {
                         alert(`Thank you, ${formData.memberInfo.firstName}! Your Personal Property Release has been submitted successfully.\n\nRemember: Horizon House is not responsible for lost, stolen, or damaged property.`);
                         setTimeout(() => {
