@@ -182,12 +182,10 @@
   <!-- PAGE 1 — DISCHARGE REPORT -->
   <div class="page">
 
-    <div class="header">
-      <img src="HH logo grntree.png" alt="Horizon House logo" style="height:120px;">
-      <div class="header-text">
-        <h1>Horizon House Sober Living</h1>
-        <div class="subheading">Discharge Report — Relapse / Behavioral / Non‑Compliance</div>
-      </div>
+    <div style="text-align:center;margin-bottom:16px;">
+      <img src="HH logo grntree.png" alt="Horizon House logo" style="height:120px;margin-bottom:8px;">
+      <h1 style="text-align:center;margin:8px 0;">Horizon House Sober Living</h1>
+      <div class="subheading" style="text-align:center;">Discharge Report</div>
     </div>
 
     <h2>Member Information</h2>
@@ -248,10 +246,14 @@
     </div>
     <input type="text" name="reason_other_text" class="text-input" placeholder="If other, explain here">
 
-    <h2>Incident Description</h2>
-    <textarea name="incident_description"></textarea>
+    <div class="footer-page">Page 1 of 1</div>
 
-    <h2>Relapse Details (if applicable)</h2>
+  </div>
+
+  <!-- PAGE 2 — RELAPSE DETAILS (conditional) -->
+  <div class="page" id="relapse_details_page" style="display:none;">
+
+    <h2>Relapse Details</h2>
 
     <label class="checkbox-group">
       <input type="checkbox" name="relapse_drugs_found"> Alcohol/Drugs/Paraphernalia Found
@@ -297,12 +299,12 @@
       </div>
     </div>
 
-    <div class="footer-page">Page 1 of 2</div>
+    <div class="footer-page">Page 2 of 2</div>
 
   </div>
 
-  <!-- PAGE 2 — DISCHARGE REPORT - DETAILS-->
-  <div class="page">
+  <!-- PAGE 3 — INCIDENT DETAILS (conditional) -->
+  <div class="page" id="incident_details_page" style="display:none;">
 
     <h2>Incident Details</h2>
 
@@ -311,6 +313,13 @@
 
     <span class="label" style="margin-top:8px;">Member Response / Statement</span>
     <textarea name="member_statement"></textarea>
+
+    <div class="footer-page">Page 3 of 3</div>
+
+  </div>
+
+  <!-- PAGE 4 — SAFETY & EXIT PROCEDURES -->
+  <div class="page">
 
     <h2>Safety & Exit Procedures</h2>
 
@@ -415,7 +424,7 @@
 
     <span class="label" style="margin-top:12px;">Additional Notes:</span>
     <textarea name="additional_notes" style="min-height:70px;"></textarea>
-    
+
     <h2>Signatures</h2>
 
     <div class="signature-row">
@@ -546,11 +555,18 @@ document.getElementById('client_id').addEventListener('blur', async function() {
   }
 });
 
-// Property storage form trigger
+// Property storage form trigger - updated to check multiple conditions
 document.getElementById('property_yes').addEventListener('change', function() {
   if (this.checked) {
     // Show alert that property storage form will open
-    alert('Property Storage Log (Page 3) will be available for completion at the end of this form.');
+    alert('Property Storage Log will be available for completion at the end of this form.');
+  }
+});
+
+// Property Stored option - trigger alert
+document.getElementById('property_stored_option').addEventListener('change', function() {
+  if (this.checked) {
+    alert('Property Storage Form will open after completion of this form.');
   }
 });
 
@@ -606,6 +622,45 @@ document.getElementById('property_disposed_check').addEventListener('change', fu
     description.style.display = 'none';
   }
 });
+
+// Show/hide Relapse Details page based on relapse checkbox
+document.querySelector('input[name="reason_relapse"]').addEventListener('change', function() {
+  const relapsePage = document.getElementById('relapse_details_page');
+  if (this.checked) {
+    relapsePage.style.display = 'block';
+  } else {
+    relapsePage.style.display = 'none';
+  }
+});
+
+// Show/hide Incident Details page based on behavioral violation or non-compliance checkboxes
+function updateIncidentDetailsPage() {
+  const behaviorChecked = document.querySelector('input[name="reason_behavior"]').checked;
+  const noncomplianceChecked = document.querySelector('input[name="reason_noncompliance"]').checked;
+  const incidentPage = document.getElementById('incident_details_page');
+  
+  if (behaviorChecked || noncomplianceChecked) {
+    incidentPage.style.display = 'block';
+  } else {
+    incidentPage.style.display = 'none';
+  }
+}
+
+document.querySelector('input[name="reason_behavior"]').addEventListener('change', updateIncidentDetailsPage);
+document.querySelector('input[name="reason_noncompliance"]').addEventListener('change', updateIncidentDetailsPage);
+
+// Check if any storage-related checkboxes are checked and trigger storage form
+function checkStorageFormNeeded() {
+  const propertyYes = document.getElementById('property_yes').checked;
+  const propertyStored = document.getElementById('property_stored_option') && document.getElementById('property_stored_option').checked;
+  
+  if (propertyYes || propertyStored) {
+    // Will trigger storage form on completion
+    return true;
+  }
+  return false;
+}
+
 </script>
 
 </body>
