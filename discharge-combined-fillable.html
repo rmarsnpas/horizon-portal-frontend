@@ -108,7 +108,17 @@
 
     .checkbox-group input[type="checkbox"],
     .checkbox-group input[type="radio"] {
-      margin-right: 10px;
+      margin-right: 8px;
+      width: 16px;
+      height: 16px;
+      vertical-align: middle;
+    }
+
+    .inline-checkboxes {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 20px;
+      margin: 8px 0;
     }
 
     textarea {
@@ -184,12 +194,12 @@
 
     <div class="row">
       <div class="field">
-        <span class="label">Member Name</span>
-        <input type="text" name="member_name" class="text-input">
+        <span class="label">Client ID (Enter to auto-populate)</span>
+        <input type="text" name="client_id" id="client_id" class="text-input" placeholder="Enter Client ID">
       </div>
       <div class="field">
-        <span class="label">Member ID</span>
-        <input type="text" name="member_id" class="text-input">
+        <span class="label">Member Name</span>
+        <input type="text" name="member_name" id="member_name" class="text-input">
       </div>
       <div class="field">
         <span class="label">Date of Discharge</span>
@@ -216,22 +226,27 @@
 
     <h2>Reason for Discharge</h2>
 
-    <label class="checkbox-group">
-      <input type="checkbox" name="reason_relapse"> Relapse
-    </label>
-    <label class="checkbox-group">
-      <input type="checkbox" name="reason_behavior"> Behavioral violation
-    </label>
-    <label class="checkbox-group">
-      <input type="checkbox" name="reason_threats"> Threats or violence
-    </label>
-    <label class="checkbox-group">
-      <input type="checkbox" name="reason_noncompliance"> Non‑compliance with house rules
-    </label>
-    <label class="checkbox-group">
-      <input type="checkbox" name="reason_other"> Other (explain)
-    </label>
-    <input type="text" name="reason_other_text" class="text-input">
+    <div class="inline-checkboxes">
+      <label class="checkbox-group">
+        <input type="checkbox" name="reason_relapse"> Relapse
+      </label>
+      <label class="checkbox-group">
+        <input type="checkbox" name="reason_behavior"> Behavioral violation
+      </label>
+      <label class="checkbox-group">
+        <input type="checkbox" name="reason_noncompliance"> Non‑compliance with house rules
+      </label>
+      <label class="checkbox-group">
+        <input type="checkbox" name="reason_honorary"> Honorary discharge
+      </label>
+      <label class="checkbox-group">
+        <input type="checkbox" name="reason_end_benefits"> End of benefits
+      </label>
+      <label class="checkbox-group">
+        <input type="checkbox" name="reason_other"> Other (explain)
+      </label>
+    </div>
+    <input type="text" name="reason_other_text" class="text-input" placeholder="If other, explain here">
 
     <h2>Incident Description</h2>
     <textarea name="incident_description"></textarea>
@@ -299,44 +314,72 @@
 
     <h2>Safety & Exit Procedures</h2>
 
-    <label class="checkbox-group">
-      <input type="checkbox" name="exit_no_incident"> Member left property without incident
-    </label>
-    <label class="checkbox-group">
-      <input type="checkbox" name="exit_resources_provided"> Provided detox/IOP resources
-    </label>
-    <label class="checkbox-group">
-      <input type="checkbox" name="exit_transport_arranged"> Transportation arranged
-    </label>
-    <span class="label" style="margin-top:6px;">Notifications</span>
-    <label class="checkbox-group" style="display:inline-flex; margin-left:24px;">
-            <input type="checkbox" name="case_manager_notified"> Case Manager Notified
-          </label>
-          <label class="checkbox-group" style="display:inline-flex;">
-            <input type="checkbox" name="notification_roi_contact"> ROI/Emg contact notified
-    </label>
-    <span class="label" style="margin-top:6px;">Member's Property</span>
-    <label class="checkbox-group" style="display:inline-flex; margin-left:24px;">
-            <input type="radio" name="property_removed"> Removed by member
-          </label>
-          <label class="checkbox-group" style="display:inline-flex;">
-            <input type="radio" name="property_stored"> Stored by staff (see Property Storage Log)
-    </label>
-    <label class="checkbox-group">
-      <input type="checkbox" name="exit_room_inspected"> Room inspected (cleared free of contriband, etc)
-    </label>
+    <div class="inline-checkboxes">
+      <label class="checkbox-group">
+        <input type="checkbox" name="exit_property_removed"> Member removed all property
+      </label>
+      <label class="checkbox-group">
+        <input type="checkbox" name="exit_property_stored" id="property_stored_checkbox"> Property stored
+      </label>
+      <label class="checkbox-group" style="margin-left:10px;">
+        <input type="radio" name="property_stored_yesno" value="yes" id="property_yes"> Yes
+      </label>
+      <label class="checkbox-group">
+        <input type="radio" name="property_stored_yesno" value="no"> No
+      </label>
+    </div>
+    <span class="label" style="font-size:0.8rem;font-style:italic;color:#666;">If yes, Property Storage Log will open upon completion of this form</span>
 
-    <span class="label" style="margin-top:8px;">Police/EMS involvement (if any)</span>
-    <input type="text" name="police_text" class="text-input">
-    </label>
+    <div class="inline-checkboxes" style="margin-top:12px;">
+      <span class="label" style="margin-right:10px;">Member left without incident:</span>
+      <label class="checkbox-group">
+        <input type="radio" name="left_without_incident" value="yes"> Yes
+      </label>
+      <label class="checkbox-group">
+        <input type="radio" name="left_without_incident" value="no" id="incident_no"> No
+      </label>
+      <span class="label" style="font-size:0.85rem;font-style:italic;margin-left:10px;">(if no, explain below)</span>
+    </div>
+    <textarea name="incident_explanation" id="incident_explanation" style="min-height:50px;margin-top:6px;" placeholder="Explain incident..."></textarea>
 
-    <span class="label" style="margin-top:6px;">Member eligible for readmit?</span>
-    <label class="checkbox-group" style="display:inline-flex; margin-left:24px;">
-            <input type="radio" name="readmit"> YES
-          </label>
-          <label class="checkbox-group" style="display:inline-flex;">
-            <input type="radio" name="readmit"> NO
-          </label>
+    <div class="row" style="margin-top:12px;">
+      <div class="field">
+        <span class="label">Transitioning to:</span>
+        <input type="text" name="transitioning_to" class="text-input" placeholder="e.g., Detox, IOP, Home, etc.">
+      </div>
+    </div>
+
+    <div class="inline-checkboxes" style="margin-top:12px;">
+      <span class="label" style="margin-right:10px;">Transportation:</span>
+      <label class="checkbox-group">
+        <input type="checkbox" name="transport_self"> Self
+      </label>
+      <label class="checkbox-group">
+        <input type="checkbox" name="transport_other" id="transport_other_check"> Other:
+      </label>
+      <input type="text" name="transport_other_text" class="text-input" style="width:300px;margin-left:5px;" placeholder="Specify...">
+    </div>
+
+    <div style="margin-top:12px;">
+      <span class="label">Member Status:</span>
+      <div class="inline-checkboxes" style="margin-top:6px;">
+        <label class="checkbox-group">
+          <input type="checkbox" name="status_alumni" value="2"> (2) Alumni
+        </label>
+        <label class="checkbox-group">
+          <input type="checkbox" name="status_no_access" value="3"> (3) No access
+        </label>
+        <label class="checkbox-group">
+          <input type="checkbox" name="status_relapse" value="6"> (6) Relapse, eligible for return after review
+        </label>
+        <label class="checkbox-group">
+          <input type="checkbox" name="status_see_notes"> See below notes
+        </label>
+      </div>
+    </div>
+
+    <span class="label" style="margin-top:12px;">Additional Notes:</span>
+    <textarea name="additional_notes" style="min-height:70px;"></textarea>
     
     <h2>Signatures</h2>
 
@@ -445,5 +488,51 @@
   </div>
 
 </form>
+
+<script>
+// Client ID lookup - will connect to backend API to pull member data from members.xlsx
+document.getElementById('client_id').addEventListener('blur', async function() {
+  const clientId = this.value.trim();
+  if (!clientId) return;
+  
+  try {
+    // Call backend API to get member data
+    const response = await fetch(`https://horizon-portal-backend-production.up.railway.app/api/members/${clientId}`);
+    if (response.ok) {
+      const memberData = response.json();
+      // Populate fields with member data
+      if (memberData.name) document.getElementById('member_name').value = memberData.name;
+      // Add more field mappings as needed
+    } else {
+      console.log('Member not found');
+    }
+  } catch (error) {
+    console.error('Error fetching member data:', error);
+  }
+});
+
+// Property storage form trigger
+document.getElementById('property_yes').addEventListener('change', function() {
+  if (this.checked) {
+    // Show alert that property storage form will open
+    alert('Property Storage Log (Page 3) will be available for completion at the end of this form.');
+  }
+});
+
+// Show/hide incident explanation based on "No" selection
+document.getElementById('incident_no').addEventListener('change', function() {
+  const textarea = document.getElementById('incident_explanation');
+  if (this.checked) {
+    textarea.style.display = 'block';
+    textarea.focus();
+  }
+});
+
+document.querySelector('input[name="left_without_incident"][value="yes"]').addEventListener('change', function() {
+  if (this.checked) {
+    document.getElementById('incident_explanation').style.display = 'none';
+  }
+});
+</script>
 
 </body>
