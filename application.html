@@ -862,6 +862,20 @@
   function startNewApplication() {
     currentReferenceNumber = generateReferenceNumber();
     
+    // Clear the form completely
+    const form = document.getElementById('applicationForm');
+    form.reset();
+    
+    // Clear any conditional sections
+    document.getElementById('vehicle_details').style.display = 'none';
+    document.getElementById('job_details').style.display = 'none';
+    document.getElementById('iop_details').style.display = 'none';
+    
+    // Clear signature canvas
+    if (canvas) {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+    }
+    
     // Store reference number
     localStorage.setItem('currentApplicationRef', currentReferenceNumber);
     
@@ -988,17 +1002,11 @@
 
   // Check for existing reference on page load
   window.addEventListener('DOMContentLoaded', () => {
-    const existingRef = localStorage.getItem('currentApplicationRef');
+    // Always clear the currentApplicationRef when page loads to force fresh start
+    localStorage.removeItem('currentApplicationRef');
     
-    if (existingRef) {
-      // Check if draft exists
-      const draftKey = `${DRAFT_KEY}_${existingRef}`;
-      if (localStorage.getItem(draftKey)) {
-        // Auto-load existing session
-        document.getElementById('referenceInput').value = existingRef;
-        // Could auto-load here or let user choose
-      }
-    }
+    // Initialize signature canvas
+    initSignatureCanvas();
   });
 
   // Signature functionality
