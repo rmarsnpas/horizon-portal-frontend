@@ -122,6 +122,47 @@
       }
     }
     
+    @media print {
+      body {
+        background: white;
+      }
+      
+      .conditional-field {
+        display: block !important;
+        opacity: 1 !important;
+        transform: none !important;
+      }
+      
+      button {
+        display: none;
+      }
+      
+      .reminder-box {
+        display: none;
+      }
+      
+      .date-display {
+        display: none;
+      }
+      
+      input[type="date"] {
+        position: relative;
+      }
+      
+      input[type="date"]::after {
+        content: attr(data-formatted);
+        position: absolute;
+        left: 0;
+        top: 0;
+        width: 100%;
+        height: 100%;
+        display: flex;
+        align-items: center;
+        padding: 0.6rem;
+        background: white;
+      }
+    }
+    
     #successModal {
       display: none;
       position: fixed;
@@ -615,7 +656,53 @@
     
     // Initialize signature canvas
     initSignatureCanvas();
+    
+    // Format all date inputs to show mm-dd-yyyy on change
+    document.querySelectorAll('input[type="date"]').forEach(dateInput => {
+      // Set initial format
+      if (dateInput.value) {
+        formatDateInput(dateInput);
+      }
+      
+      // Format on change
+      dateInput.addEventListener('change', function() {
+        formatDateInput(this);
+      });
+      
+      // Format on blur
+      dateInput.addEventListener('blur', function() {
+        formatDateInput(this);
+      });
+    });
   });
+  
+  function formatDateInput(input) {
+    if (!input.value) return;
+    
+    const date = new Date(input.value + 'T00:00:00');
+    if (isNaN(date.getTime())) return;
+    
+    const month = String(date.getMonth() + 1).padStart(2, '0');
+    const day = String(date.getDate()).padStart(2, '0');
+    const year = date.getFullYear();
+    
+    // Store the formatted value in a data attribute for display
+    input.setAttribute('data-formatted', `${month}-${day}-${year}`);
+    
+    // Add display element if it doesn't exist
+    if (!input.nextElementSibling || !input.nextElementSibling.classList.contains('date-display')) {
+      const display = document.createElement('div');
+      display.className = 'date-display';
+      display.style.marginTop = '5px';
+      display.style.color = '#667eea';
+      display.style.fontSize = '14px';
+      display.style.fontWeight = '600';
+      display.textContent = `Display: ${month}/${day}/${year}`;
+      input.parentNode.insertBefore(display, input.nextSibling);
+    } else {
+      input.nextElementSibling.textContent = `Display: ${month}/${day}/${year}`;
+    }
+  }
 
   // Progressive disclosure event listeners
   document.addEventListener('DOMContentLoaded', function() {
