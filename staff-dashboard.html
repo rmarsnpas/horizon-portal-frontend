@@ -710,15 +710,29 @@
                 const lookAheadDays = 7; // Show milestones within next 7 days
 
                 activeMembers.forEach(member => {
-                    const firstName = member['FIRST\r\nNAME'] || member.FIRST_NAME || member.first_name || '';
-                    const lastName = member['LAST\r\nNAME'] || member.LAST_NAME || member.last_name || '';
+                    const firstName = member['FIRST\r\nNAME'] || member['FIRST\nNAME'] || member.FIRST_NAME || member.first_name || '';
+                    const lastName = member['LAST\r\nNAME'] || member['LAST\nNAME'] || member.LAST_NAME || member.last_name || '';
                     const fullName = `${firstName} ${lastName}`.trim() || 'Unknown';
+                    
+                    // Helper to parse Excel date or regular date
+                    function parseDate(val) {
+                        if (!val) return null;
+                        // Check if it's an Excel serial number (25569 = 1/1/1970 in Excel)
+                        if (typeof val === 'number' || (!isNaN(val) && val > 10000)) {
+                            const excelEpoch = new Date(1899, 11, 30); // Excel epoch
+                            const date = new Date(excelEpoch.getTime() + val * 86400000);
+                            return date;
+                        }
+                        // Try parsing as regular date
+                        const parsed = new Date(val);
+                        return isNaN(parsed.getTime()) ? null : parsed;
+                    }
                     
                     // Check birthday
                     const dobStr = member.DOB || member.dob;
                     if (dobStr) {
-                        const dob = new Date(dobStr);
-                        if (!isNaN(dob.getTime())) {
+                        const dob = parseDate(dobStr);
+                        if (dob) {
                             // Create birthday for this year
                             const birthday = new Date(today.getFullYear(), dob.getMonth(), dob.getDate());
                             
@@ -743,10 +757,10 @@
                     }
 
                     // Check sobriety date
-                    const sobrietyStr = member['SOBRIETY\r\nDATE'] || member.SOBRIETY_DATE || member.sobriety_date || member.sobrietyDate;
+                    const sobrietyStr = member['SOBER\r\nDATE'] || member['SOBER\nDATE'] || member.SOBRIETY_DATE || member.sobriety_date || member.sobrietyDate;
                     if (sobrietyStr) {
-                        const sobrietyDate = new Date(sobrietyStr);
-                        if (!isNaN(sobrietyDate.getTime())) {
+                        const sobrietyDate = parseDate(sobrietyStr);
+                        if (sobrietyDate) {
                             const daysSober = Math.floor((today - sobrietyDate) / (1000 * 60 * 60 * 24));
                             
                             // Check for upcoming milestones: 30, 60, 90, 120, 180, 270, 365, and yearly thereafter
