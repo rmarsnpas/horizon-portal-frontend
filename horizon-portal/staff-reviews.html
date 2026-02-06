@@ -376,14 +376,16 @@
             const card = document.createElement('div');
             card.className = `application-card ${app.status === 'reviewed' ? 'reviewed' : ''}`;
             
-            const submittedDate = app.submitted_date ? new Date(app.submitted_date).toLocaleDateString() : 'N/A';
+            // Access nested data object
+            const data = app.data || app;
+            const submittedDate = app.timestamp ? new Date(app.timestamp).toLocaleDateString() : 'N/A';
             
             card.innerHTML = `
                 <div class="app-header">
                     <div class="app-info">
-                        <h3>${app.first_name || ''} ${app.last_name || ''}</h3>
+                        <h3>${data.first_name || ''} ${data.last_name || ''}</h3>
                         <div class="app-meta">
-                            📅 Submitted: ${submittedDate} | 📧 ${app.email || 'No email'}
+                            📅 Submitted: ${submittedDate} | 📧 ${data.email || 'No email'}
                         </div>
                     </div>
                     <span class="app-status ${app.status === 'reviewed' ? 'reviewed' : 'pending'}">
@@ -394,19 +396,19 @@
                 <div class="app-details">
                     <div class="detail-item">
                         <div class="detail-label">📞 Phone</div>
-                        <div class="detail-value">${app.phone || 'Not provided'}</div>
+                        <div class="detail-value">${data.phone || 'Not provided'}</div>
                     </div>
                     <div class="detail-item">
                         <div class="detail-label">🎂 Date of Birth</div>
-                        <div class="detail-value">${app.dob || 'Not provided'}</div>
+                        <div class="detail-value">${data.dob || 'Not provided'}</div>
                     </div>
                     <div class="detail-item">
                         <div class="detail-label">🏠 Current Living</div>
-                        <div class="detail-value">${app.current_living_situation || 'Not provided'}</div>
+                        <div class="detail-value">${data.address || 'Not provided'}</div>
                     </div>
                     <div class="detail-item">
                         <div class="detail-label">💼 Employment</div>
-                        <div class="detail-value">${app.employed === 'yes' ? 'Yes' : app.employed === 'no' ? 'No' : 'Not provided'}</div>
+                        <div class="detail-value">${data.job === 'yes' ? 'Yes' : data.job === 'no' ? 'No' : 'Not provided'}</div>
                     </div>
                 </div>
 
@@ -429,7 +431,10 @@
                     const app = apps.find(a => a.id === id);
                     if (!app) return;
 
-                    document.getElementById('modalTitle').textContent = `${app.first_name} ${app.last_name} - Application`;
+                    // Access nested data object
+                    const data = app.data || app;
+
+                    document.getElementById('modalTitle').textContent = `${data.first_name} ${data.last_name} - Application`;
                     
                     const modalBody = document.getElementById('modalBody');
                     modalBody.innerHTML = `
@@ -437,56 +442,75 @@
                             <div>
                                 <h3 style="color: #2d3748; margin-bottom: 10px;">📋 Personal Information</h3>
                                 <div style="display: grid; gap: 10px;">
-                                    <p><strong>Name:</strong> ${app.first_name || ''} ${app.last_name || ''}</p>
-                                    <p><strong>Email:</strong> ${app.email || 'Not provided'}</p>
-                                    <p><strong>Phone:</strong> ${app.phone || 'Not provided'}</p>
-                                    <p><strong>DOB:</strong> ${app.dob || 'Not provided'}</p>
-                                    <p><strong>SSN:</strong> ${app.ssn || 'Not provided'}</p>
+                                    <p><strong>Name:</strong> ${data.first_name || ''} ${data.last_name || ''}</p>
+                                    <p><strong>Email:</strong> ${data.email || 'Not provided'}</p>
+                                    <p><strong>Phone:</strong> ${data.phone || 'Not provided'}</p>
+                                    <p><strong>DOB:</strong> ${data.dob || 'Not provided'}</p>
+                                    <p><strong>Address:</strong> ${data.address || 'Not provided'}</p>
+                                    <p><strong>Gender:</strong> ${data.gender || 'Not provided'}</p>
                                 </div>
                             </div>
 
                             <div>
                                 <h3 style="color: #2d3748; margin-bottom: 10px;">🏠 Current Situation</h3>
                                 <div style="display: grid; gap: 10px;">
-                                    <p><strong>Current Living:</strong> ${app.current_living_situation || 'Not provided'}</p>
-                                    <p><strong>Employed:</strong> ${app.employed === 'yes' ? 'Yes' : app.employed === 'no' ? 'No' : 'Not provided'}</p>
-                                    ${app.job_location ? `<p><strong>Job Location:</strong> ${app.job_location}</p>` : ''}
-                                    <p><strong>Have Sponsor:</strong> ${app.sponsor === 'yes' ? 'Yes' : app.sponsor === 'no' ? 'No' : 'Not provided'}</p>
+                                    <p><strong>Seeking Reason:</strong> ${data.seeking_reason || 'Not provided'}</p>
+                                    <p><strong>Employed:</strong> ${data.job === 'yes' ? 'Yes' : data.job === 'no' ? 'No' : 'Not provided'}</p>
+                                    ${data.job_where ? `<p><strong>Job Location:</strong> ${data.job_where}</p>` : ''}
+                                    ${data.schedule ? `<p><strong>Schedule:</strong> ${data.schedule}</p>` : ''}
+                                    <p><strong>Have Sponsor:</strong> ${data.sponsor === 'yes' ? 'Yes' : data.sponsor === 'no' ? 'No' : 'Not provided'}</p>
+                                    <p><strong>Willing to get sponsor:</strong> ${data.willing_sponsor === 'yes' ? 'Yes' : 'No'}</p>
                                 </div>
                             </div>
 
                             <div>
                                 <h3 style="color: #2d3748; margin-bottom: 10px;">🏥 Treatment History</h3>
                                 <div style="display: grid; gap: 10px;">
-                                    <p><strong>Been to Inpatient:</strong> ${app.been_inpatient === 'yes' ? 'Yes' : app.been_inpatient === 'no' ? 'No' : 'Not provided'}</p>
-                                    ${app.inpatient_facility ? `<p><strong>Facility:</strong> ${app.inpatient_facility}</p>` : ''}
-                                    ${app.discharge_date ? `<p><strong>Discharge Date:</strong> ${app.discharge_date}</p>` : ''}
-                                    <p><strong>IOP:</strong> ${app.iop === 'yes' ? 'Yes' : app.iop === 'no' ? 'No' : 'Not provided'}</p>
-                                    ${app.iop_location ? `<p><strong>IOP Location:</strong> ${app.iop_location}</p>` : ''}
+                                    <p><strong>Detox:</strong> ${data.detox === 'yes' ? 'Yes' : 'No'}</p>
+                                    <p><strong>Been to Inpatient:</strong> ${data.inpatient === 'yes' ? 'Yes' : 'No'}</p>
+                                    ${data.inpatient_days ? `<p><strong>Days in Treatment:</strong> ${data.inpatient_days}</p>` : ''}
+                                    ${data.facility ? `<p><strong>Facility:</strong> ${data.facility}</p>` : ''}
+                                    <p><strong>IOP:</strong> ${data.iop === 'yes' ? 'Yes' : 'No'}</p>
+                                    ${data.iop_where ? `<p><strong>IOP Location:</strong> ${data.iop_where}</p>` : ''}
+                                    <p><strong>Sobriety Date:</strong> ${data.sobriety_date || 'Not provided'}</p>
+                                    <p><strong>Drugs Used:</strong> ${data.drugs || 'Not provided'}</p>
                                 </div>
                             </div>
 
-                            ${app.previous_sober_living ? `
+                            ${data.first_sober_living === 'no' ? `
                             <div>
                                 <h3 style="color: #2d3748; margin-bottom: 10px;">🏘️ Previous Sober Living</h3>
-                                <p><strong>Number of Times:</strong> ${app.previous_sober_living}</p>
-                                ${app.asked_to_leave === 'yes' ? `
+                                <p><strong>Number of Times:</strong> ${data.previous_sober_living_count || 'Not provided'}</p>
+                                ${data.asked_to_leave === 'yes' ? `
                                     <p><strong>Asked to Leave:</strong> Yes</p>
-                                    <p><strong>Reason:</strong> ${app.asked_to_leave_reason || 'Not provided'}</p>
+                                    <p><strong>Reason:</strong> ${data.asked_to_leave_explanation || 'Not provided'}</p>
                                 ` : ''}
                             </div>
                             ` : ''}
 
-                            ${app.legal_issues === 'yes' ? `
+                            ${data.legal_pending === 'yes' || data.probation === 'yes' || data.pc290 === 'yes' ? `
                             <div>
                                 <h3 style="color: #2d3748; margin-bottom: 10px;">⚖️ Legal Issues</h3>
-                                <p><strong>Details:</strong> ${app.legal_details || 'Not provided'}</p>
+                                <p><strong>PC 290 (Sex Offender):</strong> ${data.pc290 === 'yes' ? 'Yes' : 'No'}</p>
+                                <p><strong>On Probation:</strong> ${data.probation === 'yes' ? 'Yes' : 'No'}</p>
+                                <p><strong>Legal Pending:</strong> ${data.legal_pending === 'yes' ? 'Yes' : 'No'}</p>
+                                ${data.legal_details ? `<p><strong>Details:</strong> ${data.legal_details}</p>` : ''}
+                            </div>
+                            ` : ''}
+
+                            ${data.medications || data.medical ? `
+                            <div>
+                                <h3 style="color: #2d3748; margin-bottom: 10px;">💊 Medical</h3>
+                                ${data.medications ? `<p><strong>Medications:</strong> ${data.medications}</p>` : ''}
+                                ${data.medical ? `<p><strong>Medical Issues:</strong> ${data.medical}</p>` : ''}
                             </div>
                             ` : ''}
 
                             <div>
                                 <h3 style="color: #2d3748; margin-bottom: 10px;">✍️ Signature</h3>
-                                <p><strong>Signed:</strong> ${app.signature_date || 'Not signed'}</p>
+                                <p><strong>Signed:</strong> ${data.signature_date || 'Not signed'}</p>
+                                <p><strong>Agreement to chores:</strong> ${data.chores === 'yes' ? 'Yes' : 'No'}</p>
+                                <p><strong>Agreement to structured schedule:</strong> ${data.structured_schedule === 'yes' ? 'Yes' : 'No'}</p>
                             </div>
                         </div>
                     `;

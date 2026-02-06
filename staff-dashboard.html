@@ -802,6 +802,7 @@
                     const milestonesGrid = document.getElementById('milestonesGrid');
                     milestonesGrid.innerHTML = milestones.map(m => {
                         const dayText = m.daysUntil === 0 ? 'TODAY!' : m.daysUntil === 1 ? 'Tomorrow' : `In ${m.daysUntil} days`;
+                        const dateText = m.date.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
                         const bgColor = m.type === 'birthday' ? 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)' : 'linear-gradient(135deg, #f093fb 0%, #f5576c 100%)';
                         
                         return `
@@ -810,6 +811,7 @@
                                 <div class="card-title" style="color: white;">${m.name}</div>
                                 <div class="card-count" style="color: white; font-size: 24px;">${dayText}</div>
                                 <div class="card-label" style="color: rgba(255,255,255,0.9);">${m.detail}</div>
+                                <div class="card-label" style="color: rgba(255,255,255,0.8); font-size: 13px; margin-top: 5px;">📅 ${dateText}</div>
                             </div>
                         `;
                     }).join('');
