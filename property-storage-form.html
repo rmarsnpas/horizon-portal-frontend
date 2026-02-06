@@ -307,8 +307,13 @@ async function saveForm() {
   const formData = new FormData(document.getElementById('storageForm'));
   const data = Object.fromEntries(formData.entries());
   
+  // Add metadata
+  data.memberName = data.storage_member_name || 'Unknown';
+  data.memberId = data.storage_member_id || '';
+  data.submittedDate = new Date().toISOString();
+  
   try {
-    const response = await fetch('https://horizon-portal-backend-production.up.railway.app/api/storage-logs', {
+    const response = await fetch('https://horizon-portal-backend-production-3532.up.railway.app/api/forms/property-storage', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json'
@@ -318,6 +323,7 @@ async function saveForm() {
     
     if (response.ok) {
       alert('Storage log saved successfully!');
+      window.print(); // Optionally print after saving
     } else {
       alert('Error saving storage log. Please try again.');
     }

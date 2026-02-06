@@ -1,0 +1,542 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Submitted Forms - Horizon House</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        .header {
+            background: white;
+            padding: 20px 30px;
+            border-radius: 12px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+            margin-bottom: 30px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .header h1 {
+            color: #2d3748;
+            font-size: 28px;
+        }
+
+        .btn-back {
+            padding: 10px 20px;
+            background: #667eea;
+            color: white;
+            text-decoration: none;
+            border-radius: 6px;
+            font-weight: 600;
+            transition: background 0.2s;
+        }
+
+        .btn-back:hover {
+            background: #5568d3;
+        }
+
+        .search-box {
+            background: white;
+            padding: 20px;
+            border-radius: 12px;
+            margin-bottom: 20px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+        }
+
+        .search-input {
+            width: 100%;
+            padding: 12px 16px;
+            border: 2px solid #e2e8f0;
+            border-radius: 8px;
+            font-size: 16px;
+        }
+
+        .search-input:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .loading {
+            background: white;
+            padding: 40px;
+            border-radius: 12px;
+            text-align: center;
+            color: #718096;
+            font-size: 18px;
+        }
+
+        .member-section {
+            background: white;
+            padding: 25px;
+            border-radius: 12px;
+            margin-bottom: 20px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+        }
+
+        .member-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 2px solid #e2e8f0;
+        }
+
+        .member-name {
+            font-size: 24px;
+            font-weight: 700;
+            color: #2d3748;
+        }
+
+        .member-id {
+            color: #718096;
+            font-size: 14px;
+            margin-top: 4px;
+        }
+
+        .form-count {
+            background: #667eea;
+            color: white;
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-weight: 600;
+        }
+
+        .forms-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 15px;
+        }
+
+        .form-card {
+            border: 2px solid #e2e8f0;
+            border-radius: 8px;
+            padding: 15px;
+            transition: all 0.2s;
+        }
+
+        .form-card:hover {
+            border-color: #667eea;
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.2);
+        }
+
+        .form-type {
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 12px;
+            font-size: 13px;
+            font-weight: 600;
+            margin-bottom: 10px;
+        }
+
+        .form-type.discharge {
+            background: #fef3c7;
+            color: #92400e;
+        }
+
+        .form-type.property-storage {
+            background: #dbeafe;
+            color: #1e40af;
+        }
+
+        .form-date {
+            color: #718096;
+            font-size: 14px;
+            margin-bottom: 15px;
+        }
+
+        .form-actions {
+            display: flex;
+            gap: 8px;
+        }
+
+        .btn {
+            padding: 8px 14px;
+            border: none;
+            border-radius: 6px;
+            font-weight: 600;
+            font-size: 13px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .btn-view {
+            background: #667eea;
+            color: white;
+            flex: 1;
+        }
+
+        .btn-view:hover {
+            background: #5568d3;
+        }
+
+        .btn-filed {
+            background: #48bb78;
+            color: white;
+        }
+
+        .btn-filed:hover {
+            background: #38a169;
+        }
+
+        .btn-delete {
+            background: #e53e3e;
+            color: white;
+        }
+
+        .btn-delete:hover {
+            background: #c53030;
+        }
+
+        .status-badge {
+            display: inline-block;
+            padding: 4px 10px;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: 600;
+            margin-bottom: 10px;
+        }
+
+        .status-badge.pending {
+            background: #fef3c7;
+            color: #92400e;
+        }
+
+        .status-badge.filed {
+            background: #d1fae5;
+            color: #065f46;
+        }
+
+        .empty-state {
+            background: white;
+            padding: 60px 40px;
+            border-radius: 12px;
+            text-align: center;
+        }
+
+        .empty-state h2 {
+            color: #2d3748;
+            margin-bottom: 10px;
+        }
+
+        .empty-state p {
+            color: #718096;
+            font-size: 16px;
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.5);
+        }
+
+        .modal-content {
+            background-color: white;
+            margin: 5% auto;
+            padding: 30px;
+            border-radius: 12px;
+            width: 90%;
+            max-width: 800px;
+            max-height: 80vh;
+            overflow-y: auto;
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 2px solid #e2e8f0;
+        }
+
+        .close {
+            color: #718096;
+            font-size: 32px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+        .close:hover {
+            color: #2d3748;
+        }
+
+        .detail-grid {
+            display: grid;
+            gap: 15px;
+        }
+
+        .detail-item {
+            padding: 12px;
+            background: #f7fafc;
+            border-radius: 8px;
+        }
+
+        .detail-label {
+            color: #718096;
+            font-size: 13px;
+            font-weight: 600;
+            margin-bottom: 4px;
+        }
+
+        .detail-value {
+            color: #2d3748;
+            font-size: 15px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>📋 Submitted Forms Archive</h1>
+            <a href="/staff-dashboard.html" class="btn-back">← Back to Dashboard</a>
+        </div>
+
+        <div class="search-box">
+            <input type="text" class="search-input" id="searchInput" placeholder="🔍 Search by member name or ID...">
+        </div>
+
+        <div id="loading" class="loading">Loading forms...</div>
+
+        <div id="formsContainer" style="display: none;"></div>
+
+        <div id="emptyState" class="empty-state" style="display: none;">
+            <h2>📂 No forms found</h2>
+            <p>All submitted forms will appear here until they're filed to member folders.</p>
+        </div>
+    </div>
+
+    <!-- Form Detail Modal -->
+    <div id="formModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 id="modalTitle">Form Details</h2>
+                <span class="close" onclick="closeModal()">&times;</span>
+            </div>
+            <div id="modalBody"></div>
+        </div>
+    </div>
+
+    <script>
+        const API_BASE = 'https://horizon-portal-backend-production-3532.up.railway.app';
+        let allForms = [];
+
+        async function loadForms() {
+            try {
+                const response = await fetch(`${API_BASE}/api/forms`);
+                allForms = await response.json();
+
+                document.getElementById('loading').style.display = 'none';
+
+                if (allForms.length === 0) {
+                    document.getElementById('emptyState').style.display = 'block';
+                } else {
+                    displayForms(allForms);
+                }
+            } catch (error) {
+                console.error('Error loading forms:', error);
+                document.getElementById('loading').textContent = '❌ Error loading forms';
+            }
+        }
+
+        function displayForms(forms) {
+            const container = document.getElementById('formsContainer');
+            container.innerHTML = '';
+            container.style.display = 'block';
+
+            // Group forms by member name
+            const groupedByMember = {};
+            forms.forEach(form => {
+                const memberKey = form.memberName || 'Unknown';
+                if (!groupedByMember[memberKey]) {
+                    groupedByMember[memberKey] = [];
+                }
+                groupedByMember[memberKey].push(form);
+            });
+
+            // Sort member names alphabetically
+            const memberNames = Object.keys(groupedByMember).sort();
+
+            memberNames.forEach(memberName => {
+                const memberForms = groupedByMember[memberName];
+                const section = createMemberSection(memberName, memberForms);
+                container.appendChild(section);
+            });
+
+            if (forms.length === 0) {
+                document.getElementById('emptyState').style.display = 'block';
+                container.style.display = 'none';
+            } else {
+                document.getElementById('emptyState').style.display = 'none';
+            }
+        }
+
+        function createMemberSection(memberName, forms) {
+            const section = document.createElement('div');
+            section.className = 'member-section';
+
+            const memberId = forms[0].memberId || '';
+
+            section.innerHTML = `
+                <div class="member-header">
+                    <div>
+                        <div class="member-name">${memberName}</div>
+                        ${memberId ? `<div class="member-id">ID: ${memberId}</div>` : ''}
+                    </div>
+                    <div class="form-count">${forms.length} form${forms.length !== 1 ? 's' : ''}</div>
+                </div>
+                <div class="forms-grid" id="forms-${memberName.replace(/\s+/g, '-')}"></div>
+            `;
+
+            const grid = section.querySelector('.forms-grid');
+            forms.forEach(form => {
+                grid.appendChild(createFormCard(form));
+            });
+
+            return section;
+        }
+
+        function createFormCard(form) {
+            const card = document.createElement('div');
+            card.className = 'form-card';
+
+            const formDate = new Date(form.submittedDate).toLocaleDateString();
+            const formType = form.type === 'discharge' ? 'Discharge Form' : 'Property Storage';
+
+            card.innerHTML = `
+                <span class="form-type ${form.type}">${formType}</span>
+                <span class="status-badge ${form.status}">${form.status === 'filed' ? '✓ Filed' : '⏳ Pending'}</span>
+                <div class="form-date">📅 ${formDate}</div>
+                <div class="form-actions">
+                    <button class="btn btn-view" onclick="viewForm('${form.id}')">👁️ View</button>
+                    ${form.status !== 'filed' ? `
+                        <button class="btn btn-filed" onclick="markAsFiled('${form.id}')">✓</button>
+                    ` : ''}
+                    <button class="btn btn-delete" onclick="deleteForm('${form.id}')">🗑️</button>
+                </div>
+            `;
+
+            return card;
+        }
+
+        function viewForm(id) {
+            const form = allForms.find(f => f.id === id);
+            if (!form) return;
+
+            const formType = form.type === 'discharge' ? 'Discharge Form' : 'Property Storage Log';
+            document.getElementById('modalTitle').textContent = `${form.memberName} - ${formType}`;
+
+            const modalBody = document.getElementById('modalBody');
+            modalBody.innerHTML = `
+                <div class="detail-grid">
+                    ${Object.entries(form.data).map(([key, value]) => {
+                        if (key === 'submittedDate' || !value) return '';
+                        const label = key.replace(/([A-Z])/g, ' $1').replace(/_/g, ' ').trim();
+                        return `
+                            <div class="detail-item">
+                                <div class="detail-label">${label}</div>
+                                <div class="detail-value">${value === true ? 'Yes' : value === false ? 'No' : value}</div>
+                            </div>
+                        `;
+                    }).join('')}
+                </div>
+            `;
+
+            document.getElementById('formModal').style.display = 'block';
+        }
+
+        function closeModal() {
+            document.getElementById('formModal').style.display = 'none';
+        }
+
+        async function markAsFiled(id) {
+            if (!confirm('Mark this form as filed? This indicates it has been moved to the member\'s folder.')) return;
+
+            try {
+                const response = await fetch(`${API_BASE}/api/forms/${id}/status`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ status: 'filed' })
+                });
+
+                if (response.ok) {
+                    loadForms(); // Reload forms
+                } else {
+                    alert('Error updating form status');
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                alert('Error updating form status');
+            }
+        }
+
+        async function deleteForm(id) {
+            if (!confirm('Delete this form permanently? This cannot be undone.')) return;
+
+            try {
+                const response = await fetch(`${API_BASE}/api/forms/${id}`, {
+                    method: 'DELETE'
+                });
+
+                if (response.ok) {
+                    loadForms(); // Reload forms
+                } else {
+                    alert('Error deleting form');
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                alert('Error deleting form');
+            }
+        }
+
+        // Search functionality
+        document.getElementById('searchInput').addEventListener('input', (e) => {
+            const searchTerm = e.target.value.toLowerCase();
+            
+            if (searchTerm === '') {
+                displayForms(allForms);
+            } else {
+                const filtered = allForms.filter(form => 
+                    form.memberName.toLowerCase().includes(searchTerm) ||
+                    (form.memberId && form.memberId.toLowerCase().includes(searchTerm))
+                );
+                displayForms(filtered);
+            }
+        });
+
+        // Close modal when clicking outside
+        window.onclick = function(event) {
+            const modal = document.getElementById('formModal');
+            if (event.target == modal) {
+                closeModal();
+            }
+        }
+
+        // Load forms on page load
+        loadForms();
+    </script>
+</body>
+</html>

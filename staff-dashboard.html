@@ -502,6 +502,13 @@
                 <div class="card-label">Member Property</div>
             </a>
 
+            <a href="/horizon-portal/forms-viewer.html" class="dashboard-card" style="background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%); color: white;">
+                <div class="card-icon" style="font-size: 48px; color: white;">📂</div>
+                <div class="card-title" style="color: white;">Submitted Forms</div>
+                <div class="card-count" id="submittedFormsCount" style="font-size: 32px; color: white;">-</div>
+                <div class="card-label" style="color: rgba(255,255,255,0.9);">Pending Filing</div>
+            </a>
+
             <div class="dashboard-card" style="opacity: 0.6; cursor: not-allowed; background: #f0f0f0;">
                 <div class="card-icon">🔧</div>
                 <div class="card-title">Maintenance Request</div>
@@ -624,7 +631,8 @@
                     roiRes,
                     emergencyRes,
                     liabilityRes,
-                    propertyRes
+                    propertyRes,
+                    submittedFormsRes
                 ] = await Promise.all([
                     fetch(`${API_BASE}/api/pendingApplications`),
                     fetch(`${API_BASE}/api/contactSubmissions`),
@@ -635,7 +643,8 @@
                     fetch(`${API_BASE}/api/intake/release-of-information`),
                     fetch(`${API_BASE}/api/intake/emergency-contact`),
                     fetch(`${API_BASE}/api/intake/release-of-liability`),
-                    fetch(`${API_BASE}/api/intake/personal-property-release`)
+                    fetch(`${API_BASE}/api/intake/personal-property-release`),
+                    fetch(`${API_BASE}/api/forms`)
                 ]);
 
                 const applications = await applicationsRes.json();
@@ -648,6 +657,7 @@
                 const emergency = await emergencyRes.json();
                 const liability = await liabilityRes.json();
                 const property = await propertyRes.json();
+                const submittedForms = await submittedFormsRes.json();
 
                 // Count pending applications (already filtered on backend)
                 const pendingApps = applications.length;
@@ -668,6 +678,9 @@
                 const totalIntakeForms = agreements.length + licensee.length + roi.length + 
                                         emergency.length + liability.length + property.length;
 
+                // Count submitted forms pending filing
+                const pendingForms = submittedForms.filter(f => f.status === 'pending').length;
+
                 // Load and check milestones
                 await loadMilestones();
 
@@ -678,6 +691,9 @@
                 document.getElementById('signInOutCount').textContent = membersOut;
                 if (document.getElementById('totalIntakeForms')) {
                     document.getElementById('totalIntakeForms').textContent = totalIntakeForms;
+                }
+                if (document.getElementById('submittedFormsCount')) {
+                    document.getElementById('submittedFormsCount').textContent = pendingForms;
                 }
 
                 document.getElementById('loading').style.display = 'none';
