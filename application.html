@@ -1058,13 +1058,21 @@
     
     form.addEventListener('input', () => {
       clearTimeout(saveTimeout);
-      saveTimeout = setTimeout(saveDraft, 1000); // Save after 1 second of inactivity
+      saveTimeout = setTimeout(saveDraft, 500); // Save after 0.5 seconds of inactivity
     });
     
     form.addEventListener('change', () => {
       clearTimeout(saveTimeout);
-      saveTimeout = setTimeout(saveDraft, 500);
+      saveTimeout = setTimeout(saveDraft, 200); // Save quickly after change (radio, checkbox, select)
     });
+    
+    // Also save on blur (when field loses focus)
+    form.addEventListener('blur', (e) => {
+      if (e.target.matches('input, select, textarea')) {
+        clearTimeout(saveTimeout);
+        saveDraft(); // Save immediately when leaving a field
+      }
+    }, true);
   }
 
   // Check for existing reference on page load
