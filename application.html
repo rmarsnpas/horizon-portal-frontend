@@ -216,10 +216,110 @@
       border-radius: 8px;
       margin-top: 1.5rem;
     }
+
+    /* Reference Modal */
+    .reference-modal {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0,0,0,0.5);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 1000;
+    }
+
+    .reference-content {
+      background: white;
+      padding: 40px;
+      border-radius: 12px;
+      max-width: 500px;
+      width: 90%;
+      box-shadow: 0 10px 40px rgba(0,0,0,0.3);
+    }
+
+    .reference-content h2 {
+      margin-top: 0;
+      color: #2d3748;
+      font-size: 24px;
+    }
+
+    .reference-content p {
+      color: #4a5568;
+      line-height: 1.6;
+    }
+
+    .reference-input {
+      width: 100%;
+      padding: 12px;
+      font-size: 16px;
+      border: 2px solid #cbd5e0;
+      border-radius: 8px;
+      margin: 15px 0;
+      font-family: monospace;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+    }
+
+    .reference-buttons {
+      display: flex;
+      gap: 10px;
+      margin-top: 20px;
+    }
+
+    .ref-btn {
+      flex: 1;
+      padding: 12px 20px;
+      border: none;
+      border-radius: 8px;
+      font-weight: 600;
+      cursor: pointer;
+      font-size: 16px;
+      transition: all 0.2s;
+    }
+
+    .ref-btn-primary {
+      background: #667eea;
+      color: white;
+    }
+
+    .ref-btn-primary:hover {
+      background: #5568d3;
+    }
+
+    .ref-btn-secondary {
+      background: #e2e8f0;
+      color: #2d3748;
+    }
+
+    .ref-btn-secondary:hover {
+      background: #cbd5e0;
+    }
   </style>
 </head>
 
 <body>
+
+<!-- Reference Number Modal -->
+<div id="referenceModal" class="reference-modal">
+  <div class="reference-content">
+    <h2>📝 Application Draft</h2>
+    <p>Do you have a reference number from a previously saved draft?</p>
+    
+    <input type="text" id="referenceInput" class="reference-input" placeholder="Enter Reference Number" maxlength="12">
+    
+    <div class="reference-buttons">
+      <button type="button" class="ref-btn ref-btn-secondary" onclick="startNewApplication()">✨ Start New Application</button>
+      <button type="button" class="ref-btn ref-btn-primary" onclick="loadDraft()">📂 Load Draft</button>
+    </div>
+    
+    <p style="font-size: 14px; color: #718096; margin-top: 20px; text-align: center;">
+      <em>Your draft will auto-save as you complete the form</em>
+    </p>
+  </div>
+</div>
 
 <header>
   <div class="wrap">
@@ -228,6 +328,15 @@
 </header>
 
 <main class="wrap">
+
+  <div id="referenceDisplay" style="display:none; background: #f7fafc; padding: 15px; border-radius: 8px; border: 2px solid #4299e1; margin-bottom: 20px; text-align: center;">
+    <p style="margin: 0; color: #2d3748; font-weight: 600;">
+      🔑 Your Reference Number: <strong id="refNumberText" style="font-family: monospace; letter-spacing: 3px; font-size: 18px; color: #2b6cb0;"></strong>
+    </p>
+    <p style="margin: 5px 0 0 0; font-size: 13px; color: #718096;">
+      Save this number to resume your application later
+    </p>
+  </div>
 
   <div id="savingStatus" style="display:none; padding: 10px; margin-bottom: 15px; border-radius: 4px; text-align: center;">
     <span id="savingMessage">Draft saved</span>
@@ -738,6 +847,159 @@
 
 <script>
   const DRAFT_KEY = 'hhApplicationDraft';
+  let currentReferenceNumber = null;
+
+  // Reference Number & Draft Functions
+  function generateReferenceNumber() {
+    const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
+    let ref = '';
+    for (let i = 0; i < 12; i++) {
+      ref += chars.charAt(Math.floor(Math.random() * chars.length));
+    }
+    return ref;
+  }
+
+  function startNewApplication() {
+    currentReferenceNumber = generateReferenceNumber();
+    
+    // Store reference number
+    localStorage.setItem('currentApplicationRef', currentReferenceNumber);
+    
+    // Hide modal, show reference display
+    document.getElementById('referenceModal').style.display = 'none';
+    document.getElementById('referenceDisplay').style.display = 'block';
+    document.getElementById('refNumberText').textContent = currentReferenceNumber;
+    
+    // Setup auto-save
+    setupAutoSave();
+  }
+
+  function loadDraft() {
+    const refInput = document.getElementById('referenceInput').value.trim().toUpperCase();
+    
+    if (!refInput) {
+      alert('Please enter a reference number');
+      return;
+    }
+
+    const draftKey = `${DRAFT_KEY}_${refInput}`;
+    const savedDraft = localStorage.getItem(draftKey);
+    
+    if (!savedDraft) {
+      alert('No draft found with that reference number. Please check the number and try again.');
+      return;
+    }
+
+    try {
+      const draftData = JSON.parse(savedDraft);
+      currentReferenceNumber = refInput;
+      
+      // Hide modal, show reference display
+      document.getElementById('referenceModal').style.display = 'none';
+      document.getElementById('referenceDisplay').style.display = 'block';
+      document.getElementById('refNumberText').textContent = currentReferenceNumber;
+      
+      // Populate form
+      populateForm(draftData);
+      
+      // Setup auto-save
+      setupAutoSave();
+      
+      alert('Draft loaded successfully!');
+    } catch (error) {
+      console.error('Error loading draft:', error);
+      alert('Error loading draft. Please try again.');
+    }
+  }
+
+  function saveDraft() {
+    if (!currentReferenceNumber) return;
+    
+    const formData = collectFormData();
+    const draftKey = `${DRAFT_KEY}_${currentReferenceNumber}`;
+    
+    try {
+      localStorage.setItem(draftKey, JSON.stringify(formData));
+      console.log('Draft saved:', currentReferenceNumber);
+    } catch (error) {
+      console.error('Error saving draft:', error);
+    }
+  }
+
+  function collectFormData() {
+    const form = document.getElementById('applicationForm');
+    const formData = {};
+    
+    const inputs = form.querySelectorAll('input, select, textarea');
+    inputs.forEach(input => {
+      if (input.type === 'radio') {
+        if (input.checked) {
+          formData[input.name] = input.value;
+        }
+      } else if (input.type === 'checkbox') {
+        formData[input.name] = input.checked;
+      } else {
+        formData[input.name] = input.value;
+      }
+    });
+    
+    return formData;
+  }
+
+  function populateForm(data) {
+    const form = document.getElementById('applicationForm');
+    
+    Object.keys(data).forEach(key => {
+      const elements = form.elements[key];
+      
+      if (!elements) return;
+      
+      if (elements.type === 'radio') {
+        const radios = form.querySelectorAll(`input[name="${key}"]`);
+        radios.forEach(radio => {
+          if (radio.value === data[key]) {
+            radio.checked = true;
+            radio.dispatchEvent(new Event('change'));
+          }
+        });
+      } else if (elements.type === 'checkbox') {
+        elements.checked = data[key];
+      } else {
+        elements.value = data[key];
+        elements.dispatchEvent(new Event('input'));
+      }
+    });
+  }
+
+  let saveTimeout;
+  function setupAutoSave() {
+    const form = document.getElementById('applicationForm');
+    
+    form.addEventListener('input', () => {
+      clearTimeout(saveTimeout);
+      saveTimeout = setTimeout(saveDraft, 1000); // Save after 1 second of inactivity
+    });
+    
+    form.addEventListener('change', () => {
+      clearTimeout(saveTimeout);
+      saveTimeout = setTimeout(saveDraft, 500);
+    });
+  }
+
+  // Check for existing reference on page load
+  window.addEventListener('DOMContentLoaded', () => {
+    const existingRef = localStorage.getItem('currentApplicationRef');
+    
+    if (existingRef) {
+      // Check if draft exists
+      const draftKey = `${DRAFT_KEY}_${existingRef}`;
+      if (localStorage.getItem(draftKey)) {
+        // Auto-load existing session
+        document.getElementById('referenceInput').value = existingRef;
+        // Could auto-load here or let user choose
+      }
+    }
+  });
 
   // Signature functionality
   let canvas, ctx, isDrawing = false;
@@ -1113,7 +1375,11 @@
 
       if (response.ok) {
         // Clear draft after successful submission
-        localStorage.removeItem(DRAFT_KEY);
+        if (currentReferenceNumber) {
+          const draftKey = `${DRAFT_KEY}_${currentReferenceNumber}`;
+          localStorage.removeItem(draftKey);
+          localStorage.removeItem('currentApplicationRef');
+        }
         
         // Show success modal
         const modal = document.getElementById('successModal');
