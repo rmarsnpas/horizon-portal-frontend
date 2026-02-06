@@ -329,10 +329,14 @@
 
 <main class="wrap" id="mainContent" style="display: none;">
 
+  <!-- Floating Save Button -->
+  <button type="button" id="floatingSaveBtn" onclick="saveDraft()" style="display:none; position: fixed; bottom: 20px; right: 20px; padding: 12px 20px; background: #4299e1; color: white; border: none; border-radius: 50px; cursor: pointer; font-size: 14px; font-weight: 600; box-shadow: 0 4px 12px rgba(66, 153, 225, 0.4); z-index: 999; transition: all 0.3s ease;">
+    💾 Save Draft
+  </button>
+
   <div id="referenceDisplay" style="display:none; background: #f7fafc; padding: 15px; border-radius: 8px; border: 2px solid #4299e1; margin-bottom: 20px; text-align: center;">
     <p style="margin: 0; color: #2d3748; font-weight: 600;">
       🔑 Your Reference Number: <strong id="refNumberText" style="font-family: monospace; letter-spacing: 3px; font-size: 18px; color: #2b6cb0;"></strong>
-      <button type="button" onclick="saveDraft()" style="margin-left: 15px; padding: 6px 12px; background: #4299e1; color: white; border: none; border-radius: 4px; cursor: pointer; font-size: 12px; font-weight: 600;">💾 Save Now</button>
     </p>
     <p style="margin: 5px 0 0 0; font-size: 13px; color: #718096;">
       Save this number to resume your application later
@@ -888,6 +892,7 @@
     document.getElementById('mainHeader').style.display = 'block';
     document.getElementById('mainContent').style.display = 'block';
     document.getElementById('referenceDisplay').style.display = 'block';
+    document.getElementById('floatingSaveBtn').style.display = 'block';
     document.getElementById('refNumberText').textContent = currentReferenceNumber;
     
     // Save empty draft immediately so it can be loaded later
@@ -924,6 +929,7 @@
           document.getElementById('mainHeader').style.display = 'block';
           document.getElementById('mainContent').style.display = 'block';
           document.getElementById('referenceDisplay').style.display = 'block';
+          document.getElementById('floatingSaveBtn').style.display = 'block';
           document.getElementById('refNumberText').textContent = currentReferenceNumber;
           
           // Populate form
@@ -958,6 +964,7 @@
           document.getElementById('mainHeader').style.display = 'block';
           document.getElementById('mainContent').style.display = 'block';
           document.getElementById('referenceDisplay').style.display = 'block';
+          document.getElementById('floatingSaveBtn').style.display = 'block';
           document.getElementById('refNumberText').textContent = currentReferenceNumber;
           
           // Populate form
@@ -984,10 +991,15 @@
       
       // Show saving indicator
       const indicator = document.getElementById('saveIndicator');
+      const floatingBtn = document.getElementById('floatingSaveBtn');
       if (indicator) {
         indicator.textContent = '💾 Saving...';
         indicator.style.color = '#4299e1';
         indicator.style.display = 'block';
+      }
+      if (floatingBtn) {
+        floatingBtn.textContent = '💾 Saving...';
+        floatingBtn.style.opacity = '0.7';
       }
       
       // Save to backend
@@ -1012,6 +1024,13 @@
               indicator.textContent = '✓ Draft saved';
             }, 3000);
           }
+          if (floatingBtn) {
+            floatingBtn.textContent = '✓ Saved!';
+            floatingBtn.style.opacity = '1';
+            setTimeout(() => {
+              floatingBtn.textContent = '💾 Save Draft';
+            }, 2000);
+          }
         }
       })
       .catch(error => {
@@ -1023,6 +1042,13 @@
         if (indicator) {
           indicator.textContent = '✓ Draft saved (offline)';
           indicator.style.color = '#ed8936';
+        }
+        if (floatingBtn) {
+          floatingBtn.textContent = '✓ Saved (offline)';
+          floatingBtn.style.opacity = '1';
+          setTimeout(() => {
+            floatingBtn.textContent = '💾 Save Draft';
+          }, 2000);
         }
       });
     } catch (error) {
