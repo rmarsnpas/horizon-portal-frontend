@@ -1078,22 +1078,17 @@
   let saveTimeout;
   function setupAutoSave() {
     const form = document.getElementById('applicationForm');
-    console.log('Setting up auto-save for form:', form);
     
     form.addEventListener('input', (e) => {
-      console.log('Input event detected on:', e.target.name);
       clearTimeout(saveTimeout);
       saveTimeout = setTimeout(() => {
-        console.log('Auto-save triggered from input');
         saveDraft();
       }, 500);
     });
     
     form.addEventListener('change', (e) => {
-      console.log('Change event detected on:', e.target.name);
       clearTimeout(saveTimeout);
       saveTimeout = setTimeout(() => {
-        console.log('Auto-save triggered from change');
         saveDraft();
       }, 200);
     });
@@ -1101,14 +1096,10 @@
     // Also save on blur (when field loses focus)
     form.addEventListener('blur', (e) => {
       if (e.target.matches('input, select, textarea')) {
-        console.log('Blur event detected on:', e.target.name);
         clearTimeout(saveTimeout);
-        console.log('Auto-save triggered from blur');
         saveDraft();
       }
     }, true);
-    
-    console.log('Auto-save setup complete');
   }
 
   // Check for existing reference on page load
