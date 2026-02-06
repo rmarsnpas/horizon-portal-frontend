@@ -431,6 +431,14 @@
 
         <div id="loading" class="loading">Loading dashboard data...</div>
 
+        <!-- Milestones Alert Section -->
+        <div class="section-header" id="milestonesSection" style="display: none; background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%); color: white; padding: 20px; border-radius: 12px; margin-bottom: 20px;">
+            <h2 style="color: white; margin: 0;">🎉 Upcoming Milestones</h2>
+            <p style="color: rgba(255,255,255,0.9); margin: 5px 0 0 0;">Birthdays & Sobriety Celebrations</p>
+        </div>
+
+        <div id="milestonesGrid" class="dashboard-grid" style="display: none; margin-bottom: 30px;"></div>
+
         <div class="section-header" id="pendingSection" style="display: none;">
             <h2>⏳ Pending Review</h2>
             <p>Items requiring staff attention</p>
@@ -660,6 +668,9 @@
                 const totalIntakeForms = agreements.length + licensee.length + roi.length + 
                                         emergency.length + liability.length + property.length;
 
+                // Load and check milestones
+                await loadMilestones();
+
                 // Update UI
                 document.getElementById('appCount').textContent = pendingApps;
                 document.getElementById('contactCount').textContent = unreadContacts;
@@ -679,6 +690,128 @@
                 console.error('Error loading dashboard data:', error);
                 document.getElementById('loading').textContent = 'Error loading data. Please check backend connection.';
                 document.getElementById('loading').style.color = '#e53e3e';
+            }
+        }
+
+        // Milestone detection
+        async function loadMilestones() {
+            try {
+                const response = await fetch(`${API_BASE}/api/members`);
+                const allMembers = await response.json();
+                
+                // Filter active members (status 1, 2, 4, 5)
+                const activeMembers = allMembers.filter(m => {
+                    const status = m.STATUS || m.status || m.STATU;
+                    return [1, 2, 4, 5].includes(status);
+                });
+
+                const milestones = [];
+                const today = new Date();
+                const lookAheadDays = 7; // Show milestones within next 7 days
+
+                activeMembers.forEach(member => {
+                    const firstName = member['FIRST\r\nNAME'] || member.FIRST_NAME || member.first_name || '';
+                    const lastName = member['LAST\r\nNAME'] || member.LAST_NAME || member.last_name || '';
+                    const fullName = `${firstName} ${lastName}`.trim() || 'Unknown';
+                    
+                    // Check birthday
+                    const dobStr = member.DOB || member.dob;
+                    if (dobStr) {
+                        const dob = new Date(dobStr);
+                        if (!isNaN(dob.getTime())) {
+                            // Create birthday for this year
+                            const birthday = new Date(today.getFullYear(), dob.getMonth(), dob.getDate());
+                            
+                            // If birthday already passed this year, check next year
+                            if (birthday < today) {
+                                birthday.setFullYear(today.getFullYear() + 1);
+                            }
+                            
+                            const daysUntil = Math.floor((birthday - today) / (1000 * 60 * 60 * 24));
+                            if (daysUntil >= 0 && daysUntil <= lookAheadDays) {
+                                const age = today.getFullYear() - dob.getFullYear();
+                                milestones.push({
+                                    type: 'birthday',
+                                    name: fullName,
+                                    detail: `Turning ${age}`,
+                                    date: birthday,
+                                    daysUntil: daysUntil,
+                                    icon: '🎂'
+                                });
+                            }
+                        }
+                    }
+
+                    // Check sobriety date
+                    const sobrietyStr = member['SOBRIETY\r\nDATE'] || member.SOBRIETY_DATE || member.sobriety_date || member.sobrietyDate;
+                    if (sobrietyStr) {
+                        const sobrietyDate = new Date(sobrietyStr);
+                        if (!isNaN(sobrietyDate.getTime())) {
+                            const daysSober = Math.floor((today - sobrietyDate) / (1000 * 60 * 60 * 24));
+                            
+                            // Check for upcoming milestones: 30, 60, 90, 120, 180, 270, 365, and yearly thereafter
+                            const milestoneMarks = [30, 60, 90, 120, 180, 270, 365];
+                            
+                            // Add yearly milestones for years 2+
+                            for (let year = 2; year <= 20; year++) {
+                                milestoneMarks.push(year * 365);
+                            }
+                            
+                            milestoneMarks.forEach(milestone => {
+                                const daysUntilMilestone = milestone - daysSober;
+                                if (daysUntilMilestone >= 0 && daysUntilMilestone <= lookAheadDays) {
+                                    const milestoneDate = new Date(sobrietyDate.getTime() + milestone * 24 * 60 * 60 * 1000);
+                                    let label = `${milestone} days`;
+                                    if (milestone >= 365) {
+                                        const years = Math.floor(milestone / 365);
+                                        label = `${years} year${years > 1 ? 's' : ''}`;
+                                    }
+                                    milestones.push({
+                                        type: 'sobriety',
+                                        name: fullName,
+                                        detail: `${label} sober`,
+                                        date: milestoneDate,
+                                        daysUntil: daysUntilMilestone,
+                                        icon: '🎖️'
+                                    });
+                                }
+                            });
+                        }
+                    }
+                });
+
+                // Sort by days until milestone
+                milestones.sort((a, b) => a.daysUntil - b.daysUntil);
+
+                // Display milestones
+                if (milestones.length > 0) {
+                    const milestonesGrid = document.getElementById('milestonesGrid');
+                    milestonesGrid.innerHTML = milestones.map(m => {
+                        const dayText = m.daysUntil === 0 ? 'TODAY!' : m.daysUntil === 1 ? 'Tomorrow' : `In ${m.daysUntil} days`;
+                        const bgColor = m.type === 'birthday' ? 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)' : 'linear-gradient(135deg, #f093fb 0%, #f5576c 100%)';
+                        
+                        return `
+                            <div class="dashboard-card" style="background: ${bgColor}; color: white; border: none;">
+                                <div class="card-icon" style="font-size: 48px;">${m.icon}</div>
+                                <div class="card-title" style="color: white;">${m.name}</div>
+                                <div class="card-count" style="color: white; font-size: 24px;">${dayText}</div>
+                                <div class="card-label" style="color: rgba(255,255,255,0.9);">${m.detail}</div>
+                            </div>
+                        `;
+                    }).join('');
+                    
+                    document.getElementById('milestonesSection').style.display = 'block';
+                    milestonesGrid.style.display = 'grid';
+                } else {
+                    document.getElementById('milestonesSection').style.display = 'none';
+                    document.getElementById('milestonesGrid').style.display = 'none';
+                }
+
+            } catch (error) {
+                console.error('Error loading milestones:', error);
+                // Don't show milestones section if there's an error
+                document.getElementById('milestonesSection').style.display = 'none';
+                document.getElementById('milestonesGrid').style.display = 'none';
             }
         }
 
