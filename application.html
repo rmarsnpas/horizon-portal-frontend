@@ -889,7 +889,14 @@
     
     console.log('About to call saveDraft, currentReferenceNumber is:', currentReferenceNumber);
     // Save empty draft immediately so it can be loaded later
-    saveDraft();
+    setTimeout(() => {
+      try {
+        console.log('Calling saveDraft in setTimeout');
+        saveDraft();
+      } catch (error) {
+        console.error('Error calling saveDraft:', error);
+      }
+    }, 100);
     
     // Setup auto-save
     setupAutoSave();
