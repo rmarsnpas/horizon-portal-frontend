@@ -1369,29 +1369,6 @@
     }
   });
 
-  // Save draft function
-  function saveDraft() {
-    const formData = new FormData(document.getElementById('applicationForm'));
-    const data = {};
-    formData.forEach((value, key) => {
-      data[key] = value;
-    });
-
-    localStorage.setItem(DRAFT_KEY, JSON.stringify(data));
-
-    // Show saved message
-    const status = document.getElementById('savingStatus');
-    const message = document.getElementById('savingMessage');
-    message.textContent = '✓ Draft saved at ' + new Date().toLocaleTimeString();
-    status.style.display = 'block';
-    status.style.backgroundColor = '#d4edda';
-    status.style.color = '#155724';
-
-    setTimeout(() => {
-      status.style.display = 'none';
-    }, 3000);
-  }
-
   // Auto-save draft every 30 seconds while filling out
   setInterval(() => {
     const form = document.getElementById('applicationForm');
