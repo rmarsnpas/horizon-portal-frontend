@@ -1067,14 +1067,21 @@
               element.checked = true;
               element.dispatchEvent(new Event('change', { bubbles: true }));
             }
+          } else {
+            // Other input types in NodeList
+            element.value = data[key];
+            element.dispatchEvent(new Event('input', { bubbles: true }));
           }
         });
-      } else if (elements.type === 'checkbox') {
-        elements.checked = data[key];
-        elements.dispatchEvent(new Event('change', { bubbles: true }));
       } else {
-        elements.value = data[key];
-        elements.dispatchEvent(new Event('input', { bubbles: true }));
+        // Single element
+        if (elements.type === 'checkbox') {
+          elements.checked = data[key];
+          elements.dispatchEvent(new Event('change', { bubbles: true }));
+        } else {
+          elements.value = data[key];
+          elements.dispatchEvent(new Event('input', { bubbles: true }));
+        }
       }
     });
   }
