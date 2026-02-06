@@ -332,6 +332,7 @@
   <div id="referenceDisplay" style="display:none; background: #f7fafc; padding: 15px; border-radius: 8px; border: 2px solid #4299e1; margin-bottom: 20px; text-align: center;">
     <p style="margin: 0; color: #2d3748; font-weight: 600;">
       🔑 Your Reference Number: <strong id="refNumberText" style="font-family: monospace; letter-spacing: 3px; font-size: 18px; color: #2b6cb0;"></strong>
+      <button type="button" onclick="saveDraft()" style="margin-left: 15px; padding: 6px 12px; background: #4299e1; color: white; border: none; border-radius: 4px; cursor: pointer; font-size: 12px; font-weight: 600;">💾 Save Now</button>
     </p>
     <p style="margin: 5px 0 0 0; font-size: 13px; color: #718096;">
       Save this number to resume your application later
@@ -1077,24 +1078,37 @@
   let saveTimeout;
   function setupAutoSave() {
     const form = document.getElementById('applicationForm');
+    console.log('Setting up auto-save for form:', form);
     
-    form.addEventListener('input', () => {
+    form.addEventListener('input', (e) => {
+      console.log('Input event detected on:', e.target.name);
       clearTimeout(saveTimeout);
-      saveTimeout = setTimeout(saveDraft, 500); // Save after 0.5 seconds of inactivity
+      saveTimeout = setTimeout(() => {
+        console.log('Auto-save triggered from input');
+        saveDraft();
+      }, 500);
     });
     
-    form.addEventListener('change', () => {
+    form.addEventListener('change', (e) => {
+      console.log('Change event detected on:', e.target.name);
       clearTimeout(saveTimeout);
-      saveTimeout = setTimeout(saveDraft, 200); // Save quickly after change (radio, checkbox, select)
+      saveTimeout = setTimeout(() => {
+        console.log('Auto-save triggered from change');
+        saveDraft();
+      }, 200);
     });
     
     // Also save on blur (when field loses focus)
     form.addEventListener('blur', (e) => {
       if (e.target.matches('input, select, textarea')) {
+        console.log('Blur event detected on:', e.target.name);
         clearTimeout(saveTimeout);
-        saveDraft(); // Save immediately when leaving a field
+        console.log('Auto-save triggered from blur');
+        saveDraft();
       }
     }, true);
+    
+    console.log('Auto-save setup complete');
   }
 
   // Check for existing reference on page load
