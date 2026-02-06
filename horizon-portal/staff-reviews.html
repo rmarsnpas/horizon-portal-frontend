@@ -581,6 +581,15 @@
                     <div>
                         <h3 style="color: #2d3748; margin-bottom: 10px;">✍️ Signature & Submission</h3>
                         <div style="display: grid; gap: 10px;">
+                            ${data.signature ? `
+                                <div style="margin-bottom: 15px;">
+                                    <strong>Signature:</strong>
+                                    <div style="border: 2px solid #e2e8f0; border-radius: 8px; padding: 15px; background: white; margin-top: 8px; text-align: center;">
+                                        <img src="${data.signature}" alt="Applicant Signature" style="max-width: 100%; max-height: 100px; display: block; margin: 0 auto;">
+                                    </div>
+                                    <p style="font-size: 13px; color: #718096; margin-top: 5px;"><em>Signed via ${data.signature_method || 'electronic signature'}</em></p>
+                                </div>
+                            ` : '<p><strong>Signature:</strong> Not signed</p>'}
                             <p><strong>Signature Date:</strong> ${formatDate(data.signature_date)}</p>
                             <p><strong>Submitted:</strong> ${formatDate(data.submitted_date)}</p>
                             <p><strong>Application Status:</strong> ${app.status || 'Pending'}</p>
