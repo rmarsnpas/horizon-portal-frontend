@@ -336,6 +336,9 @@
     <p style="margin: 5px 0 0 0; font-size: 13px; color: #718096;">
       Save this number to resume your application later
     </p>
+    <p id="saveIndicator" style="margin: 8px 0 0 0; font-size: 12px; color: #48bb78; font-weight: 600; display: none;">
+      ✓ Draft saved
+    </p>
   </div>
 
   <div id="savingStatus" style="display:none; padding: 10px; margin-bottom: 15px; border-radius: 4px; text-align: center;">
@@ -978,6 +981,14 @@
       
       console.log('Saving draft to backend:', currentReferenceNumber);
       
+      // Show saving indicator
+      const indicator = document.getElementById('saveIndicator');
+      if (indicator) {
+        indicator.textContent = '💾 Saving...';
+        indicator.style.color = '#4299e1';
+        indicator.style.display = 'block';
+      }
+      
       // Save to backend
       fetch('https://horizon-portal-backend-production-3532.up.railway.app/api/saveDraft', {
         method: 'POST',
@@ -993,6 +1004,13 @@
       .then(result => {
         if (result.success) {
           console.log('✓ Draft saved to backend successfully');
+          if (indicator) {
+            indicator.textContent = '✓ Draft saved at ' + new Date().toLocaleTimeString();
+            indicator.style.color = '#48bb78';
+            setTimeout(() => {
+              indicator.textContent = '✓ Draft saved';
+            }, 3000);
+          }
         }
       })
       .catch(error => {
@@ -1001,6 +1019,10 @@
         const draftKey = `${DRAFT_KEY}_${currentReferenceNumber}`;
         localStorage.setItem(draftKey, JSON.stringify(formData));
         console.log('✓ Draft saved to localStorage as fallback');
+        if (indicator) {
+          indicator.textContent = '✓ Draft saved (offline)';
+          indicator.style.color = '#ed8936';
+        }
       });
     } catch (error) {
       console.error('Error saving draft:', error);
