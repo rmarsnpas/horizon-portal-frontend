@@ -903,36 +903,71 @@
       return;
     }
 
-    const draftKey = `${DRAFT_KEY}_${refInput}`;
-    const savedDraft = localStorage.getItem(draftKey);
-    
-    if (!savedDraft) {
-      alert('No draft found with that reference number. Please check the number and try again.');
-      return;
-    }
+    // Try loading from backend first
+    fetch(`https://horizon-portal-backend-production-3532.up.railway.app/api/loadDraft/${refInput}`)
+      .then(response => {
+        if (!response.ok) {
+          throw new Error('Draft not found');
+        }
+        return response.json();
+      })
+      .then(result => {
+        if (result.success && result.formData) {
+          currentReferenceNumber = refInput;
+          
+          // Hide modal, show main content and reference display
+          document.getElementById('referenceModal').style.display = 'none';
+          document.getElementById('mainHeader').style.display = 'block';
+          document.getElementById('mainContent').style.display = 'block';
+          document.getElementById('referenceDisplay').style.display = 'block';
+          document.getElementById('refNumberText').textContent = currentReferenceNumber;
+          
+          // Populate form
+          populateForm(result.formData);
+          
+          // Setup auto-save
+          setupAutoSave();
+          
+          alert('Draft loaded successfully!');
+        } else {
+          throw new Error('Invalid draft data');
+        }
+      })
+      .catch(error => {
+        console.error('Error loading draft from backend:', error);
+        
+        // Fallback to localStorage
+        const draftKey = `${DRAFT_KEY}_${refInput}`;
+        const savedDraft = localStorage.getItem(draftKey);
+        
+        if (!savedDraft) {
+          alert('No draft found with that reference number. Please check the number and try again.');
+          return;
+        }
 
-    try {
-      const draftData = JSON.parse(savedDraft);
-      currentReferenceNumber = refInput;
-      
-      // Hide modal, show main content and reference display
-      document.getElementById('referenceModal').style.display = 'none';
-      document.getElementById('mainHeader').style.display = 'block';
-      document.getElementById('mainContent').style.display = 'block';
-      document.getElementById('referenceDisplay').style.display = 'block';
-      document.getElementById('refNumberText').textContent = currentReferenceNumber;
-      
-      // Populate form
-      populateForm(draftData);
-      
-      // Setup auto-save
-      setupAutoSave();
-      
-      alert('Draft loaded successfully!');
-    } catch (error) {
-      console.error('Error loading draft:', error);
-      alert('Error loading draft. Please try again.');
-    }
+        try {
+          const draftData = JSON.parse(savedDraft);
+          currentReferenceNumber = refInput;
+          
+          // Hide modal, show main content and reference display
+          document.getElementById('referenceModal').style.display = 'none';
+          document.getElementById('mainHeader').style.display = 'block';
+          document.getElementById('mainContent').style.display = 'block';
+          document.getElementById('referenceDisplay').style.display = 'block';
+          document.getElementById('refNumberText').textContent = currentReferenceNumber;
+          
+          // Populate form
+          populateForm(draftData);
+          
+          // Setup auto-save
+          setupAutoSave();
+          
+          alert('Draft loaded successfully!');
+        } catch (error) {
+          console.error('Error loading draft:', error);
+          alert('Error loading draft. Please try again.');
+        }
+      });
   }
 
   function saveDraft() {
@@ -940,8 +975,23 @@
     
     try {
       const formData = collectFormData();
-      const draftKey = `${DRAFT_KEY}_${currentReferenceNumber}`;
-      localStorage.setItem(draftKey, JSON.stringify(formData));
+      
+      // Save to backend
+      fetch('https://horizon-portal-backend-production-3532.up.railway.app/api/saveDraft', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          referenceNumber: currentReferenceNumber,
+          formData: formData
+        })
+      }).catch(error => {
+        console.error('Error saving draft to backend:', error);
+        // Fallback to localStorage if backend fails
+        const draftKey = `${DRAFT_KEY}_${currentReferenceNumber}`;
+        localStorage.setItem(draftKey, JSON.stringify(formData));
+      });
     } catch (error) {
       console.error('Error saving draft:', error);
     }
@@ -1372,8 +1422,14 @@
       const result = await response.json();
 
       if (response.ok) {
-        // Clear draft after successful submission
+        // Clear draft after successful submission (backend and localStorage)
         if (currentReferenceNumber) {
+          // Delete from backend
+          fetch(`https://horizon-portal-backend-production-3532.up.railway.app/api/deleteDraft/${currentReferenceNumber}`, {
+            method: 'DELETE'
+          }).catch(error => console.error('Error deleting draft:', error));
+          
+          // Delete from localStorage
           const draftKey = `${DRAFT_KEY}_${currentReferenceNumber}`;
           localStorage.removeItem(draftKey);
           localStorage.removeItem('currentApplicationRef');
