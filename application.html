@@ -327,7 +327,7 @@
   </div>
 </header>
 
-<main class="wrap">
+<main class="wrap" id="mainContent" style="display: none;">
 
   <div id="referenceDisplay" style="display:none; background: #f7fafc; padding: 15px; border-radius: 8px; border: 2px solid #4299e1; margin-bottom: 20px; text-align: center;">
     <p style="margin: 0; color: #2d3748; font-weight: 600;">
@@ -879,8 +879,9 @@
     // Store reference number
     localStorage.setItem('currentApplicationRef', currentReferenceNumber);
     
-    // Hide modal, show reference display
+    // Hide modal, show main content and reference display
     document.getElementById('referenceModal').style.display = 'none';
+    document.getElementById('mainContent').style.display = 'block';
     document.getElementById('referenceDisplay').style.display = 'block';
     document.getElementById('refNumberText').textContent = currentReferenceNumber;
     
@@ -908,8 +909,9 @@
       const draftData = JSON.parse(savedDraft);
       currentReferenceNumber = refInput;
       
-      // Hide modal, show reference display
+      // Hide modal, show main content and reference display
       document.getElementById('referenceModal').style.display = 'none';
+      document.getElementById('mainContent').style.display = 'block';
       document.getElementById('referenceDisplay').style.display = 'block';
       document.getElementById('refNumberText').textContent = currentReferenceNumber;
       
@@ -1004,6 +1006,12 @@
   window.addEventListener('DOMContentLoaded', () => {
     // Always clear the currentApplicationRef when page loads to force fresh start
     localStorage.removeItem('currentApplicationRef');
+    
+    // Clear form completely on page load for HIPAA compliance
+    const form = document.getElementById('applicationForm');
+    if (form) {
+      form.reset();
+    }
     
     // Initialize signature canvas
     initSignatureCanvas();
