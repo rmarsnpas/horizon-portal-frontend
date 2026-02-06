@@ -1054,35 +1054,25 @@
     const form = document.getElementById('applicationForm');
     
     Object.keys(data).forEach(key => {
-      const elements = form.elements[key];
+      // Try to find inputs with this name
+      const inputs = form.querySelectorAll(`[name="${key}"]`);
       
-      if (!elements) return;
+      if (inputs.length === 0) return;
       
-      // Check if elements is a NodeList (radio buttons) or single element
-      if (elements.length !== undefined && elements.type === undefined) {
-        // It's a NodeList (radio buttons or multiple elements with same name)
-        Array.from(elements).forEach(element => {
-          if (element.type === 'radio') {
-            if (element.value === data[key]) {
-              element.checked = true;
-              element.dispatchEvent(new Event('change', { bubbles: true }));
-            }
-          } else {
-            // Other input types in NodeList
-            element.value = data[key];
-            element.dispatchEvent(new Event('input', { bubbles: true }));
+      inputs.forEach(input => {
+        if (input.type === 'radio') {
+          if (input.value === data[key]) {
+            input.checked = true;
+            input.dispatchEvent(new Event('change', { bubbles: true }));
           }
-        });
-      } else {
-        // Single element
-        if (elements.type === 'checkbox') {
-          elements.checked = data[key];
-          elements.dispatchEvent(new Event('change', { bubbles: true }));
+        } else if (input.type === 'checkbox') {
+          input.checked = data[key];
+          input.dispatchEvent(new Event('change', { bubbles: true }));
         } else {
-          elements.value = data[key];
-          elements.dispatchEvent(new Event('input', { bubbles: true }));
+          input.value = data[key] || '';
+          input.dispatchEvent(new Event('input', { bubbles: true }));
         }
-      }
+      });
     });
   }
 
