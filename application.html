@@ -949,22 +949,29 @@
   }
 
   function saveDraft() {
-    console.log('saveDraft called, currentReferenceNumber:', currentReferenceNumber);
-    if (!currentReferenceNumber) {
-      console.log('No reference number, cannot save draft');
-      return;
-    }
-    
-    const formData = collectFormData();
-    const draftKey = `${DRAFT_KEY}_${currentReferenceNumber}`;
-    
     try {
+      console.log('===== SAVE DRAFT START =====');
+      console.log('saveDraft called, currentReferenceNumber:', currentReferenceNumber);
+      console.log('DRAFT_KEY:', DRAFT_KEY);
+      
+      if (!currentReferenceNumber) {
+        console.log('No reference number, cannot save draft');
+        return;
+      }
+      
+      const formData = collectFormData();
+      console.log('Form data collected:', Object.keys(formData).length, 'fields');
+      
+      const draftKey = `${DRAFT_KEY}_${currentReferenceNumber}`;
+      console.log('Draft key to save:', draftKey);
+      
       localStorage.setItem(draftKey, JSON.stringify(formData));
       console.log('Draft saved successfully:', currentReferenceNumber, 'Key:', draftKey);
       console.log('Saved data:', formData);
       console.log('All localStorage keys:', Object.keys(localStorage));
+      console.log('===== SAVE DRAFT END =====');
     } catch (error) {
-      console.error('Error saving draft:', error);
+      console.error('===== SAVE DRAFT ERROR =====', error);
     }
   }
 
