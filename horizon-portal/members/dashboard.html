@@ -566,13 +566,13 @@
                     const dateText = m.moveInDate.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
                     
                     return `
-                        <div style="background: rgba(255,255,255,0.2); padding: 15px; border-radius: 6px;">
+                        <div style="background: rgba(0,0,0,0.15); padding: 15px; border-radius: 6px;">
                             <div style="display: flex; align-items: center; gap: 10px;">
                                 <div style="font-size: 32px;">👋</div>
                                 <div style="flex: 1;">
-                                    <div style="font-weight: bold; font-size: 16px;">${m.name}</div>
-                                    <div style="font-size: 14px; opacity: 0.9;">${dayText}</div>
-                                    <div style="font-size: 13px; margin-top: 3px; opacity: 0.8;">📅 ${dateText}</div>
+                                    <div style="font-weight: bold; font-size: 16px; color: #1a202c;">${m.name}</div>
+                                    <div style="font-size: 14px; color: #2d3748; font-weight: 600;">${dayText}</div>
+                                    <div style="font-size: 13px; margin-top: 3px; color: #2d3748; opacity: 0.9;">📅 ${dateText}</div>
                                 </div>
                             </div>
                         </div>
