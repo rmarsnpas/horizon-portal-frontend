@@ -308,7 +308,7 @@
     <h2>📝 Application Draft</h2>
     <p>Do you have a reference number from a previously saved draft?</p>
     
-    <input type="text" id="referenceInput" class="reference-input" placeholder="Enter Reference Number" maxlength="12">
+    <input type="text" id="referenceInput" class="reference-input" placeholder="Enter Reference Number" maxlength="6">
     
     <div class="reference-buttons">
       <button type="button" class="ref-btn ref-btn-secondary" onclick="startNewApplication()">✨ Start New Application</button>
@@ -853,7 +853,7 @@
   function generateReferenceNumber() {
     const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
     let ref = '';
-    for (let i = 0; i < 12; i++) {
+    for (let i = 0; i < 6; i++) {
       ref += chars.charAt(Math.floor(Math.random() * chars.length));
     }
     return ref;
