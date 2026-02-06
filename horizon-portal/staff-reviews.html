@@ -528,7 +528,7 @@
                             <p><strong>Referral Phone:</strong> ${data.referral_phone || 'Not provided'}</p>
                             <p><strong>Employed:</strong> ${data.job === 'yes' ? 'Yes' : data.job === 'no' ? 'No' : 'Not provided'}</p>
                             ${data.job_where ? `<p><strong>Job Location:</strong> ${data.job_where}</p>` : ''}
-                            ${data.schedule ? `<p><strong>Work Schedule:</strong> ${data.schedule}</p>` : ''}
+                            ${data.job_schedule ? `<p><strong>Work Schedule:</strong> ${data.job_schedule}</p>` : ''}
                             <p><strong>Have Sponsor:</strong> ${data.sponsor === 'yes' ? 'Yes' : data.sponsor === 'no' ? 'No' : 'Not provided'}</p>
                             ${data.willing_sponsor ? `<p><strong>Willing to Get Sponsor:</strong> ${data.willing_sponsor === 'yes' ? 'Yes' : 'No'}</p>` : ''}
                         </div>
@@ -544,6 +544,7 @@
                             ${data.discharge_date ? `<p><strong>Discharge Date:</strong> ${formatDate(data.discharge_date)}</p>` : ''}
                             <p><strong>Attending IOP:</strong> ${data.iop === 'yes' ? 'Yes' : 'No'}</p>
                             ${data.iop_where ? `<p><strong>IOP Location:</strong> ${data.iop_where}</p>` : ''}
+                            ${data.iop_schedule ? `<p><strong>IOP Schedule:</strong> ${data.iop_schedule}</p>` : ''}
                             <p><strong>Sobriety Date:</strong> ${formatDate(data.sobriety_date)}</p>
                             <p><strong>Primary Substance:</strong> ${data.drugs || 'Not provided'}</p>
                         </div>
