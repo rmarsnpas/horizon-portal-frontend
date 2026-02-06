@@ -976,6 +976,8 @@
     try {
       const formData = collectFormData();
       
+      console.log('Saving draft to backend:', currentReferenceNumber);
+      
       // Save to backend
       fetch('https://horizon-portal-backend-production-3532.up.railway.app/api/saveDraft', {
         method: 'POST',
@@ -986,11 +988,19 @@
           referenceNumber: currentReferenceNumber,
           formData: formData
         })
-      }).catch(error => {
+      })
+      .then(response => response.json())
+      .then(result => {
+        if (result.success) {
+          console.log('✓ Draft saved to backend successfully');
+        }
+      })
+      .catch(error => {
         console.error('Error saving draft to backend:', error);
         // Fallback to localStorage if backend fails
         const draftKey = `${DRAFT_KEY}_${currentReferenceNumber}`;
         localStorage.setItem(draftKey, JSON.stringify(formData));
+        console.log('✓ Draft saved to localStorage as fallback');
       });
     } catch (error) {
       console.error('Error saving draft:', error);
