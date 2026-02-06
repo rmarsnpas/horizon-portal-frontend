@@ -535,9 +535,12 @@
                     <div class="card-count" style="font-size: 18px; color: white;">Edit & Manage</div>
                     <div class="card-label" style="color: rgba(255,255,255,0.9);">members.xlsx</div>
                 </div>
-                <div style="display: flex; gap: 8px; margin-top: 15px;">
-                    <a href="https://horizon-portal-backend-production-3532.up.railway.app/api/downloadMembers" style="flex: 1; padding: 10px; background: rgba(255,255,255,0.2); color: white; text-decoration: none; border-radius: 6px; text-align: center; font-weight: 600; font-size: 14px;" download>⬇️ Download</a>
-                    <button onclick="openUploadModal()" style="flex: 1; padding: 10px; background: rgba(255,255,255,0.2); color: white; border: none; border-radius: 6px; cursor: pointer; font-weight: 600; font-size: 14px;">⬆️ Upload</button>
+                <div style="display: flex; flex-direction: column; gap: 8px; margin-top: 15px;">
+                    <button onclick="editMembersDatabase()" style="width: 100%; padding: 12px; background: white; color: #38a169; border: none; border-radius: 6px; cursor: pointer; font-weight: 700; font-size: 16px; box-shadow: 0 2px 8px rgba(0,0,0,0.2);">✏️ Edit Database</button>
+                    <div style="display: flex; gap: 8px;">
+                        <a href="https://horizon-portal-backend-production-3532.up.railway.app/api/downloadMembers" style="flex: 1; padding: 8px; background: rgba(255,255,255,0.2); color: white; text-decoration: none; border-radius: 6px; text-align: center; font-weight: 600; font-size: 13px;" download>⬇️ Download</a>
+                        <button onclick="openUploadModal()" style="flex: 1; padding: 8px; background: rgba(255,255,255,0.2); color: white; border: none; border-radius: 6px; cursor: pointer; font-weight: 600; font-size: 13px;">⬆️ Upload</button>
+                    </div>
                 </div>
             </div>
         </div>
@@ -816,6 +819,29 @@
                 uploadStatus.style.display = 'block';
                 uploadButton.disabled = false;
                 uploadButton.textContent = 'Upload File';
+            }
+        }
+
+        // Streamlined edit workflow
+        async function editMembersDatabase() {
+            const confirmed = confirm(
+                '📝 Edit Members Database\n\n' +
+                'This will:\n' +
+                '1. Download the current members.xlsx file\n' +
+                '2. Open it in Excel for editing\n' +
+                '3. When done, click "Upload" to save your changes back\n\n' +
+                'Continue?'
+            );
+            
+            if (confirmed) {
+                // Trigger download
+                window.location.href = 'https://horizon-portal-backend-production-3532.up.railway.app/api/downloadMembers';
+                
+                // Show upload modal after a brief delay
+                setTimeout(() => {
+                    alert('✅ File downloaded!\n\n📝 Open it in Excel, make your changes, save the file, then click "Upload" below.');
+                    openUploadModal();
+                }, 1500);
             }
         }
     </script>
