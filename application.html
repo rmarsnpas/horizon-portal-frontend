@@ -1058,19 +1058,23 @@
       
       if (!elements) return;
       
-      if (elements.type === 'radio') {
-        const radios = form.querySelectorAll(`input[name="${key}"]`);
-        radios.forEach(radio => {
-          if (radio.value === data[key]) {
-            radio.checked = true;
-            radio.dispatchEvent(new Event('change'));
+      // Check if elements is a NodeList (radio buttons) or single element
+      if (elements.length !== undefined && elements.type === undefined) {
+        // It's a NodeList (radio buttons or multiple elements with same name)
+        Array.from(elements).forEach(element => {
+          if (element.type === 'radio') {
+            if (element.value === data[key]) {
+              element.checked = true;
+              element.dispatchEvent(new Event('change', { bubbles: true }));
+            }
           }
         });
       } else if (elements.type === 'checkbox') {
         elements.checked = data[key];
+        elements.dispatchEvent(new Event('change', { bubbles: true }));
       } else {
         elements.value = data[key];
-        elements.dispatchEvent(new Event('input'));
+        elements.dispatchEvent(new Event('input', { bubbles: true }));
       }
     });
   }
