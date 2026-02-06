@@ -586,17 +586,6 @@
             `;
             
             document.getElementById('appModal').style.display = 'block';
-        }                            <div>
-                                <h3 style="color: #2d3748; margin-bottom: 10px;">✍️ Signature</h3>
-                                <p><strong>Signed:</strong> ${data.signature_date || 'Not signed'}</p>
-                                <p><strong>Agreement to chores:</strong> ${data.chores === 'yes' ? 'Yes' : 'No'}</p>
-                                <p><strong>Agreement to structured schedule:</strong> ${data.structured_schedule === 'yes' ? 'Yes' : 'No'}</p>
-                            </div>
-                        </div>
-                    `;
-                    
-                    document.getElementById('appModal').style.display = 'block';
-                });
         }
 
         function closeModal() {
