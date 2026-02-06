@@ -288,21 +288,15 @@
         <input type="text" name="dl_number">
       </div>
       <div style="flex: 1;">
-        <label>DL Expiration Year</label>
-        <select name="dl_exp_year" id="dl_exp_year">
-          <option value="">Select Year</option>
-        </select>
-      </div>
-    </div>
-
-    <div class="inline">
-      <div style="flex: 1;">
         <label>State</label>
         <input type="text" name="dl_state">
       </div>
-      <div style="flex: 1;">
+      <div style="flex: 1; position: relative;">
         <label>DL Expiration Date</label>
-        <input type="text" name="dl_expiration" id="dl_expiration" readonly style="background: #f0f0f0;">
+        <input type="text" name="dl_expiration" id="dl_expiration" readonly style="background: #f0f0f0; cursor: pointer;" placeholder="Click to select">
+        <select name="dl_exp_year" id="dl_exp_year" style="position: absolute; top: 100%; left: 0; right: 0; margin-top: 5px; display: none; z-index: 10;">
+          <option value="">Select Year</option>
+        </select>
       </div>
     </div>
 
@@ -701,11 +695,25 @@
       dlYearSelect.appendChild(option);
     }
     
+    // Show/hide year dropdown when clicking expiration date field
+    const expirationInput = document.getElementById('dl_expiration');
+    const yearDropdown = document.getElementById('dl_exp_year');
+    
+    expirationInput.addEventListener('click', function() {
+      yearDropdown.style.display = yearDropdown.style.display === 'none' ? 'block' : 'none';
+    });
+    
+    // Hide dropdown when clicking outside
+    document.addEventListener('click', function(e) {
+      if (!e.target.closest('#dl_expiration') && !e.target.closest('#dl_exp_year')) {
+        yearDropdown.style.display = 'none';
+      }
+    });
+    
     // Calculate DL expiration date when year is selected or DOB changes
     function calculateDLExpiration() {
       const dobInput = document.querySelector('input[name="dob"]');
       const yearSelect = document.getElementById('dl_exp_year');
-      const expirationInput = document.getElementById('dl_expiration');
       
       if (dobInput.value && yearSelect.value) {
         const dob = new Date(dobInput.value + 'T00:00:00');
@@ -718,6 +726,9 @@
         const day = String(expDate.getDate()).padStart(2, '0');
         
         expirationInput.value = `${month}-${day}-${expYear}`;
+        
+        // Hide dropdown after selection
+        yearDropdown.style.display = 'none';
       } else {
         expirationInput.value = '';
       }
