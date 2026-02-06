@@ -152,6 +152,14 @@
         <div id="milestoneDisplay"></div>
     </div>
 
+    <!-- Birthdays & Milestones Section -->
+    <div id="celebrationsSection" style="display:none; margin-bottom: 20px;">
+        <div style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 20px; border-radius: 8px; margin-bottom: 15px;">
+            <h3 style="color: white; margin: 0; margin-bottom: 10px;">🎉 Upcoming Celebrations</h3>
+            <div id="celebrationsGrid" style="display: grid; gap: 15px;"></div>
+        </div>
+    </div>
+
     <div class="card">
         <h3>Announcements</h3>
         <p>Stay updated with house news, schedule changes, and upcoming events.</p>
@@ -206,6 +214,9 @@
                     if (soberDate) {
                         displaySobrietyInfo(soberDate);
                     }
+
+                    // Load and display birthdays and milestones for all members
+                    loadCelebrations();
                 }
             })
             .catch(error => {
@@ -324,6 +335,149 @@
         document.head.appendChild(style);
 
         setTimeout(() => confettiContainer.remove(), 6000);
+    }
+
+    // Load birthdays and sobriety milestones for all active members
+    async function loadCelebrations() {
+        try {
+            const response = await fetch('https://horizon-portal-backend-production-3532.up.railway.app/api/members');
+            const allMembers = await response.json();
+            
+            // Filter active members (status 1, 2, 4, 5)
+            const activeMembers = allMembers.filter(m => {
+                const status = m.STATUS || m.status || m.STATU;
+                return [1, 2, 4, 5].includes(status);
+            });
+
+            const celebrations = [];
+            const today = new Date();
+            today.setHours(0, 0, 0, 0);
+            const lookBackDays = 7;
+            const lookAheadDays = 7;
+
+            // Helper to parse Excel date or regular date
+            function parseDate(val) {
+                if (!val) return null;
+                if (typeof val === 'number' || (!isNaN(val) && val > 10000)) {
+                    const excelEpoch = new Date(1899, 11, 30);
+                    const date = new Date(excelEpoch.getTime() + val * 86400000);
+                    return date;
+                }
+                const parsed = new Date(val);
+                return isNaN(parsed.getTime()) ? null : parsed;
+            }
+
+            activeMembers.forEach(member => {
+                const firstName = member['FIRST\r\nNAME'] || member['FIRST\nNAME'] || member.FIRST_NAME || member.first_name || '';
+                const lastName = member['LAST\r\nNAME'] || member['LAST\nNAME'] || member.LAST_NAME || member.last_name || '';
+                const fullName = `${firstName} ${lastName}`.trim() || 'Unknown';
+                
+                // Check birthday
+                const dobStr = member.DOB || member.dob;
+                if (dobStr) {
+                    const dob = parseDate(dobStr);
+                    if (dob) {
+                        const birthdayThisYear = new Date(today.getFullYear(), dob.getMonth(), dob.getDate());
+                        birthdayThisYear.setHours(0, 0, 0, 0);
+                        
+                        const birthdayLastYear = new Date(today.getFullYear() - 1, dob.getMonth(), dob.getDate());
+                        birthdayLastYear.setHours(0, 0, 0, 0);
+                        
+                        [birthdayThisYear, birthdayLastYear].forEach(birthday => {
+                            const daysDiff = Math.floor((birthday - today) / (1000 * 60 * 60 * 24));
+                            
+                            if (daysDiff >= -lookBackDays && daysDiff <= lookAheadDays) {
+                                const age = birthday.getFullYear() - dob.getFullYear();
+                                celebrations.push({
+                                    type: 'birthday',
+                                    name: fullName,
+                                    detail: daysDiff >= 0 ? `Turning ${age}` : `Turned ${age}`,
+                                    date: birthday,
+                                    daysUntil: daysDiff,
+                                    icon: '🎂'
+                                });
+                            }
+                        });
+                    }
+                }
+
+                // Check sobriety milestones
+                const sobrietyStr = member['SOBER\r\nDATE'] || member['SOBER\nDATE'] || member.SOBRIETY_DATE || member.sobriety_date || member.sobrietyDate;
+                if (sobrietyStr) {
+                    const sobrietyDate = parseDate(sobrietyStr);
+                    if (sobrietyDate) {
+                        const daysSober = Math.floor((today - sobrietyDate) / (1000 * 60 * 60 * 24));
+                        
+                        const milestoneMarks = [30, 60, 90, 120, 180, 270, 365];
+                        for (let year = 2; year <= 20; year++) {
+                            milestoneMarks.push(year * 365);
+                        }
+                        
+                        milestoneMarks.forEach(milestone => {
+                            const daysUntilMilestone = milestone - daysSober;
+                            if (daysUntilMilestone >= -lookBackDays && daysUntilMilestone <= lookAheadDays) {
+                                const milestoneDate = new Date(sobrietyDate.getTime() + milestone * 24 * 60 * 60 * 1000);
+                                let label = `${milestone} days`;
+                                if (milestone >= 365) {
+                                    const years = Math.floor(milestone / 365);
+                                    label = `${years} year${years > 1 ? 's' : ''}`;
+                                }
+                                celebrations.push({
+                                    type: 'sobriety',
+                                    name: fullName,
+                                    detail: `${label} sober`,
+                                    date: milestoneDate,
+                                    daysUntil: daysUntilMilestone,
+                                    icon: '🎖️'
+                                });
+                            }
+                        });
+                    }
+                }
+            });
+
+            // Sort by date
+            celebrations.sort((a, b) => a.daysUntil - b.daysUntil);
+
+            // Display celebrations
+            if (celebrations.length > 0) {
+                const grid = document.getElementById('celebrationsGrid');
+                grid.innerHTML = celebrations.map(c => {
+                    let dayText;
+                    if (c.daysUntil === 0) {
+                        dayText = 'TODAY!';
+                    } else if (c.daysUntil === 1) {
+                        dayText = 'Tomorrow';
+                    } else if (c.daysUntil === -1) {
+                        dayText = 'Yesterday';
+                    } else if (c.daysUntil > 0) {
+                        dayText = `In ${c.daysUntil} days`;
+                    } else {
+                        dayText = `${Math.abs(c.daysUntil)} days ago`;
+                    }
+                    
+                    const dateText = c.date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+                    
+                    return `
+                        <div style="background: rgba(255,255,255,0.2); padding: 15px; border-radius: 6px;">
+                            <div style="display: flex; align-items: center; gap: 10px;">
+                                <div style="font-size: 32px;">${c.icon}</div>
+                                <div style="flex: 1;">
+                                    <div style="font-weight: bold; font-size: 16px;">${c.name}</div>
+                                    <div style="font-size: 14px; opacity: 0.9;">${c.detail}</div>
+                                    <div style="font-size: 13px; margin-top: 3px; opacity: 0.8;">${dayText} • ${dateText}</div>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                }).join('');
+                
+                document.getElementById('celebrationsSection').style.display = 'block';
+            }
+
+        } catch (error) {
+            console.error('Error loading celebrations:', error);
+        }
     }
 </script>
 

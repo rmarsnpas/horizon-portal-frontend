@@ -433,8 +433,8 @@
 
         <!-- Milestones Alert Section -->
         <div class="section-header" id="milestonesSection" style="display: none; background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%); color: white; padding: 20px; border-radius: 12px; margin-bottom: 20px;">
-            <h2 style="color: white; margin: 0;">🎉 Upcoming Milestones</h2>
-            <p style="color: rgba(255,255,255,0.9); margin: 5px 0 0 0;">Birthdays & Sobriety Celebrations</p>
+            <h2 style="color: white; margin: 0;">🎉 Birthdays & Milestones</h2>
+            <p style="color: rgba(255,255,255,0.9); margin: 5px 0 0 0;">Recent & Upcoming (7 days either way)</p>
         </div>
 
         <div id="milestonesGrid" class="dashboard-grid" style="display: none; margin-bottom: 30px;"></div>
@@ -723,7 +723,9 @@
 
                 const milestones = [];
                 const today = new Date();
-                const lookAheadDays = 7; // Show milestones within next 7 days
+                today.setHours(0, 0, 0, 0); // Reset to midnight for accurate day comparison
+                const lookBackDays = 7; // Show recent events within past 7 days
+                const lookAheadDays = 7; // Show upcoming events within next 7 days
 
                 activeMembers.forEach(member => {
                     const firstName = member['FIRST\r\nNAME'] || member['FIRST\nNAME'] || member.FIRST_NAME || member.first_name || '';
@@ -749,26 +751,30 @@
                     if (dobStr) {
                         const dob = parseDate(dobStr);
                         if (dob) {
-                            // Create birthday for this year
-                            const birthday = new Date(today.getFullYear(), dob.getMonth(), dob.getDate());
+                            // Create birthday for this year and last year
+                            const birthdayThisYear = new Date(today.getFullYear(), dob.getMonth(), dob.getDate());
+                            birthdayThisYear.setHours(0, 0, 0, 0);
                             
-                            // If birthday already passed this year, check next year
-                            if (birthday < today) {
-                                birthday.setFullYear(today.getFullYear() + 1);
-                            }
+                            const birthdayLastYear = new Date(today.getFullYear() - 1, dob.getMonth(), dob.getDate());
+                            birthdayLastYear.setHours(0, 0, 0, 0);
                             
-                            const daysUntil = Math.floor((birthday - today) / (1000 * 60 * 60 * 24));
-                            if (daysUntil >= 0 && daysUntil <= lookAheadDays) {
-                                const age = today.getFullYear() - dob.getFullYear();
-                                milestones.push({
-                                    type: 'birthday',
-                                    name: fullName,
-                                    detail: `Turning ${age}`,
-                                    date: birthday,
-                                    daysUntil: daysUntil,
-                                    icon: '🎂'
-                                });
-                            }
+                            // Check both this year and last year to capture recent past birthdays
+                            [birthdayThisYear, birthdayLastYear].forEach(birthday => {
+                                const daysDiff = Math.floor((birthday - today) / (1000 * 60 * 60 * 24));
+                                
+                                // Show if within past 7 days or next 7 days
+                                if (daysDiff >= -lookBackDays && daysDiff <= lookAheadDays) {
+                                    const age = birthday.getFullYear() - dob.getFullYear();
+                                    milestones.push({
+                                        type: 'birthday',
+                                        name: fullName,
+                                        detail: daysDiff >= 0 ? `Turning ${age}` : `Turned ${age}`,
+                                        date: birthday,
+                                        daysUntil: daysDiff,
+                                        icon: '🎂'
+                                    });
+                                }
+                            });
                         }
                     }
 
@@ -789,7 +795,8 @@
                             
                             milestoneMarks.forEach(milestone => {
                                 const daysUntilMilestone = milestone - daysSober;
-                                if (daysUntilMilestone >= 0 && daysUntilMilestone <= lookAheadDays) {
+                                // Show if within past 7 days or next 7 days
+                                if (daysUntilMilestone >= -lookBackDays && daysUntilMilestone <= lookAheadDays) {
                                     const milestoneDate = new Date(sobrietyDate.getTime() + milestone * 24 * 60 * 60 * 1000);
                                     let label = `${milestone} days`;
                                     if (milestone >= 365) {
@@ -817,7 +824,19 @@
                 if (milestones.length > 0) {
                     const milestonesGrid = document.getElementById('milestonesGrid');
                     milestonesGrid.innerHTML = milestones.map(m => {
-                        const dayText = m.daysUntil === 0 ? 'TODAY!' : m.daysUntil === 1 ? 'Tomorrow' : `In ${m.daysUntil} days`;
+                        let dayText;
+                        if (m.daysUntil === 0) {
+                            dayText = 'TODAY!';
+                        } else if (m.daysUntil === 1) {
+                            dayText = 'Tomorrow';
+                        } else if (m.daysUntil === -1) {
+                            dayText = 'Yesterday';
+                        } else if (m.daysUntil > 0) {
+                            dayText = `In ${m.daysUntil} days`;
+                        } else {
+                            dayText = `${Math.abs(m.daysUntil)} days ago`;
+                        }
+                        
                         const dateText = m.date.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
                         const bgColor = m.type === 'birthday' ? 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)' : 'linear-gradient(135deg, #f093fb 0%, #f5576c 100%)';
                         
