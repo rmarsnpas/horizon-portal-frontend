@@ -439,6 +439,14 @@
 
         <div id="milestonesGrid" class="dashboard-grid" style="display: none; margin-bottom: 30px;"></div>
 
+        <!-- New Members Alert Section -->
+        <div class="section-header" id="newMembersSection" style="display: none; background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%); color: white; padding: 20px; border-radius: 12px; margin-bottom: 20px;">
+            <h2 style="color: white; margin: 0;">👋 New Members</h2>
+            <p style="color: rgba(255,255,255,0.9); margin: 5px 0 0 0;">Recently arrived (last 3 days)</p>
+        </div>
+
+        <div id="newMembersGrid" class="dashboard-grid" style="display: none; margin-bottom: 30px;"></div>
+
         <div class="section-header" id="pendingSection" style="display: none;">
             <h2>⏳ Pending Review</h2>
             <p>Items requiring staff attention</p>
@@ -683,6 +691,9 @@
 
                 // Load and check milestones
                 await loadMilestones();
+                
+                // Load new members
+                await loadNewMembers();
 
                 // Update UI
                 document.getElementById('appCount').textContent = pendingApps;
@@ -863,6 +874,106 @@
                 // Don't show milestones section if there's an error
                 document.getElementById('milestonesSection').style.display = 'none';
                 document.getElementById('milestonesGrid').style.display = 'none';
+            }
+        }
+
+        // Load new members (arrived within last 3 days)
+        async function loadNewMembers() {
+            try {
+                const response = await fetch(`${API_BASE}/api/members`);
+                const allMembers = await response.json();
+                
+                // Filter active members (status 1, 2, 4, 5)
+                const activeMembers = allMembers.filter(m => {
+                    const status = m.STATUS || m.status || m.STATU;
+                    return [1, 2, 4, 5].includes(status);
+                });
+
+                const newMembers = [];
+                const today = new Date();
+                today.setHours(0, 0, 0, 0);
+                const lookBackDays = 3; // Show members who arrived in last 3 days
+
+                // Helper to parse Excel date or regular date
+                function parseDate(val) {
+                    if (!val) return null;
+                    if (typeof val === 'number' || (!isNaN(val) && val > 10000)) {
+                        const excelEpoch = new Date(1899, 11, 30);
+                        const date = new Date(excelEpoch.getTime() + val * 86400000);
+                        return date;
+                    }
+                    const parsed = new Date(val);
+                    return isNaN(parsed.getTime()) ? null : parsed;
+                }
+
+                activeMembers.forEach(member => {
+                    const firstName = member['FIRST\r\nNAME'] || member['FIRST\nNAME'] || member.FIRST_NAME || member.first_name || '';
+                    const lastName = member['LAST\r\nNAME'] || member['LAST\nNAME'] || member.LAST_NAME || member.last_name || '';
+                    const fullName = `${firstName} ${lastName}`.trim() || 'Unknown';
+                    
+                    // Check column H - try various possible column names for move-in/admission date
+                    const moveInStr = member['MOVE IN DATE'] || member['MOVE-IN DATE'] || member['ADMISSION DATE'] || 
+                                      member['MOVE IN'] || member.MOVE_IN_DATE || member.ADMISSION_DATE || 
+                                      member['MOVE\r\nIN'] || member['MOVE\nIN'] || Object.values(member)[7]; // Column H is index 7
+                    
+                    if (moveInStr) {
+                        const moveInDate = parseDate(moveInStr);
+                        if (moveInDate) {
+                            moveInDate.setHours(0, 0, 0, 0);
+                            const daysSince = Math.floor((today - moveInDate) / (1000 * 60 * 60 * 24));
+                            
+                            // Show if moved in within last 3 days (0-3 days ago)
+                            if (daysSince >= 0 && daysSince <= lookBackDays) {
+                                newMembers.push({
+                                    name: fullName,
+                                    moveInDate: moveInDate,
+                                    daysSince: daysSince
+                                });
+                            }
+                        }
+                    }
+                });
+
+                // Sort by most recent first
+                newMembers.sort((a, b) => a.daysSince - b.daysSince);
+
+                // Display new members
+                if (newMembers.length > 0) {
+                    const newMembersGrid = document.getElementById('newMembersGrid');
+                    newMembersGrid.innerHTML = newMembers.map(m => {
+                        let dayText;
+                        if (m.daysSince === 0) {
+                            dayText = 'Arrived TODAY!';
+                        } else if (m.daysSince === 1) {
+                            dayText = 'Arrived Yesterday';
+                        } else {
+                            dayText = `Arrived ${m.daysSince} days ago`;
+                        }
+                        
+                        const dateText = m.moveInDate.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+                        
+                        return `
+                            <div class="dashboard-card" style="background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%); color: white; border: none;">
+                                <div class="card-icon" style="font-size: 48px;">👋</div>
+                                <div class="card-title" style="color: white;">${m.name}</div>
+                                <div class="card-count" style="color: white; font-size: 24px;">${dayText}</div>
+                                <div class="card-label" style="color: rgba(255,255,255,0.9);">Welcome to Horizon House!</div>
+                                <div class="card-label" style="color: rgba(255,255,255,0.8); font-size: 13px; margin-top: 5px;">📅 ${dateText}</div>
+                            </div>
+                        `;
+                    }).join('');
+                    
+                    document.getElementById('newMembersSection').style.display = 'block';
+                    newMembersGrid.style.display = 'grid';
+                } else {
+                    document.getElementById('newMembersSection').style.display = 'none';
+                    document.getElementById('newMembersGrid').style.display = 'none';
+                }
+
+            } catch (error) {
+                console.error('Error loading new members:', error);
+                document.getElementById('newMembersSection').style.display = 'none';
+                document.getElementById('newMembersGrid').style.display = 'none';
             }
         }
 

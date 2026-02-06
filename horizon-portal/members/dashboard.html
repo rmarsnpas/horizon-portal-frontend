@@ -160,6 +160,14 @@
         </div>
     </div>
 
+    <!-- New Members Section -->
+    <div id="newMembersSection" style="display:none; margin-bottom: 20px;">
+        <div style="background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%); color: white; padding: 20px; border-radius: 8px;">
+            <h3 style="color: white; margin: 0; margin-bottom: 10px;">👋 Welcome New Members!</h3>
+            <div id="newMembersGrid" style="display: grid; gap: 15px;"></div>
+        </div>
+    </div>
+
     <div class="card">
         <h3>Announcements</h3>
         <p>Stay updated with house news, schedule changes, and upcoming events.</p>
@@ -217,6 +225,9 @@
 
                     // Load and display birthdays and milestones for all members
                     loadCelebrations();
+                    
+                    // Load and display new members
+                    loadNewMembers();
                 }
             })
             .catch(error => {
@@ -477,6 +488,102 @@
 
         } catch (error) {
             console.error('Error loading celebrations:', error);
+        }
+    }
+
+    // Load new members who arrived in last 3 days
+    async function loadNewMembers() {
+        try {
+            const response = await fetch('https://horizon-portal-backend-production-3532.up.railway.app/api/members');
+            const allMembers = await response.json();
+            
+            // Filter active members (status 1, 2, 4, 5)
+            const activeMembers = allMembers.filter(m => {
+                const status = m.STATUS || m.status || m.STATU;
+                return [1, 2, 4, 5].includes(status);
+            });
+
+            const newMembers = [];
+            const today = new Date();
+            today.setHours(0, 0, 0, 0);
+            const lookBackDays = 3;
+
+            // Helper to parse Excel date or regular date
+            function parseDate(val) {
+                if (!val) return null;
+                if (typeof val === 'number' || (!isNaN(val) && val > 10000)) {
+                    const excelEpoch = new Date(1899, 11, 30);
+                    const date = new Date(excelEpoch.getTime() + val * 86400000);
+                    return date;
+                }
+                const parsed = new Date(val);
+                return isNaN(parsed.getTime()) ? null : parsed;
+            }
+
+            activeMembers.forEach(member => {
+                const firstName = member['FIRST\r\nNAME'] || member['FIRST\nNAME'] || member.FIRST_NAME || member.first_name || '';
+                const lastName = member['LAST\r\nNAME'] || member['LAST\nNAME'] || member.LAST_NAME || member.last_name || '';
+                const fullName = `${firstName} ${lastName}`.trim() || 'Unknown';
+                
+                // Check column H - try various possible column names for move-in/admission date
+                const moveInStr = member['MOVE IN DATE'] || member['MOVE-IN DATE'] || member['ADMISSION DATE'] || 
+                                  member['MOVE IN'] || member.MOVE_IN_DATE || member.ADMISSION_DATE || 
+                                  member['MOVE\r\nNAME'] || member['MOVE\nIN'] || Object.values(member)[7]; // Column H is index 7
+                
+                if (moveInStr) {
+                    const moveInDate = parseDate(moveInStr);
+                    if (moveInDate) {
+                        moveInDate.setHours(0, 0, 0, 0);
+                        const daysSince = Math.floor((today - moveInDate) / (1000 * 60 * 60 * 24));
+                        
+                        if (daysSince >= 0 && daysSince <= lookBackDays) {
+                            newMembers.push({
+                                name: fullName,
+                                moveInDate: moveInDate,
+                                daysSince: daysSince
+                            });
+                        }
+                    }
+                }
+            });
+
+            // Sort by most recent first
+            newMembers.sort((a, b) => a.daysSince - b.daysSince);
+
+            // Display new members
+            if (newMembers.length > 0) {
+                const grid = document.getElementById('newMembersGrid');
+                grid.innerHTML = newMembers.map(m => {
+                    let dayText;
+                    if (m.daysSince === 0) {
+                        dayText = 'Arrived Today!';
+                    } else if (m.daysSince === 1) {
+                        dayText = 'Arrived Yesterday';
+                    } else {
+                        dayText = `Arrived ${m.daysSince} days ago`;
+                    }
+                    
+                    const dateText = m.moveInDate.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+                    
+                    return `
+                        <div style="background: rgba(255,255,255,0.2); padding: 15px; border-radius: 6px;">
+                            <div style="display: flex; align-items: center; gap: 10px;">
+                                <div style="font-size: 32px;">👋</div>
+                                <div style="flex: 1;">
+                                    <div style="font-weight: bold; font-size: 16px;">${m.name}</div>
+                                    <div style="font-size: 14px; opacity: 0.9;">${dayText}</div>
+                                    <div style="font-size: 13px; margin-top: 3px; opacity: 0.8;">📅 ${dateText}</div>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                }).join('');
+                
+                document.getElementById('newMembersSection').style.display = 'block';
+            }
+
+        } catch (error) {
+            console.error('Error loading new members:', error);
         }
     }
 </script>
