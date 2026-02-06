@@ -282,14 +282,44 @@
     <label>Date of Birth</label>
     <input type="date" name="dob">
 
-    <label>Driver’s License Number</label>
-    <input type="text" name="dl_number">
+    <div class="inline">
+      <div style="flex: 2;">
+        <label>Driver's License Number</label>
+        <input type="text" name="dl_number">
+      </div>
+      <div style="flex: 1;">
+        <label>DL Expiration Year</label>
+        <select name="dl_exp_year" id="dl_exp_year">
+          <option value="">Select Year</option>
+        </select>
+      </div>
+    </div>
 
-    <label>State</label>
-    <input type="text" name="dl_state">
+    <div class="inline">
+      <div style="flex: 1;">
+        <label>State</label>
+        <input type="text" name="dl_state">
+      </div>
+      <div style="flex: 1;">
+        <label>DL Expiration Date</label>
+        <input type="text" name="dl_expiration" id="dl_expiration" readonly style="background: #f0f0f0;">
+      </div>
+    </div>
 
-    <label>Vehicle Make & Model</label>
-    <input type="text" name="vehicle">
+    <div class="inline">
+      <div style="flex: 2;">
+        <label>Vehicle Make & Model</label>
+        <input type="text" name="vehicle">
+      </div>
+      <div style="flex: 1;">
+        <label>License Plate No</label>
+        <input type="text" name="license_plate">
+      </div>
+      <div style="flex: 1;">
+        <label>Registration Expires</label>
+        <input type="date" name="registration_expires">
+      </div>
+    </div>
 
     <label>Cell Phone</label>
     <input type="tel" name="phone">
@@ -656,6 +686,42 @@
     
     // Initialize signature canvas
     initSignatureCanvas();
+    
+    // Populate DL expiration year dropdown (next 10 years)
+    const dlYearSelect = document.getElementById('dl_exp_year');
+    const currentYear = new Date().getFullYear();
+    for (let i = 0; i <= 10; i++) {
+      const year = currentYear + i;
+      const option = document.createElement('option');
+      option.value = year;
+      option.textContent = year;
+      dlYearSelect.appendChild(option);
+    }
+    
+    // Calculate DL expiration date when year is selected or DOB changes
+    function calculateDLExpiration() {
+      const dobInput = document.querySelector('input[name="dob"]');
+      const yearSelect = document.getElementById('dl_exp_year');
+      const expirationInput = document.getElementById('dl_expiration');
+      
+      if (dobInput.value && yearSelect.value) {
+        const dob = new Date(dobInput.value + 'T00:00:00');
+        const expYear = parseInt(yearSelect.value);
+        
+        // Set expiration to birthday in selected year
+        const expDate = new Date(expYear, dob.getMonth(), dob.getDate());
+        
+        const month = String(expDate.getMonth() + 1).padStart(2, '0');
+        const day = String(expDate.getDate()).padStart(2, '0');
+        
+        expirationInput.value = `${month}-${day}-${expYear}`;
+      } else {
+        expirationInput.value = '';
+      }
+    }
+    
+    document.querySelector('input[name="dob"]')?.addEventListener('change', calculateDLExpiration);
+    document.getElementById('dl_exp_year')?.addEventListener('change', calculateDLExpiration);
     
     // Format all date inputs to show mm-dd-yyyy on change
     document.querySelectorAll('input[type="date"]').forEach(dateInput => {
