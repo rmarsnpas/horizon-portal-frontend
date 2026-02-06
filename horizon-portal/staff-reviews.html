@@ -513,9 +513,11 @@
                             <p><strong>DL Number:</strong> ${data.dl_number || 'Not provided'}</p>
                             <p><strong>DL State:</strong> ${data.dl_state || 'Not provided'}</p>
                             <p><strong>DL Expiration:</strong> ${data.dl_expiration || 'Not provided'}</p>
-                            <p><strong>Vehicle:</strong> ${data.vehicle || 'Not provided'}</p>
-                            <p><strong>Lic Plate & State:</strong> ${data.license_plate || 'Not provided'}</p>
-                            <p><strong>Registration Expires:</strong> ${formatDate(data.registration_expires)}</p>
+                            <p><strong>Has Vehicle:</strong> ${data.has_vehicle === 'yes' ? 'Yes' : data.has_vehicle === 'no' ? 'No' : 'Not provided'}</p>
+                            ${data.vehicle ? `<p><strong>Vehicle:</strong> ${data.vehicle}</p>` : ''}
+                            ${data.license_plate ? `<p><strong>License Plate:</strong> ${data.license_plate}</p>` : ''}
+                            ${data.plate_state ? `<p><strong>Plate State:</strong> ${data.plate_state}</p>` : ''}
+                            ${data.registration_expires ? `<p><strong>Registration Expires:</strong> ${formatDate(data.registration_expires)}</p>` : ''}
                             <p><strong>Desired Move-In:</strong> ${formatDate(data.move_in)}</p>
                         </div>
                     </div>
