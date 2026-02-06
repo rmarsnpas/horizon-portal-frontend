@@ -902,9 +902,15 @@
     }
 
     const draftKey = `${DRAFT_KEY}_${refInput}`;
+    console.log('Looking for draft with key:', draftKey);
+    
     const savedDraft = localStorage.getItem(draftKey);
+    console.log('Found draft:', savedDraft ? 'Yes' : 'No');
     
     if (!savedDraft) {
+      // Show all stored keys for debugging
+      const allKeys = Object.keys(localStorage).filter(k => k.startsWith(DRAFT_KEY));
+      console.log('Available draft keys:', allKeys);
       alert('No draft found with that reference number. Please check the number and try again.');
       return;
     }
@@ -934,14 +940,18 @@
   }
 
   function saveDraft() {
-    if (!currentReferenceNumber) return;
+    if (!currentReferenceNumber) {
+      console.log('No reference number, cannot save draft');
+      return;
+    }
     
     const formData = collectFormData();
     const draftKey = `${DRAFT_KEY}_${currentReferenceNumber}`;
     
     try {
       localStorage.setItem(draftKey, JSON.stringify(formData));
-      console.log('Draft saved:', currentReferenceNumber);
+      console.log('Draft saved successfully:', currentReferenceNumber, 'Key:', draftKey);
+      console.log('Saved data:', formData);
     } catch (error) {
       console.error('Error saving draft:', error);
     }
