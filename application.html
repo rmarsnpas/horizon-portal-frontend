@@ -861,6 +861,7 @@
 
   function startNewApplication() {
     currentReferenceNumber = generateReferenceNumber();
+    console.log('Generated reference number:', currentReferenceNumber);
     
     // Clear the form completely
     const form = document.getElementById('applicationForm');
@@ -886,6 +887,7 @@
     document.getElementById('referenceDisplay').style.display = 'block';
     document.getElementById('refNumberText').textContent = currentReferenceNumber;
     
+    console.log('About to call saveDraft, currentReferenceNumber is:', currentReferenceNumber);
     // Save empty draft immediately so it can be loaded later
     saveDraft();
     
@@ -940,6 +942,7 @@
   }
 
   function saveDraft() {
+    console.log('saveDraft called, currentReferenceNumber:', currentReferenceNumber);
     if (!currentReferenceNumber) {
       console.log('No reference number, cannot save draft');
       return;
@@ -952,6 +955,7 @@
       localStorage.setItem(draftKey, JSON.stringify(formData));
       console.log('Draft saved successfully:', currentReferenceNumber, 'Key:', draftKey);
       console.log('Saved data:', formData);
+      console.log('All localStorage keys:', Object.keys(localStorage));
     } catch (error) {
       console.error('Error saving draft:', error);
     }
