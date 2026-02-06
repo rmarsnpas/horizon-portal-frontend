@@ -300,18 +300,26 @@
       </div>
     </div>
 
+    <label>Do you have a vehicle?</label>
     <div class="inline">
-      <div style="flex: 2;">
-        <label>Vehicle Make & Model</label>
-        <input type="text" name="vehicle">
-      </div>
-      <div style="flex: 1;">
-        <label>Lic Plate & State</label>
-        <input type="text" name="license_plate" placeholder="e.g., ABC123 CA">
-      </div>
-      <div style="flex: 1;">
-        <label>Registration Expires</label>
-        <input type="date" name="registration_expires">
+      <label class="checkbox-group"><input type="radio" name="has_vehicle" value="yes" id="vehicle_yes"> Yes</label>
+      <label class="checkbox-group"><input type="radio" name="has_vehicle" value="no" id="vehicle_no"> No</label>
+    </div>
+
+    <div id="vehicle_details" class="conditional-field">
+      <div class="inline">
+        <div style="flex: 2;">
+          <label>Vehicle Make & Model</label>
+          <input type="text" name="vehicle">
+        </div>
+        <div style="flex: 1;">
+          <label>Lic Plate & State</label>
+          <input type="text" name="license_plate" placeholder="e.g., ABC123 CA">
+        </div>
+        <div style="flex: 1;">
+          <label>Registration Expires</label>
+          <input type="date" name="registration_expires">
+        </div>
       </div>
     </div>
 
@@ -808,6 +816,14 @@
     });
     document.getElementById('job_no')?.addEventListener('change', function() {
       document.getElementById('job_details').style.display = 'none';
+    });
+
+    // Vehicle details
+    document.getElementById('vehicle_yes')?.addEventListener('change', function() {
+      document.getElementById('vehicle_details').style.display = 'block';
+    });
+    document.getElementById('vehicle_no')?.addEventListener('change', function() {
+      document.getElementById('vehicle_details').style.display = 'none';
     });
 
     // Sponsor willingness
