@@ -901,6 +901,11 @@
     document.getElementById('floatingSaveBtn').style.display = 'block';
     document.getElementById('refNumberText').textContent = currentReferenceNumber;
     
+    // Re-initialize canvas now that content is visible
+    setTimeout(() => {
+      initSignatureCanvas();
+    }, 50);
+    
     // Save empty draft immediately so it can be loaded later
     setTimeout(() => {
       saveDraft();
@@ -937,6 +942,11 @@
           document.getElementById('referenceDisplay').style.display = 'block';
           document.getElementById('floatingSaveBtn').style.display = 'block';
           document.getElementById('refNumberText').textContent = currentReferenceNumber;
+          
+          // Re-initialize canvas now that content is visible
+          setTimeout(() => {
+            initSignatureCanvas();
+          }, 50);
           
           // Populate form
           populateForm(result.formData);
