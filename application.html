@@ -859,6 +859,9 @@
 <script>
   const DRAFT_KEY = 'hhApplicationDraft';
   let currentReferenceNumber = null;
+  let canvas = null;
+  let ctx = null;
+  let isDrawing = false;
 
   // Reference Number & Draft Functions
   function generateReferenceNumber() {
