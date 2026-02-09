@@ -628,7 +628,7 @@
             } catch (error) {
                 console.error('Error:', error);
                 showLoading(false);
-                showStatus('Connection error. Please try again.', 'error');
+                showStatus(`Error: ${error.message || 'Connection error'}. Please try again.`, 'error');
             }
         }
 
@@ -658,11 +658,11 @@
                     showStatus(`✓ ${memberName} signed IN`, 'success');
                     setTimeout(showStatusScreen, 2000); // Return to status after 2 seconds
                 } else {
-                    showStatus('Error: ' + (result.message || 'Unknown error'), 'error');
+                    showStatus(`Sign-in error: ${result.message || result.error || 'Unknown error'}`, 'error');
                 }
             } catch (error) {
                 showLoading(false);
-                showStatus('Connection error. Please try again.', 'error');
+                showStatus(`Sign-in failed: ${error.message || 'Connection error'}`, 'error');
             }
         }
 
@@ -694,11 +694,11 @@
                     showStatus(`✓ ${memberData.name} signed OUT`, 'success');
                     setTimeout(showStatusScreen, 2000); // Return to status after 2 seconds
                 } else {
-                    showStatus('Error: ' + (result.message || 'Unknown error'), 'error');
+                    showStatus(`Sign-out error: ${result.message || result.error || 'Unknown error'}`, 'error');
                 }
             } catch (error) {
                 showLoading(false);
-                showStatus('Connection error. Please try again.', 'error');
+                showStatus(`Sign-out failed: ${error.message || 'Connection error'}`, 'error');
             }
         }
     </script>
