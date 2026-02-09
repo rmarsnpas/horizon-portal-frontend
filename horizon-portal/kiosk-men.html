@@ -392,7 +392,10 @@
             return normalizeId(obj && (obj.memberId ?? obj.ID ?? obj.id));
         }
         function isActiveMember(obj) {
-            return obj && (obj.STATUS === 1 || obj.status === 1 || obj.STATU === 1);
+            if (!obj) return false;
+            const status = obj.STATUS ?? obj.status ?? obj.STATU;
+            // Accept status 1 or "Active" or empty/null (default to active)
+            return status === 1 || status === '1' || status === 'Active' || status === 'ACTIVE' || status == null || status === '';
         }
         function displayNameFrom(m) {
             if (!m) return 'Unknown';
