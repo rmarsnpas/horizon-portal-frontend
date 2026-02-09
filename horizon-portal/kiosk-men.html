@@ -582,9 +582,9 @@
                     return;
                 }
 
-                // Get member name from FIRST\nNAME and LAST\nNAME fields
-                const firstName = memberData['FIRST\nNAME'] || memberData.FIRST_NAME || memberData.first_name || '';
-                const lastName = memberData['LAST\nNAME'] || memberData.LAST_NAME || memberData.last_name || '';
+                // Get member name from FIRST\nNAME and LAST\nNAME fields (with or without \r)
+                const firstName = memberData['FIRST\r\nNAME'] || memberData['FIRST\nNAME'] || memberData.FIRST_NAME || memberData.first_name || '';
+                const lastName = memberData['LAST\r\nNAME'] || memberData['LAST\nNAME'] || memberData.LAST_NAME || memberData.last_name || '';
                 const memberName = `${firstName} ${lastName}`.trim();
                 
                 console.log('Member lookup:', {memberId, firstName, lastName, memberName, keys: Object.keys(memberData)});
