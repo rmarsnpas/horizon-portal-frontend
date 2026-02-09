@@ -586,6 +586,14 @@
                 const firstName = memberData['FIRST\nNAME'] || memberData.FIRST_NAME || memberData.first_name || '';
                 const lastName = memberData['LAST\nNAME'] || memberData.LAST_NAME || memberData.last_name || '';
                 const memberName = `${firstName} ${lastName}`.trim();
+                
+                console.log('Member lookup:', {memberId, firstName, lastName, memberName, keys: Object.keys(memberData)});
+                
+                if (!memberName) {
+                    showLoading(false);
+                    showStatus('Error: Could not find member name', 'error');
+                    return;
+                }
 
                 // Check current sign-in status - get list of all signed-out members
                 const statusResponse = await fetch(`${API_URL}/api/signInOut/current`);
