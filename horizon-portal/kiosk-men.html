@@ -641,7 +641,7 @@
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ 
-                        memberId: memberId,
+                        memberId: parseInt(memberId),
                         memberName: memberName,
                         timeIn: timeIn,
                         date: date
@@ -675,7 +675,7 @@
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ 
-                        memberId: memberData.id,
+                        memberId: parseInt(memberData.id),
                         memberName: memberData.name,
                         destination: destination,
                         timeOut: timeOut,
