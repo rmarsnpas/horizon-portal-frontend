@@ -671,17 +671,34 @@
                 const timeOut = now.toTimeString().slice(0, 5);
                 const date = now.toISOString().split('T')[0];
                 
+                // Validate all required fields
+                if (!memberData || !memberData.id || !memberData.name) {
+                    showLoading(false);
+                    showStatus('Error: Missing member data', 'error');
+                    console.error('memberData:', memberData);
+                    return;
+                }
+                if (!destination || !returnTime) {
+                    showLoading(false);
+                    showStatus('Error: Missing destination or return time', 'error');
+                    return;
+                }
+                
+                const payload = { 
+                    memberId: parseInt(memberData.id),
+                    memberName: memberData.name,
+                    destination: destination,
+                    timeOut: timeOut,
+                    estimatedReturn: returnTime,
+                    date: date
+                };
+                
+                console.log('Sign-out payload:', payload);
+                
                 const actionResponse = await fetch(`${API_URL}/api/signInOut/out`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ 
-                        memberId: parseInt(memberData.id),
-                        memberName: memberData.name,
-                        destination: destination,
-                        timeOut: timeOut,
-                        estimatedReturn: returnTime,
-                        date: date
-                    })
+                    body: JSON.stringify(payload)
                 });
 
                 const result = await actionResponse.json();
