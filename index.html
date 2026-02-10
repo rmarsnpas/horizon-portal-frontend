@@ -57,10 +57,42 @@
     .error{color:var(--red)}
     
     /* Expandable Section */
-    .expandable-section{background:#fff;padding:2rem;margin:2rem auto;border-radius:8px;max-width:900px;box-shadow:0 2px 8px rgba(0,0,0,0.08)}
-    .expand-button{background:linear-gradient(135deg,#003366,#004d99);color:#fff;border:none;padding:1.2rem 2rem;font-size:1.1rem;font-weight:600;border-radius:8px;cursor:pointer;width:100%;text-align:left;display:flex;justify-content:space-between;align-items:center;transition:all 0.3s}
+    .expandable-section{
+      background:#fff;
+      padding:2rem;
+      margin:2rem auto;
+      border-radius:8px;
+      max-width:900px;
+      box-shadow:0 2px 8px rgba(0,0,0,0.08)
+    }
+    .expand-button{
+      background: linear-gradient(135deg,#1e73be,#004d99);
+      color: #fff;
+      border: none;
+      padding: 1.2rem 2rem;
+      font-size: 1.7rem;
+      font-weight: 700;
+      border-radius: 8px;
+      cursor: pointer;
+      width: 100%;
+      text-align: center;
+      display: block;
+      transition: background 0.3s, color 0.3s, box-shadow 0.3s, transform 0.3s;
+      box-shadow: 0 2px 8px rgba(30,115,190,0.08);
+    }
+    .orange-btn {
+      background: linear-gradient(135deg,#1e73be,#004d99) !important;
+      color: #fff !important;
+      border: none !important;
+    }
+    .expand-button:hover, .orange-btn:hover {
+      background: linear-gradient(135deg,#c98a22,#eab85e) !important;
+      color: #2b3440 !important;
+      box-shadow: 0 8px 24px rgba(30,115,190,0.18);
+      transform: translateY(-2px) scale(1.03);
+    }
     .expand-button:hover{background:linear-gradient(135deg,#004d99,#003366);transform:translateY(-2px);box-shadow:0 4px 12px rgba(0,51,102,0.3)}
-    .expand-button::after{content:'▼';font-size:1rem;transition:transform 0.3s}
+    .expand-button::after{content:'';}
     .expand-button.active::after{transform:rotate(180deg)}
     .expandable-content{max-height:0;overflow:hidden;transition:max-height 0.5s ease-out}
     .expandable-content.active{max-height:5000px;transition:max-height 0.8s ease-in}
@@ -110,6 +142,40 @@
     }
     
     @media (max-width:640px){.hero{padding:2.5rem 0}}
+    .float-different-btn {
+      position: fixed;
+      bottom: 32px;
+      right: 32px;
+      z-index: 1002;
+      display: inline-block;
+      padding: 1.2rem 2.5rem;
+      font-size: 1.35rem;
+      font-weight: 700;
+      background: linear-gradient(135deg,#1e73be,#004d99);
+      color: #fff;
+      border-radius: 1.2rem;
+      box-shadow: 0 4px 18px rgba(30,115,190,0.13);
+      text-decoration: none;
+      transition: background 0.2s, box-shadow 0.2s, transform 0.2s, color 0.2s;
+      letter-spacing: 0.5px;
+    }
+    .float-different-btn:hover {
+      background: linear-gradient(135deg,#c98a22,#eab85e);
+      color: #2b3440;
+      box-shadow: 0 8px 24px rgba(30,115,190,0.18);
+      transform: translateY(-2px) scale(1.03);
+    }
+    @media (max-width: 600px) {
+      .float-different-btn {
+        right: 12px;
+        left: 12px;
+        bottom: 16px;
+        width: auto;
+        min-width: 0;
+        padding: 1rem 1.2rem;
+        font-size: 1.05rem;
+      }
+    }
   </style>
   
   <!-- Local Business Schema Markup for SEO -->
@@ -220,52 +286,16 @@
       <p>
         <img src="HH logo grntree.jpg" alt="Horizon House logo" style="height:170px;">
       </p>
-      <div style="margin:2rem 0 1.5rem 0;">
-        <a href="what-makes-us-different.html" style="display:inline-block;padding:1.2rem 2.5rem;font-size:1.35rem;font-weight:700;background:#1e73be;color:#fff;border-radius:1.2rem;box-shadow:0 4px 18px rgba(30,115,190,0.13);text-decoration:none;transition:background 0.2s;letter-spacing:0.5px;">What Makes Us Different</a>
-      </div>
+      <!-- Removed floating button from hero section -->
       <div class="trust" aria-label="Trust highlights">
         <span>Peer driven growth</span> • <span>Accountability & guidance</span> • <span>Safety & support</span>
       </div>
     </section>
 
     <!-- Why Sober Living Matters - Expandable -->
-    <div class="expandable-section">
-      <button class="expand-button" onclick="toggleContent(this)">
-        <span>Why Sober Living Matters — And What Makes Horizon‑House Different</span>
-      </button>
-      <div class="expandable-content">
-        <div>
-          <p style="line-height: 1.8; margin-bottom: 1.2rem;">Sober living has become one of the most important stepping‑stones in recovery. When individuals complete treatment, they leave behind the structure, support, and safety they relied on every day. The "bubble" disappears. And without that safety net, staying sober becomes harder—not because people lack desire, but because early recovery is fragile and real life comes rushing back all at once.</p>
-
-          <p style="line-height: 1.8; margin-bottom: 1.2rem;"><strong>That is where sober living becomes life‑changing.</strong></p>
-
-          <p style="line-height: 1.8; margin-bottom: 1.2rem;">At Horizon‑House, members live in a safe, stable, recovery‑focused community where everyone shares a common goal: staying sober and rebuilding a life they can be proud of. They wake up together, come home together, and face both good days and hard days side by side. The support isn't theoretical—it's happening in real time, in real conversations, with people who understand exactly what the next person is going through.</p>
-
-          <p style="line-height: 1.8; margin-bottom: 1.2rem;">Here, accountability is peer‑driven. It sounds like this:</p>
-
-          <div style="background: #f8f9fa; border-left: 4px solid #c98a22; padding: 1.5rem; margin: 1.5rem 0; font-style: italic;">
-            <p style="margin-bottom: 0.8rem;">"If you want to live here, these are the things you need to do."</p>
-            <p style="margin-bottom: 0.8rem;">"If you want more for yourself, let's help you get there."</p>
-            <p style="margin-bottom: 0;">"If you don't want to live here forever, get a job, save your money, and move forward the right way."</p>
-          </div>
-
-          <p style="line-height: 1.8; margin-bottom: 1.2rem;">This kind of accountability isn't punishment—it's empowerment. It teaches responsibility, routine, and follow‑through. It rebuilds the backbone, the self‑respect, and the confidence that addiction once took away.</p>
-
-          <p style="line-height: 1.8; margin-bottom: 1.2rem;"><strong>And most importantly, it works.</strong></p>
-
-          <p style="line-height: 1.8; margin-bottom: 1.2rem;">Members begin to understand that sobriety isn't only about not using. It's about showing up, one day at a time. It's about doing the quiet work: waking up on time, taking care of your space, being honest, being reliable, and choosing connection over isolation. Those small daily actions are what hold recovery together. Those habits create a foundation that lasts.</p>
-
-          <p style="line-height: 1.8; margin-bottom: 1.2rem;">Living in a peer‑driven environment gives individuals far more than structure—it gives them belonging. It gives them people who won't let them give up. It gives them the courage to take the next right step, even when they're scared.</p>
-
-          <p style="line-height: 1.8; margin-bottom: 1.2rem;">Horizon‑House is different because we believe recovery doesn't happen to someone. It happens within a community that refuses to give up on itself. Here, members don't just stay sober—they learn how to live again. They learn how to move forward. They learn how to build a future that feels possible.</p>
-
-          <p style="line-height: 1.8; margin-bottom: 1.2rem;">For many, that difference is not small.</p>
-
-          <p style="line-height: 1.8; margin-bottom: 1.2rem;"><strong>It's life or death.</strong></p>
-
-          <p style="line-height: 1.8; margin-bottom: 0;">And that is why we do what we do.</p>
-        </div>
-      </div>
+    <div class="expandable-section" style="margin-bottom:2.5rem;">
+      <a href="why-sober-living-matters.html" class="expand-button orange-btn" style="margin-bottom:1.1rem;">Why Sober Living Matters</a>
+      <a href="what-makes-us-different.html" class="expand-button orange-btn">The Horizon House Difference</a>
     </div>
 
     <!-- What Makes Us Different -->

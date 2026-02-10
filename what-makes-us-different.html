@@ -25,6 +25,40 @@
     ul{margin:1.2rem 0 1.2rem 1.5rem}
     li{margin-bottom:0.7rem}
     @media (max-width:700px){main{padding:1.2rem} h1{font-size:1.3rem}}
+    .float-back-btn, .float-why-btn {
+      position: fixed;
+      bottom: 32px;
+      left: 32px;
+      z-index: 1002;
+      display: inline-block;
+      padding: 1.1rem 2.1rem;
+      font-size: 1.18rem;
+      font-weight: 700;
+      background: #1e73be;
+      color: #fff;
+      border-radius: 1.2rem;
+      box-shadow: 0 4px 18px rgba(30,115,190,0.13);
+      text-decoration: none;
+      transition: background 0.2s, box-shadow 0.2s, transform 0.2s;
+      letter-spacing: 0.5px;
+    }
+    .float-back-btn:hover, .float-why-btn:hover {
+      background: #c98a22;
+      color: #2b3440;
+      box-shadow: 0 8px 24px rgba(30,115,190,0.18);
+      transform: translateY(-2px) scale(1.03);
+    }
+    @media (max-width: 600px) {
+          .float-back-btn, .float-why-btn {
+            left: 12px;
+            right: 12px;
+            bottom: 16px;
+            width: auto;
+            min-width: 0;
+            padding: 1rem 1.2rem;
+            font-size: 1.05rem;
+          }
+        }
   </style>
 </head>
 <body>
@@ -35,23 +69,19 @@
       <ul>
         <li><a href="index.html">Home</a></li>
         <li><a href="gallery.html">Gallery</a></li>
-        <li><a href="what-to-bring.html">What to Bring</a></li>
       </ul>
     </nav>
   </div>
 </header>
+<a href="index.html" class="float-back-btn">← Back</a>
+<a href="why-sober-living-matters.html" class="float-why-btn" style="left:auto;right:32px;bottom:32px;">Why Sober Living Matters</a>
 <main class="wrap">
-  <h1>What Makes Horizon House Different?</h1>
+  <h1>The Horizon House Difference!</h1>
   <div class="highlight">
     <strong>Horizon House isn’t just another sober living home.</strong> We’re a real community, built on trust, accountability, and the belief that everyone deserves a chance to rebuild their life with dignity and hope.
   </div>
   <h2>1. Peer-Driven Accountability</h2>
   <p>At Horizon House, accountability isn’t top-down or punitive. It’s peer-driven. Members hold each other to a high standard, not out of fear, but out of respect and care. This approach empowers people to take ownership of their recovery and their future.</p>
-  <div class="quote">
-    “If you want to live here, these are the things you need to do.”<br>
-    “If you want more for yourself, let’s help you get there.”<br>
-    “If you don’t want to live here forever, get a job, save your money, and move forward the right way.”
-  </div>
   <h2>2. Real Community, Not Just a Place to Stay</h2>
   <p>We’re more than a roof and a set of rules. Members eat together, support each other, and celebrate milestones as a group. The support is real, every day, in real conversations and shared experiences. No one is left to struggle alone.</p>
   <h2>3. Clean, Uncrowded, and Comfortable Living</h2>
@@ -72,7 +102,7 @@
   <div class="wrap" style="text-align:center;color:#6b7280;font-size:13px;margin-top:2rem;">
     <div style="margin-bottom:1.2rem;">
       <a href="mailto:info@horizon-house.org" style="display:inline-block;margin:0 1rem 0 0;padding:.9rem 2rem;font-size:1.08rem;font-weight:700;background:#1e73be;color:#fff;border-radius:1.1rem;text-decoration:none;">Contact Us</a>
-      <a href="index.html" style="display:inline-block;margin:0 1rem;padding:.9rem 2rem;font-size:1.08rem;font-weight:700;background:#c98a22;color:#2b3440;border-radius:1.1rem;text-decoration:none;">Visit Website</a>
+      <a href="index.html" style="display:inline-block;margin:0 1rem;padding:.9rem 2rem;font-size:1.08rem;font-weight:700;background:#c98a22;color:#2b3440;border-radius:1.1rem;text-decoration:none;">Home</a>
     </div>
     <div style="font-size:1.1rem;margin-bottom:.5rem;"><strong>Call us:</strong> <a href="tel:7607660300" style="color:#1e73be;text-decoration:underline;">(760) 766‑0300</a></div>
     © 2026 Horizon House Sober Living
