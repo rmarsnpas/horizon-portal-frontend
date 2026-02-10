@@ -213,7 +213,10 @@
     <div class="card">
         <h3>Announcements</h3>
         <p>Stay updated with house news, schedule changes, and upcoming events.</p>
-        <a href="/members/announcements.html" class="button">View Announcements</a>
+        <div id="recentAnnouncements" style="margin-top: 15px; display: none;">
+            <div id="announcementsList"></div>
+        </div>
+        <a href="announcements.html" class="button">View All Announcements</a>
     </div>
 
     <div class="card">
@@ -270,6 +273,9 @@
                     
                     // Load and display new members
                     loadNewMembers();
+                    
+                    // Load recent announcements
+                    loadRecentAnnouncements();
                 }
             })
             .catch(error => {
@@ -627,6 +633,61 @@
         } catch (error) {
             console.error('Error loading new members:', error);
         }
+    }
+
+    // Load and display recent announcements (last 3)
+    async function loadRecentAnnouncements() {
+        try {
+            const response = await fetch('https://horizon-portal-backend-production-3532.up.railway.app/api/announcements');
+            const announcements = await response.json();
+            
+            if (announcements.length > 0) {
+                const recent = announcements.slice(0, 3);
+                const announcementsList = document.getElementById('announcementsList');
+                
+                announcementsList.innerHTML = recent.map(announcement => {
+                    const timestamp = new Date(announcement.timestamp);
+                    const timeAgo = getTimeAgo(timestamp);
+                    const likeCount = announcement.likes ? announcement.likes.length : 0;
+                    const commentCount = announcement.comments ? announcement.comments.length : 0;
+                    
+                    return `
+                        <div style="background: #f7fafc; padding: 12px; border-radius: 6px; margin-bottom: 10px; border-left: 4px solid #667eea;">
+                            <div style="font-weight: 600; color: #003366; margin-bottom: 5px;">${escapeHtml(announcement.title)}</div>
+                            <div style="font-size: 13px; color: #718096; margin-bottom: 5px;">
+                                ${escapeHtml(announcement.authorName)} • ${timeAgo}
+                            </div>
+                            <div style="font-size: 12px; color: #a0aec0;">
+                                ❤️ ${likeCount} • 💬 ${commentCount}
+                            </div>
+                        </div>
+                    `;
+                }).join('');
+                
+                document.getElementById('recentAnnouncements').style.display = 'block';
+            }
+        } catch (error) {
+            console.error('Error loading recent announcements:', error);
+        }
+    }
+
+    // Helper function to escape HTML
+    function escapeHtml(text) {
+        const div = document.createElement('div');
+        div.textContent = text;
+        return div.innerHTML;
+    }
+
+    // Helper function to get time ago
+    function getTimeAgo(date) {
+        const seconds = Math.floor((new Date() - date) / 1000);
+        
+        if (seconds < 60) return 'Just now';
+        if (seconds < 3600) return `${Math.floor(seconds / 60)}m ago`;
+        if (seconds < 86400) return `${Math.floor(seconds / 3600)}h ago`;
+        if (seconds < 604800) return `${Math.floor(seconds / 86400)}d ago`;
+        
+        return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
     }
 
     // Logout function
