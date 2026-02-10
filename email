@@ -1,0 +1,85 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Horizon House | Why Sober Living Matters</title>
+  <style>
+    body{margin:0;padding:0;background:#f5f1ea;font-family:Arial,Helvetica,sans-serif;color:#2b3440}
+    table{border-collapse:collapse}
+    .wrapper{width:100%;background:#f5f1ea;padding:24px 0}
+    .container{max-width:640px;margin:0 auto;background:#ffffff;border-radius:12px;overflow:hidden;box-shadow:0 6px 18px rgba(0,0,0,0.08)}
+    .header{background:#2b3440;color:#ebc867;padding:24px 28px}
+    .header h1{margin:0;font-size:22px;line-height:1.4}
+    .content{padding:28px}
+    .content h2{margin:20px 0 10px 0;font-size:18px;color:#2b3440}
+    .content p{margin:0 0 14px 0;line-height:1.6;font-size:15px}
+    .quote{background:#f8f9fa;border-left:4px solid #c98a22;padding:14px 16px;margin:16px 0;font-style:italic}
+    .emphasis{background:#fef6e4;padding:16px;border-radius:8px;margin:16px 0}
+    .cta{display:inline-block;background:#1e73be;color:#ffffff;text-decoration:none;padding:12px 18px;border-radius:6px;font-weight:bold}
+    .footer{padding:20px 28px;background:#1f2530;color:#cfd6e6;font-size:12px;line-height:1.6}
+    .muted{color:#6b7280}
+    @media (max-width:680px){
+      .container{border-radius:0}
+      .content,.header,.footer{padding:20px}
+    }
+  </style>
+</head>
+<body>
+  <!--
+    Suggested subject lines:
+    1) Why sober living matters after treatment
+    2) A safe, structured bridge from treatment to lasting recovery
+    3) For your clients: peer-driven accountability that works
+
+    Suggested preview text:
+    "A brief overview for therapists and case teams supporting early recovery."
+  -->
+  <table class="wrapper" role="presentation" width="100%">
+    <tr>
+      <td align="center">
+        <table class="container" role="presentation" width="100%">
+          <tr>
+            <td class="header">
+              <h1>Why Sober Living Matters — And What Makes Horizon House Different</h1>
+            </td>
+          </tr>
+          <tr>
+            <td class="content">
+              <p>Hi {{FirstName}},</p>
+              <p>We support therapists, case managers, and counseling teams who care deeply about safe, stable transitions after treatment. Early recovery is fragile. When the structure of treatment ends, people often lose the daily support that helped keep them grounded.</p>
+              <p><strong>That is where sober living becomes life‑changing.</strong></p>
+
+              <h2>Accountability That Empowers</h2>
+              <p>At Horizon House, accountability is peer‑driven. It sounds like:</p>
+              <div class="quote">
+                <p>“If you want to live here, these are the things you need to do.”</p>
+                <p>“If you want more for yourself, let’s help you get there.”</p>
+                <p>“If you don’t want to live here forever, get a job, save your money, and move forward the right way.”</p>
+              </div>
+              <p>This kind of accountability isn’t punishment — it teaches responsibility, routine, and follow‑through.</p>
+
+              <h2>Small Actions, Lasting Foundations</h2>
+              <p>Members learn that sobriety isn’t only about not using. It’s about showing up daily: keeping commitments, caring for their space, being honest, and choosing connection over isolation. Those small actions build a foundation that lasts.</p>
+              <div class="emphasis">
+                <p>Living in a peer‑driven environment gives individuals more than structure — it gives them belonging, people who won’t let them give up, and the courage to take the next right step.</p>
+              </div>
+
+              <h2>Recovery Within Community</h2>
+              <p>Horizon House is a safe, stable, recovery‑focused community where members share the same goal: staying sober and rebuilding a life they can be proud of.</p>
+
+              <p style="margin-top:18px;">If you’re supporting a client who needs a structured step‑down environment, we’d be honored to help.</p>
+              <p style="margin:18px 0 4px 0;"><a class="cta" href="https://horizon-house.org/why-sober-living-matters.html">Read the full brochure summary</a></p>
+              <p class="muted">Or call us at (760) 766‑0300 • info@horizon-house.org</p>
+
+              <p style="margin-top:18px;">Thank you for the work you do.</p>
+              <p><strong>Horizon House Sober Living</strong><br>Coachella Valley</p>
+            </td>
+          </tr>
+          <tr>
+            <td class="footer">
+              You’re receiving this message because you work with treatment teams supporting transitions to sober living. If you prefer not to receive outreach, reply “unsubscribe.”
+            </td>
+          </tr>
+        </table>
+      </td>
