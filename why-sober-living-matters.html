@@ -27,6 +27,35 @@
       article{padding:1.5rem;margin:1.5rem 1rem}
       h1{font-size:1.8rem}
     }
+  .sidebar-btn {
+    position:fixed;
+    top:140px;
+    left:32px;
+    z-index:100;
+    display:flex;
+    flex-direction:column;
+    align-items:flex-start;
+  }
+  .sidebar-btn a {
+    display:inline-block;
+    padding:1.1rem 2.1rem;
+    font-size:1.18rem;
+    font-weight:700;
+    background:#1e73be;
+    color:#fff;
+    border-radius:1.2rem;
+    box-shadow:0 4px 18px rgba(30,115,190,0.13);
+    text-decoration:none;
+    transition:background 0.2s;
+    letter-spacing:0.5px;
+    margin-bottom:1rem;
+  }
+  .sidebar-btn a:hover {
+    background:#155a8a;
+  }
+  @media (max-width:900px) {
+    .sidebar-btn { display:none; }
+  }
   </style>
 </head>
 
@@ -44,11 +73,11 @@
   </div>
 </header>
 
+<div class="sidebar-btn">
+  <a href="what-makes-us-different.html">What Makes Us Different</a>
+</div>
 <main class="wrap">
   <article>
-    <div style="text-align:center;margin-bottom:2.5rem;">
-      <a href="what-makes-us-different.html" style="display:inline-block;padding:1.2rem 2.5rem;font-size:1.25rem;font-weight:700;background:#1e73be;color:#fff;border-radius:1.2rem;box-shadow:0 4px 18px rgba(30,115,190,0.13);text-decoration:none;transition:background 0.2s;letter-spacing:0.5px;">What Makes Us Different</a>
-    </div>
     <h1>Why Sober Living Matters — And What Makes Horizon‑House Different</h1>
 
     <p>Sober living has become one of the most important stepping‑stones in recovery. When individuals complete treatment, they leave behind the structure, support, and safety they relied on every day. The "bubble" disappears. And without that safety net, staying sober becomes harder—not because people lack desire, but because early recovery is fragile and real life comes rushing back all at once.</p>
@@ -95,6 +124,7 @@
 </main>
 
 <footer>
+  <div style="font-size:1.1rem;margin-bottom:.5rem;"><strong>Call us:</strong> <a href="tel:7607660300" style="color:#1e73be;text-decoration:underline;">(760) 766‑0300</a></div>
   <p>© 2026 Horizon House Sober Living</p>
 </footer>
 </body>
