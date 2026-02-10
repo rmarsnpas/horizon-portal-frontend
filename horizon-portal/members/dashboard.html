@@ -225,11 +225,33 @@
         <a href="/members/forms.html" class="button">Go to Forms</a>
     </div>
 
+
+
     <div class="card">
-        <h3>Your Progress</h3>
-        <p>Track milestones, meeting attendance, and program achievements.</p>
-        <a href="/members/progress.html" class="button">View Progress</a>
+        <h3>Your Program</h3>
+        <p>Access your step work worksheets, track your step work progress, upload meeting attendance cards, and find other program materials.</p>
+        <div style="margin-top: 10px;">
+            <button onclick="toggleProgramMenu()" class="button">Open Program Menu</button>
+            <div id="programMenu" style="display:none; margin-top:15px;">
+                <ul style="list-style:none; padding-left:0;">
+                    <li><a href="/horizon-portal/program-materials/1st%20step%20WB.pdf" target="_blank" class="button">AA 1st Step WB</a></li>
+                    <li><a href="/horizon-portal/program-materials/1st%20step%20Worksheet.pdf" target="_blank" class="button">AA 1st Step Worksheet</a></li>
+                    <li><a href="/horizon-portal/program-materials/1st%20step%20Worksheet%20shorter.pdf" target="_blank" class="button">AA 1st Step Worksheet (Shorter)</a></li>
+                    <li><a href="/members/step-work.html" class="button">Step Work Worksheets</a></li>
+                    <li><a href="/members/step-progress.html" class="button">Track Step Progress</a></li>
+                    <li><a href="/members/meeting-cards.html" class="button">Upload Meeting Card</a></li>
+                    <!-- Add more program links here -->
+                </ul>
+            </div>
+        </div>
     </div>
+
+    <script>
+    function toggleProgramMenu() {
+        var menu = document.getElementById('programMenu');
+        menu.style.display = menu.style.display === 'none' ? 'block' : 'none';
+    }
+    </script>
 
     <div class="card">
         <h3>Messages</h3>
