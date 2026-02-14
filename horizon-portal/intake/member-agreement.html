@@ -317,6 +317,14 @@
             <h1>🏠 Horizon House</h1>
             <p>Member Agreement</p>
         </div>
+
+        <!-- Intake Print Header -->
+        <div id="printHeader" style="display:none; background:#f7fafc; border-bottom:2px solid #667eea; padding:16px 24px; margin-bottom:24px;">
+            <div style="font-size:18px; font-weight:600; color:#2d3748;">Intake Package Submission</div>
+            <div><strong>Member ID:</strong> <span id="phMemberId">-</span></div>
+            <div><strong>Member Name:</strong> <span id="phMemberName">-</span></div>
+            <div><strong>Date Completed:</strong> <span id="phDateCompleted">-</span></div>
+        </div>
         
         <div class="progress-bar">
             <div class="progress-fill" id="progressBar" style="width: 0%"></div>
@@ -753,5 +761,45 @@
         }
     </script>
     <script src="intake-flow.js"></script>
+    <script>
+    // Show print header and signature on print
+    function showPrintHeader() {
+        const intakeData = sessionStorage.getItem('intakeData');
+        if (!intakeData) return;
+        const data = JSON.parse(intakeData);
+        document.getElementById('phMemberId').textContent = data.memberId || '-';
+        document.getElementById('phMemberName').textContent = (data.firstName || '') + ' ' + (data.lastName || '');
+        // Use today's date as completed date for print
+        const today = new Date().toLocaleDateString();
+        document.getElementById('phDateCompleted').textContent = today;
+        document.getElementById('printHeader').style.display = 'block';
+    }
+
+    // Show signature image if available (after submit)
+    function showPrintSignature() {
+        const sigImg = document.createElement('img');
+        sigImg.id = 'printSignatureImg';
+        sigImg.style.maxWidth = '400px';
+        sigImg.style.display = 'block';
+        sigImg.style.margin = '24px auto';
+        // Try to get signature from local/session storage (if saved)
+        const sigData = sessionStorage.getItem('memberAgreementSignature');
+        if (sigData) {
+            sigImg.src = sigData;
+            document.body.appendChild(sigImg);
+        }
+    }
+
+    // Only show on print
+    window.addEventListener('beforeprint', function() {
+        showPrintHeader();
+        showPrintSignature();
+    });
+
+    // Save signature to sessionStorage after submit (hook into existing submit logic)
+    // (Assumes signatureDataURL variable is available after submit)
+    // You may need to add this in the submit handler:
+    // sessionStorage.setItem('memberAgreementSignature', signatureDataURL);
+    </script>
 </body>
 </html>
