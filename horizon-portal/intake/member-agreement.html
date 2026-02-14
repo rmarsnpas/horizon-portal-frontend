@@ -323,6 +323,8 @@
             <div style="font-size:18px; font-weight:600; color:#2d3748;">Intake Package Submission</div>
             <div><strong>Member ID:</strong> <span id="phMemberId">-</span></div>
             <div><strong>Member Name:</strong> <span id="phMemberName">-</span></div>
+            <div><strong>Date of Admit:</strong> <span id="phDateAdmit">-</span></div>
+            <div><strong>Fee:</strong> <span id="phFee">-</span></div>
             <div><strong>Date Completed:</strong> <span id="phDateCompleted">-</span></div>
         </div>
         
@@ -769,6 +771,8 @@
         const data = JSON.parse(intakeData);
         document.getElementById('phMemberId').textContent = data.memberId || '-';
         document.getElementById('phMemberName').textContent = (data.firstName || '') + ' ' + (data.lastName || '');
+        document.getElementById('phDateAdmit').textContent = data.ADMIT_DATE || '-';
+        document.getElementById('phFee').textContent = data.RATE ? `$${data.RATE}` : '-';
         // Use today's date as completed date for print
         const today = new Date().toLocaleDateString();
         document.getElementById('phDateCompleted').textContent = today;

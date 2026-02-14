@@ -271,12 +271,14 @@
                 if (response.ok) {
                     const data = await response.json();
                     if (data && data.ID) {
-                        // Member exists, use their name
+                        // Member exists, use their name and extra fields
                         intakeData = {
                             memberId: data.ID,
                             firstName: data.FIRST_NAME || '',
                             lastName: data.LAST_NAME || '',
-                            startedAt: new Date().toISOString()
+                            startedAt: new Date().toISOString(),
+                            ADMIT_DATE: data.ADMIT_DATE || '',
+                            RATE: data.RATE || ''
                         };
                     } else {
                         // No member found, continue without info
