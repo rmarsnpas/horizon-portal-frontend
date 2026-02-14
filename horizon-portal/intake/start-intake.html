@@ -248,7 +248,7 @@
     </div>
 
     <script>
-        const API_URL = 'https://horizon-portal-backend-production-3532.up.railway.app';
+        const API_URL = 'http://localhost:3001';
 
         document.getElementById('startIntakeForm').addEventListener('submit', async function(e) {
             e.preventDefault();
@@ -264,40 +264,44 @@
             loading.style.display = 'block';
 
             try {
-                // Fetch member data from backend
-                const response = await fetch(`${API_URL}/api/members/${memberId}`);
-                
-                if (!response.ok) {
-                    throw new Error('Member not found');
-                }
-
+                // Check member ID against local API
+                const response = await fetch(`${API_URL}/api/member/${memberId}`);
                 const memberData = await response.json();
-
-                // Store member data in sessionStorage for use across forms
-                const intakeData = {
-                    memberId: memberId,
-                    firstName: memberData['First Name'] || memberData.firstName || '',
-                    lastName: memberData['Last Name'] || memberData.lastName || '',
-                    dateOfBirth: memberData['Date of Birth'] || memberData.dob || '',
-                    phone: memberData['Phone'] || memberData.phone || '',
-                    admissionDate: memberData['Admission Date'] || new Date().toISOString().split('T')[0],
-                    roomAssignment: memberData['Room'] || memberData.room || '',
-                    monthlyFee: memberData['Monthly Fee'] || memberData.fee || '$800',
-                    startedAt: new Date().toISOString()
-                };
-
+                let intakeData;
+                if (memberData.found) {
+                    // Member exists, use their name
+                    intakeData = {
+                        memberId: memberId,
+                        firstName: memberData.firstName || '',
+                        lastName: memberData.lastName || '',
+                        startedAt: new Date().toISOString()
+                    };
+                } else {
+                    // Prompt for name if not found
+                    const firstName = prompt('Member not found. Enter first name:');
+                    const lastName = prompt('Enter last name:');
+                    // Add new member to members.xlsx
+                    await fetch(`${API_URL}/api/member`, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ memberId, firstName, lastName })
+                    });
+                    intakeData = {
+                        memberId: memberId,
+                        firstName: firstName || '',
+                        lastName: lastName || '',
+                        startedAt: new Date().toISOString()
+                    };
+                }
                 sessionStorage.setItem('intakeData', JSON.stringify(intakeData));
                 sessionStorage.setItem('intakeProgress', JSON.stringify({
                     currentForm: 1,
                     completedForms: []
                 }));
-
-                // Redirect to first form
                 window.location.href = 'member-agreement.html?intake=true';
-
             } catch (error) {
                 console.error('Error loading member:', error);
-                errorMessage.textContent = `Error: Member ID "${memberId}" not found. Please verify the ID and try again.`;
+                errorMessage.textContent = `Error: Member ID "${memberId}" not found or could not be added. Please try again.`;
                 errorMessage.style.display = 'block';
                 startButton.disabled = false;
                 loading.style.display = 'none';
