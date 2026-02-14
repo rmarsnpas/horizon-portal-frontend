@@ -248,7 +248,8 @@
     </div>
 
     <script>
-        const API_URL = 'http://localhost:3001';
+        // Use the same API as sign-in/out for member validation
+        const API_BASE = 'https://horizon-portal-backend-production-3532.up.railway.app';
 
         document.getElementById('startIntakeForm').addEventListener('submit', async function(e) {
             e.preventDefault();
@@ -264,20 +265,30 @@
             loading.style.display = 'block';
 
             try {
-                // Check member ID against local API
-                const response = await fetch(`${API_URL}/api/member/${memberId}`);
-                const memberData = await response.json();
+                // Check member ID against the same API as sign-in/out
+                const response = await fetch(`${API_BASE}/api/getMember?id=${encodeURIComponent(memberId)}`);
                 let intakeData;
-                if (memberData.found) {
-                    // Member exists, use their name
-                    intakeData = {
-                        memberId: memberId,
-                        firstName: memberData.firstName || '',
-                        lastName: memberData.lastName || '',
-                        startedAt: new Date().toISOString()
-                    };
+                if (response.ok) {
+                    const data = await response.json();
+                    if (data && data.ID) {
+                        // Member exists, use their name
+                        intakeData = {
+                            memberId: data.ID,
+                            firstName: data.FIRST_NAME || '',
+                            lastName: data.LAST_NAME || '',
+                            startedAt: new Date().toISOString()
+                        };
+                    } else {
+                        // No member found, continue without info
+                        intakeData = {
+                            memberId: memberId,
+                            firstName: '',
+                            lastName: '',
+                            startedAt: new Date().toISOString()
+                        };
+                    }
                 } else {
-                    // No member found, continue without info
+                    // API error, treat as not found
                     intakeData = {
                         memberId: memberId,
                         firstName: '',
