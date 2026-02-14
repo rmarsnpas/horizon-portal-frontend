@@ -277,19 +277,11 @@
                         startedAt: new Date().toISOString()
                     };
                 } else {
-                    // Prompt for name if not found
-                    const firstName = prompt('Member not found. Enter first name:');
-                    const lastName = prompt('Enter last name:');
-                    // Add new member to members.xlsx
-                    await fetch(`${API_URL}/api/member`, {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({ memberId, firstName, lastName })
-                    });
+                    // No member found, continue without info
                     intakeData = {
                         memberId: memberId,
-                        firstName: firstName || '',
-                        lastName: lastName || '',
+                        firstName: '',
+                        lastName: '',
                         startedAt: new Date().toISOString()
                     };
                 }
@@ -301,7 +293,7 @@
                 window.location.href = 'member-agreement.html?intake=true';
             } catch (error) {
                 console.error('Error loading member:', error);
-                errorMessage.textContent = `Error: Member ID "${memberId}" not found or could not be added. Please try again.`;
+                errorMessage.textContent = `Error: Member ID "${memberId}" not found or could not be checked. Please try again.`;
                 errorMessage.style.display = 'block';
                 startButton.disabled = false;
                 loading.style.display = 'none';
