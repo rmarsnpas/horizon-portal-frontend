@@ -647,6 +647,15 @@
             }
         });
 
+        // Auto-fill fields from intakeData if available
+        const intakeData = sessionStorage.getItem('intakeData');
+        if (intakeData) {
+            const data = JSON.parse(intakeData);
+            if (data.firstName) document.getElementById('firstName').value = data.firstName;
+            if (data.lastName) document.getElementById('lastName').value = data.lastName;
+            if (data.ADMIT_DATE) document.getElementById('admissionDate').value = data.ADMIT_DATE;
+            if (data.RATE) document.getElementById('monthlyFee').value = `$${data.RATE}`;
+        }
         // Initialize intake mode if applicable
         if (typeof initializeIntakeMode !== 'undefined') {
             initializeIntakeMode(2);

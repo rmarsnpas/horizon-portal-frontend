@@ -545,6 +545,13 @@
             }
         });
 
+        // Auto-fill fields from intakeData if available
+        const intakeData = sessionStorage.getItem('intakeData');
+        if (intakeData) {
+            const data = JSON.parse(intakeData);
+            if (data.firstName) document.getElementById('memberFirstName').value = data.firstName;
+            if (data.lastName) document.getElementById('memberLastName').value = data.lastName;
+        }
         // Initialize intake mode if applicable
         if (typeof initializeIntakeMode !== 'undefined') {
             initializeIntakeMode(4);
