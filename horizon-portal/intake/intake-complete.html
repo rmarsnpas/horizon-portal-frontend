@@ -199,12 +199,43 @@
             <div class="completed-forms">
                 <h3>📋 Completed Forms:</h3>
                 <ul>
-                    <li>Member Agreement (24 house rules)</li>
-                    <li>Licensee Agreement (no tenancy rights)</li>
-                    <li>Release of Information</li>
-                    <li>Emergency Contact Information</li>
-                    <li>Facilities Liability Release</li>
-                    <li>Personal Property Release</li>
+                        <li>Member Agreement (24 house rules)
+                            <button class="btn btn-secondary" onclick="editForm('member-agreement')">Edit</button>
+                            <button class="btn btn-primary" onclick="deleteForm('member-agreement')">Delete</button>
+                            <button class="btn btn-success" onclick="saveForm('member-agreement')">Save</button>
+                        </li>
+                        <li>Licensee Agreement (no tenancy rights)
+                            <button class="btn btn-secondary" onclick="editForm('licensee-agreement')">Edit</button>
+                            <button class="btn btn-primary" onclick="deleteForm('licensee-agreement')">Delete</button>
+                            <button class="btn btn-success" onclick="saveForm('licensee-agreement')">Save</button>
+                        </li>
+                        <li>Release of Information
+                            <button class="btn btn-secondary" onclick="editForm('release-of-information')">Edit</button>
+                            <button class="btn btn-primary" onclick="deleteForm('release-of-information')">Delete</button>
+                            <button class="btn btn-success" onclick="saveForm('release-of-information')">Save</button>
+                        </li>
+                        <li>Emergency Contact Information
+                            <button class="btn btn-secondary" onclick="editForm('emergency-contact')">Edit</button>
+                            <button class="btn btn-primary" onclick="deleteForm('emergency-contact')">Delete</button>
+                            <button class="btn btn-success" onclick="saveForm('emergency-contact')">Save</button>
+                        </li>
+                        <li>Facilities Liability Release
+                            <button class="btn btn-secondary" onclick="editForm('release-of-liability')">Edit</button>
+                            <button class="btn btn-primary" onclick="deleteForm('release-of-liability')">Delete</button>
+                            <button class="btn btn-success" onclick="saveForm('release-of-liability')">Save</button>
+                        </li>
+                        <li>Personal Property Release
+                            <button class="btn btn-secondary" onclick="editForm('personal-property-release')">Edit</button>
+                            <button class="btn btn-primary" onclick="deleteForm('personal-property-release')">Delete</button>
+                            <button class="btn btn-success" onclick="saveForm('personal-property-release')">Save</button>
+                        </li>
+                        .btn-success {
+                            background: #38a169;
+                            color: white;
+                        }
+                        .btn-success:hover {
+                            background: #2f855a;
+                        }
                 </ul>
             </div>
 
@@ -226,20 +257,31 @@
     <script>
         // Display member information
         const intakeData = getIntakeData();
-        
         if (intakeData) {
             document.getElementById('memberName').textContent = `${intakeData.firstName} ${intakeData.lastName}`;
             document.getElementById('memberId').textContent = intakeData.memberId;
-            
             const completedDate = new Date();
             document.getElementById('completedTime').textContent = completedDate.toLocaleString();
-            
-            // Clear intake data after short delay (allow them to see the completion page)
             setTimeout(() => {
                 clearIntakeData();
             }, 2000);
         } else {
             document.getElementById('memberInfo').innerHTML = '<h2>Intake Session Complete</h2>';
+        }
+
+        // Edit, Delete, and Save form actions
+        function editForm(formName) {
+            window.location.href = `${formName}.html?edit=1`;
+        }
+        function deleteForm(formName) {
+            if (confirm('Are you sure you want to delete this form?')) {
+                // TODO: Implement backend API call to delete form
+                alert('Delete functionality coming soon.');
+            }
+        }
+        function saveForm(formName) {
+            // TODO: Implement backend API call to save form
+            alert('Save functionality coming soon.');
         }
     </script>
 </body>
