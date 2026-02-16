@@ -39,56 +39,69 @@
     </div>
     <script src="forms-viewer-print.js"></script>
     <script>
-    // Simulated test data for member and forms
-    const testMember = {
-        name: "Jane Doe",
-        admitDate: "2026-02-01",
-        fee: "$500",
-        dob: "1990-05-15",
-        phone: "555-123-4567"
-    };
-    const testForms = [
-        {
-            title: 'Member Agreement',
-            id: 'member-agreement',
-            content: `<b>Agreement Date:</b> 2026-02-01<br><b>Signature:</b> <i>(drawn signature image)</i>`
-        },
-        {
-            title: 'Licensee Agreement',
-            id: 'licensee-agreement',
-            content: `<b>Licensee:</b> Jane Doe<br><b>Effective:</b> 2026-02-01` 
-        },
-        {
-            title: 'ROI',
-            id: 'roi',
-            content: `<b>Release To:</b> Dr. Smith<br><b>Purpose:</b> Intake` 
-        },
-        {
-            title: 'Emergency Contacts',
-            id: 'emergency-contacts',
-            content: `<b>Contact 1:</b> John Doe (Brother) 555-987-6543` 
-        },
-        {
-            title: 'Liability Waiver',
-            id: 'liability',
-            content: `<b>Waiver Signed:</b> Yes<br><b>Date:</b> 2026-02-01` 
-        },
-        {
-            title: 'Property Storage',
-            id: 'property-storage',
-            content: `<b>Items:</b> 2 suitcases, 1 laptop bag` 
-        }
-    ];
 
-    function loadMemberInfo() {
-        let data = sessionStorage.intakeData ? JSON.parse(sessionStorage.intakeData) : testMember;
-        document.getElementById('memberInfo').innerHTML = `
-            <b>Name:</b> ${data.name || ''} <br>
-            <b>Admit Date:</b> ${data.admitDate || ''} <br>
-            <b>Fee:</b> ${data.fee || ''} <br>
-            <b>DOB:</b> ${data.dob || ''} <br>
-            <b>Phone:</b> ${data.phone || ''}
-        `;
+    // Utility: get query param from URL
+    function getQueryParam(name) {
+        const url = new URL(window.location.href);
+        return url.searchParams.get(name);
+    }
+
+    // Try to get member ID from URL or sessionStorage
+    function getMemberId() {
+        let id = getQueryParam('id');
+        if (id) return id;
+        if (sessionStorage.intakeData) {
+            try {
+                const d = JSON.parse(sessionStorage.intakeData);
+                if (d.id) return d.id;
+            } catch {}
+        }
+        return null;
+    }
+
+    // Fetch member info from backend
+    async function fetchMemberInfo(id) {
+        try {
+            const res = await fetch(`/horizon-portal/backend/api/getMember?id=${encodeURIComponent(id)}`);
+            if (!res.ok) return null;
+            const data = await res.json();
+            return data;
+        } catch {
+            return null;
+        }
+    }
+
+    // Render member info, fallback to manual entry if not found or if fields are missing
+    async function loadMemberInfo() {
+        let member = null;
+        const id = getMemberId();
+        if (id) {
+            member = await fetchMemberInfo(id);
+        }
+        // Define required fields
+        const requiredFields = [
+            { key: 'FIRST_NAME', label: 'First Name' },
+            { key: 'LAST_NAME', label: 'Last Name' },
+            { key: 'STATU', label: 'Admit Date' },
+            { key: 'FEE', label: 'Fee' },
+            { key: 'DOB', label: 'DOB' },
+            { key: 'PHONE', label: 'Phone' }
+        ];
+        let html = '';
+        if (!member) {
+            html += `<b>No member found.</b> Please enter all required fields below.<br>`;
+            member = {};
+        }
+        requiredFields.forEach(f => {
+            const val = member[f.key] || '';
+            html += `<b>${f.label}:</b> `;
+            if (val) {
+                html += `${val} <br>`;
+            } else {
+                html += `<input type="text" id="input_${f.key}" placeholder="Enter ${f.label}" style="margin-bottom:6px;"> <br>`;
+            }
+        });
+        document.getElementById('memberInfo').innerHTML = html;
     }
 
     function loadForms() {
