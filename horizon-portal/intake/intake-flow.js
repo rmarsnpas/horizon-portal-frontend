@@ -1,7 +1,7 @@
 // Intake Flow Manager
 // Handles sequential form navigation and data auto-population
 
-const INTAKE_FORMS = [
+let INTAKE_FORMS = [
     { id: 1, name: 'member-agreement.html', title: 'Member Agreement' },
     { id: 2, name: 'licensee-agreement.html', title: 'Licensee Agreement' },
     { id: 3, name: 'release-of-information.html', title: 'Release of Information' },
@@ -9,6 +9,11 @@ const INTAKE_FORMS = [
     { id: 5, name: 'release-of-liability.html', title: 'Facilities Liability Release' },
     { id: 6, name: 'personal-property-release.html', title: 'Personal Property Release' }
 ];
+
+// Conditionally include Financial Responsibility form if selected by staff
+if (typeof sessionStorage !== 'undefined' && sessionStorage.getItem('includeFinancialForm') === 'true') {
+    INTAKE_FORMS.splice(3, 0, { id: 99, name: 'financial-responsibility.html', title: 'Financial Responsibility Agreement' });
+}
 
 // Get intake data from sessionStorage
 function getIntakeData() {

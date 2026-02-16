@@ -313,7 +313,6 @@
 </head>
 <body>
     <div class="container">
-        <button id="printMemberCopyBtn" style="position:absolute;top:30px;right:30px;z-index:10;padding:12px 24px;font-size:16px;background:#667eea;color:white;border:none;border-radius:8px;cursor:pointer;box-shadow:0 2px 8px rgba(0,0,0,0.08);">Print Member Copy</button>
         <div class="header">
             <h1>🏠 Horizon House</h1>
             <p>Member Agreement</p>
@@ -775,19 +774,22 @@
     </script>
     <script src="intake-flow.js"></script>
     <script>
-    // Print Member Copy logic
-    document.getElementById('printMemberCopyBtn').addEventListener('click', function() {
-        // Show print header and signature for print
-        showPrintHeader();
-        showPrintSignature();
-        window.print();
-        // Hide print header after print (for UI)
-        setTimeout(function() {
-            document.getElementById('printHeader').style.display = 'none';
-            var sigImg = document.getElementById('printSignatureImg');
-            if (sigImg) sigImg.remove();
-        }, 500);
-    });
+    // If ?print=1 in URL, auto-show print header and signature, and print cleanly
+    (function() {
+        const params = new URLSearchParams(window.location.search);
+        if (params.get('print') === '1') {
+            setTimeout(() => {
+                showPrintHeader();
+                showPrintSignature();
+                window.print();
+                setTimeout(function() {
+                    document.getElementById('printHeader').style.display = 'none';
+                    var sigImg = document.getElementById('printSignatureImg');
+                    if (sigImg) sigImg.remove();
+                }, 500);
+            }, 500);
+        }
+    })();
     </script>
         <script>
         // Show member info at top of form

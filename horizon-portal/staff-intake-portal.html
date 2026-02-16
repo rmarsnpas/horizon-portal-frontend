@@ -278,9 +278,22 @@
         <div class="section-header">
             <h2>Member Intake Forms</h2>
             <p>Click "View Submissions" to see completed forms, or "New Form" to create one for a member</p>
-            <a href="intake-package.html" class="btn btn-primary" style="margin-top:18px; font-size:17px; padding:16px 32px; display:inline-block;">▶️ Start Full Intake Package</a>
+            <form id="intakeStartForm" style="margin-bottom:0;display:inline-block;">
+                <label style="font-size:16px;display:inline-block;margin-right:18px;">
+                    <input type="checkbox" id="includeFinancialForm" style="margin-right:8px;vertical-align:middle;"> Include Financial Responsibility Form (for members with insurance/IEHP)
+                </label>
+                <button type="submit" class="btn btn-primary" style="font-size:17px; padding:16px 32px; display:inline-block;">▶️ Start Full Intake Package</button>
+            </form>
             <button class="btn btn-secondary" style="margin-left:16px; font-size:17px; padding:16px 32px; display:inline-block;" onclick="window.location.href='forms-viewer.html'">📄 View/Print/Save Full Intake Package</button>
         </div>
+        <script>
+        document.getElementById('intakeStartForm').onsubmit = function(e) {
+            e.preventDefault();
+            const includeFinancial = document.getElementById('includeFinancialForm').checked;
+            sessionStorage.setItem('includeFinancialForm', includeFinancial ? 'true' : 'false');
+            window.location.href = 'intake-package.html';
+        };
+        </script>
 
         <div class="forms-grid">
             <!-- Member Agreement -->
@@ -303,6 +316,7 @@
                 <div class="form-actions">
                     <a href="staff-intake-agreements.html" class="btn btn-primary">View Submissions</a>
                     <a href="intake/member-agreement.html" class="btn btn-secondary">New Form</a>
+                    <button class="btn btn-secondary" onclick="window.open('intake/member-agreement.html?print=1', '_blank')">Print Member Copy</button>
                 </div>
             </div>
 
