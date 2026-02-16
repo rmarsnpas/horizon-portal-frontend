@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Full Intake Package Viewer</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+    <style>
+        body { font-family: Arial, sans-serif; background: #f7f7f7; margin: 0; }
+        .container { max-width: 900px; margin: 40px auto; background: #fff; border-radius: 8px; box-shadow: 0 2px 8px #0001; padding: 32px; }
+        h1 { text-align: center; margin-bottom: 24px; }
+        .member-info { background: #f0f4fa; padding: 16px; border-radius: 6px; margin-bottom: 24px; }
+        .actions { display: flex; gap: 16px; justify-content: center; margin-bottom: 32px; }
+        .actions button { padding: 10px 22px; border: none; border-radius: 4px; background: #1976d2; color: #fff; font-size: 1rem; cursor: pointer; transition: background 0.2s; }
+        .actions button:hover { background: #125ea7; }
+        .forms-list { margin-bottom: 32px; }
+        .form-section { background: #f9f9f9; border-radius: 6px; margin-bottom: 24px; padding: 18px 20px; box-shadow: 0 1px 4px #0001; }
+        .form-section h2 { margin-top: 0; font-size: 1.2rem; }
+        .form-actions { margin-top: 10px; }
+        .form-actions button { background: #43a047; margin-right: 8px; }
+        .form-actions button:last-child { background: #d32f2f; }
+        .form-actions button:hover { opacity: 0.9; }
+        @media (max-width: 600px) { .container { padding: 10px; } }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Full Intake Package</h1>
+        <div class="member-info" id="memberInfo">
+            <!-- Member info will be loaded here -->
+        </div>
+        <div class="actions">
+            <button id="printAll"><i class="fa fa-print"></i> Print All</button>
+            <button id="saveAll"><i class="fa fa-file-pdf"></i> Save All as PDF</button>
+        </div>
+        <div class="forms-list" id="formsList">
+            <!-- All forms will be loaded here -->
+        </div>
+    </div>
+    <script src="forms-viewer-print.js"></script>
+    <script>
+    // Simulated test data for member and forms
+    const testMember = {
+        name: "Jane Doe",
+        admitDate: "2026-02-01",
+        fee: "$500",
+        dob: "1990-05-15",
+        phone: "555-123-4567"
+    };
+    const testForms = [
+        {
+            title: 'Member Agreement',
+            id: 'member-agreement',
+            content: `<b>Agreement Date:</b> 2026-02-01<br><b>Signature:</b> <i>(drawn signature image)</i>`
+        },
+        {
+            title: 'Licensee Agreement',
+            id: 'licensee-agreement',
+            content: `<b>Licensee:</b> Jane Doe<br><b>Effective:</b> 2026-02-01` 
+        },
+        {
+            title: 'ROI',
+            id: 'roi',
+            content: `<b>Release To:</b> Dr. Smith<br><b>Purpose:</b> Intake` 
+        },
+        {
+            title: 'Emergency Contacts',
+            id: 'emergency-contacts',
+            content: `<b>Contact 1:</b> John Doe (Brother) 555-987-6543` 
+        },
+        {
+            title: 'Liability Waiver',
+            id: 'liability',
+            content: `<b>Waiver Signed:</b> Yes<br><b>Date:</b> 2026-02-01` 
+        },
+        {
+            title: 'Property Storage',
+            id: 'property-storage',
+            content: `<b>Items:</b> 2 suitcases, 1 laptop bag` 
+        }
+    ];
+
+    function loadMemberInfo() {
+        let data = sessionStorage.intakeData ? JSON.parse(sessionStorage.intakeData) : testMember;
+        document.getElementById('memberInfo').innerHTML = `
+            <b>Name:</b> ${data.name || ''} <br>
+            <b>Admit Date:</b> ${data.admitDate || ''} <br>
+            <b>Fee:</b> ${data.fee || ''} <br>
+            <b>DOB:</b> ${data.dob || ''} <br>
+            <b>Phone:</b> ${data.phone || ''}
+        `;
+    }
+
+    function loadForms() {
+        let html = '';
+        testForms.forEach(form => {
+            html += `<div class="form-section" id="form-${form.id}">
+                <h2>${form.title}</h2>
+                <div class="form-actions">
+                    <button onclick="printForm('${form.id}')"><i class='fa fa-print'></i> Print</button>
+                    <button onclick="saveForm('${form.id}')"><i class='fa fa-file-pdf'></i> Save as PDF</button>
+                </div>
+                <div class="form-content">${form.content}</div>
+            </div>`;
+        });
+        document.getElementById('formsList').innerHTML = html;
+    }
+
+    // Replace print/save handlers to use real PDF/print logic
+    function printForm(formId) { window.printAllForms(); }
+    function saveForm(formId) { window.saveFormAsPDF(formId); }
+    document.getElementById('printAll').onclick = () => window.printAllForms();
+    document.getElementById('saveAll').onclick = () => window.saveAllFormsAsPDF();
+    loadMemberInfo();
+    loadForms();
+    </script>
+</body>
+</html>

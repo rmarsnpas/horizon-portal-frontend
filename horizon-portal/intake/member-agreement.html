@@ -318,7 +318,17 @@
             <p>Member Agreement</p>
         </div>
 
-        <!-- Intake Print Header -->
+        <!-- Member Info Header (always visible) -->
+        <div id="memberInfoHeader" style="background:#f7fafc; border-bottom:2px solid #667eea; padding:16px 24px; margin-bottom:24px;">
+            <div style="font-size:18px; font-weight:600; color:#2d3748;">Member Information</div>
+            <div><strong>Member Name:</strong> <span id="memberInfoName">-</span></div>
+            <div><strong>Date of Admit:</strong> <span id="memberInfoAdmit">-</span></div>
+            <div><strong>Fee:</strong> <span id="memberInfoFee">-</span></div>
+            <div><strong>Date of Birth:</strong> <span id="memberInfoDOB">-</span></div>
+            <div><strong>Phone:</strong> <span id="memberInfoPhone">-</span></div>
+        </div>
+
+        <!-- Intake Print Header (for printing only) -->
         <div id="printHeader" style="display:none; background:#f7fafc; border-bottom:2px solid #667eea; padding:16px 24px; margin-bottom:24px;">
             <div style="font-size:18px; font-weight:600; color:#2d3748;">Intake Package Submission</div>
             <div><strong>Member ID:</strong> <span id="phMemberId">-</span></div>
@@ -763,6 +773,19 @@
         }
     </script>
     <script src="intake-flow.js"></script>
+        <script>
+        // Show member info at top of form
+        (function showMemberInfoHeader() {
+            const intakeData = sessionStorage.getItem('intakeData');
+            if (!intakeData) return;
+            const data = JSON.parse(intakeData);
+            document.getElementById('memberInfoName').textContent = (data.firstName || '') + ' ' + (data.lastName || '');
+            document.getElementById('memberInfoAdmit').textContent = data.ADMIT_DATE || '-';
+            document.getElementById('memberInfoFee').textContent = data.RATE ? `$${data.RATE}` : '-';
+            document.getElementById('memberInfoDOB').textContent = data.DOB || '-';
+            document.getElementById('memberInfoPhone').textContent = data.PHONE || '-';
+        })();
+        </script>
     <script>
     // Show print header and signature on print
     function showPrintHeader() {
