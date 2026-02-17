@@ -19,7 +19,7 @@
             width: 100%;
             background: white;
             border-radius: 20px;
-            box-shadow: 0 20px 60px rgba(0,0,0,0.2);
+            box-shadow: 5 20px 60px rgba(0,0,0,0.2);
             padding: 40px;
         }
         h1 {
@@ -48,7 +48,7 @@
         .actions {
             margin-top: 30px;
             display: flex;
-            gap: 16px;
+            gap: 2px;
         }
         .btn {
             padding: 14px 32px;
@@ -74,37 +74,53 @@
     <div class="container">
         <h1>Financial Responsibility Agreement</h1>
         <div class="info">
-            This form is for members whose housing fees are paid by insurance, medical, or IEHP benefits, or any other source than yourself. If your benefits are cut off, run out, or otherwise become unavailable, you agree to be financially responsible for your continued stay at Horizon House. If this does not apply to you, you may skip this form.
+            This form is for members whose housing fees are paid by insurance, medical, or IEHP benefits, or any source otherthan yourself. If your benefits are cut off, run out, or otherwise become unavailable, you agree to be financially responsible for your continued stay at Horizon House. If this does not apply to you, you may skip this form.
         </div>
         <form id="financialForm">
+
             <label for="memberName">Member Name</label>
             <input type="text" id="memberName" name="memberName" required>
 
             <label for="memberId">Member ID</label>
             <input type="text" id="memberId" name="memberId" required>
 
-            <label for="insuranceType">Insurance/Benefit Type (if applicable)</label>
+            <label for="dob">Date of Birth</label>
+            <input type="text" id="dob" name="dob">
+
+            <label for="phone">Phone</label>
+            <input type="text" id="phone" name="phone">
+
+            <label for="admitDate">Date of Admit</label>
+            <input type="text" id="admitDate" name="admitDate">
+
+            <label for="monthlyFee">Fee</label>
+            <input type="text" id="monthlyFee" name="monthlyFee">
+
+            <label for="insuranceType"> Funding Source </label>
             <input type="text" id="insuranceType" name="insuranceType">
 
-            <div style="margin: 32px 0 18px 0; padding: 18px; background: #f8f9fa; border-left: 4px solid #667eea; border-radius: 8px; display: flex; align-items: flex-start; gap: 14px;">
-                <input type="checkbox" id="agreeCheckbox" style="margin-top:4px;flex-shrink:0;">
-                <div>
-                    <label for="agreeCheckbox" style="font-size:17px;vertical-align:middle;display:block;margin-bottom:8px;">
-                        I have read and agree to the following:
-                    </label>
-                    <div id="agreementText" style="font-size:16px; color:#333;">
-                        I understand that if my insurance, medical, or IEHP benefits are discontinued, exhausted, or otherwise unavailable, I am responsible for paying all program fees directly to Horizon House. I agree to notify staff immediately if my benefits change, and I understand that failure to pay may result in discharge from the program.
-                    </div>
-                </div>
-            </div>
 
-            <label for="caseWorker">Case Worker/Navigator Name</label>
+
+
+            <!-- Case worker fields above agreement and signature area -->
+            <label for="caseWorker" style="margin-top:24px;">Case Worker/Navigator Name</label>
             <input type="text" id="caseWorker" name="caseWorker" placeholder="Enter case worker or navigator name">
 
             <label for="caseWorkerPhone">Case Worker/Navigator Phone</label>
             <input type="tel" id="caseWorkerPhone" name="caseWorkerPhone" placeholder="Enter phone number">
 
-            <div style="margin-bottom: 18px;">
+                <!-- Agreement checkbox and text, fully left-aligned, no max-width, no flex centering -->
+                <div style="margin: 24px 0 0 0; padding: 0; width: 100%;">
+                    <label style="font-size:16px; color:#333; text-align:left; line-height:1.5; cursor:pointer; display:inline-flex; align-items:flex-start; width:100%;">
+                        <input type="checkbox" id="agreeCheckbox" style="vertical-align:left; margin-left:1em; margin-left:0;">
+                        <span style="display:inline;">I understand that if the source of funding for my housing at Horizon Houseis discontinued, exhausted, or otherwise unavailable, for any reason, I am responsible for paying all program fees directly to Horizon House. I agree to notify staff immediately if my benefits change, and I understand that failure to pay may result in discharge from the program.</span>
+                    </label>
+                </div>
+
+
+
+
+            <div style="margin-bottom: 18px; margin-top: 24px;">
                 <label style="font-weight:600;display:block;margin-bottom:8px;">Choose Signature Method</label>
                 <div style="display:flex;gap:24px;align-items:center;">
                     <label style="font-weight:500;">
@@ -130,6 +146,8 @@
                 </div>
             </div>
 
+
+
             <div class="actions">
                 <button type="submit" class="btn">Submit</button>
                 <button type="button" class="btn skip" onclick="skipForm()">Skip</button>
@@ -137,6 +155,27 @@
         </form>
     </div>
     <script>
+    // Auto-fill fields from sessionStorage.intakeData (Excel/member data)
+    function autoPopulateFields() {
+        if (!window.sessionStorage) return;
+        const data = sessionStorage.getItem('intakeData');
+        if (!data) return;
+        const d = JSON.parse(data);
+        if (d.firstName && d.lastName) {
+            document.getElementById('memberName').value = d.firstName + ' ' + d.lastName;
+        }
+        if (d.memberId) document.getElementById('memberId').value = d.memberId;
+        if (d.INSURANCE) document.getElementById('insuranceType').value = d.INSURANCE;
+        if (d.caseWorker) document.getElementById('caseWorker').value = d.caseWorker;
+        if (d.caseWorkerPhone) document.getElementById('caseWorkerPhone').value = d.caseWorkerPhone;
+        // Add more fields as needed from Excel/member data
+        // Example: DOB, phone, admit date, etc.
+        if (d.DOB && document.getElementById('dob')) document.getElementById('dob').value = d.DOB;
+        if (d.PHONE && document.getElementById('phone')) document.getElementById('phone').value = d.PHONE;
+        if (d.ADMIT_DATE && document.getElementById('admitDate')) document.getElementById('admitDate').value = d.ADMIT_DATE;
+        if (d.RATE && document.getElementById('monthlyFee')) document.getElementById('monthlyFee').value = d.RATE;
+    }
+
     // Signature Pad Logic
     let canvas, ctx, isDrawing = false, hasSignature = false;
     function initializeSignaturePad() {
@@ -272,6 +311,7 @@
     };
     // Initialize signature pad and toggle logic after DOM loads
     window.addEventListener('DOMContentLoaded', function() {
+        autoPopulateFields();
         initializeSignaturePad();
         toggleSignatureMethod();
     });
