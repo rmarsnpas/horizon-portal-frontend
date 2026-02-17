@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Financial Responsibility Agreement - Horizon House</title>
+    <title>Confidential Rate Agreement - Horizon House</title>
     <style>
         body {
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif;
@@ -19,7 +19,7 @@
             width: 100%;
             background: white;
             border-radius: 20px;
-            box-shadow: 5 20px 60px rgba(0,0,0,0.2);
+            box-shadow: 0 20px 60px rgba(0,0,0,0.2);
             padding: 40px;
         }
         h1 {
@@ -48,7 +48,7 @@
         .actions {
             margin-top: 30px;
             display: flex;
-            gap: 2px;
+            gap: 16px;
         }
         .btn {
             padding: 14px 32px;
@@ -72,23 +72,16 @@
 </head>
 <body>
     <div class="container">
-        <h1>Financial Responsibility Agreement</h1>
+        <h1>Confidential Rate Agreement</h1>
         <div class="info">
-            This form is for members whose housing fees are paid by insurance, medical, or IEHP benefits, or any source otherthan yourself. If your benefits are cut off, run out, or otherwise become unavailable, you agree to be financially responsible for your continued stay at Horizon House. If this does not apply to you, you may skip this form.
+            Please read and acknowledge the following:
         </div>
-        <form id="financialForm">
-
+        <form id="confidentialRateForm">
             <label for="memberName">Member Name</label>
             <input type="text" id="memberName" name="memberName" required>
 
             <label for="memberId">Member ID</label>
             <input type="text" id="memberId" name="memberId" required>
-
-            <label for="dob">Date of Birth</label>
-            <input type="text" id="dob" name="dob">
-
-            <label for="phone">Phone</label>
-            <input type="text" id="phone" name="phone">
 
             <label for="admitDate">Date of Admit</label>
             <input type="text" id="admitDate" name="admitDate">
@@ -96,28 +89,12 @@
             <label for="monthlyFee">Fee</label>
             <input type="text" id="monthlyFee" name="monthlyFee">
 
-            <label for="insuranceType"> Funding Source </label>
-            <input type="text" id="insuranceType" name="insuranceType">
-
-
-
-
-            <!-- Case worker fields above agreement and signature area -->
-            <label for="caseWorker" style="margin-top:24px;">Case Worker/Navigator Name</label>
-            <input type="text" id="caseWorker" name="caseWorker" placeholder="Enter case worker or navigator name">
-
-            <label for="caseWorkerPhone">Case Worker/Navigator Phone</label>
-            <input type="tel" id="caseWorkerPhone" name="caseWorkerPhone" placeholder="Enter phone number">
-
-                <!-- Agreement checkbox and text, fully left-aligned, no max-width, no flex centering -->
-                <div style="margin: 24px 0 0 0; padding: 0; width: 100%;">
-                    <label style="font-size:16px; color:#333; text-align:left; line-height:1.5; cursor:pointer; display:inline-flex; align-items:flex-start; width:100%;">
-                        <input type="checkbox" id="agreeCheckbox" style="vertical-align:left; margin-left:1em; margin-left:0;">
-                        <span style="display:inline;">I understand that if the source of funding for my housing at Horizon House is discontinued, or unavailable, for any reason, I am responsible for paying all program fees directly to Horizon House. I agree to notify staff immediately if my benefits change, and I understand that failure to pay may result in discharge from the program.</span>
-                    </label>
-                </div>
-
-
+            <div style="margin: 32px 0 0 0; padding: 0;">
+                <label style="font-size:16px; color:#333; text-align:left; line-height:1.5; cursor:pointer; display:inline-flex; align-items:flex-start; width:100%;">
+                    <input type="checkbox" id="agreeCheckbox" style="vertical-align:middle; margin-right:1em;">
+                    <span style="display:inline;">I understand that the rate/fee I have been given for my stay at Horizon House is confidential and may be different from the rate/fee given to other members. I agree not to discuss or disclose my rate/fee with other members. I understand that doing so may result in disciplinary action or discharge from the program.</span>
+                </label>
+            </div>
 
 
             <div style="margin-bottom: 18px; margin-top: 24px;">
@@ -146,11 +123,8 @@
                 </div>
             </div>
 
-
-
             <div class="actions">
                 <button type="submit" class="btn">Submit</button>
-                <button type="button" class="btn skip" onclick="skipForm()">Skip</button>
             </div>
         </form>
     </div>
@@ -165,17 +139,9 @@
             document.getElementById('memberName').value = d.firstName + ' ' + d.lastName;
         }
         if (d.memberId) document.getElementById('memberId').value = d.memberId;
-        if (d.INSURANCE) document.getElementById('insuranceType').value = d.INSURANCE;
-        if (d.caseWorker) document.getElementById('caseWorker').value = d.caseWorker;
-        if (d.caseWorkerPhone) document.getElementById('caseWorkerPhone').value = d.caseWorkerPhone;
-        // Add more fields as needed from Excel/member data
-        // Example: DOB, phone, admit date, etc.
-        if (d.DOB && document.getElementById('dob')) document.getElementById('dob').value = d.DOB;
-        if (d.PHONE && document.getElementById('phone')) document.getElementById('phone').value = d.PHONE;
         if (d.ADMIT_DATE && document.getElementById('admitDate')) document.getElementById('admitDate').value = d.ADMIT_DATE;
         if (d.RATE && document.getElementById('monthlyFee')) document.getElementById('monthlyFee').value = d.RATE;
     }
-
     // Signature Pad Logic
     let canvas, ctx, isDrawing = false, hasSignature = false;
     function initializeSignaturePad() {
@@ -250,27 +216,12 @@
             drawSection.style.display = '';
         }
     }
-    function skipForm() {
-        // Mark as skipped and proceed to next form in intake flow
-        if (window.sessionStorage) {
-            sessionStorage.setItem('financialResponsibilitySkipped', 'true');
-        }
-        alert('You have chosen to skip this form. Staff may revisit this with you if needed.');
-        // Redirect or trigger next step in intake
-        if (typeof goToNextForm === 'function') {
-            goToNextForm();
-        } else {
-            window.location.href = '../members/dashboard.html';
-        }
-    }
-    document.getElementById('financialForm').onsubmit = function(e) {
+    document.getElementById('confidentialRateForm').onsubmit = function(e) {
         e.preventDefault();
-        // Validate agreement checkbox
         if (!document.getElementById('agreeCheckbox').checked) {
             alert('You must agree to the terms before signing.');
             return;
         }
-        // Validate signature (typed or drawn, one required)
         const typeRadio = document.getElementById('sigTypeRadio');
         let signature = '', signatureDataURL = '';
         if (typeRadio.checked) {
@@ -289,27 +240,23 @@
         const data = {
             memberName: document.getElementById('memberName').value,
             memberId: document.getElementById('memberId').value,
-            insuranceType: document.getElementById('insuranceType').value,
-            agreementText: document.getElementById('agreementText').textContent,
+            admitDate: document.getElementById('admitDate').value,
+            monthlyFee: document.getElementById('monthlyFee').value,
             agreed: document.getElementById('agreeCheckbox').checked,
             signature: signature,
             signatureDrawn: signatureDataURL,
-            caseWorker: document.getElementById('caseWorker').value,
-            caseWorkerPhone: document.getElementById('caseWorkerPhone').value,
             date: new Date().toISOString()
         };
-        // Store in sessionStorage for now (replace with API call as needed)
         if (window.sessionStorage) {
-            sessionStorage.setItem('financialResponsibilityForm', JSON.stringify(data));
+            sessionStorage.setItem('confidentialRateForm', JSON.stringify(data));
         }
-        alert('Financial Responsibility Agreement submitted.');
+        alert('Confidential Rate Agreement submitted.');
         if (typeof goToNextForm === 'function') {
             goToNextForm();
         } else {
             window.location.href = '../members/dashboard.html';
         }
     };
-    // Initialize signature pad and toggle logic after DOM loads
     window.addEventListener('DOMContentLoaded', function() {
         autoPopulateFields();
         initializeSignaturePad();
