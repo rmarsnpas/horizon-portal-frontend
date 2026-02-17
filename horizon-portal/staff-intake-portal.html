@@ -291,6 +291,55 @@
                     <div class="count" id="confidentialCount">0</div>
                     <div class="label">Submissions</div>
                 </div>
+            <!-- Additional Agreements (below main forms) -->
+            <div class="forms-grid" style="margin-top:32px;">
+                <!-- Financial Responsibility Agreement -->
+                <div class="form-card">
+                    <div class="form-icon">💸</div>
+                    <div class="form-title">Financial Responsibility Agreement</div>
+                    <div class="form-description">
+                        Agreement for members whose housing fees are paid by insurance or other benefits, acknowledging responsibility if benefits are discontinued.
+                    </div>
+                    <div class="form-stats">
+                        <div class="form-stat">
+                            <div class="count" id="financialCount">0</div>
+                            <div class="label">Submissions</div>
+                        </div>
+                        <div class="form-stat">
+                            <div class="count" id="financialToday">0</div>
+                            <div class="label">Today</div>
+                        </div>
+                    </div>
+                    <div class="form-actions">
+                        <a href="staff-financial-submissions.html" class="btn btn-primary">View Submissions</a>
+                        <a href="intake/financial-responsibility.html" class="btn btn-secondary">New Form</a>
+                    </div>
+                </div>
+
+                <!-- Confidential Rate Agreement -->
+                <div class="form-card">
+                    <div class="form-icon">🔒</div>
+                    <div class="form-title">Confidential Rate Agreement</div>
+                    <div class="form-description">
+                        Agreement admonishing members not to discuss their rate/fee, as rates may differ between members. Disciplinary action for disclosure.
+                    </div>
+                    <div class="form-stats">
+                        <div class="form-stat">
+                            <div class="count" id="confidentialCount">0</div>
+                            <div class="label">Submissions</div>
+                        </div>
+                        <div class="form-stat">
+                            <div class="count" id="confidentialToday">0</div>
+                            <div class="label">Today</div>
+                        </div>
+                    </div>
+                    <div class="form-actions">
+                        <a href="staff-confidential-rate-submissions.html" class="btn btn-primary">View Submissions</a>
+                        <a href="intake/confidential-rate-agreement.html" class="btn btn-secondary">New Form</a>
+                    </div>
+                </div>
+            </div>
+
                 <div class="form-stat">
                     <div class="count" id="confidentialToday">0</div>
                     <div class="label">Today</div>
@@ -328,6 +377,9 @@
                 <label style="font-size:16px;display:inline-block;margin-right:18px;">
                     <input type="checkbox" id="includeFinancialForm" style="margin-right:8px;vertical-align:middle;"> Include Financial Responsibility Form (for members with insurance/IEHP)
                 </label>
+                <label style="font-size:16px;display:inline-block;margin-right:18px;">
+                    <input type="checkbox" id="includeConfidentialForm" style="margin-right:8px;vertical-align:middle;"> Include Confidential Rate Agreement Form
+                </label>
                 <button type="submit" class="btn btn-primary" style="font-size:17px; padding:16px 32px; display:inline-block;">▶️ Start Full Intake Package</button>
             </form>
             <button class="btn btn-secondary" style="margin-left:16px; font-size:17px; padding:16px 32px; display:inline-block;" onclick="window.location.href='forms-viewer.html'">📄 View/Print/Save Full Intake Package</button>
@@ -336,7 +388,9 @@
         document.getElementById('intakeStartForm').onsubmit = function(e) {
             e.preventDefault();
             const includeFinancial = document.getElementById('includeFinancialForm').checked;
+            const includeConfidential = document.getElementById('includeConfidentialForm').checked;
             sessionStorage.setItem('includeFinancialForm', includeFinancial ? 'true' : 'false');
+            sessionStorage.setItem('includeConfidentialForm', includeConfidential ? 'true' : 'false');
             window.location.href = 'intake-package.html';
         };
         </script>
