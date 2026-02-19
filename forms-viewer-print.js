@@ -1,47 +1,45 @@
-// jsPDF CDN loader and print/save logic for forms-viewer.html
+// html2pdf.js CDN loader and print/save logic for forms-viewer.html
 (function() {
-    // Load jsPDF from CDN if not present
-    function loadJsPDF(callback) {
-        if (window.jspdf) return callback();
+    // Load html2pdf.js from CDN if not present
+    function loadHtml2Pdf(callback) {
+        if (window.html2pdf) return callback();
         var script = document.createElement('script');
-        script.src = 'https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js';
+        script.src = 'https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js';
         script.onload = callback;
         document.head.appendChild(script);
     }
-    // Print all forms
+    // Print all forms (native print)
     window.printAllForms = function() {
         window.print();
     };
-    // Save all forms as PDF
+    // Save all forms as PDF (multi-page)
     window.saveAllFormsAsPDF = function() {
-        loadJsPDF(function() {
-            const { jsPDF } = window.jspdf;
-            const doc = new jsPDF();
-            const container = document.querySelector('.container');
-            doc.html(container, {
-                callback: function (doc) {
-                    doc.save('intake-package.pdf');
-                },
-                x: 10,
-                y: 10,
-                width: 180
-            });
+        loadHtml2Pdf(function() {
+            var container = document.querySelector('.container');
+            var opt = {
+                margin:       0.5,
+                filename:     'intake-package.pdf',
+                image:        { type: 'jpeg', quality: 0.98 },
+                html2canvas:  { scale: 2, useCORS: true },
+                jsPDF:        { unit: 'in', format: 'letter', orientation: 'portrait' },
+                pagebreak:    { mode: ['css', 'legacy'] }
+            };
+            window.html2pdf().set(opt).from(container).save();
         });
     };
-    // Save individual form as PDF
+    // Save individual form as PDF (multi-page if needed)
     window.saveFormAsPDF = function(formId) {
-        loadJsPDF(function() {
-            const { jsPDF } = window.jspdf;
-            const doc = new jsPDF();
-            const form = document.getElementById('form-' + formId);
-            doc.html(form, {
-                callback: function (doc) {
-                    doc.save(formId + '.pdf');
-                },
-                x: 10,
-                y: 10,
-                width: 180
-            });
+        loadHtml2Pdf(function() {
+            var form = document.getElementById('form-' + formId);
+            var opt = {
+                margin:       0.5,
+                filename:     formId + '.pdf',
+                image:        { type: 'jpeg', quality: 0.98 },
+                html2canvas:  { scale: 2, useCORS: true },
+                jsPDF:        { unit: 'in', format: 'letter', orientation: 'portrait' },
+                pagebreak:    { mode: ['css', 'legacy'] }
+            };
+            window.html2pdf().set(opt).from(form).save();
         });
     };
 })();
