@@ -14,7 +14,8 @@
         .actions button { padding: 10px 22px; border: none; border-radius: 4px; background: #1976d2; color: #fff; font-size: 1rem; cursor: pointer; transition: background 0.2s; }
         .actions button:hover { background: #125ea7; }
         .forms-list { margin-bottom: 32px; }
-        .form-section { background: #f9f9f9; border-radius: 6px; margin-bottom: 24px; padding: 18px 20px; box-shadow: 0 1px 4px #0001; }
+        .form-section { background: #f9f9f9; border-radius: 6px; margin-bottom: 24px; padding: 18px 20px; box-shadow: 0 1px 4px #0001; page-break-inside: avoid; break-inside: avoid; }
+        .form-section + .form-section { page-break-before: always; break-before: page; }
         .form-section h2 { margin-top: 0; font-size: 1.2rem; }
         .form-actions { margin-top: 10px; }
         .form-actions button { background: #43a047; margin-right: 8px; }
