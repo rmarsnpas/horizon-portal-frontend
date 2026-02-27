@@ -509,7 +509,9 @@
                     <div id="imagePreviewContainer"></div>
                     <div class="input-row">
                         <input type="file" id="imageInput" accept="image/*" style="display:none;" onchange="handleImageSelect(event)" />
+                        <input type="file" id="pdfInput" accept="application/pdf" style="display:none;" onchange="handlePdfSelect(event)" />
                         <button class="image-upload-btn" onclick="document.getElementById('imageInput').click()" title="Upload image">📷</button>
+                        <button class="image-upload-btn" onclick="document.getElementById('pdfInput').click()" title="Attach PDF">📄</button>
                         <textarea 
                             id="messageInput" 
                             class="message-input" 
@@ -554,6 +556,44 @@
         let pollInterval = null;
         let selectedImageFile = null;
         let uploadedImageUrl = null;
+        let selectedPdfFile = null;
+        let uploadedPdfUrl = null;
+        // Handle PDF selection
+        function handlePdfSelect(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+
+            // Validate file size (10MB max)
+            if (file.size > 10 * 1024 * 1024) {
+                alert('PDF size must be less than 10MB');
+                event.target.value = '';
+                return;
+            }
+
+            if (file.type !== 'application/pdf') {
+                alert('Only PDF files are allowed');
+                event.target.value = '';
+                return;
+            }
+
+            selectedPdfFile = file;
+            // Show PDF preview (just filename)
+            const previewContainer = document.getElementById('imagePreviewContainer');
+            previewContainer.innerHTML = `
+                <div class="image-preview">
+                    <span>📄 ${file.name}</span>
+                    <button class="image-preview-close" onclick="clearPdfSelection()">&times;</button>
+                </div>
+            `;
+        }
+
+        // Clear PDF selection
+        function clearPdfSelection() {
+            selectedPdfFile = null;
+            uploadedPdfUrl = null;
+            document.getElementById('pdfInput').value = '';
+            document.getElementById('imagePreviewContainer').innerHTML = '';
+        }
 
         // Get member ID from session storage
         currentMemberId = sessionStorage.getItem('memberId');
@@ -680,12 +720,14 @@
                 container.innerHTML = messages.map(msg => {
                     const isSent = msg.senderId === currentMemberId;
                     const imageHtml = msg.imageUrl ? `<img src="${API_URL}${msg.imageUrl}" class="message-image" alt="Shared image" onclick="window.open('${API_URL}${msg.imageUrl}', '_blank')" />` : '';
+                    const pdfHtml = msg.pdfUrl ? `<a href="${API_URL}${msg.pdfUrl}" class="message-pdf" target="_blank">📄 View PDF</a>` : '';
                     return `
                         <div class="message ${isSent ? 'sent' : 'received'}">
                             <div class="message-bubble">
                                 ${!isSent ? `<div class="message-sender">${msg.senderName}</div>` : ''}
                                 ${msg.text ? `<div class="message-text">${escapeHtml(msg.text)}</div>` : ''}
                                 ${imageHtml}
+                                ${pdfHtml}
                                 <div class="message-timestamp">${formatTime(msg.timestamp)}</div>
                             </div>
                         </div>
@@ -703,27 +745,41 @@
         async function sendMessage() {
             const input = document.getElementById('messageInput');
             const text = input.value.trim();
-            
-            if ((!text && !selectedImageFile) || !currentConversationId) return;
+            if ((!text && !selectedImageFile && !selectedPdfFile) || !currentConversationId) return;
 
             try {
                 let imageUrl = null;
+                let pdfUrl = null;
 
                 // Upload image if selected
                 if (selectedImageFile) {
                     const formData = new FormData();
                     formData.append('image', selectedImageFile);
-
                     const uploadResponse = await fetch(`${API_URL}/api/messages/upload-image`, {
                         method: 'POST',
                         body: formData
                     });
-
                     const uploadResult = await uploadResponse.json();
                     if (uploadResult.success) {
                         imageUrl = uploadResult.imageUrl;
                     } else {
                         throw new Error('Failed to upload image');
+                    }
+                }
+
+                // Upload PDF if selected
+                if (selectedPdfFile) {
+                    const formData = new FormData();
+                    formData.append('pdf', selectedPdfFile);
+                    const uploadResponse = await fetch(`${API_URL}/api/messages/upload-pdf`, {
+                        method: 'POST',
+                        body: formData
+                    });
+                    const uploadResult = await uploadResponse.json();
+                    if (uploadResult.success) {
+                        pdfUrl = uploadResult.pdfUrl;
+                    } else {
+                        throw new Error('Failed to upload PDF');
                     }
                 }
 
@@ -736,15 +792,16 @@
                         senderId: currentMemberId,
                         senderName: currentMemberName,
                         text,
-                        imageUrl
+                        imageUrl,
+                        pdfUrl
                     })
                 });
 
                 const result = await response.json();
-                
                 if (result.success) {
                     input.value = '';
                     clearImageSelection();
+                    clearPdfSelection();
                     loadMessages();
                     loadConversations(); // Refresh conversations
                 }
