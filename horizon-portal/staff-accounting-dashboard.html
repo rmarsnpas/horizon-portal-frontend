@@ -24,7 +24,7 @@
             <h2>Invoices</h2>
             <table id="invoicesTable">
                 <thead>
-                    <tr><th>InvoiceID</th><th>MemberID</th><th>Name</th><th>DueDate</th><th>Amount</th><th>Status</th><th>DateSent</th><th>DatePaid</th><th>Notes</th><th>Print</th></tr>
+                    <tr><th>InvoiceID</th><th>MemberID</th><th>Name</th><th>Billed To</th><th></th>DueDate</th><th>Amount</th><th>Status</th><th>DateSent</th><th>DatePaid</th><th>Notes</th><th>Print</th></tr>
                 </thead>
                 <tbody></tbody>
             </table>
@@ -75,10 +75,12 @@
                     tbody.innerHTML = '';
                     (data.invoices || []).forEach(inv => {
                         const tr = document.createElement('tr');
+                        const billedTo = inv.BilledTo || inv.Name || '';
                         tr.innerHTML = `
                             <td>${inv.InvoiceID||''}</td>
                             <td>${inv.MemberID||''}</td>
                             <td>${inv.Name||''}</td>
+                            <td>${billedTo}</td>
                             <td>${inv.DueDate||''}</td>
                             <td>${inv.Amount||''}</td>
                             <td>${inv.Status||''}</td>
@@ -102,8 +104,9 @@
                 win.document.getElementById('memberName').textContent = inv.Name || '';
                 win.document.getElementById('memberId').textContent = inv.MemberID || '';
                 
-                // Set Bill To fields (can be customized later)
-                win.document.getElementById('billToName').textContent = inv.Name || '';
+                // Set Bill To fields (use BilledTo if different from member)
+                const billedToName = inv.BilledTo || inv.Name || '';
+                win.document.getElementById('billToName').textContent = billedToName;
                 win.document.getElementById('billToAddress').innerHTML = inv.BillToAddress || '&nbsp;';
                 
                 // Set invoice items and total
@@ -117,6 +120,34 @@
                 win.document.getElementById('totalAmount').textContent = `$${Number(inv.Amount || 0).toFixed(2)}`;
                 setTimeout(() => win.print(), 500);
             };
+        }
+
+        // Helper function to convert Excel serial date to JS Date
+        function excelDateToJSDate(serial) {
+            if (!serial || isNaN(serial)) return null;
+            const utc_days = Math.floor(serial - 25569);
+            const utc_value = utc_days * 86400;
+            const date_info = new Date(utc_value * 1000);
+            return new Date(date_info.getFullYear(), date_info.getMonth(), date_info.getDate());
+        }
+        
+        // Calculate next due date based on admit date
+        function getNextDueDate(admitDate) {
+            const admit = excelDateToJSDate(admitDate);
+            if (!admit) return new Date();
+            
+            const today = new Date();
+            const dayOfMonth = admit.getDate();
+            
+            // Start with current month, same day as admit date
+            let nextDue = new Date(today.getFullYear(), today.getMonth(), dayOfMonth);
+            
+            // If that date has passed, move to next month
+            if (nextDue <= today) {
+                nextDue = new Date(today.getFullYear(), today.getMonth() + 1, dayOfMonth);
+            }
+            
+            return nextDue;
         }
 
         // Add invoice with member lookup
@@ -133,21 +164,39 @@
                 const data = await response.json();
                 
                 let memberName = '';
+                let billedTo = '';
+                let defaultAmount = '';
+                let defaultDueDate = new Date(Date.now() + 15*24*60*60*1000).toISOString().slice(0,10);
+                
                 if (data && data.FIRST_NAME) {
                     memberName = `${data.FIRST_NAME || ''} ${data.LAST_NAME || ''}`.trim();
-                    alert(`Found member: ${memberName}`);
+                    defaultAmount = data.RATE || '';
+                    
+                    // Calculate next due date based on admit date
+                    if (data.ADMIT_DATE) {
+                        const nextDue = getNextDueDate(data.ADMIT_DATE);
+                        defaultDueDate = nextDue.toISOString().slice(0,10);
+                    }
+                    
+                    alert(`Found member: ${memberName}\nAdmit Date: ${data.ADMIT_DATE ? excelDateToJSDate(data.ADMIT_DATE).toLocaleDateString() : 'N/A'}\nMonthly Rate: $${defaultAmount}\nNext Due: ${defaultDueDate}`);
                 } else {
                     memberName = prompt('Member not found. Enter name manually:');
                     if (!memberName) return;
                 }
                 
-                const dueDate = prompt('Due Date (YYYY-MM-DD):', new Date(Date.now() + 15*24*60*60*1000).toISOString().slice(0,10));
-                const amount = prompt('Amount:');
+                // Ask for Billed To (if different from member)
+                billedTo = prompt('Billed To (leave empty if same as member):', '');
+                if (billedTo === null) return; // User cancelled
+                if (!billedTo.trim()) billedTo = memberName;
+                
+                const dueDate = prompt('Due Date (YYYY-MM-DD):', defaultDueDate);
+                const amount = prompt('Amount:', defaultAmount);
                 if (!dueDate || !amount) return;
                 
                 const invoiceData = {
                     MemberID: memberId,
                     Name: memberName,
+                    BilledTo: billedTo,
                     DueDate: dueDate,
                     Amount: amount,
                     Status: 'Unpaid',
