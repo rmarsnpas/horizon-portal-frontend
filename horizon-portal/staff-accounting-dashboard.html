@@ -24,7 +24,7 @@
             <h2>Invoices</h2>
             <table id="invoicesTable">
                 <thead>
-                    <tr><th>InvoiceID</th><th>MemberID</th><th>Name</th><th>DueDate</th><th>Amount</th><th>Status</th><th>DateSent</th><th>DatePaid</th><th>Notes</th></tr>
+                    <tr><th>InvoiceID</th><th>MemberID</th><th>Name</th><th>DueDate</th><th>Amount</th><th>Status</th><th>DateSent</th><th>DatePaid</th><th>Notes</th><th>Print</th></tr>
                 </thead>
                 <tbody></tbody>
             </table>
@@ -73,10 +73,48 @@
                     tbody.innerHTML = '';
                     (data.invoices || []).forEach(inv => {
                         const tr = document.createElement('tr');
-                        tr.innerHTML = `<td>${inv.InvoiceID||''}</td><td>${inv.MemberID||''}</td><td>${inv.Name||''}</td><td>${inv.DueDate||''}</td><td>${inv.Amount||''}</td><td>${inv.Status||''}</td><td>${inv.DateSent||''}</td><td>${inv.DatePaid||''}</td><td>${inv.Notes||''}</td>`;
+                        tr.innerHTML = `
+                            <td>${inv.InvoiceID||''}</td>
+                            <td>${inv.MemberID||''}</td>
+                            <td>${inv.Name||''}</td>
+                            <td>${inv.DueDate||''}</td>
+                            <td>${inv.Amount||''}</td>
+                            <td>${inv.Status||''}</td>
+                            <td>${inv.DateSent||''}</td>
+                            <td>${inv.DatePaid||''}</td>
+                            <td>${inv.Notes||''}</td>
+                            <td><button class="btn" onclick='printInvoice(${JSON.stringify(inv)})'>🖨️ Print</button></td>
+                        `;
                         tbody.appendChild(tr);
                     });
                 });
+        }
+
+        function printInvoice(inv) {
+            // Open the invoice template in a new window and inject data
+            const win = window.open('invoice-template.html', '_blank');
+            win.onload = function() {
+                win.document.getElementById('invoiceId').textContent = inv.InvoiceID || '';
+                win.document.getElementById('dateSent').textContent = inv.DateSent || '';
+                win.document.getElementById('dueDate').textContent = inv.DueDate || '';
+                win.document.getElementById('memberName').textContent = inv.Name || '';
+                win.document.getElementById('memberId').textContent = inv.MemberID || '';
+                
+                // Set Bill To fields (can be customized later)
+                win.document.getElementById('billToName').textContent = inv.Name || '';
+                win.document.getElementById('billToAddress').innerHTML = inv.BillToAddress || '&nbsp;';
+                
+                // Set invoice items and total
+                const itemsBody = win.document.getElementById('invoiceItems');
+                itemsBody.innerHTML = `
+                    <tr><td>Monthly Housing Fee</td><td class="amount-col">$${Number(inv.Amount || 0).toFixed(2)}</td></tr>
+                    <tr><td>&nbsp;</td><td class="amount-col">&nbsp;</td></tr>
+                    <tr><td>&nbsp;</td><td class="amount-col">&nbsp;</td></tr>
+                    <tr><td>&nbsp;</td><td class="amount-col">&nbsp;</td></tr>
+                `;
+                win.document.getElementById('totalAmount').textContent = `$${Number(inv.Amount || 0).toFixed(2)}`;
+                setTimeout(() => win.print(), 500);
+            };
         }
 
         // Add invoice (simple prompt for demo)
