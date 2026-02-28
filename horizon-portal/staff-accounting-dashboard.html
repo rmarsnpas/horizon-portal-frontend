@@ -117,20 +117,54 @@
             };
         }
 
-        // Add invoice (simple prompt for demo)
-        function addInvoice() {
+        // Add invoice with member lookup
+        async function addInvoice() {
             const memberId = prompt('Member ID:');
-            const name = prompt('Name:');
-            const dueDate = prompt('Due Date (YYYY-MM-DD):');
-            const amount = prompt('Amount:');
-            if (!memberId || !name || !dueDate || !amount) return;
-            fetch('/api/accounting/invoices', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ MemberID: memberId, Name: name, DueDate: dueDate, Amount: amount, Status: 'Unpaid', DateSent: new Date().toISOString().slice(0,10) })
-            })
-            .then(res => res.json())
-            .then(() => loadInvoices());
+            if (!memberId) return;
+            
+            // Look up member data from members.xlsx
+            try {
+                const response = await fetch(`/api/getMember?id=${memberId}`);
+                const data = await response.json();
+                
+                let memberName = '';
+                if (data && data.member) {
+                    memberName = `${data.member.FIRST_NAME || ''} ${data.member.LAST_NAME || ''}`.trim();
+                    alert(`Found member: ${memberName}`);
+                } else {
+                    memberName = prompt('Member not found. Enter name manually:');
+                    if (!memberName) return;
+                }
+                
+                const dueDate = prompt('Due Date (YYYY-MM-DD):', new Date(Date.now() + 15*24*60*60*1000).toISOString().slice(0,10));
+                const amount = prompt('Amount:');
+                if (!dueDate || !amount) return;
+                
+                const invoiceData = {
+                    MemberID: memberId,
+                    Name: memberName,
+                    DueDate: dueDate,
+                    Amount: amount,
+                    Status: 'Unpaid',
+                    DateSent: new Date().toISOString().slice(0,10)
+                };
+                
+                const result = await fetch('/api/accounting/invoices', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(invoiceData)
+                });
+                
+                if (result.ok) {
+                    alert('Invoice created successfully!');
+                    loadInvoices();
+                } else {
+                    alert('Failed to create invoice');
+                }
+            } catch (error) {
+                console.error('Error creating invoice:', error);
+                alert('Error creating invoice: ' + error.message);
+            }
         }
 
         // Fetch and render payments
@@ -148,21 +182,59 @@
                 });
         }
 
-        // Add payment (simple prompt for demo)
-        function addPayment() {
+        // Add payment with member lookup
+        async function addPayment() {
             const invoiceId = prompt('Invoice ID:');
+            if (!invoiceId) return;
+            
             const memberId = prompt('Member ID:');
-            const name = prompt('Name:');
-            const date = prompt('Date (YYYY-MM-DD):');
-            const amount = prompt('Amount:');
-            if (!invoiceId || !memberId || !name || !date || !amount) return;
-            fetch('/api/accounting/payments', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ InvoiceID: invoiceId, MemberID: memberId, Name: name, Date: date, Amount: amount, Method: '', Notes: '' })
-            })
-            .then(res => res.json())
-            .then(() => loadPayments());
+            if (!memberId) return;
+            
+            // Look up member data from members.xlsx
+            try {
+                const response = await fetch(`/api/getMember?id=${memberId}`);
+                const data = await response.json();
+                
+                let memberName = '';
+                if (data && data.member) {
+                    memberName = `${data.member.FIRST_NAME || ''} ${data.member.LAST_NAME || ''}`.trim();
+                    alert(`Found member: ${memberName}`);
+                } else {
+                    memberName = prompt('Member not found. Enter name manually:');
+                    if (!memberName) return;
+                }
+                
+                const date = prompt('Payment Date (YYYY-MM-DD):', new Date().toISOString().slice(0,10));
+                const amount = prompt('Payment Amount:');
+                const method = prompt('Payment Method (Cash, Check, Card, Transfer):');
+                if (!date || !amount) return;
+                
+                const paymentData = {
+                    InvoiceID: invoiceId,
+                    MemberID: memberId,
+                    Name: memberName,
+                    Date: date,
+                    Amount: amount,
+                    Method: method || '',
+                    Notes: ''
+                };
+                
+                const result = await fetch('/api/accounting/payments', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(paymentData)
+                });
+                
+                if (result.ok) {
+                    alert('Payment recorded successfully!');
+                    loadPayments();
+                } else {
+                    alert('Failed to record payment');
+                }
+            } catch (error) {
+                console.error('Error recording payment:', error);
+                alert('Error recording payment: ' + error.message);
+            }
         }
 
         // Initial load
