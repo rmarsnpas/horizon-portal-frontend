@@ -121,8 +121,11 @@
 
         // Add invoice with member lookup
         async function addInvoice() {
-            const memberId = prompt('Member ID:');
+            let memberId = prompt('Member ID:');
             if (!memberId) return;
+            
+            // Strip leading zeros and convert to number for lookup
+            memberId = parseInt(memberId, 10);
             
             // Look up member data from members.xlsx
             try {
@@ -130,8 +133,8 @@
                 const data = await response.json();
                 
                 let memberName = '';
-                if (data && data.member) {
-                    memberName = `${data.member.FIRST_NAME || ''} ${data.member.LAST_NAME || ''}`.trim();
+                if (data && data.FIRST_NAME) {
+                    memberName = `${data.FIRST_NAME || ''} ${data.LAST_NAME || ''}`.trim();
                     alert(`Found member: ${memberName}`);
                 } else {
                     memberName = prompt('Member not found. Enter name manually:');
@@ -189,8 +192,11 @@
             const invoiceId = prompt('Invoice ID:');
             if (!invoiceId) return;
             
-            const memberId = prompt('Member ID:');
+            let memberId = prompt('Member ID:');
             if (!memberId) return;
+            
+            // Strip leading zeros and convert to number for lookup
+            memberId = parseInt(memberId, 10);
             
             // Look up member data from members.xlsx
             try {
@@ -198,8 +204,8 @@
                 const data = await response.json();
                 
                 let memberName = '';
-                if (data && data.member) {
-                    memberName = `${data.member.FIRST_NAME || ''} ${data.member.LAST_NAME || ''}`.trim();
+                if (data && data.FIRST_NAME) {
+                    memberName = `${data.FIRST_NAME || ''} ${data.LAST_NAME || ''}`.trim();
                     alert(`Found member: ${memberName}`);
                 } else {
                     memberName = prompt('Member not found. Enter name manually:');
