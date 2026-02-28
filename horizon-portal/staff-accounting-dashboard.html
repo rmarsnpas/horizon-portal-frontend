@@ -64,9 +64,11 @@
         </div>
     </div>
     <script>
+        const API_URL = 'http://localhost:3001';
+        
         // Fetch and render invoices
         function loadInvoices() {
-            fetch('/api/accounting/invoices')
+            fetch(`${API_URL}/api/accounting/invoices`)
                 .then(res => res.json())
                 .then(data => {
                     const tbody = document.querySelector('#invoicesTable tbody');
@@ -124,7 +126,7 @@
             
             // Look up member data from members.xlsx
             try {
-                const response = await fetch(`/api/getMember?id=${memberId}`);
+                const response = await fetch(`${API_URL}/api/getMember?id=${memberId}`);
                 const data = await response.json();
                 
                 let memberName = '';
@@ -149,7 +151,7 @@
                     DateSent: new Date().toISOString().slice(0,10)
                 };
                 
-                const result = await fetch('/api/accounting/invoices', {
+                const result = await fetch(`${API_URL}/api/accounting/invoices`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify(invoiceData)
@@ -169,7 +171,7 @@
 
         // Fetch and render payments
         function loadPayments() {
-            fetch('/api/accounting/payments')
+            fetch(`${API_URL}/api/accounting/payments`)
                 .then(res => res.json())
                 .then(data => {
                     const tbody = document.querySelector('#paymentsTable tbody');
@@ -192,7 +194,7 @@
             
             // Look up member data from members.xlsx
             try {
-                const response = await fetch(`/api/getMember?id=${memberId}`);
+                const response = await fetch(`${API_URL}/api/getMember?id=${memberId}`);
                 const data = await response.json();
                 
                 let memberName = '';
@@ -219,7 +221,7 @@
                     Notes: ''
                 };
                 
-                const result = await fetch('/api/accounting/payments', {
+                const result = await fetch(`${API_URL}/api/accounting/payments`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify(paymentData)
@@ -246,7 +248,7 @@
             if (!file) return;
             const formData = new FormData();
             formData.append('receipt', file);
-            fetch('/api/accounting/upload-receipt', {
+            fetch(`${API_URL}/api/accounting/upload-receipt`, {
                 method: 'POST',
                 body: formData
             })
