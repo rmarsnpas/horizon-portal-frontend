@@ -5,7 +5,7 @@
         "name": "Launch Chrome",
         "request": "launch",
         "type": "chrome",
-        "url": "C:\Users\rmars\OneDrive\Documents\Documents\marsliz\Horizon-House\website\index_files\horizon-portal\staff-intake-portal.html,
+        "url": "file:///C:/Users/rmars/OneDrive/Documents/Documents/marsliz/Horizon-House/website/index_files/horizon-portal/intake/financial-responsibility.html",
         "webRoot": "${workspaceFolder}"
     }
     ]

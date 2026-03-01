@@ -20,11 +20,12 @@
 <body>
     <div class="container">
         <h1>Staff Accounting Dashboard</h1>
+        <button class="btn" onclick="downloadAccounting()" style="margin-bottom: 20px;">📥 Download Accounting Excel</button>
         <div class="section">
             <h2>Invoices</h2>
             <table id="invoicesTable">
                 <thead>
-                    <tr><th>InvoiceID</th><th>MemberID</th><th>Name</th><th>Billed To</th><th></th>DueDate</th><th>Amount</th><th>Status</th><th>DateSent</th><th>DatePaid</th><th>Notes</th><th>Print</th></tr>
+                    <tr><th>InvoiceID</th><th>MemberID</th><th>Name</th><th>Billed To</th><th>DueDate</th><th>Amount</th><th>Status</th><th>DateSent</th><th>DatePaid</th><th>Notes</th><th>Print</th></tr>
                 </thead>
                 <tbody></tbody>
             </table>
@@ -66,6 +67,11 @@
     <script>
         const API_URL = 'http://localhost:3001';
         
+        // Download accounting Excel file
+        function downloadAccounting() {
+            window.location.href = `${API_URL}/api/accounting/download`;
+        }
+        
         // Fetch and render invoices
         function loadInvoices() {
             fetch(`${API_URL}/api/accounting/invoices`)
@@ -87,7 +93,10 @@
                             <td>${inv.DateSent||''}</td>
                             <td>${inv.DatePaid||''}</td>
                             <td>${inv.Notes||''}</td>
-                            <td><button class="btn" onclick='printInvoice(${JSON.stringify(inv)})'>🖨️ Print</button></td>
+                            <td>
+                                <button class="btn" onclick='editInvoice(${JSON.stringify(inv)})'>✏️ Edit</button>
+                                <button class="btn" onclick='printInvoice(${JSON.stringify(inv)})'>🖨️ Print</button>
+                            </td>
                         `;
                         tbody.appendChild(tr);
                     });
@@ -106,8 +115,9 @@
                 
                 // Set Bill To fields (use BilledTo if different from member)
                 const billedToName = inv.BilledTo || inv.Name || '';
+                const billedToAddress = inv.BilledToAddress || '';
                 win.document.getElementById('billToName').textContent = billedToName;
-                win.document.getElementById('billToAddress').innerHTML = inv.BillToAddress || '&nbsp;';
+                win.document.getElementById('billToAddress').innerHTML = billedToAddress || '&nbsp;';
                 
                 // Set invoice items and total
                 const itemsBody = win.document.getElementById('invoiceItems');
@@ -124,20 +134,26 @@
 
         // Helper function to convert Excel serial date to JS Date
         function excelDateToJSDate(serial) {
-            if (!serial || isNaN(serial)) return null;
+            if (!serial || isNaN(serial) || serial === 0) return null;
             const utc_days = Math.floor(serial - 25569);
             const utc_value = utc_days * 86400;
             const date_info = new Date(utc_value * 1000);
             return new Date(date_info.getFullYear(), date_info.getMonth(), date_info.getDate());
         }
         
-        // Calculate next due date based on admit date
-        function getNextDueDate(admitDate) {
-            const admit = excelDateToJSDate(admitDate);
-            if (!admit) return new Date();
+        // Calculate next due date based on admit date (recurring monthly on same day)
+        function getNextDueDate(admitDateSerial) {
+            // Convert Excel serial to date
+            const admit = excelDateToJSDate(admitDateSerial);
+            if (!admit) {
+                console.log('No valid admit date, defaulting to first of next month');
+                return new Date(new Date().getFullYear(), new Date().getMonth() + 1, 1);
+            }
             
             const today = new Date();
             const dayOfMonth = admit.getDate();
+            
+            console.log('Admit date:', admit, 'Day of month:', dayOfMonth);
             
             // Start with current month, same day as admit date
             let nextDue = new Date(today.getFullYear(), today.getMonth(), dayOfMonth);
@@ -147,6 +163,7 @@
                 nextDue = new Date(today.getFullYear(), today.getMonth() + 1, dayOfMonth);
             }
             
+            console.log('Next due date:', nextDue);
             return nextDue;
         }
 
@@ -165,31 +182,48 @@
                 
                 let memberName = '';
                 let billedTo = '';
+                let billedToAddress = '';
                 let defaultAmount = '';
-                let defaultDueDate = new Date(Date.now() + 15*24*60*60*1000).toISOString().slice(0,10);
+                let defaultDueDate = '';
+                let admitDateDisplay = 'N/A';
+                
+                console.log('Member data received:', data);
                 
                 if (data && data.FIRST_NAME) {
                     memberName = `${data.FIRST_NAME || ''} ${data.LAST_NAME || ''}`.trim();
                     defaultAmount = data.RATE || '';
                     
                     // Calculate next due date based on admit date
-                    if (data.ADMIT_DATE) {
+                    if (data.ADMIT_DATE && data.ADMIT_DATE !== '' && data.ADMIT_DATE !== 0) {
+                        const admitDate = excelDateToJSDate(data.ADMIT_DATE);
+                        admitDateDisplay = admitDate ? admitDate.toLocaleDateString() : 'Invalid Date';
                         const nextDue = getNextDueDate(data.ADMIT_DATE);
                         defaultDueDate = nextDue.toISOString().slice(0,10);
+                    } else {
+                        // No admit date, default to first of next month
+                        defaultDueDate = new Date(new Date().getFullYear(), new Date().getMonth() + 1, 1).toISOString().slice(0,10);
                     }
                     
-                    alert(`Found member: ${memberName}\nAdmit Date: ${data.ADMIT_DATE ? excelDateToJSDate(data.ADMIT_DATE).toLocaleDateString() : 'N/A'}\nMonthly Rate: $${defaultAmount}\nNext Due: ${defaultDueDate}`);
+                    alert(`Found member: ${memberName}\nAdmit Date: ${admitDateDisplay}\nMonthly Rate: $${defaultAmount}\nNext Due: ${defaultDueDate}`);
                 } else {
                     memberName = prompt('Member not found. Enter name manually:');
                     if (!memberName) return;
+                    // Default to first of next month if no member found
+                    defaultDueDate = new Date(new Date().getFullYear(), new Date().getMonth() + 1, 1).toISOString().slice(0,10);
                 }
                 
-                // Ask for Billed To (if different from member)
-                billedTo = prompt('Billed To (leave empty if same as member):', '');
+                // Ask for Billed To (name and address)
+                billedTo = prompt('Billed To Name (leave empty if same as member):', '');
                 if (billedTo === null) return; // User cancelled
-                if (!billedTo.trim()) billedTo = memberName;
+                if (!billedTo.trim()) {
+                    billedTo = memberName;
+                    billedToAddress = '';
+                } else {
+                    billedToAddress = prompt('Billed To Address:', '');
+                    if (billedToAddress === null) return;
+                }
                 
-                const dueDate = prompt('Due Date (YYYY-MM-DD):', defaultDueDate);
+                const dueDate = prompt('Due Date (YYYY-MM-DD) - This will repeat monthly:', defaultDueDate);
                 const amount = prompt('Amount:', defaultAmount);
                 if (!dueDate || !amount) return;
                 
@@ -197,6 +231,7 @@
                     MemberID: memberId,
                     Name: memberName,
                     BilledTo: billedTo,
+                    BilledToAddress: billedToAddress,
                     DueDate: dueDate,
                     Amount: amount,
                     Status: 'Unpaid',
@@ -218,6 +253,65 @@
             } catch (error) {
                 console.error('Error creating invoice:', error);
                 alert('Error creating invoice: ' + error.message);
+            }
+        }
+
+        // Edit existing invoice
+        async function editInvoice(inv) {
+            try {
+                const newAmount = prompt('Amount:', inv.Amount);
+                if (newAmount === null) return;
+                
+                const newDueDate = prompt('Due Date (YYYY-MM-DD):', inv.DueDate);
+                if (newDueDate === null) return;
+                
+                const newStatus = prompt('Status (Unpaid/Paid/Overdue):', inv.Status);
+                if (newStatus === null) return;
+                
+                const newBilledTo = prompt('Billed To Name:', inv.BilledTo || inv.Name);
+                if (newBilledTo === null) return;
+                
+                const newBilledToAddress = prompt('Billed To Address:', inv.BilledToAddress || '');
+                if (newBilledToAddress === null) return;
+                
+                const newNotes = prompt('Notes:', inv.Notes || '');
+                if (newNotes === null) return;
+                
+                // Update the invoice in the Excel file
+                const { invoices } = await (await fetch(`${API_URL}/api/accounting/invoices`)).json();
+                const index = invoices.findIndex(i => i.InvoiceID === inv.InvoiceID);
+                
+                if (index === -1) {
+                    alert('Invoice not found');
+                    return;
+                }
+                
+                invoices[index] = {
+                    ...invoices[index],
+                    Amount: newAmount,
+                    DueDate: newDueDate,
+                    Status: newStatus,
+                    BilledTo: newBilledTo,
+                    BilledToAddress: newBilledToAddress,
+                    Notes: newNotes
+                };
+                
+                // Save back via PUT endpoint (we'll need to add this to backend)
+                const result = await fetch(`${API_URL}/api/accounting/invoices/${inv.InvoiceID}`, {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(invoices[index])
+                });
+                
+                if (result.ok) {
+                    alert('Invoice updated successfully!');
+                    loadInvoices();
+                } else {
+                    alert('Failed to update invoice');
+                }
+            } catch (error) {
+                console.error('Error editing invoice:', error);
+                alert('Error editing invoice: ' + error.message);
             }
         }
 
