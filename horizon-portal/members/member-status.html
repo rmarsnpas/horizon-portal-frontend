@@ -92,8 +92,8 @@
 
         .members-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
-            gap: 15px;
+            grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+            gap: 18px;
             margin-bottom: 30px;
         }
 
@@ -107,6 +107,15 @@
 
         .member-card:hover {
             transform: translateY(-2px);
+            box-shadow: 0 6px 12px rgba(0,0,0,0.15);
+        }
+
+        .member-card.female {
+            background: #ffe6f0;
+        }
+
+        .member-card.male {
+            background: #e6f3ff;
         }
 
         .member-card.in {
@@ -114,19 +123,33 @@
         }
 
         .member-card.out {
-            border-left: 5px solid #ff9800;
+            border-left: 5px solid #ffa500;
         }
 
         .member-card.overdue {
             border-left: 5px solid #dc3545;
-            background: #fff5f5;
+        }
+
+        .member-card.overdue.female {
+            background: #ffc0cb;
+        }
+
+        .member-card.overdue.male {
+            background: #b3d9ff;
+        }
+
+        .member-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 8px;
         }
 
         .member-name {
             font-size: 1.2em;
             font-weight: bold;
             color: #2d3748;
-            margin-bottom: 5px;
+            flex: 1;
         }
 
         .member-id {
@@ -141,16 +164,17 @@
             border-radius: 20px;
             font-size: 0.85em;
             font-weight: 600;
-            margin-top: 8px;
+            white-space: nowrap;
+            margin-left: 10px;
         }
 
         .member-status.in {
-            background: #d4edda;
-            color: #155724;
+            background: #28a745;
+            color: white;
         }
 
         .member-status.out {
-            background: #fff5e6;
+            background: #ffd700;
             color: #7d6608;
         }
 
@@ -160,13 +184,44 @@
         }
 
         .member-details {
-            margin-top: 10px;
-            font-size: 0.9em;
+            margin-top: 12px;
+            font-size: 0.85em;
             color: #4a5568;
+            border-top: 1px solid rgba(0,0,0,0.1);
+            padding-top: 10px;
         }
 
         .member-details div {
-            margin: 3px 0;
+            margin: 5px 0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .member-details .label {
+            font-weight: 600;
+            color: #2d3748;
+        }
+
+        .member-details .value {
+            color: #4a5568;
+        }
+
+        .member-info {
+            margin-top: 8px;
+            font-size: 0.85em;
+            color: #4a5568;
+        }
+
+        .member-info div {
+            margin: 4px 0;
+            display: flex;
+            justify-content: space-between;
+        }
+
+        .member-info .label {
+            font-weight: 600;
+            color: #2d3748;
         }
 
         .loading {
@@ -251,13 +306,17 @@
                 
                 console.log('Active members (status=1):', activeMembers.length);
                 console.log('First active member sample:', activeMembers[0]);
-                console.log('Active members:', activeMembers.slice(0,3).map(m => ({
+                console.log('Excel data check (with \\r\\n line breaks):', activeMembers.slice(0,3).map(m => ({
                     id: m.ID,
-                    allKeys: Object.keys(m),
-                    firstName: m.FIRST_NAME || m['FIRST\r\nNAME'] || m['FIRST\nNAME'],
-                    lastName: m.LAST_NAME || m['LAST\r\nNAME'] || m['LAST\nNAME'],
-                    status: m.STATU || m.STATUS,
-                    gender: m['M/F'] || m.GENDER || m.SEX
+                    name: `${m['FIRST\r\nNAME'] || m.FIRST_NAME || ''} ${m['LAST\r\nNAME'] || m.LAST_NAME || ''}`,
+                    admitDate_H: m['ADMIT\r\nDATE'],
+                    dob_P: m.DOB,
+                    soberDate_Q: m['SOBER\r\nDATE'],
+                    soberDays_R: m['DAYS\r\nSOBER'],
+                    gender: m['M/F'],
+                    bed: m.BED,
+                    phone: m.PHONE,
+                    email: m.EMAIL
                 })));
                 
                 // Get current sign-out status
@@ -271,6 +330,57 @@
                     outMap[m.memberId] = m;
                 });
                 
+                // Helper function to convert Excel serial date to JavaScript Date
+                function excelDateToJSDate(serial) {
+                    if (!serial || serial === '') return null;
+                    if (typeof serial === 'string') return serial; // Already a date string
+                    // Excel serial date: days since 1/1/1900 (with 1900 leap year bug)
+                    const utc_days = Math.floor(serial - 25569);
+                    const utc_value = utc_days * 86400;
+                    const date_info = new Date(utc_value * 1000);
+                    return date_info;
+                }
+
+                // Helper function to format date as mm/dd/yyyy
+                function formatDate(dateStr) {
+                    if (!dateStr || dateStr === '') return '';
+                    
+                    let date;
+                    // Check if it's an Excel serial number
+                    if (typeof dateStr === 'number') {
+                        date = excelDateToJSDate(dateStr);
+                    } else {
+                        date = new Date(dateStr);
+                    }
+                    
+                    if (!date || isNaN(date.getTime())) return '';
+                    
+                    const month = String(date.getMonth() + 1).padStart(2, '0');
+                    const day = String(date.getDate()).padStart(2, '0');
+                    const year = date.getFullYear();
+                    return `${month}/${day}/${year}`;
+                }
+
+                // Helper function to calculate days sober
+                function calculateSoberDays(sobrietyDate) {
+                    if (!sobrietyDate || sobrietyDate === '') return '';
+                    
+                    let date;
+                    // Check if it's an Excel serial number
+                    if (typeof sobrietyDate === 'number') {
+                        date = excelDateToJSDate(sobrietyDate);
+                    } else {
+                        date = new Date(sobrietyDate);
+                    }
+                    
+                    if (!date || isNaN(date.getTime())) return '';
+                    
+                    const today = new Date();
+                    const diffTime = Math.abs(today - date);
+                    const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
+                    return diffDays;
+                }
+
                 // Count stats
                 let totalIn = 0;
                 let totalOut = 0;
@@ -280,9 +390,30 @@
                 const grid = document.getElementById('membersGrid');
                 grid.innerHTML = activeMembers.map(member => {
                     const memberId = String(member.ID);
-                    const firstName = member.FIRST_NAME || member['FIRST\r\nNAME'] || member['FIRST\nNAME'] || '';
-                    const lastName = member.LAST_NAME || member['LAST\r\nNAME'] || member['LAST\nNAME'] || '';
+                    // Excel headers have \r\n line breaks
+                    const firstName = member['FIRST\r\nNAME'] || member.FIRST_NAME || member['FIRST\nNAME'] || '';
+                    const lastName = member['LAST\r\nNAME'] || member.LAST_NAME || member['LAST\nNAME'] || '';
                     const memberName = `${firstName} ${lastName}`.trim() || 'Unknown';
+                    
+                    // Extract additional member info (Excel columns with \r\n line breaks in headers)
+                    const gender = member['M/F'] || member.GENDER || member.SEX || '';
+                    const dob = member.DOB || member['DATE OF BIRTH'] || member.BIRTHDATE || '';
+                    const sobrietyDate = member['SOBER\r\nDATE'] || member['SOBRIETY DATE'] || member['SOBER DATE'] || '';
+                    const email = member.EMAIL || member['E-MAIL'] || member.EMAILADDRESS || '';
+                    const phone = member.PHONE || member['PHONE NUMBER'] || member.PHONENUMBER || member.CELL || '';
+                    const bed = member.BED || member['BED#'] || member['BED NUMBER'] || member.BEDNUMBER || member.ROOM || '';
+                    const admitDate = member['ADMIT\r\nDATE'] || member['ADMIT DATE'] || member['ADMIT DAT'] || '';
+                    
+                    // Get sober days - Excel column header has \r\n
+                    let soberDays = member['DAYS\r\nSOBER'] || member['SOBER DAYS'] || member['DAYS SOBER'] || '';
+                    // Only calculate if Excel value is empty/missing
+                    if (!soberDays || soberDays === '' || String(soberDays).trim() === '') {
+                        soberDays = calculateSoberDays(sobrietyDate);
+                    }
+                    
+                    // Determine gender class for background color (pink for F, baby blue for M)
+                    const genderClass = gender.toUpperCase() === 'F' || gender.toUpperCase() === 'FEMALE' ? 'female' : 
+                                       gender.toUpperCase() === 'M' || gender.toUpperCase() === 'MALE' ? 'male' : '';
                     
                     const outInfo = outMap[memberId];
                     const isOut = !!outInfo;
@@ -298,23 +429,45 @@
                     let statusClass = isOverdue ? 'overdue' : (isOut ? 'out' : 'in');
                     let statusText = isOverdue ? '🚨 OVERDUE' : (isOut ? '🚪 Signed Out' : '✅ Signed In');
                     
+                    // Build member info section with reordered details (Admit, DOB, Sober Date, Days Sober)
+                    const formattedAdmitDate = formatDate(admitDate);
+                    const formattedDOB = formatDate(dob);
+                    const formattedSoberDate = formatDate(sobrietyDate);
+                    
+                    let memberInfoHtml = `
+                        <div class="member-info">
+                            ${formattedAdmitDate ? `<div><span class="label">Admitted:</span> <span>${formattedAdmitDate}</span></div>` : ''}
+                            ${formattedDOB ? `<div><span class="label">DOB:</span> <span>${formattedDOB}</span></div>` : ''}
+                            ${formattedSoberDate ? `<div><span class="label">Sober Since:</span> <span>${formattedSoberDate}</span></div>` : ''}
+                            ${soberDays && String(soberDays).trim() !== '' ? `<div><span class="label">Days Sober:</span> <span style="color: #28a745; font-weight: 700;">${soberDays} days 🌟</span></div>` : ''}
+                            ${bed && String(bed).trim() !== '' ? `<div><span class="label">Bed:</span> <span>${bed}</span></div>` : ''}
+                            ${phone && String(phone).trim() !== '' ? `<div><span class="label">Phone:</span> <span>${phone}</span></div>` : ''}
+                            ${email && String(email).trim() !== '' ? `<div><span class="label">Email:</span> <span style="font-size: 0.75em; word-break: break-all;">${email}</span></div>` : ''}
+                        </div>
+                    `;
+                    
                     let detailsHtml = '';
                     if (isOut) {
                         detailsHtml = `
                             <div class="member-details">
-                                <div>� Date: ${outInfo.date}</div>
-                                <div>�📍 ${outInfo.destination}</div>
-                                <div>🕐 Out: ${outInfo.timeOut}</div>
-                                <div>⏰ Return: ${outInfo.estimatedReturn}</div>
+                                <div><span class="label">📅 Date:</span> <span class="value">${outInfo.date}</span></div>
+                                <div><span class="label">📍 Location:</span> <span class="value">${outInfo.destination}</span></div>
+                                <div><span class="label">🕐 Left At:</span> <span class="value">${outInfo.timeOut}</span></div>
+                                <div><span class="label">⏰ Return:</span> <span class="value">${outInfo.estimatedReturn}</span></div>
                             </div>
                         `;
                     }
                     
                     return `
-                        <div class="member-card ${statusClass}">
-                            <div class="member-name">${memberName}</div>
-                            <div class="member-id">ID: ${memberId}</div>
-                            <span class="member-status ${statusClass}">${statusText}</span>
+                        <div class="member-card ${statusClass} ${genderClass}">
+                            <div class="member-header">
+                                <div>
+                                    <div class="member-name">${memberName}</div>
+                                    <div class="member-id">ID: ${memberId}</div>
+                                </div>
+                                <span class="member-status ${statusClass}">${statusText}</span>
+                            </div>
+                            ${memberInfoHtml}
                             ${detailsHtml}
                         </div>
                     `;
