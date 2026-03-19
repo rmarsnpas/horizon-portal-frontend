@@ -1,0 +1,406 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Invoices – Horizon House</title>
+
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #f4f7fa;
+      margin: 0;
+      padding: 0;
+    }
+
+    header {
+      background-color: #003366;
+      color: #fff;
+      padding: 20px;
+      position: relative;
+    }
+
+    .container {
+      max-width: 900px;
+      margin: 40px auto;
+      background: #fff;
+      padding: 30px;
+      border-radius: 10px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+    }
+
+    h1 {
+      text-align: center;
+      margin: 0;
+    }
+
+    h2 {
+      color: #003366;
+      margin-top: 0;
+    }
+
+    .header-buttons {
+      position: absolute;
+      right: 20px;
+      top: 20px;
+      display: flex;
+      gap: 10px;
+    }
+
+    .header-btn {
+      padding: 10px 20px;
+      border: none;
+      border-radius: 6px;
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s;
+      text-decoration: none;
+      display: inline-block;
+    }
+
+    .btn-dashboard {
+      background-color: white;
+      color: #003366;
+    }
+
+    .btn-dashboard:hover {
+      background-color: #f0f0f0;
+    }
+
+    .btn-logout {
+      background-color: #e53e3e;
+      color: white;
+    }
+
+    .btn-logout:hover {
+      background-color: #c53030;
+    }
+
+    .section {
+      margin-top: 22px;
+    }
+
+    .card {
+      background: #f8fafc;
+      padding: 20px;
+      border-radius: 8px;
+      margin-bottom: 18px;
+      border: 1px solid #e0e6ed;
+    }
+
+    .muted {
+      color: #555;
+      font-size: 14px;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 10px;
+      background: white;
+      border: 1px solid #e0e6ed;
+      border-radius: 8px;
+      overflow: hidden;
+    }
+
+    th, td {
+      text-align: left;
+      padding: 10px;
+      border-bottom: 1px solid #e0e6ed;
+      vertical-align: middle;
+      font-size: 14px;
+    }
+
+    th {
+      background: #f4f7fa;
+      color: #003366;
+      font-weight: 700;
+    }
+
+    .actions {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    .btn {
+      display: inline-block;
+      padding: 8px 12px;
+      background-color: #003366;
+      color: #fff;
+      border-radius: 6px;
+      text-decoration: none;
+      border: none;
+      cursor: pointer;
+      font-weight: 600;
+      font-size: 13px;
+    }
+
+    .btn:hover {
+      background-color: #00264d;
+    }
+
+    .btn-secondary {
+      background: #5a67d8;
+    }
+
+    .btn-secondary:hover {
+      background: #4c51bf;
+    }
+
+    .pill {
+      display: inline-block;
+      padding: 4px 8px;
+      border-radius: 999px;
+      font-size: 12px;
+      font-weight: 700;
+    }
+
+    .pill-unpaid {
+      background: #fff5f5;
+      color: #c53030;
+      border: 1px solid #fed7d7;
+    }
+
+    .pill-paid {
+      background: #f0fff4;
+      color: #2f855a;
+      border: 1px solid #c6f6d5;
+    }
+
+    .error {
+      background: #ffe6e6;
+      color: #b30000;
+      padding: 12px;
+      border-radius: 8px;
+      border: 1px solid #ffb3b3;
+      margin-top: 12px;
+      display: none;
+    }
+
+    @media (max-width: 700px) {
+      .header-buttons {
+        position: static;
+        justify-content: center;
+        margin-top: 10px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>Invoices</h1>
+    <div class="header-buttons">
+      <a href="dashboard.html" class="header-btn btn-dashboard">← Dashboard</a>
+      <button onclick="logout()" class="header-btn btn-logout">🚪 Log Out</button>
+    </div>
+  </header>
+
+  <div class="container">
+    <h2>Your Invoices</h2>
+    <p class="muted">Unpaid invoices appear first. If you don’t see an invoice you expect, it may not have been uploaded yet.</p>
+
+    <div id="error" class="error" role="alert" aria-live="assertive"></div>
+
+    <div class="section card">
+      <h3 style="margin:0;color:#003366;">Unpaid</h3>
+      <div id="unpaidEmpty" class="muted" style="margin-top:8px; display:none;">No unpaid invoices found.</div>
+      <div id="unpaidWrap"></div>
+    </div>
+
+    <div class="section card">
+      <h3 style="margin:0;color:#003366;">Paid</h3>
+      <div id="paidEmpty" class="muted" style="margin-top:8px; display:none;">No paid invoices found.</div>
+      <div id="paidWrap"></div>
+    </div>
+  </div>
+
+  <script>
+    const urlParams = new URLSearchParams(window.location.search);
+    const memberId = (urlParams.get('id') || localStorage.getItem('memberId') || '').trim();
+
+    if (!memberId) {
+      window.location.href = '/members/login.html';
+    }
+
+    const memberEmail = (localStorage.getItem('memberEmail') || '').trim();
+
+    function showError(message) {
+      const el = document.getElementById('error');
+      el.textContent = message;
+      el.style.display = 'block';
+    }
+
+    function hideError() {
+      const el = document.getElementById('error');
+      el.textContent = '';
+      el.style.display = 'none';
+    }
+
+    function escapeHtml(str) {
+      const div = document.createElement('div');
+      div.textContent = String(str ?? '');
+      return div.innerHTML;
+    }
+
+    function formatMoney(amount) {
+      if (amount === null || amount === undefined || amount === '') return '';
+      const n = Number(amount);
+      if (!Number.isFinite(n)) return String(amount);
+      return `$${n.toFixed(2)}`;
+    }
+
+    function normalizeDateDisplay(dateStr) {
+      if (!dateStr) return '';
+      const s = String(dateStr).trim();
+      // Preferred: MM-DD-YYYY
+      if (/^\d{2}-\d{2}-\d{4}$/.test(s)) return s;
+      // Legacy: YYYY-MM-DD
+      if (/^\d{4}-\d{2}-\d{2}$/.test(s)) {
+        const [yyyy, mm, dd] = s.split('-');
+        return `${mm}-${dd}-${yyyy}`;
+      }
+      return s;
+    }
+
+    function buildAbsoluteUrl(relativeUrl) {
+      try {
+        return new URL(relativeUrl, window.location.href).href;
+      } catch {
+        return relativeUrl;
+      }
+    }
+
+    function printPdf(pdfUrl) {
+      const win = window.open(pdfUrl, '_blank');
+      if (!win) {
+        showError('Pop-up blocked. Please allow pop-ups to print.');
+        return;
+      }
+      win.addEventListener('load', () => {
+        try { win.print(); } catch (e) { /* ignore */ }
+      });
+    }
+
+    function emailInvoice(invoiceNumber, pdfUrl) {
+      const subject = `Invoice ${invoiceNumber || ''}`.trim();
+      const link = buildAbsoluteUrl(pdfUrl);
+      const body = `Invoice link: ${link}`;
+
+      const to = memberEmail || '';
+      const href = `mailto:${encodeURIComponent(to)}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+      window.location.href = href;
+    }
+
+    function renderTable(targetId, invoices, status) {
+      const wrap = document.getElementById(targetId);
+      if (!invoices.length) {
+        return;
+      }
+
+      const table = document.createElement('table');
+      table.innerHTML = `
+        <thead>
+          <tr>
+            <th style="width: 18%">Status</th>
+            <th style="width: 28%">Invoice</th>
+            <th style="width: 18%">Due/Paid</th>
+            <th style="width: 16%">Amount</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody></tbody>
+      `;
+
+      const tbody = table.querySelector('tbody');
+
+      invoices.forEach((inv) => {
+        const tr = document.createElement('tr');
+
+        const pillClass = status === 'unpaid' ? 'pill pill-unpaid' : 'pill pill-paid';
+        const label = status === 'unpaid' ? 'UNPAID' : 'PAID';
+
+        const rawDate = status === 'unpaid' ? (inv.dueDate || '') : (inv.paidDate || '');
+        const date = normalizeDateDisplay(rawDate);
+        const pdfUrl = `../${inv.pdfPath}`;
+
+        const invoiceNumber = inv.invoiceNumber || '';
+        const amount = formatMoney(inv.amount);
+
+        const parseWarning = inv.parseOk ? '' : '<div class="muted" style="margin-top:4px;">Filename missing MID/INV token</div>';
+
+        tr.innerHTML = `
+          <td><span class="${pillClass}">${label}</span></td>
+          <td>
+            <div style="font-weight:700;">${escapeHtml(invoiceNumber || inv.fileName || '')}</div>
+            <div class="muted" style="margin-top:2px;">${escapeHtml(inv.fileName || '')}</div>
+            ${parseWarning}
+          </td>
+          <td>${escapeHtml(date)}</td>
+          <td>${escapeHtml(amount)}</td>
+          <td>
+            <div class="actions">
+              <a class="btn" href="${pdfUrl}" target="_blank" rel="noopener">View</a>
+              <button class="btn btn-secondary" type="button" data-action="print">Print</button>
+              <button class="btn" type="button" data-action="email">Email</button>
+            </div>
+          </td>
+        `;
+
+        tr.querySelector('[data-action="print"]').addEventListener('click', () => printPdf(pdfUrl));
+        tr.querySelector('[data-action="email"]').addEventListener('click', () => emailInvoice(invoiceNumber, pdfUrl));
+
+        tbody.appendChild(tr);
+      });
+
+      wrap.appendChild(table);
+    }
+
+    async function loadInvoices() {
+      hideError();
+
+      // Relative URL so it works when the portal is hosted at root or under /horizon-portal/
+      const manifestUrl = `../invoices/invoices.json?t=${Date.now()}`;
+
+      let payload;
+      try {
+        const res = await fetch(manifestUrl, { cache: 'no-store' });
+        if (!res.ok) throw new Error(`Manifest not found (${res.status})`);
+        payload = await res.json();
+      } catch (e) {
+        console.error(e);
+        showError('Unable to load invoices. Please try again later.');
+        document.getElementById('unpaidEmpty').style.display = 'block';
+        document.getElementById('paidEmpty').style.display = 'block';
+        return;
+      }
+
+      const all = Array.isArray(payload?.invoices) ? payload.invoices : [];
+
+      const mine = all.filter((inv) => String(inv.memberId || '').trim() === String(memberId).trim());
+      const unpaid = mine.filter((inv) => inv.status === 'unpaid');
+      const paid = mine.filter((inv) => inv.status === 'paid');
+
+      if (!unpaid.length) document.getElementById('unpaidEmpty').style.display = 'block';
+      if (!paid.length) document.getElementById('paidEmpty').style.display = 'block';
+
+      renderTable('unpaidWrap', unpaid, 'unpaid');
+      renderTable('paidWrap', paid, 'paid');
+    }
+
+    // Logout function
+    function logout() {
+      localStorage.removeItem('memberId');
+      localStorage.removeItem('memberFirstName');
+      localStorage.removeItem('memberLastName');
+      localStorage.removeItem('memberEmail');
+      sessionStorage.removeItem('memberId');
+      sessionStorage.removeItem('memberName');
+      window.location.href = '/members/login.html';
+    }
+
+    loadInvoices();
+  </script>
+</body>
+</html>

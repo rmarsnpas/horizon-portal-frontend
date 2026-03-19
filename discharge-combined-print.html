@@ -21,7 +21,8 @@
       max-width: 800px;
       margin: 0 auto;
       padding: 24px 32px;
-      page-break-after: always;
+      page-break-after: auto;
+      break-after: auto;
     }
 
     h1 {
@@ -116,7 +117,12 @@
 
     @media print {
       body { margin: 0; }
-      .page { margin: 0; padding: 16px 24px; }
+      .page {
+        margin: 0;
+        padding: 16px 24px;
+        page-break-after: auto;
+        break-after: auto;
+      }
     }
   </style>
 </head>

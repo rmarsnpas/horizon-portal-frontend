@@ -430,7 +430,14 @@
             
             // Access nested data object
             const data = app.data || app;
-            const submittedDate = app.timestamp ? new Date(app.timestamp).toLocaleDateString() : 'N/A';
+            const submittedDate = app.timestamp ? (() => {
+                const d = new Date(app.timestamp);
+                if (Number.isNaN(d.getTime())) return 'N/A';
+                const mm = String(d.getMonth() + 1).padStart(2, '0');
+                const dd = String(d.getDate()).padStart(2, '0');
+                const yyyy = String(d.getFullYear());
+                return `${mm}-${dd}-${yyyy}`;
+            })() : 'N/A';
             
             card.innerHTML = `
                 <div class="app-header">

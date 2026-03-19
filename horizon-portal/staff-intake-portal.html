@@ -251,9 +251,6 @@
             <a href="staff-dashboard.html" class="back-button">
                 ← Back to Dashboard
             </a>
-            <a href="staff-accounting-dashboard.html" class="back-button" style="background:#48bb78;">
-                💰 Staff Accounting
-            </a>
         </div>
 
         <div class="header">
@@ -527,9 +524,21 @@
                 const today = new Date().toISOString().split('T')[0];
                 const weekAgo = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString();
 
+                function normalizeDateOnly(value) {
+                    if (!value) return '';
+                    const s = String(value);
+                    // ISO timestamp/date
+                    const iso = s.match(/^(\d{4}-\d{2}-\d{2})/);
+                    if (iso) return iso[1];
+                    // If someone ever stores MM-DD-YYYY, convert to YYYY-MM-DD for comparisons
+                    const us = s.match(/^(\d{2})-(\d{2})-(\d{4})$/);
+                    if (us) return `${us[3]}-${us[1]}-${us[2]}`;
+                    return '';
+                }
+
                 // Helper function to count submissions
                 const countToday = (items) => items.filter(item => 
-                    item.submittedAt && item.submittedAt.split('T')[0] === today
+                    item.submittedAt && normalizeDateOnly(item.submittedAt) === today
                 ).length;
 
                 const countThisWeek = (items) => items.filter(item => 

@@ -958,12 +958,20 @@
             const date = new Date(timestamp);
             const now = new Date();
             const diff = now - date;
+
+            function formatMMDDYYYY(d) {
+                if (!(d instanceof Date) || Number.isNaN(d.getTime())) return '';
+                const mm = String(d.getMonth() + 1).padStart(2, '0');
+                const dd = String(d.getDate()).padStart(2, '0');
+                const yyyy = String(d.getFullYear());
+                return `${mm}-${dd}-${yyyy}`;
+            }
             
             if (diff < 60000) return 'Just now';
             if (diff < 3600000) return `${Math.floor(diff / 60000)}m ago`;
             if (diff < 86400000) return date.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' });
-            if (diff < 604800000) return date.toLocaleDateString('en-US', { weekday: 'short', hour: 'numeric', minute: '2-digit' });
-            return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit' });
+            if (diff < 604800000) return `${formatMMDDYYYY(date)} ${date.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' })}`;
+            return `${formatMMDDYYYY(date)} ${date.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' })}`;
         }
 
         // Escape HTML

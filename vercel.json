@@ -1,4 +1,22 @@
 {
   "cleanUrls": true,
-  "trailingSlash": false
+  "trailingSlash": false,
+  "rewrites": [
+    {
+      "source": "/horizon-portal/members/dashboard",
+      "destination": "/horizon-portal/members/dashboard.html"
+    },
+    {
+      "source": "/horizon-portal/members/invoices",
+      "destination": "/horizon-portal/members/invoices.html"
+    },
+    {
+      "source": "/horizon-portal/members/dashboard/",
+      "destination": "/horizon-portal/members/dashboard.html"
+    },
+    {
+      "source": "/horizon-portal/members/invoices/",
+      "destination": "/horizon-portal/members/invoices.html"
+    }
+  ]
 }

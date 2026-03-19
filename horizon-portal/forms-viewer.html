@@ -423,7 +423,30 @@
             const card = document.createElement('div');
             card.className = 'form-card';
 
-            const formDate = new Date(form.submittedDate).toLocaleDateString();
+            function formatMMDDYYYY(input) {
+                if (!input) return '';
+                const s = String(input).trim();
+                if (/^\d{2}-\d{2}-\d{4}$/.test(s)) return s;
+                if (/^\d{4}-\d{2}-\d{2}$/.test(s)) {
+                    const [yyyy, mm, dd] = s.split('-');
+                    return `${mm}-${dd}-${yyyy}`;
+                }
+                const iso = s.match(/^(\d{4}-\d{2}-\d{2})T/);
+                if (iso) {
+                    const [yyyy, mm, dd] = iso[1].split('-');
+                    return `${mm}-${dd}-${yyyy}`;
+                }
+                const d = new Date(s);
+                if (!Number.isNaN(d.getTime())) {
+                    const mm = String(d.getMonth() + 1).padStart(2, '0');
+                    const dd = String(d.getDate()).padStart(2, '0');
+                    const yyyy = String(d.getFullYear());
+                    return `${mm}-${dd}-${yyyy}`;
+                }
+                return s;
+            }
+
+            const formDate = formatMMDDYYYY(form.submittedDate);
             const formType = form.type === 'discharge' ? 'Discharge Form' : 'Property Storage';
 
             card.innerHTML = `

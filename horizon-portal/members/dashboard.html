@@ -176,6 +176,7 @@
     <div id="welcome" style="position: absolute; left: 20px; top: 20px; font-size: 18px;">Welcome!</div>
     <h1 style="text-align: center; margin: 0;">Horizon House Member Dashboard</h1>
     <div class="header-buttons">
+        <a href="invoices.html" class="header-btn btn-website">💳 Invoices</a>
         <a href="/index.html" class="header-btn btn-website">🏠 Return to Website</a>
         <button onclick="logout()" class="header-btn btn-logout">🚪 Log Out</button>
     </div>
@@ -225,6 +226,12 @@
         <a href="/members/forms.html" class="button">Go to Forms</a>
     </div>
 
+    <div class="card">
+        <h3>Invoices</h3>
+        <p>View your unpaid and paid invoices.</p>
+        <a href="invoices.html" class="button">View Invoices</a>
+    </div>
+
 
 
     <div class="card">
@@ -265,6 +272,29 @@
     // Get member ID from URL parameter or localStorage
     const urlParams = new URLSearchParams(window.location.search);
     const memberId = urlParams.get('id') || localStorage.getItem('memberId');
+
+    function formatMMDDYYYY(input) {
+        if (!input) return '';
+        const s = String(input).trim();
+        if (/^\d{2}-\d{2}-\d{4}$/.test(s)) return s;
+        if (/^\d{4}-\d{2}-\d{2}$/.test(s)) {
+            const [yyyy, mm, dd] = s.split('-');
+            return `${mm}-${dd}-${yyyy}`;
+        }
+        const iso = s.match(/^(\d{4}-\d{2}-\d{2})T/);
+        if (iso) {
+            const [yyyy, mm, dd] = iso[1].split('-');
+            return `${mm}-${dd}-${yyyy}`;
+        }
+        const d = input instanceof Date ? input : new Date(s);
+        if (!Number.isNaN(d.getTime())) {
+            const mm = String(d.getMonth() + 1).padStart(2, '0');
+            const dd = String(d.getDate()).padStart(2, '0');
+            const yyyy = String(d.getFullYear());
+            return `${mm}-${dd}-${yyyy}`;
+        }
+        return s;
+    }
 
     if (memberId) {
         // Store in sessionStorage for chat
@@ -329,11 +359,7 @@
             document.getElementById('daysCounter').textContent = daysSober;
             
             // Format and display sober date
-            const formattedDate = sober.toLocaleDateString('en-US', { 
-                year: 'numeric', 
-                month: 'long', 
-                day: 'numeric' 
-            });
+            const formattedDate = formatMMDDYYYY(sober);
             document.getElementById('soberDate').textContent = `Clean since ${formattedDate}`;
             
             // Check for milestones and celebrate
@@ -537,7 +563,7 @@
                         dayText = `${Math.abs(c.daysUntil)} days ago`;
                     }
                     
-                    const dateText = c.date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+                    const dateText = formatMMDDYYYY(c.date);
                     
                     return `
                         <div style="background: rgba(255,255,255,0.2); padding: 15px; border-radius: 6px;">
@@ -633,7 +659,7 @@
                         dayText = `Arrived ${m.daysSince} days ago`;
                     }
                     
-                    const dateText = m.moveInDate.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+                    const dateText = formatMMDDYYYY(m.moveInDate);
                     
                     return `
                         <div style="background: rgba(0,0,0,0.15); padding: 15px; border-radius: 6px;">
@@ -709,7 +735,7 @@
         if (seconds < 86400) return `${Math.floor(seconds / 3600)}h ago`;
         if (seconds < 604800) return `${Math.floor(seconds / 86400)}d ago`;
         
-        return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+        return formatMMDDYYYY(date);
     }
 
     // Logout function

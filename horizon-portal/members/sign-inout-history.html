@@ -245,6 +245,29 @@
 
         // Default to showing all history (no date filter)
 
+        function formatMMDDYYYY(dateInput) {
+            if (!dateInput) return '';
+
+            const text = String(dateInput).trim();
+            if (/^\d{2}-\d{2}-\d{4}$/.test(text)) return text;
+
+            const isoMatch = /^(\d{4})-(\d{2})-(\d{2})$/.exec(text);
+            if (isoMatch) {
+                const [, yyyy, mm, dd] = isoMatch;
+                return `${mm}-${dd}-${yyyy}`;
+            }
+
+            const date = new Date(text);
+            if (!Number.isNaN(date.getTime())) {
+                const mm = String(date.getMonth() + 1).padStart(2, '0');
+                const dd = String(date.getDate()).padStart(2, '0');
+                const yyyy = String(date.getFullYear());
+                return `${mm}-${dd}-${yyyy}`;
+            }
+
+            return text;
+        }
+
         async function loadCurrentStatus() {
             try {
                 const response = await fetch(`${API_BASE}/api/signInOut/current`);
@@ -328,7 +351,7 @@
 
                     return `
                         <tr>
-                            <td>${record.date}</td>
+                            <td>${formatMMDDYYYY(record.date)}</td>
                             <td>${record.memberId}</td>
                             <td>${record.memberName}</td>
                             <td>${record.destination}</td>

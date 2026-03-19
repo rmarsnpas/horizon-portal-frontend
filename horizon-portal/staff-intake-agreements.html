@@ -383,13 +383,15 @@
                         <div>
                             <div class="member-name">${agreement.memberName}</div>
                             <div class="agreement-date">
-                                Submitted: ${submittedDate.toLocaleString('en-US', {
-                                    month: 'long',
-                                    day: 'numeric',
-                                    year: 'numeric',
-                                    hour: '2-digit',
-                                    minute: '2-digit'
-                                })}
+                                Submitted: ${(() => {
+                                    const d = submittedDate;
+                                    if (!(d instanceof Date) || isNaN(d.getTime())) return 'N/A';
+                                    const mm = String(d.getMonth() + 1).padStart(2, '0');
+                                    const dd = String(d.getDate()).padStart(2, '0');
+                                    const yyyy = String(d.getFullYear());
+                                    const time = d.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' });
+                                    return `${mm}-${dd}-${yyyy} ${time}`;
+                                })()}
                             </div>
                         </div>
                     </div>
@@ -397,11 +399,14 @@
                     <div class="agreement-meta">
                         <div class="meta-item">
                             <div class="meta-label">Signed Date</div>
-                            <div class="meta-value">${signedDate.toLocaleDateString('en-US', {
-                                month: 'long',
-                                day: 'numeric',
-                                year: 'numeric'
-                            })}</div>
+                            <div class="meta-value">${(() => {
+                                const d = signedDate;
+                                if (!(d instanceof Date) || isNaN(d.getTime())) return 'N/A';
+                                const mm = String(d.getMonth() + 1).padStart(2, '0');
+                                const dd = String(d.getDate()).padStart(2, '0');
+                                const yyyy = String(d.getFullYear());
+                                return `${mm}-${dd}-${yyyy}`;
+                            })()}</div>
                         </div>
                         <div class="meta-item">
                             <div class="meta-label">IP Address</div>
@@ -461,11 +466,14 @@
                 }
 
                 const printWindow = window.open('', '_blank');
-                const signedDate = new Date(agreement.signedDate).toLocaleDateString('en-US', {
-                    month: 'long',
-                    day: 'numeric',
-                    year: 'numeric'
-                });
+                const signedDate = (() => {
+                    const d = new Date(agreement.signedDate);
+                    if (Number.isNaN(d.getTime())) return 'N/A';
+                    const mm = String(d.getMonth() + 1).padStart(2, '0');
+                    const dd = String(d.getDate()).padStart(2, '0');
+                    const yyyy = String(d.getFullYear());
+                    return `${mm}-${dd}-${yyyy}`;
+                })();
 
                 printWindow.document.write(`
                     <!DOCTYPE html>

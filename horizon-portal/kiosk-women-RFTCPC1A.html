@@ -638,7 +638,7 @@
             try {
                 const now = new Date();
                 const timeIn = now.toTimeString().slice(0, 5);
-                const date = now.toISOString().split('T')[0];
+                const date = `${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}-${String(now.getFullYear())}`;
                 
                 const actionResponse = await fetch(`${API_URL}/api/signInOut/in`, {
                     method: 'POST',
@@ -672,7 +672,7 @@
             try {
                 const now = new Date();
                 const timeOut = now.toTimeString().slice(0, 5);
-                const date = now.toISOString().split('T')[0];
+                const date = `${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}-${String(now.getFullYear())}`;
                 
                 const actionResponse = await fetch(`${API_URL}/api/signInOut/out`, {
                     method: 'POST',

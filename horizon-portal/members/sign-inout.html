@@ -386,13 +386,16 @@
 
             try {
                 const formData = new FormData(e.target);
+
+                const now = new Date();
+                const today = `${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}-${String(now.getFullYear())}`;
                 const data = {
                     memberId: formData.get('memberId'),
                     memberName: formData.get('memberName'),
                     destination: formData.get('destination'),
                     timeOut: formData.get('timeOut'),
                     estimatedReturn: formData.get('estimatedReturn'),
-                    date: new Date().toISOString().split('T')[0]
+                    date: today
                 };
 
                 const response = await fetch(`${API_BASE}/api/signInOut/out`, {
@@ -438,11 +441,14 @@
 
             try {
                 const formData = new FormData(e.target);
+
+                const now = new Date();
+                const today = `${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}-${String(now.getFullYear())}`;
                 const data = {
                     memberId: formData.get('memberId'),
                     memberName: formData.get('memberName'),
                     timeIn: formData.get('timeIn'),
-                    date: new Date().toISOString().split('T')[0]
+                    date: today
                 };
 
                 const response = await fetch(`${API_BASE}/api/signInOut/in`, {
