@@ -6,6 +6,15 @@
     <title>Member Dashboard – Horizon House</title>
 
     <style>
+        :root {
+            --hh-green-900: #14532d;
+            --hh-green-700: #15803d;
+            --hh-gold-500: #f59e0b;
+            --hh-orange-600: #ea580c;
+            --hh-orange-700: #c2410c;
+            --hh-cream-50: #fffbeb;
+        }
+
         body {
             font-family: Arial, sans-serif;
             background-color: #f4f7fa;
@@ -14,7 +23,7 @@
         }
 
         header {
-            background-color: #003366;
+            background-color: var(--hh-green-900);
             color: #fff;
             padding: 20px;
             position: relative;
@@ -30,27 +39,27 @@
         }
 
         h2 {
-            color: #003366;
+            color: var(--hh-green-900);
             margin-top: 0;
         }
 
         .card {
-            background: #f8fafc;
+            background: var(--hh-cream-50);
             padding: 20px;
             border-radius: 8px;
             margin-bottom: 20px;
-            border: 1px solid #e0e6ed;
+            border: 1px solid rgba(245, 158, 11, 0.35);
         }
 
         .card h3 {
             margin-top: 0;
-            color: #003366;
+            color: var(--hh-green-900);
         }
 
         a.button {
             display: inline-block;
             padding: 12px 18px;
-            background-color: #003366;
+            background-color: var(--hh-orange-600);
             color: #fff;
             border-radius: 6px;
             text-decoration: none;
@@ -58,17 +67,17 @@
         }
 
         a.button:hover {
-            background-color: #00264d;
+            background-color: var(--hh-orange-700);
         }
 
         .sobriety-card {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: linear-gradient(135deg, var(--hh-green-700) 0%, var(--hh-gold-500) 55%, var(--hh-orange-600) 100%);
             color: white;
             padding: 30px;
             border-radius: 8px;
             margin-bottom: 20px;
             text-align: center;
-            box-shadow: 0 6px 20px rgba(102, 126, 234, 0.3);
+            box-shadow: 0 6px 20px rgba(234, 88, 12, 0.22);
         }
 
         .sobriety-card h3 {
@@ -152,7 +161,8 @@
 
         .btn-website {
             background-color: white;
-            color: #003366;
+            color: var(--hh-green-900);
+            border: 1px solid rgba(245, 158, 11, 0.5);
         }
 
         .btn-website:hover {
@@ -197,7 +207,7 @@
 
     <!-- Birthdays & Milestones Section -->
     <div id="celebrationsSection" style="display:none; margin-bottom: 20px;">
-        <div style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 20px; border-radius: 8px; margin-bottom: 15px;">
+        <div style="background: linear-gradient(135deg, #f59e0b 0%, #ea580c 100%); color: white; padding: 20px; border-radius: 8px; margin-bottom: 15px;">
             <h3 style="color: white; margin: 0; margin-bottom: 10px;">🎉 Upcoming Celebrations</h3>
             <div id="celebrationsGrid" style="display: grid; gap: 15px;"></div>
         </div>
@@ -205,7 +215,7 @@
 
     <!-- New Members Section -->
     <div id="newMembersSection" style="display:none; margin-bottom: 20px;">
-        <div style="background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%); color: white; padding: 20px; border-radius: 8px;">
+        <div style="background: linear-gradient(135deg, #15803d 0%, #f59e0b 100%); color: white; padding: 20px; border-radius: 8px;">
             <h3 style="color: white; margin: 0; margin-bottom: 10px;">👋 Welcome New Members!</h3>
             <div id="newMembersGrid" style="display: grid; gap: 15px;"></div>
         </div>
@@ -406,7 +416,7 @@
 
     function showConfetti() {
         // Create confetti effect
-        const colors = ['#667eea', '#764ba2', '#f093fb', '#4facfe', '#43e97b'];
+        const colors = ['#14532d', '#15803d', '#f59e0b', '#ea580c', '#c2410c'];
         const confettiContainer = document.createElement('div');
         confettiContainer.className = 'confetti';
         document.body.appendChild(confettiContainer);
@@ -700,8 +710,8 @@
                     const commentCount = announcement.comments ? announcement.comments.length : 0;
                     
                     return `
-                        <div style="background: #f7fafc; padding: 12px; border-radius: 6px; margin-bottom: 10px; border-left: 4px solid #667eea;">
-                            <div style="font-weight: 600; color: #003366; margin-bottom: 5px;">${escapeHtml(announcement.title)}</div>
+                        <div style="background: #fffbeb; padding: 12px; border-radius: 6px; margin-bottom: 10px; border-left: 4px solid #f59e0b;">
+                            <div style="font-weight: 600; color: #14532d; margin-bottom: 5px;">${escapeHtml(announcement.title)}</div>
                             <div style="font-size: 13px; color: #718096; margin-bottom: 5px;">
                                 ${escapeHtml(announcement.authorName)} • ${timeAgo}
                             </div>
