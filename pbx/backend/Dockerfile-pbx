@@ -1,0 +1,22 @@
+# Use official Node.js LTS runtime
+FROM node:20-slim
+
+# Set working directory
+WORKDIR /app
+
+# Copy package files
+COPY package-pbx.json ./package.json
+
+# Install dependencies
+RUN npm install --production
+
+# Copy application code
+COPY server-pbx-only.js ./server-pbx-only.js
+COPY pbx-flowroute.js ./pbx-flowroute.js
+COPY pbx-storage.js ./pbx-storage.js
+
+# Cloud Run sets PORT environment variable
+ENV NODE_ENV=production
+
+# Start the server
+CMD ["node", "server-pbx-only.js"]
