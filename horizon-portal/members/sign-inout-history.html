@@ -194,11 +194,18 @@
                     <input type="date" id="filterDate">
                 </div>
                 <div class="filter-group">
+                    <label for="exportMonth">Export Month</label>
+                    <input type="month" id="exportMonth">
+                </div>
+                <div class="filter-group">
                     <label for="filterMember">Member ID</label>
                     <input type="text" id="filterMember" placeholder="Enter member ID">
                 </div>
                 <div class="filter-group" style="display: flex; align-items: end;">
-                    <button class="btn" onclick="loadHistory()">Apply Filters</button>
+                    <div style="display:flex; gap:10px; width:100%;">
+                        <button class="btn" onclick="loadHistory()" style="flex: 1;">Apply Filters</button>
+                        <button class="btn" onclick="exportMonthExcel()" style="flex: 1; background: #14532d;">Export Excel</button>
+                    </div>
                 </div>
             </div>
 
@@ -371,6 +378,17 @@
             }
         }
 
+        function exportMonthExcel() {
+            const month = document.getElementById('exportMonth').value; // YYYY-MM
+            if (!month) {
+                alert('Pick an export month first.');
+                return;
+            }
+
+            const url = `${API_BASE}/api/signInOut/export?month=${encodeURIComponent(month)}`;
+            window.open(url, '_blank', 'noopener');
+        }
+
         function updateStats(total, onTime, late) {
             document.getElementById('totalTrips').textContent = total;
             document.getElementById('onTimeReturns').textContent = onTime;
@@ -379,6 +397,9 @@
 
         // Load history on page load
         document.addEventListener('DOMContentLoaded', () => {
+            const now = new Date();
+            const defaultMonth = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`;
+            document.getElementById('exportMonth').value = defaultMonth;
             loadCurrentStatus();
             loadHistory();
             
