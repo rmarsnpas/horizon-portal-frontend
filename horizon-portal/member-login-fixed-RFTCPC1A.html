@@ -6,9 +6,17 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Horizon House Member Login</title>
     <style>
+        :root {
+            --hh-primary: #F58634;
+            --hh-gold: #E1C462;
+            --hh-green: #94A880;
+            --hh-bg: #FFF8F3;
+            --hh-card: #FFF8F3;
+            --hh-text: #222;
+        }
         body {
             font-family: Arial, sans-serif;
-            background-color: #f4f7fa;
+            background-color: var(--hh-bg);
             margin: 0;
             padding: 0;
             display: flex;
@@ -18,7 +26,7 @@
         }
 
         .login-container {
-            background: #fff;
+            background: var(--hh-card);
             padding: 40px;
             border-radius: 10px;
             width: 100%;
@@ -28,20 +36,20 @@
 
         h1 {
             text-align: center;
-            color: #003366;
+            color: var(--hh-primary);
             margin-bottom: 10px;
         }
 
         p.subtitle {
             text-align: center;
-            color: #555;
+            color: var(--hh-green);
             margin-bottom: 30px;
             font-size: 15px;
         }
 
         label {
             font-weight: 700;
-            color: #333;
+            color: var(--hh-primary);
             display: block;
             margin-bottom: 8px;
         }
@@ -50,7 +58,7 @@
         input[type="password"] {
             width: 100%;
             padding: 12px;
-            border: 1px solid #ccc;
+            border: 1px solid var(--hh-gold);
             border-radius: 6px;
             font-size: 16px;
             margin-bottom: 20px;
@@ -64,7 +72,7 @@
         button {
             width: 100%;
             padding: 14px;
-            background-color: #003366;
+            background-color: var(--hh-primary);
             color: #fff;
             border: none;
             border-radius: 6px;
@@ -73,11 +81,11 @@
         }
 
         button:hover {
-            background-color: #00264d;
+            background-color: var(--hh-gold);
         }
 
         .error-message {
-            color: #b30000;
+            color: var(--hh-primary);
             background: #ffe6e6;
             padding: 10px;
             border-radius: 6px;
@@ -89,7 +97,7 @@
             text-align: center;
             margin-top: 20px;
             font-size: 14px;
-            color: #555;
+            color: var(--hh-green);
         }
     </style>
 </head>

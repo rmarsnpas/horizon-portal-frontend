@@ -5,6 +5,14 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Horizon House - Sign In/Out</title>
     <style>
+        :root {
+            --hh-primary: #F58634;
+            --hh-gold: #E1C462;
+            --hh-green: #94A880;
+            --hh-bg: #FFF8F3;
+            --hh-card: #FFF8F3;
+            --hh-text: #222;
+        }
         * {
             box-sizing: border-box;
             -webkit-tap-highlight-color: transparent;
@@ -12,7 +20,7 @@
 
         body {
             font-family: 'Segoe UI', Arial, sans-serif;
-            background: linear-gradient(135deg, #003366 0%, #005599 100%);
+            background: var(--hh-bg);
             margin: 0;
             padding: 20px;
             min-height: 100vh;
@@ -23,7 +31,7 @@
         }
 
         .kiosk-container {
-            background: white;
+            background: var(--hh-card);
             border-radius: 20px;
             box-shadow: 0 10px 40px rgba(0,0,0,0.3);
             padding: 40px;
@@ -44,18 +52,18 @@
             justify-content: space-between;
             align-items: center;
             margin-bottom: 30px;
-            border-bottom: 3px solid #003366;
+            border-bottom: 3px solid var(--hh-primary);
             padding-bottom: 20px;
         }
 
         h1 {
-            color: #003366;
+            color: var(--hh-primary);
             font-size: 2.5rem;
             margin: 0;
         }
 
         h2 {
-            color: #003366;
+            color: var(--hh-primary);
             font-size: 2rem;
             margin: 0;
         }
