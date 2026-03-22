@@ -1,0 +1,16 @@
+{
+  "generatedAt": "2026-03-19T17:10:15.207Z",
+  "invoices": [
+    {
+      "memberId": "116",
+      "invoiceNumber": "116-20260320",
+      "status": "unpaid",
+      "dueDate": "03-20-2026",
+      "paidDate": null,
+      "amount": null,
+      "pdfPath": "invoices/unpaid/MID116_INV116-20260320_DUE03-20-2026.pdf",
+      "fileName": "MID116_INV116-20260320_DUE03-20-2026.pdf",
+      "parseOk": true
+    }
+  ]
+}

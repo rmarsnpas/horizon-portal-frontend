@@ -1,0 +1,455 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <title>Receipt Scanner - Horizon House</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 16px;
+            color: #333;
+        }
+        
+        .container {
+            max-width: 500px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+            overflow: hidden;
+        }
+        
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 24px;
+            text-align: center;
+        }
+        
+        .header h1 {
+            font-size: 24px;
+            margin-bottom: 8px;
+        }
+        
+        .header p {
+            opacity: 0.9;
+            font-size: 14px;
+        }
+        
+        .content {
+            padding: 24px;
+        }
+        
+        .camera-area {
+            position: relative;
+            width: 100%;
+            aspect-ratio: 4/3;
+            background: #f0f0f0;
+            border-radius: 12px;
+            overflow: hidden;
+            margin-bottom: 20px;
+        }
+        
+        #video {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            display: none;
+        }
+        
+        #canvas {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+            display: none;
+        }
+        
+        .placeholder {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100%;
+            color: #999;
+        }
+        
+        .placeholder-icon {
+            font-size: 64px;
+            margin-bottom: 12px;
+        }
+        
+        .form-group {
+            margin-bottom: 20px;
+        }
+        
+        .form-group label {
+            display: block;
+            font-weight: 600;
+            margin-bottom: 8px;
+            color: #555;
+            font-size: 14px;
+        }
+        
+        .form-group input, .form-group select, .form-group textarea {
+            width: 100%;
+            padding: 14px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 16px;
+            transition: border-color 0.3s;
+        }
+        
+        .form-group input:focus, .form-group select:focus, .form-group textarea:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+        
+        .form-group textarea {
+            resize: vertical;
+            min-height: 80px;
+        }
+        
+        .btn {
+            width: 100%;
+            padding: 16px;
+            border: none;
+            border-radius: 12px;
+            font-size: 18px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            margin-bottom: 12px;
+        }
+        
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+        
+        .btn-primary:active {
+            transform: scale(0.98);
+        }
+        
+        .btn-secondary {
+            background: #f0f0f0;
+            color: #333;
+        }
+        
+        .btn-success {
+            background: #48bb78;
+            color: white;
+        }
+        
+        .btn-danger {
+            background: #f56565;
+            color: white;
+        }
+        
+        .btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+        
+        #cameraInput {
+            display: none;
+        }
+        
+        .status {
+            padding: 12px;
+            border-radius: 8px;
+            margin-bottom: 16px;
+            display: none;
+            text-align: center;
+            font-weight: 500;
+        }
+        
+        .status.success {
+            background: #c6f6d5;
+            color: #22543d;
+            display: block;
+        }
+        
+        .status.error {
+            background: #fed7d7;
+            color: #742a2a;
+            display: block;
+        }
+        
+        .info-box {
+            background: #ebf8ff;
+            border-left: 4px solid #3182ce;
+            padding: 12px;
+            border-radius: 4px;
+            margin-bottom: 20px;
+            font-size: 13px;
+            color: #2c5282;
+        }
+        
+        .hidden {
+            display: none !important;
+        }
+        
+        .preview-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0,0,0,0.8);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 10;
+        }
+        
+        .preview-content {
+            text-align: center;
+            color: white;
+        }
+        
+        .spinner {
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #667eea;
+            border-radius: 50%;
+            width: 48px;
+            height: 48px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 16px;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>📸 Receipt Scanner</h1>
+            <p>Horizon House Accounting</p>
+        </div>
+        
+        <div class="content">
+            <div id="statusMessage" class="status"></div>
+            
+            <div class="info-box">
+                💡 Capture receipts instantly and link them to expenses. Photos sync automatically via OneDrive.
+            </div>
+            
+            <div class="camera-area">
+                <video id="video" autoplay playsinline></video>
+                <canvas id="canvas"></canvas>
+                <div id="placeholder" class="placeholder">
+                    <div class="placeholder-icon">📷</div>
+                    <p>Tap button below to capture receipt</p>
+                </div>
+                <div id="previewOverlay" class="preview-overlay">
+                    <div class="preview-content">
+                        <div class="spinner"></div>
+                        <p>Processing receipt...</p>
+                    </div>
+                </div>
+            </div>
+            
+            <input type="file" id="cameraInput" accept="image/*" capture="environment">
+            
+            <div id="captureSection">
+                <button class="btn btn-primary" onclick="openCamera()">📸 Capture Receipt</button>
+            </div>
+            
+            <div id="detailsSection" class="hidden">
+                <div class="form-group">
+                    <label>Amount *</label>
+                    <input type="number" id="amount" placeholder="0.00" step="0.01" required>
+                </div>
+                
+                <div class="form-group">
+                    <label>Category *</label>
+                    <select id="category" required>
+                        <option value="">Select category...</option>
+                        <option value="Office Supplies">Office Supplies</option>
+                        <option value="Food & Groceries">Food & Groceries</option>
+                        <option value="Maintenance">Maintenance</option>
+                        <option value="Utilities">Utilities</option>
+                        <option value="Transportation">Transportation</option>
+                        <option value="Medical">Medical</option>
+                        <option value="Program Materials">Program Materials</option>
+                        <option value="Other">Other</option>
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label>Date *</label>
+                    <input type="date" id="expenseDate" required>
+                </div>
+                
+                <div class="form-group">
+                    <label>Description</label>
+                    <textarea id="description" placeholder="What was purchased..."></textarea>
+                </div>
+                
+                <div class="form-group">
+                    <label>Staff Name *</label>
+                    <input type="text" id="staffName" placeholder="Your name" required>
+                </div>
+                
+                <div class="form-group">
+                    <label>Expense ID (optional)</label>
+                    <input type="text" id="expenseId" placeholder="Link to existing expense">
+                </div>
+                
+                <button class="btn btn-success" onclick="submitReceipt()">💾 Save Receipt</button>
+                <button class="btn btn-danger" onclick="cancelCapture()">✕ Cancel</button>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        const API_URL = 'http://localhost:3001';
+        let capturedImage = null;
+        
+        // Set today's date as default
+        document.getElementById('expenseDate').valueAsDate = new Date();
+        
+        function openCamera() {
+            document.getElementById('cameraInput').click();
+        }
+        
+        document.getElementById('cameraInput').addEventListener('change', function(e) {
+            const file = e.target.files[0];
+            if (!file) return;
+            
+            const reader = new FileReader();
+            reader.onload = function(event) {
+                const img = new Image();
+                img.onload = function() {
+                    const canvas = document.getElementById('canvas');
+                    const ctx = canvas.getContext('2d');
+                    
+                    // Set canvas size to match image aspect ratio
+                    const maxWidth = 800;
+                    const scale = maxWidth / img.width;
+                    canvas.width = maxWidth;
+                    canvas.height = img.height * scale;
+                    
+                    // Draw image
+                    ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+                    
+                    // Show canvas, hide placeholder
+                    document.getElementById('placeholder').style.display = 'none';
+                    canvas.style.display = 'block';
+                    
+                    // Store image data
+                    capturedImage = canvas.toDataURL('image/jpeg', 0.85);
+                    
+                    // Show details form
+                    document.getElementById('captureSection').classList.add('hidden');
+                    document.getElementById('detailsSection').classList.remove('hidden');
+                };
+                img.src = event.target.result;
+            };
+            reader.readAsDataURL(file);
+        });
+        
+        function cancelCapture() {
+            // Reset form
+            document.getElementById('canvas').style.display = 'none';
+            document.getElementById('placeholder').style.display = 'flex';
+            document.getElementById('captureSection').classList.remove('hidden');
+            document.getElementById('detailsSection').classList.add('hidden');
+            capturedImage = null;
+            
+            // Clear form
+            document.getElementById('amount').value = '';
+            document.getElementById('category').value = '';
+            document.getElementById('description').value = '';
+            document.getElementById('expenseId').value = '';
+            
+            // Reset file input
+            document.getElementById('cameraInput').value = '';
+        }
+        
+        async function submitReceipt() {
+            // Validate required fields
+            const amount = document.getElementById('amount').value;
+            const category = document.getElementById('category').value;
+            const date = document.getElementById('expenseDate').value;
+            const staffName = document.getElementById('staffName').value;
+            
+            if (!amount || !category || !date || !staffName) {
+                showStatus('Please fill in all required fields', 'error');
+                return;
+            }
+            
+            if (!capturedImage) {
+                showStatus('Please capture a receipt first', 'error');
+                return;
+            }
+            
+            // Show processing overlay
+            document.getElementById('previewOverlay').style.display = 'flex';
+            
+            try {
+                // Prepare form data
+                const formData = new FormData();
+                
+                // Convert base64 to blob
+                const blob = await fetch(capturedImage).then(r => r.blob());
+                const filename = `receipt-${Date.now()}.jpg`;
+                formData.append('receipt', blob, filename);
+                formData.append('amount', amount);
+                formData.append('category', category);
+                formData.append('date', date);
+                formData.append('description', document.getElementById('description').value);
+                formData.append('staffName', staffName);
+                formData.append('expenseId', document.getElementById('expenseId').value);
+                
+                // Upload to server
+                const response = await fetch(`${API_URL}/api/accounting/upload-receipt-mobile`, {
+                    method: 'POST',
+                    body: formData
+                });
+                
+                if (response.ok) {
+                    showStatus('✅ Receipt saved successfully!', 'success');
+                    setTimeout(() => {
+                        cancelCapture();
+                        document.getElementById('previewOverlay').style.display = 'none';
+                    }, 2000);
+                } else {
+                    throw new Error('Upload failed');
+                }
+            } catch (error) {
+                console.error('Error uploading receipt:', error);
+                showStatus('❌ Error saving receipt. Please try again.', 'error');
+                document.getElementById('previewOverlay').style.display = 'none';
+            }
+        }
+        
+        function showStatus(message, type) {
+            const status = document.getElementById('statusMessage');
+            status.textContent = message;
+            status.className = `status ${type}`;
+            
+            if (type === 'success') {
+                setTimeout(() => {
+                    status.style.display = 'none';
+                }, 5000);
+            }
+        }
+        
+        // Check if camera is available
+        if (!('mediaDevices' in navigator && 'getUserMedia' in navigator.mediaDevices)) {
+            console.log('Camera API not available');
+        }
+    </script>
+</body>
+</html>
