@@ -1517,7 +1517,6 @@
 
   document.getElementById('applicationForm').addEventListener('submit', async (e) => {
   try {
-    // 1. Generate PDF of the filled form
     await new Promise((resolve, reject) => {
       loadHtml2Pdf(function() {
         try {
@@ -1531,29 +1530,23 @@
             pagebreak: { mode: ['css', 'legacy'] }
           };
           window.html2pdf().set(opt).from(form).outputPdf('blob').then(async function(pdfBlob) {
+            // 1. Send PDF to backend as FormData
+            try {
+              const formData = new FormData();
+              formData.append('pdf', pdfBlob, 'member-application.pdf');
+              await fetch('https://horizon-portal-backend-production-3532.up.railway.app/api/uploadApplicationPdf', {
+                method: 'POST',
+                body: formData
+              });
+            } catch (err) {
+              // If backend fails, still allow user to download/print
+              console.error('Error uploading PDF to backend:', err);
+            }
             // 2. Prompt user to print or download
             var pdfUrl = URL.createObjectURL(pdfBlob);
-            var win = window.open(pdfUrl, '_blank');
-            if (win) {
-              setTimeout(() => { win.print(); }, 500);
-            } else {
-              var a = document.createElement('a');
-              a.href = pdfUrl;
-              a.download = 'member-application.pdf';
-              document.body.appendChild(a);
-              a.click();
-              document.body.removeChild(a);
-            }
-            // 3. (Optional) Send PDF to backend (stubbed, will fail if no endpoint)
-            /*
-            const formData = new FormData();
-            formData.append('pdf', pdfBlob, 'member-application.pdf');
-            await fetch('https://horizon-portal-backend-production-3532.up.railway.app/api/uploadApplicationPdf', {
-              method: 'POST',
-              body: formData
-            });
-            */
-            // 4. Show success modal and reset form
+            // Open PDF in a new tab for user to print or save manually
+            window.open(pdfUrl, '_blank');
+            // 3. Show success modal and reset form
             const modal = document.getElementById('successModal');
             modal.style.display = 'flex';
             document.getElementById('applicationForm').reset();
