@@ -1527,36 +1527,7 @@
       jsPDF: { unit: 'in', format: 'letter', orientation: 'portrait' },
       pagebreak: { mode: ['css', 'legacy'] }
     };
-    window.html2pdf().set(opt).from(form).outputPdf('blob').then(async function(pdfBlob) {
-      // 1. Send PDF to backend as FormData (fire and forget)
-      try {
-        const formData = new FormData();
-        formData.append('pdf', pdfBlob, 'member-application.pdf');
-        fetch('https://horizon-portal-backend-production-3532.up.railway.app/api/uploadApplicationPdf', {
-          method: 'POST',
-          body: formData
-        }).then(async response => {
-          if (!response.ok) {
-            const errorText = await response.text();
-            console.error('Backend PDF upload failed:', response.status, errorText);
-          }
-        }).catch(err => {
-          console.error('Error uploading PDF to backend:', err);
-        });
-      } catch (err) {
-        console.error('Error uploading PDF to backend:', err);
-      }
-      // 2. Prompt user to print or download
-      var pdfUrl = URL.createObjectURL(pdfBlob);
-      window.open(pdfUrl, '_blank');
-      // 3. Show success modal and reset form
-      const modal = document.getElementById('successModal');
-      modal.style.display = 'flex';
-      document.getElementById('applicationForm').reset();
-      setTimeout(() => {
-        window.location.href = '/';
-      }, 8000);
-    });
+    window.html2pdf().set(opt).from(form).save();
   });
 });
 </script>
