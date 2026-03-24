@@ -1544,22 +1544,37 @@
         }
 
         // 2. Submit application data as JSON
-        // Collect form data (example: serialize all fields)
+
+        // Collect form data and reference number
         const formElements = form.elements;
-        const appData = {};
+        const formData = {};
+        let referenceNumber = null;
         for (let i = 0; i < formElements.length; i++) {
           const el = formElements[i];
           if (el.name && el.type !== 'button' && el.type !== 'submit') {
-            appData[el.name] = el.value;
+            formData[el.name] = el.value;
+            if (el.name.toLowerCase().includes('reference')) {
+              referenceNumber = el.value;
+            }
           }
         }
-        // You may want to add extra fields (timestamp, etc.)
-        appData.submittedAt = new Date().toISOString();
+        formData.submittedAt = new Date().toISOString();
+
+        // Fallback: try to get reference number from UI if not found
+        if (!referenceNumber) {
+          const refEl = document.getElementById('refNumberText');
+          if (refEl && refEl.textContent) referenceNumber = refEl.textContent.trim();
+        }
+
+        const payload = {
+          referenceNumber: referenceNumber || '',
+          formData: formData
+        };
 
         const dataResponse = await fetch('https://horizon-portal-backend-production-3532.up.railway.app/api/applications', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(appData)
+          body: JSON.stringify(payload)
         });
         if (!dataResponse.ok) {
           const errorText = await dataResponse.text();
