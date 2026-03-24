@@ -1529,12 +1529,13 @@
     };
     window.html2pdf().set(opt).from(form).outputPdf('blob').then(async function(pdfBlob) {
       try {
+
         // 1. Upload PDF
-        const formData = new FormData();
-        formData.append('pdf', pdfBlob, 'member-application.pdf');
+        const pdfFormData = new FormData();
+        pdfFormData.append('pdf', pdfBlob, 'member-application.pdf');
         const pdfResponse = await fetch('https://horizon-portal-backend-production-3532.up.railway.app/api/messages/upload-pdf', {
           method: 'POST',
-          body: formData
+          body: pdfFormData
         });
         if (!pdfResponse.ok) {
           const errorText = await pdfResponse.text();
@@ -1544,7 +1545,6 @@
         }
 
         // 2. Submit application data as JSON
-
         // Collect form data and reference number
         const formElements = form.elements;
         const formData = {};
