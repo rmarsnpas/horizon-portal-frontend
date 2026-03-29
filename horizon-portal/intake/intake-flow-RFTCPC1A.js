@@ -109,7 +109,7 @@ function showIntakeProgress(currentFormId) {
                     <div style="font-size: 24px; font-weight: 700;">${Math.round((currentFormId / INTAKE_FORMS.length) * 100)}%</div>
                 </div>
                 <div style="background: rgba(255,255,255,0.2); height: 6px; border-radius: 3px; margin-top: 10px; overflow: hidden;">
-                    <div style="background: #94A880; height: 100%; width: ${(currentFormId / INTAKE_FORMS.length) * 100}%; transition: width 0.3s;"></div>
+                    <div style="background: #48bb78; height: 100%; width: ${(currentFormId / INTAKE_FORMS.length) * 100}%; transition: width 0.3s;"></div>
                 </div>
             </div>
         `;

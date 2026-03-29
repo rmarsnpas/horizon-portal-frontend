@@ -8,13 +8,13 @@
   <style>
     body {
       font-family: Arial, sans-serif;
-      background-color: #FFF8F3;
+      background-color: #f4f7fa;
       margin: 0;
       padding: 0;
     }
 
     header {
-      background-color: #F58634;
+      background-color: #003366;
       color: #fff;
       padding: 20px;
       position: relative;
@@ -23,10 +23,10 @@
     .container {
       max-width: 900px;
       margin: 40px auto;
-      background: #FFF8F3;
+      background: #fff;
       padding: 30px;
       border-radius: 10px;
-      box-shadow: 0 4px 12px rgba(245,134,52,0.08);
+      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
     }
 
     h1 {
@@ -35,7 +35,7 @@
     }
 
     h2 {
-      color: #F58634;
+      color: #003366;
       margin-top: 0;
     }
 
@@ -61,7 +61,7 @@
 
     .btn-dashboard {
       background-color: white;
-      color: #F58634;
+      color: #003366;
     }
 
     .btn-dashboard:hover {
@@ -69,12 +69,12 @@
     }
 
     .btn-logout {
-      background-color: #E1C462;
-      color: #fff;
+      background-color: #e53e3e;
+      color: white;
     }
 
     .btn-logout:hover {
-      background-color: #F58634;
+      background-color: #c53030;
     }
 
     .section {
@@ -82,11 +82,11 @@
     }
 
     .card {
-      background: #FFF8F3;
+      background: #f8fafc;
       padding: 20px;
       border-radius: 8px;
       margin-bottom: 18px;
-      border: 1px solid #F58634;
+      border: 1px solid #e0e6ed;
     }
 
     .muted {
@@ -98,8 +98,8 @@
       width: 100%;
       border-collapse: collapse;
       margin-top: 10px;
-      background: #FFF8F3;
-      border: 1px solid #F58634;
+      background: white;
+      border: 1px solid #e0e6ed;
       border-radius: 8px;
       overflow: hidden;
     }
@@ -107,14 +107,14 @@
     th, td {
       text-align: left;
       padding: 10px;
-      border-bottom: 1px solid #E1C462;
+      border-bottom: 1px solid #e0e6ed;
       vertical-align: middle;
       font-size: 14px;
     }
 
     th {
-      background: #E1C462;
-      color: #FFF8F3;
+      background: #f4f7fa;
+      color: #003366;
       font-weight: 700;
     }
 
@@ -127,7 +127,7 @@
     .btn {
       display: inline-block;
       padding: 8px 12px;
-      background-color: #F58634;
+      background-color: #003366;
       color: #fff;
       border-radius: 6px;
       text-decoration: none;
@@ -138,15 +138,15 @@
     }
 
     .btn:hover {
-      background-color: #E1C462;
+      background-color: #00264d;
     }
 
     .btn-secondary {
-      background: #E1C462;
+      background: #5a67d8;
     }
 
     .btn-secondary:hover {
-      background: #F58634;
+      background: #4c51bf;
     }
 
     .pill {
@@ -158,23 +158,23 @@
     }
 
     .pill-unpaid {
-      background: #FFF8F3;
-      color: #F58634;
-      border: 1px solid #F58634;
+      background: #fff5f5;
+      color: #c53030;
+      border: 1px solid #fed7d7;
     }
 
     .pill-paid {
-      background: #F4F9F6;
-      color: #94A880;
-      border: 1px solid #94A880;
+      background: #f0fff4;
+      color: #2f855a;
+      border: 1px solid #c6f6d5;
     }
 
     .error {
-      background: #FFF8F3;
-      color: #F58634;
+      background: #ffe6e6;
+      color: #b30000;
       padding: 12px;
       border-radius: 8px;
-      border: 1px solid #F58634;
+      border: 1px solid #ffb3b3;
       margin-top: 12px;
       display: none;
     }
@@ -204,13 +204,13 @@
     <div id="error" class="error" role="alert" aria-live="assertive"></div>
 
     <div class="section card">
-      <h3 style="margin:0;color:#F58634;">Unpaid</h3>
+      <h3 style="margin:0;color:#003366;">Unpaid</h3>
       <div id="unpaidEmpty" class="muted" style="margin-top:8px; display:none;">No unpaid invoices found.</div>
       <div id="unpaidWrap"></div>
     </div>
 
     <div class="section card">
-      <h3 style="margin:0;color:#F58634;">Paid</h3>
+      <h3 style="margin:0;color:#003366;">Paid</h3>
       <div id="paidEmpty" class="muted" style="margin-top:8px; display:none;">No paid invoices found.</div>
       <div id="paidWrap"></div>
     </div>
