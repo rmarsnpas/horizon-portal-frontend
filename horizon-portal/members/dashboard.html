@@ -7,24 +7,23 @@
 
     <style>
         :root {
-            --hh-burgundy-900: #5b1020;
-            --hh-burgundy-800: #7a1f2b;
-            --hh-green-900: #14532d;
-            --hh-green-700: #15803d;
-            --hh-gold-500: #d4af37;
-            --hh-gold-600: #b88b2e;
-            --hh-cream-50: #fffbeb;
+            --hh-primary: #F58634;
+            --hh-gold: #E1C462;
+            --hh-green: #94A880;
+            --hh-bg: #FFF8F3;
+            --hh-card: #FFF8F3;
+            --hh-text: #222;
         }
 
         body {
             font-family: Arial, sans-serif;
-            background-color: #f4f7fa;
+            background-color: var(--hh-bg);
             margin: 0;
             padding: 0;
         }
 
         header {
-            background-color: var(--hh-burgundy-900);
+            background-color: var(--hh-primary);
             color: #fff;
             padding: 20px;
             position: relative;
@@ -33,52 +32,53 @@
         .container {
             max-width: 900px;
             margin: 40px auto;
-            background: #fff;
+            background: var(--hh-card);
             padding: 30px;
             border-radius: 10px;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+            box-shadow: 0 4px 12px rgba(245,134,52,0.08);
         }
 
         h2 {
-            color: var(--hh-green-900);
+            color: var(--hh-green);
             margin-top: 0;
         }
 
         .card {
-            background: var(--hh-cream-50);
+            background: var(--hh-card);
             padding: 20px;
             border-radius: 8px;
             margin-bottom: 20px;
-            border: 1px solid rgba(245, 158, 11, 0.35);
+            border: 1px solid var(--hh-gold);
         }
 
         .card h3 {
             margin-top: 0;
-            color: var(--hh-green-900);
+            color: var(--hh-green);
         }
 
         a.button {
             display: inline-block;
             padding: 12px 18px;
-            background-color: var(--hh-gold-500);
-            color: var(--hh-burgundy-900);
+            background-color: var(--hh-gold);
+            color: var(--hh-primary);
             border-radius: 6px;
             text-decoration: none;
             margin-top: 10px;
         }
 
         a.button:hover {
-            background-color: var(--hh-gold-600);
+            background-color: var(--hh-primary);
+            color: #fff;
         }
 
         .sobriety-card {
-            background: linear-gradient(135deg, var(--hh-green-700) 0%, var(--hh-gold-500) 55%, var(--hh-burgundy-800) 100%);
-            color: white;
+            background: linear-gradient(135deg, var(--hh-primary) 0%, var(--hh-gold) 55%, var(--hh-green) 100%);
+            color: #fff;
             padding: 30px;
             border-radius: 8px;
             margin-bottom: 20px;
             text-align: center;
-            box-shadow: 0 6px 20px rgba(91, 16, 32, 0.18);
+            box-shadow: 0 6px 20px rgba(245,134,52,0.18);
         }
 
         .sobriety-card h3 {
@@ -161,22 +161,24 @@
         }
 
         .btn-website {
-            background-color: white;
-            color: var(--hh-green-900);
-            border: 1px solid rgba(245, 158, 11, 0.5);
+            background-color: #fff;
+            color: var(--hh-primary);
+            border: 1px solid var(--hh-gold);
         }
 
         .btn-website:hover {
-            background-color: #f0f0f0;
+            background-color: var(--hh-gold);
+            color: #fff;
         }
 
         .btn-logout {
-            background-color: #e53e3e;
-            color: white;
+            background-color: var(--hh-gold);
+            color: var(--hh-primary);
         }
 
         .btn-logout:hover {
-            background-color: #c53030;
+            background-color: var(--hh-primary);
+            color: #fff;
         }
     </style>
 </head>
@@ -184,10 +186,10 @@
 <body>
 
 <header>
-    <div id="welcome" style="position: absolute; left: 20px; top: 20px; font-size: 18px;">Welcome!</div>
+    <div id="welcome" style="position: absolute; left: 20px; top: 20px; font-size: 18px; color: #94A880;">Welcome!</div>
     <h1 style="text-align: center; margin: 0;">Horizon House Member Dashboard</h1>
     <div class="header-buttons">
-        <a href="invoices.html" class="header-btn btn-website">💳 Invoices</a>
+        <a id="headerInvoicesLink" href="invoices.html" class="header-btn btn-website">💳 Invoices</a>
         <a href="/index.html" class="header-btn btn-website">🏠 Return to Website</a>
         <button onclick="logout()" class="header-btn btn-logout">🚪 Log Out</button>
     </div>
@@ -208,7 +210,7 @@
 
     <!-- Birthdays & Milestones Section -->
     <div id="celebrationsSection" style="display:none; margin-bottom: 20px;">
-        <div style="background: linear-gradient(135deg, #7a1f2b 0%, #d4af37 100%); color: white; padding: 20px; border-radius: 8px; margin-bottom: 15px;">
+        <div style="background: linear-gradient(135deg, #F58634 0%, #E1C462 100%); color: white; padding: 20px; border-radius: 8px; margin-bottom: 15px;">
             <h3 style="color: white; margin: 0; margin-bottom: 10px;">🎉 Upcoming Celebrations</h3>
             <div id="celebrationsGrid" style="display: grid; gap: 15px;"></div>
         </div>
@@ -216,7 +218,7 @@
 
     <!-- New Members Section -->
     <div id="newMembersSection" style="display:none; margin-bottom: 20px;">
-        <div style="background: linear-gradient(135deg, #14532d 0%, #d4af37 100%); color: white; padding: 20px; border-radius: 8px;">
+        <div style="background: linear-gradient(135deg, #94A880 0%, #E1C462 100%); color: white; padding: 20px; border-radius: 8px;">
             <h3 style="color: white; margin: 0; margin-bottom: 10px;">👋 Welcome New Members!</h3>
             <div id="newMembersGrid" style="display: grid; gap: 15px;"></div>
         </div>
@@ -240,7 +242,7 @@
     <div class="card">
         <h3>Invoices</h3>
         <p>View your unpaid and paid invoices.</p>
-        <a href="invoices.html" class="button">View Invoices</a>
+        <a id="cardInvoicesLink" href="invoices.html" class="button">View Invoices</a>
     </div>
 
 
@@ -761,6 +763,16 @@
         // Redirect to login page
         window.location.href = '/members/login.html';
     }
+// Ensure Invoices links always include memberId
+document.addEventListener('DOMContentLoaded', function() {
+    const memberId = localStorage.getItem('memberId') || '';
+    if (memberId) {
+        const headerLink = document.getElementById('headerInvoicesLink');
+        const cardLink = document.getElementById('cardInvoicesLink');
+        if (headerLink) headerLink.href = `invoices.html?id=${encodeURIComponent(memberId)}`;
+        if (cardLink) cardLink.href = `invoices.html?id=${encodeURIComponent(memberId)}`;
+    }
+});
 </script>
 
 </body>
