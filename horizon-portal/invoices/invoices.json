@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-03-19T17:10:15.207Z",
+  "generatedAt": "2026-03-21T02:43:20.751Z",
   "invoices": [
     {
       "memberId": "116",
@@ -10,6 +10,61 @@
       "amount": null,
       "pdfPath": "invoices/unpaid/MID116_INV116-20260320_DUE03-20-2026.pdf",
       "fileName": "MID116_INV116-20260320_DUE03-20-2026.pdf",
+      "parseOk": true
+    },
+    {
+      "memberId": "142",
+      "invoiceNumber": "142-20260320",
+      "status": "unpaid",
+      "dueDate": "03-20-2026",
+      "paidDate": null,
+      "amount": null,
+      "pdfPath": "invoices/unpaid/MID142_INV142-20260320_DUE03-20-2026.pdf",
+      "fileName": "MID142_INV142-20260320_DUE03-20-2026.pdf",
+      "parseOk": true
+    },
+    {
+      "memberId": "148",
+      "invoiceNumber": "148-20260319",
+      "status": "paid",
+      "dueDate": "03-19-2026",
+      "paidDate": "03-19-2026",
+      "amount": null,
+      "pdfPath": "invoices/paid/MID148_INV148-20260319_DUE03-19-2026_PAID03-19-2026.pdf",
+      "fileName": "MID148_INV148-20260319_DUE03-19-2026_PAID03-19-2026.pdf",
+      "parseOk": true
+    },
+    {
+      "memberId": "142",
+      "invoiceNumber": "142-20260321",
+      "status": "paid",
+      "dueDate": "03-21-2026",
+      "paidDate": null,
+      "amount": null,
+      "pdfPath": "invoices/paid/MID142_INV142-20260321_DUE03-21-2026.pdf",
+      "fileName": "MID142_INV142-20260321_DUE03-21-2026.pdf",
+      "parseOk": true
+    },
+    {
+      "memberId": "148",
+      "invoiceNumber": "148-20260319",
+      "status": "paid",
+      "dueDate": "03-19-2026",
+      "paidDate": null,
+      "amount": null,
+      "pdfPath": "invoices/paid/MID148_INV148-20260319_DUE03-19-2026.pdf",
+      "fileName": "MID148_INV148-20260319_DUE03-19-2026.pdf",
+      "parseOk": true
+    },
+    {
+      "memberId": "148",
+      "invoiceNumber": "148-20260326",
+      "status": "paid",
+      "dueDate": "03-26-2026",
+      "paidDate": null,
+      "amount": null,
+      "pdfPath": "invoices/paid/MID148_INV148-20260326_DUE03-26-2026.pdf",
+      "fileName": "MID148_INV148-20260326_DUE03-26-2026.pdf",
       "parseOk": true
     }
   ]
