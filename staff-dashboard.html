@@ -396,6 +396,85 @@
                 grid-template-columns: 1fr;
             }
         }
+
+        /* Active Members Board */
+        .member-board-wrapper {
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            overflow-x: auto;
+            margin-bottom: 30px;
+        }
+
+        .member-board-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 14px;
+            min-width: 700px;
+        }
+
+        .member-board-table th {
+            background: #F58634;
+            color: white;
+            padding: 12px 14px;
+            text-align: left;
+            font-weight: 600;
+            white-space: nowrap;
+        }
+
+        .member-board-table th:first-child { border-radius: 12px 0 0 0; }
+        .member-board-table th:last-child  { border-radius: 0 12px 0 0; }
+
+        .member-board-table td {
+            padding: 10px 14px;
+            border-bottom: 1px solid #e2e8f0;
+            color: #2d3748;
+            white-space: nowrap;
+        }
+
+        .member-board-table tbody tr:last-child td {
+            border-bottom: none;
+        }
+
+        .member-board-table tbody tr:hover td {
+            background: #fff3e8;
+        }
+
+        .member-board-table tbody tr:nth-child(even) td {
+            background: #fafafa;
+        }
+
+        .member-board-table tbody tr:nth-child(even):hover td {
+            background: #fff3e8;
+        }
+
+        .gender-m {
+            background: #667eea;
+            color: white;
+            padding: 2px 8px;
+            border-radius: 10px;
+            font-size: 12px;
+            font-weight: 700;
+        }
+
+        .gender-f {
+            background: #e91e8c;
+            color: white;
+            padding: 2px 8px;
+            border-radius: 10px;
+            font-size: 12px;
+            font-weight: 700;
+        }
+
+        .member-board-count {
+            display: inline-block;
+            background: rgba(255,255,255,0.25);
+            padding: 3px 12px;
+            border-radius: 12px;
+            font-size: 14px;
+            font-weight: 700;
+            margin-left: 10px;
+        }
     </style>
 </head>
 <body>
@@ -567,6 +646,34 @@
                 </div>
             </div>
         </div>
+        <!-- Active Members Board -->
+        <div class="section-header" id="memberBoardSection" style="display: none; margin-top: 30px; background: linear-gradient(135deg, #F58634 0%, #c95f00 100%); color: white; padding: 20px; border-radius: 12px; margin-bottom: 20px;">
+            <h2 style="color: white; margin: 0;">👥 Active Members Board <span class="member-board-count" id="memberBoardCount">0</span></h2>
+            <p style="color: rgba(255,255,255,0.9); margin: 5px 0 0 0;">Current residents with active status</p>
+        </div>
+
+        <div id="memberBoardContainer" style="display: none;">
+            <div class="member-board-wrapper">
+                <table class="member-board-table">
+                    <thead>
+                        <tr>
+                            <th>#</th>
+                            <th>ID</th>
+                            <th>Name</th>
+                            <th>M/F</th>
+                            <th>Bed</th>
+                            <th>Admit Date</th>
+                            <th>Days Here</th>
+                            <th>Rate</th>
+                            <th>Phone</th>
+                            <th>Email</th>
+                        </tr>
+                    </thead>
+                    <tbody id="memberBoardBody">
+                    </tbody>
+                </table>
+            </div>
+        </div>
     </div>
 
     <!-- Upload Modal -->
@@ -694,6 +801,9 @@
                 
                 // Load new members
                 await loadNewMembers();
+
+                // Load active members board
+                await loadMemberBoard();
 
                 // Update UI
                 document.getElementById('appCount').textContent = pendingApps;
@@ -1114,6 +1224,97 @@
                 uploadStatus.style.display = 'block';
                 uploadButton.disabled = false;
                 uploadButton.textContent = 'Upload File';
+            }
+        }
+
+        // Load active members board (status = 1 only)
+        async function loadMemberBoard() {
+            try {
+                const response = await fetch(`${API_BASE}/api/members`);
+                const allMembers = await response.json();
+
+                // Filter to status = 1 (active members only)
+                const activeMembers = allMembers.filter(m => {
+                    const vals = Object.values(m);
+                    const status = m.STATUS || m.status || m.STATU || vals[3];
+                    return Number(status) === 1;
+                });
+
+                function parseDate(val) {
+                    if (!val) return null;
+                    if (typeof val === 'number' || (!isNaN(val) && String(val).length > 4 && val > 10000)) {
+                        const excelEpoch = new Date(1899, 11, 30);
+                        return new Date(excelEpoch.getTime() + val * 86400000);
+                    }
+                    const parsed = new Date(val);
+                    return isNaN(parsed.getTime()) ? null : parsed;
+                }
+
+                const today = new Date();
+                today.setHours(0, 0, 0, 0);
+
+                const tbody = document.getElementById('memberBoardBody');
+
+                if (activeMembers.length === 0) {
+                    tbody.innerHTML = '<tr><td colspan="10" style="text-align:center;color:#718096;padding:24px;">No active members found</td></tr>';
+                } else {
+                    tbody.innerHTML = activeMembers.map((member, index) => {
+                        const vals = Object.values(member);
+                        const rowNum   = vals[0] !== null && vals[0] !== undefined ? vals[0] : (index + 1);
+                        const memberId = vals[2] || '';
+                        const firstName = member['FIRST\r\nNAME'] || member['FIRST\nNAME'] || member.FIRST_NAME || member.first_name || vals[5] || '';
+                        const lastName  = member['LAST\r\nNAME']  || member['LAST\nNAME']  || member.LAST_NAME  || member.last_name  || vals[6] || '';
+                        const fullName  = `${firstName} ${lastName}`.trim() || '—';
+                        const gender    = member['M/F'] || vals[4] || '';
+                        const bed       = member.BED || vals[10] || '';
+                        const admitRaw  = vals[7];
+                        const daysRaw   = vals[9];
+                        const rate      = vals[13];
+                        const phone     = vals[18] || '';
+                        const email     = vals[19] || '';
+
+                        const admitDate = parseDate(admitRaw);
+                        const admitText = admitDate
+                            ? admitDate.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })
+                            : '';
+
+                        let daysHere = daysRaw;
+                        if ((daysHere === null || daysHere === undefined || daysHere === '') && admitDate) {
+                            daysHere = Math.floor((today - admitDate) / 86400000);
+                        }
+
+                        const genderTag = gender === 'M'
+                            ? '<span class="gender-m">M</span>'
+                            : gender === 'F'
+                                ? '<span class="gender-f">F</span>'
+                                : gender;
+
+                        const rateDisplay = rate !== null && rate !== undefined && rate !== '' ? '$' + rate : '';
+
+                        return `
+                            <tr>
+                                <td>${rowNum}</td>
+                                <td>${memberId}</td>
+                                <td><strong>${fullName}</strong></td>
+                                <td>${genderTag}</td>
+                                <td>${bed}</td>
+                                <td>${admitText}</td>
+                                <td>${daysHere !== null && daysHere !== undefined && daysHere !== '' ? daysHere : ''}</td>
+                                <td>${rateDisplay}</td>
+                                <td>${phone}</td>
+                                <td>${email}</td>
+                            </tr>`;
+                    }).join('');
+                }
+
+                document.getElementById('memberBoardCount').textContent = activeMembers.length;
+                document.getElementById('memberBoardSection').style.display = 'block';
+                document.getElementById('memberBoardContainer').style.display = 'block';
+
+            } catch (error) {
+                console.error('Error loading member board:', error);
+                document.getElementById('memberBoardSection').style.display = 'none';
+                document.getElementById('memberBoardContainer').style.display = 'none';
             }
         }
 
