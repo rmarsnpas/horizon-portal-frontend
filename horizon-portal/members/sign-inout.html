@@ -212,16 +212,46 @@
                 grid-template-columns: 1fr;
             }
         }
+
+        #loginOverlay {
+            position: fixed; inset: 0;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            display: flex; align-items: center; justify-content: center;
+            z-index: 9999;
+        }
+        #loginBox {
+            background: white; padding: 40px; border-radius: 12px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3); width: 340px; text-align: center;
+        }
+        #loginBox h2 { color: #2d3748; margin-bottom: 8px; }
+        #loginBox p { color: #718096; font-size: 14px; margin-bottom: 24px; }
+        #loginBox input {
+            width: 100%; padding: 10px; border: 1px solid #cbd5e0;
+            border-radius: 6px; font-size: 16px; margin-bottom: 12px;
+        }
+        #loginError { color: #e53e3e; font-size: 13px; margin-top: 8px; display: none; }
+        .name-hint { font-size: 12px; color: #48bb78; margin-top: 3px; min-height: 16px; }
     </style>
 </head>
 <body>
-    <div class="container">
+    <!-- Staff Login Overlay -->
+    <div id="loginOverlay">
+        <div id="loginBox">
+            <h2>🔒 Staff Access</h2>
+            <p>This page is for staff corrections only</p>
+            <input type="password" id="staffPwInput" placeholder="Staff password" onkeydown="if(event.key==='Enter')checkStaffLogin()">
+            <button class="btn btn-primary" onclick="checkStaffLogin()" style="width:100%;">Log In</button>
+            <div id="loginError">Incorrect password</div>
+        </div>
+    </div>
+
+    <div class="container" id="mainContent" style="display:none;">
         <div class="header">
-            <h1>🏠 Sign In/Out System</h1>
-            <p>Track member comings and goings</p>
+            <h1>🏠 Manual Sign In/Out</h1>
+            <p>Staff corrections &amp; manual entries</p>
             <div class="nav-links">
                 <a href="sign-inout-history.html">View History</a>
-                <a href="dashboard.html">Dashboard</a>
+                <a href="../../staff-dashboard.html">Staff Dashboard</a>
                 <a href="/">Home</a>
             </div>
         </div>
@@ -239,7 +269,8 @@
                 <form id="signOutForm">
                     <div class="form-group">
                         <label for="memberIdOut">Member ID *</label>
-                        <input type="text" id="memberIdOut" name="memberId" required>
+                        <input type="text" id="memberIdOut" name="memberId" required oninput="lookupName('memberIdOut','memberNameOut','hintOut')">
+                        <div class="name-hint" id="hintOut"></div>
                     </div>
                     <div class="form-group">
                         <label for="memberNameOut">Member Name *</label>
@@ -267,7 +298,8 @@
                 <form id="signInForm">
                     <div class="form-group">
                         <label for="memberIdIn">Member ID *</label>
-                        <input type="text" id="memberIdIn" name="memberId" required>
+                        <input type="text" id="memberIdIn" name="memberId" required oninput="lookupName('memberIdIn','memberNameIn','hintIn')">
+                        <div class="name-hint" id="hintIn"></div>
                     </div>
                     <div class="form-group">
                         <label for="memberNameIn">Member Name *</label>
@@ -287,6 +319,63 @@
     <script>
         // const API_BASE = 'http://localhost:3001';
         const API_BASE = 'https://horizon-portal-backend-production-3532.up.railway.app';
+        const STAFF_PASSWORD = 'house2026';
+
+        function checkStaffLogin() {
+            const val = document.getElementById('staffPwInput').value;
+            if (val === STAFF_PASSWORD) {
+                sessionStorage.setItem('horizonStaffAuth', 'true');
+                document.getElementById('loginOverlay').style.display = 'none';
+                document.getElementById('mainContent').style.display = '';
+                setCurrentTime();
+                loadCurrentStatus();
+            } else {
+                document.getElementById('loginError').style.display = 'block';
+            }
+        }
+
+        // Check if already authenticated
+        if (sessionStorage.getItem('horizonStaffAuth') === 'true') {
+            document.addEventListener('DOMContentLoaded', () => {
+                document.getElementById('loginOverlay').style.display = 'none';
+                document.getElementById('mainContent').style.display = '';
+            });
+        }
+
+        let _membersCache = null;
+        async function getMembersCache() {
+            if (_membersCache) return _membersCache;
+            try {
+                const res = await fetch(`${API_BASE}/api/members`);
+                _membersCache = await res.json();
+            } catch(e) { _membersCache = []; }
+            return _membersCache;
+        }
+
+        let _lookupTimers = {};
+        function lookupName(idField, nameField, hintField) {
+            clearTimeout(_lookupTimers[idField]);
+            _lookupTimers[idField] = setTimeout(async () => {
+                const id = document.getElementById(idField).value.trim();
+                const hint = document.getElementById(hintField);
+                if (!id) { hint.textContent = ''; return; }
+                const members = await getMembersCache();
+                const m = members.find(x => String(x.ID).trim() === id);
+                if (m) {
+                    const first = (m['FIRST\r\nNAME'] || m['FIRST\nNAME'] || m.FIRST_NAME || '').trim();
+                    const last  = (m['LAST\r\nNAME']  || m['LAST\nNAME']  || m.LAST_NAME  || '').trim();
+                    const name  = `${first} ${last}`.trim();
+                    if (name) {
+                        document.getElementById(nameField).value = name;
+                        hint.textContent = '✓ ' + name;
+                    } else {
+                        hint.textContent = '';
+                    }
+                } else {
+                    hint.textContent = id.length >= 2 ? 'ID not found' : '';
+                }
+            }, 400);
+        }
 
         let currentMember = null;
 
@@ -482,12 +571,14 @@
 
         // Initialize
         document.addEventListener('DOMContentLoaded', () => {
-            loadMemberInfo();
-            setCurrentTime();
-            loadCurrentStatus();
-            
+            if (sessionStorage.getItem('horizonStaffAuth') === 'true') {
+                setCurrentTime();
+                loadCurrentStatus();
+            }
             // Auto-refresh every 30 seconds
-            setInterval(loadCurrentStatus, 30000);
+            setInterval(() => {
+                if (sessionStorage.getItem('horizonStaffAuth') === 'true') loadCurrentStatus();
+            }, 30000);
         });
     </script>
 </body>
