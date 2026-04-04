@@ -1,0 +1,534 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Meeting Cards – Staff Review</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        .container { max-width: 1400px; margin: 0 auto; }
+        .header {
+            background: white;
+            padding: 22px 28px;
+            border-radius: 12px;
+            margin-bottom: 22px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            display: flex;
+            align-items: flex-start;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 14px;
+        }
+        .header h1 { color: #2d3748; font-size: 24px; margin-bottom: 6px; }
+        .header p { color: #718096; font-size: 14px; }
+        .nav-links { margin-top: 10px; }
+        .nav-links a {
+            color: #667eea;
+            text-decoration: none;
+            margin-right: 18px;
+            font-weight: 500;
+            font-size: 14px;
+        }
+        .nav-links a:hover { text-decoration: underline; }
+        .refresh-btn {
+            background: #667eea;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 14px;
+            white-space: nowrap;
+        }
+        .refresh-btn:hover { background: #5a67d8; }
+
+        .stats-bar {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 14px;
+            margin-bottom: 22px;
+        }
+        .stat-box {
+            background: white;
+            padding: 18px;
+            border-radius: 12px;
+            text-align: center;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.08);
+        }
+        .stat-number { font-size: 2em; font-weight: bold; color: #667eea; }
+        .stat-number.pending-color { color: #d97706; }
+        .stat-number.approve-color { color: #059669; }
+        .stat-number.reject-color { color: #dc2626; }
+        .stat-label { color: #718096; margin-top: 4px; font-size: 13px; }
+
+        .filters-bar {
+            background: white;
+            padding: 18px 22px;
+            border-radius: 12px;
+            margin-bottom: 22px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.08);
+            display: flex;
+            flex-wrap: wrap;
+            gap: 14px;
+            align-items: flex-end;
+        }
+        .filter-group { display: flex; flex-direction: column; gap: 4px; min-width: 150px; }
+        .filter-group label { font-size: 12px; font-weight: 600; color: #4a5568; }
+        .filter-group select, .filter-group input {
+            padding: 8px 10px;
+            border: 1.5px solid #e2e8f0;
+            border-radius: 6px;
+            font-size: 13px;
+        }
+        .filter-group select:focus, .filter-group input:focus { outline: none; border-color: #667eea; }
+        .btn-clear {
+            padding: 8px 16px;
+            border: 1.5px solid #e2e8f0;
+            border-radius: 6px;
+            background: white;
+            cursor: pointer;
+            font-size: 13px;
+            color: #4a5568;
+            align-self: flex-end;
+        }
+
+        .cards-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
+            gap: 18px;
+        }
+        .card-item {
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.08);
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+        }
+        .card-item.status-pending { border-top: 4px solid #f59e0b; }
+        .card-item.status-approved { border-top: 4px solid #059669; }
+        .card-item.status-rejected { border-top: 4px solid #dc2626; }
+
+        .card-image-wrap {
+            background: #f0f0f0;
+            height: 200px;
+            overflow: hidden;
+            cursor: pointer;
+            position: relative;
+        }
+        .card-image-wrap img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: opacity 0.2s;
+        }
+        .card-image-wrap:hover img { opacity: 0.88; }
+        .card-image-wrap::after {
+            content: '🔍 View Full';
+            position: absolute;
+            bottom: 8px;
+            right: 10px;
+            background: rgba(0,0,0,0.55);
+            color: white;
+            font-size: 12px;
+            padding: 3px 9px;
+            border-radius: 10px;
+        }
+
+        .card-body { padding: 16px 18px; flex: 1; }
+        .member-name { font-size: 16px; font-weight: 700; color: #2d3748; }
+        .member-id { font-size: 12px; color: #a0aec0; margin-bottom: 10px; }
+        .card-meta { font-size: 13px; color: #4a5568; line-height: 1.8; }
+        .card-meta strong { color: #2d3748; }
+        .status-badge {
+            display: inline-block;
+            padding: 3px 10px;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: 700;
+            margin: 8px 0;
+        }
+        .status-pending-badge { background: #fef3c7; color: #92400e; }
+        .status-approved-badge { background: #d1fae5; color: #065f46; }
+        .status-rejected-badge { background: #fee2e2; color: #991b1b; }
+
+        .card-actions { padding: 12px 18px 16px; border-top: 1px solid #f0f0f0; }
+        .card-actions textarea {
+            width: 100%;
+            padding: 8px 10px;
+            border: 1.5px solid #e2e8f0;
+            border-radius: 6px;
+            font-size: 12px;
+            resize: none;
+            height: 52px;
+            font-family: inherit;
+            margin-bottom: 10px;
+            color: #4a5568;
+        }
+        .card-actions textarea:focus { outline: none; border-color: #667eea; }
+        .action-btns { display: flex; gap: 8px; }
+        .btn-approve {
+            flex: 1;
+            background: #059669;
+            color: white;
+            border: none;
+            padding: 9px;
+            border-radius: 7px;
+            font-weight: 700;
+            font-size: 13px;
+            cursor: pointer;
+        }
+        .btn-approve:hover { background: #047857; }
+        .btn-reject {
+            flex: 1;
+            background: #dc2626;
+            color: white;
+            border: none;
+            padding: 9px;
+            border-radius: 7px;
+            font-weight: 700;
+            font-size: 13px;
+            cursor: pointer;
+        }
+        .btn-reject:hover { background: #b91c1c; }
+        .btn-undo {
+            flex: 1;
+            background: #6b7280;
+            color: white;
+            border: none;
+            padding: 9px;
+            border-radius: 7px;
+            font-weight: 600;
+            font-size: 13px;
+            cursor: pointer;
+        }
+        .btn-undo:hover { background: #4b5563; }
+        .btn-delete-card {
+            background: none;
+            border: 1px solid #fca5a5;
+            color: #dc2626;
+            border-radius: 6px;
+            padding: 5px 12px;
+            font-size: 12px;
+            cursor: pointer;
+            margin-top: 6px;
+            width: 100%;
+        }
+        .btn-delete-card:hover { background: #fee2e2; }
+
+        .reviewed-note {
+            background: #f8fafc;
+            border-radius: 6px;
+            padding: 8px 10px;
+            font-size: 12px;
+            color: #4a5568;
+            margin-bottom: 8px;
+        }
+
+        .loading-text { text-align: center; padding: 40px; color: white; font-size: 16px; }
+        .no-results { background: white; border-radius: 12px; padding: 40px; text-align: center; color: #718096; }
+
+        /* Lightbox */
+        #lightbox {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(0,0,0,0.9);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+        }
+        #lightbox.open { display: flex; }
+        #lightbox img { max-width: 95vw; max-height: 93vh; border-radius: 6px; }
+        #lightboxClose {
+            position: absolute;
+            top: 16px;
+            right: 20px;
+            background: none;
+            border: none;
+            color: white;
+            font-size: 38px;
+            cursor: pointer;
+        }
+
+        @media (max-width: 700px) {
+            .cards-grid { grid-template-columns: 1fr; }
+            .stats-bar { grid-template-columns: 1fr 1fr; }
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <div class="header">
+        <div>
+            <h1>🪪 Meeting Card Submissions</h1>
+            <p>Review and verify member attendance cards</p>
+            <div class="nav-links">
+                <a href="../../staff-dashboard.html">← Staff Dashboard</a>
+                <a href="member-status.html">🚪 Sign In/Out</a>
+                <a href="staff-schedules.html">📅 Schedules</a>
+            </div>
+        </div>
+        <button class="refresh-btn" onclick="loadCards()">🔄 Refresh</button>
+    </div>
+
+    <div class="stats-bar">
+        <div class="stat-box">
+            <div class="stat-number" id="statTotal">-</div>
+            <div class="stat-label">Total Submissions</div>
+        </div>
+        <div class="stat-box">
+            <div class="stat-number pending-color" id="statPending">-</div>
+            <div class="stat-label">Pending Review</div>
+        </div>
+        <div class="stat-box">
+            <div class="stat-number approve-color" id="statApproved">-</div>
+            <div class="stat-label">Approved</div>
+        </div>
+        <div class="stat-box">
+            <div class="stat-number reject-color" id="statRejected">-</div>
+            <div class="stat-label">Rejected</div>
+        </div>
+    </div>
+
+    <div class="filters-bar">
+        <div class="filter-group">
+            <label>Status</label>
+            <select id="filterStatus" onchange="applyFilters()">
+                <option value="">All</option>
+                <option value="pending" selected>Pending</option>
+                <option value="approved">Approved</option>
+                <option value="rejected">Rejected</option>
+            </select>
+        </div>
+        <div class="filter-group">
+            <label>Meeting Type</label>
+            <select id="filterType" onchange="applyFilters()">
+                <option value="">All Types</option>
+                <option value="AA">AA</option>
+                <option value="NA">NA</option>
+                <option value="CA">CA</option>
+                <option value="SMART">SMART Recovery</option>
+                <option value="Other">Other</option>
+            </select>
+        </div>
+        <div class="filter-group">
+            <label>Search Member</label>
+            <input type="text" id="filterMember" placeholder="Name or ID..." oninput="applyFilters()">
+        </div>
+        <button class="btn-clear" onclick="clearFilters()">✕ Clear</button>
+    </div>
+
+    <div id="loadingText" class="loading-text">Loading submissions...</div>
+    <div id="cardsGrid" class="cards-grid" style="display:none;"></div>
+    <div id="noResults" class="no-results" style="display:none;">No submissions match your filters.</div>
+</div>
+
+<!-- Lightbox -->
+<div id="lightbox">
+    <button id="lightboxClose" onclick="closeLightbox()">✕</button>
+    <img id="lightboxImg" src="" alt="">
+</div>
+
+<script>
+    const API_BASE = 'https://horizon-portal-backend-production-3532.up.railway.app';
+    let allCards = [];
+    let filteredCards = [];
+
+    async function loadCards() {
+        document.getElementById('loadingText').style.display = 'block';
+        document.getElementById('cardsGrid').style.display = 'none';
+        document.getElementById('noResults').style.display = 'none';
+
+        try {
+            const res = await fetch(`${API_BASE}/api/meetingCards`);
+            const data = await res.json();
+            allCards = data.cards || [];
+            updateStats();
+            applyFilters();
+            document.getElementById('loadingText').style.display = 'none';
+        } catch (err) {
+            document.getElementById('loadingText').textContent = 'Error loading submissions.';
+        }
+    }
+
+    function updateStats() {
+        document.getElementById('statTotal').textContent = allCards.length;
+        document.getElementById('statPending').textContent = allCards.filter(c => c.status === 'pending').length;
+        document.getElementById('statApproved').textContent = allCards.filter(c => c.status === 'approved').length;
+        document.getElementById('statRejected').textContent = allCards.filter(c => c.status === 'rejected').length;
+    }
+
+    function applyFilters() {
+        const statusF = document.getElementById('filterStatus').value;
+        const typeF = document.getElementById('filterType').value;
+        const memberF = document.getElementById('filterMember').value.toLowerCase().trim();
+
+        filteredCards = allCards.filter(c => {
+            if (statusF && c.status !== statusF) return false;
+            if (typeF && c.meetingType !== typeF) return false;
+            if (memberF) {
+                const nm = (c.memberName || '').toLowerCase();
+                const id = String(c.memberId || '');
+                if (!nm.includes(memberF) && !id.includes(memberF)) return false;
+            }
+            return true;
+        });
+
+        // Sort: pending first, then by date desc
+        filteredCards.sort((a, b) => {
+            if (a.status === 'pending' && b.status !== 'pending') return -1;
+            if (b.status === 'pending' && a.status !== 'pending') return 1;
+            return new Date(b.submittedAt) - new Date(a.submittedAt);
+        });
+
+        renderCards();
+    }
+
+    function clearFilters() {
+        document.getElementById('filterStatus').value = '';
+        document.getElementById('filterType').value = '';
+        document.getElementById('filterMember').value = '';
+        applyFilters();
+    }
+
+    function renderCards() {
+        const grid = document.getElementById('cardsGrid');
+        const noResults = document.getElementById('noResults');
+        if (filteredCards.length === 0) {
+            grid.style.display = 'none';
+            noResults.style.display = 'block';
+            return;
+        }
+        noResults.style.display = 'none';
+        grid.style.display = 'grid';
+        grid.innerHTML = filteredCards.map(c => buildCard(c)).join('');
+    }
+
+    function buildCard(c) {
+        const statusBadge = c.status === 'approved'
+            ? '<span class="status-badge status-approved-badge">✅ Approved</span>'
+            : c.status === 'rejected'
+            ? '<span class="status-badge status-rejected-badge">❌ Rejected</span>'
+            : '<span class="status-badge status-pending-badge">⏳ Pending</span>';
+
+        const reviewedNote = c.reviewedAt
+            ? `<div class="reviewed-note">Reviewed ${fmtDateTime(c.reviewedAt)}${c.staffNote ? ` — Note: ${c.staffNote}` : ''}</div>`
+            : '';
+
+        const actionArea = c.status === 'pending'
+            ? `<textarea id="note-${c.id}" placeholder="Optional note to member..."></textarea>
+               <div class="action-btns">
+                   <button class="btn-approve" onclick="reviewCard('${c.id}','approved')">✅ Approve</button>
+                   <button class="btn-reject" onclick="reviewCard('${c.id}','rejected')">❌ Reject</button>
+               </div>`
+            : `${reviewedNote}
+               <div class="action-btns">
+                   <button class="btn-undo" onclick="reviewCard('${c.id}','pending')">↩ Reset to Pending</button>
+               </div>`;
+
+        return `
+            <div class="card-item status-${c.status}" id="card-${c.id}">
+                <div class="card-image-wrap" onclick="openLightbox('${API_BASE}${c.imageUrl}')">
+                    <img src="${API_BASE}${c.imageUrl}" alt="Meeting card" loading="lazy">
+                </div>
+                <div class="card-body">
+                    <div class="member-name">${c.memberName || 'Unknown Member'}</div>
+                    <div class="member-id">ID: ${c.memberId}</div>
+                    <div class="card-meta">
+                        <div><strong>Type:</strong> ${c.meetingType}</div>
+                        <div><strong>Date:</strong> ${fmtDate(c.meetingDate)}</div>
+                        ${c.meetingName ? `<div><strong>Location:</strong> ${c.meetingName}</div>` : ''}
+                        ${c.notes ? `<div><strong>Notes:</strong> ${c.notes}</div>` : ''}
+                        <div style="color:#a0aec0;font-size:11px;">Submitted ${fmtDateTime(c.submittedAt)}</div>
+                    </div>
+                    ${statusBadge}
+                </div>
+                <div class="card-actions">
+                    ${actionArea}
+                    <button class="btn-delete-card" onclick="deleteCard('${c.id}')">🗑 Delete Submission</button>
+                </div>
+            </div>
+        `;
+    }
+
+    async function reviewCard(id, status) {
+        const noteEl = document.getElementById(`note-${id}`);
+        const staffNote = noteEl ? noteEl.value.trim() : '';
+
+        try {
+            const res = await fetch(`${API_BASE}/api/meetingCards/${encodeURIComponent(id)}/review`, {
+                method: 'PATCH',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ status, staffNote })
+            });
+            const result = await res.json();
+            if (result.success) {
+                // Update in-place without full reload
+                const idx = allCards.findIndex(c => c.id === id);
+                if (idx !== -1) {
+                    allCards[idx] = result.card;
+                }
+                updateStats();
+                applyFilters();
+            } else {
+                alert('Error: ' + (result.error || 'Failed to update'));
+            }
+        } catch (err) {
+            alert('Connection error.');
+        }
+    }
+
+    async function deleteCard(id) {
+        if (!confirm('Permanently delete this submission?')) return;
+        try {
+            const res = await fetch(`${API_BASE}/api/meetingCards/${encodeURIComponent(id)}`, { method: 'DELETE' });
+            const result = await res.json();
+            if (result.success) {
+                allCards = allCards.filter(c => c.id !== id);
+                updateStats();
+                applyFilters();
+            } else {
+                alert('Error: ' + (result.error || 'Failed to delete'));
+            }
+        } catch (err) {
+            alert('Connection error.');
+        }
+    }
+
+    function fmtDate(d) {
+        if (!d) return '';
+        const [y, mo, da] = d.split('-');
+        return `${mo}/${da}/${y}`;
+    }
+    function fmtDateTime(iso) {
+        if (!iso) return '';
+        const dt = new Date(iso);
+        if (isNaN(dt)) return iso;
+        return dt.toLocaleDateString('en-US') + ' ' + dt.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' });
+    }
+
+    function openLightbox(src) {
+        document.getElementById('lightboxImg').src = src;
+        document.getElementById('lightbox').classList.add('open');
+    }
+    function closeLightbox() {
+        document.getElementById('lightbox').classList.remove('open');
+        document.getElementById('lightboxImg').src = '';
+    }
+    document.getElementById('lightbox').addEventListener('click', function(e) {
+        if (e.target === this) closeLightbox();
+    });
+
+    loadCards();
+    setInterval(loadCards, 60000);
+</script>
+</body>
+</html>

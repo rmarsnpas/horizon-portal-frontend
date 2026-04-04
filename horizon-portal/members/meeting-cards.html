@@ -1,0 +1,535 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Meeting Cards – Horizon House</title>
+    <style>
+        :root {
+            --hh-primary: #F58634;
+            --hh-gold: #E1C462;
+            --hh-green: #94A880;
+            --hh-bg: #FFF8F3;
+            --hh-card: #ffffff;
+            --hh-text: #222;
+        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: var(--hh-bg);
+            min-height: 100vh;
+        }
+        header {
+            background: var(--hh-primary);
+            color: #fff;
+            padding: 18px 24px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+        header h1 { font-size: 22px; }
+        .header-nav a {
+            color: #fff;
+            text-decoration: none;
+            font-size: 14px;
+            padding: 8px 14px;
+            background: rgba(255,255,255,0.2);
+            border-radius: 6px;
+            margin-left: 8px;
+        }
+        .header-nav a:hover { background: rgba(255,255,255,0.35); }
+        .container { max-width: 720px; margin: 30px auto; padding: 0 20px 60px; }
+        .card {
+            background: var(--hh-card);
+            border-radius: 12px;
+            padding: 28px;
+            box-shadow: 0 3px 12px rgba(0,0,0,0.08);
+            margin-bottom: 24px;
+            border: 1px solid #f0e8df;
+        }
+        .card h2 {
+            color: var(--hh-primary);
+            font-size: 20px;
+            margin-bottom: 20px;
+            padding-bottom: 12px;
+            border-bottom: 2px solid var(--hh-gold);
+        }
+        .form-group { display: flex; flex-direction: column; gap: 6px; margin-bottom: 16px; }
+        .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 16px; }
+        label { font-size: 13px; font-weight: 600; color: #4a5568; }
+        label .required { color: #e53e3e; margin-left: 2px; }
+        input[type="text"], input[type="date"], select, textarea {
+            padding: 10px 12px;
+            border: 1.5px solid #e2d9d0;
+            border-radius: 8px;
+            font-size: 14px;
+            color: var(--hh-text);
+            background: #fafafa;
+            font-family: inherit;
+            transition: border-color 0.2s;
+        }
+        input:focus, select:focus, textarea:focus {
+            outline: none;
+            border-color: var(--hh-primary);
+            background: #fff;
+        }
+        textarea { resize: vertical; min-height: 60px; }
+
+        /* Camera / upload area */
+        .upload-zone {
+            border: 2.5px dashed #e2d9d0;
+            border-radius: 12px;
+            padding: 32px 20px;
+            text-align: center;
+            cursor: pointer;
+            transition: border-color 0.2s, background 0.2s;
+            background: #fafafa;
+            margin-bottom: 16px;
+            position: relative;
+        }
+        .upload-zone:hover, .upload-zone.drag-over {
+            border-color: var(--hh-primary);
+            background: #fff5ed;
+        }
+        .upload-zone input[type="file"] {
+            position: absolute;
+            inset: 0;
+            opacity: 0;
+            cursor: pointer;
+            width: 100%;
+            height: 100%;
+        }
+        .upload-icon { font-size: 48px; margin-bottom: 10px; }
+        .upload-zone p { color: #718096; font-size: 15px; margin: 4px 0; }
+        .upload-zone small { color: #a0aec0; font-size: 12px; }
+        .upload-zone .camera-hint {
+            margin-top: 12px;
+            display: inline-block;
+            background: var(--hh-primary);
+            color: white;
+            padding: 8px 20px;
+            border-radius: 20px;
+            font-size: 14px;
+            font-weight: 600;
+        }
+
+        /* Preview */
+        #previewContainer {
+            display: none;
+            margin-bottom: 16px;
+            border-radius: 10px;
+            overflow: hidden;
+            border: 2px solid var(--hh-gold);
+            position: relative;
+        }
+        #previewContainer img {
+            width: 100%;
+            max-height: 320px;
+            object-fit: contain;
+            background: #f0f0f0;
+            display: block;
+        }
+        #removePreview {
+            position: absolute;
+            top: 8px;
+            right: 8px;
+            background: rgba(0,0,0,0.6);
+            color: white;
+            border: none;
+            border-radius: 50%;
+            width: 28px;
+            height: 28px;
+            font-size: 16px;
+            cursor: pointer;
+            line-height: 28px;
+        }
+
+        .btn-submit {
+            background: var(--hh-primary);
+            color: #fff;
+            border: none;
+            padding: 14px 32px;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 700;
+            cursor: pointer;
+            width: 100%;
+            transition: background 0.2s;
+        }
+        .btn-submit:hover { background: #d4722a; }
+        .btn-submit:disabled { background: #ccc; cursor: not-allowed; }
+
+        .alert { padding: 14px 18px; border-radius: 8px; margin-bottom: 16px; font-weight: 500; display: none; }
+        .alert.success { background: #f0fff4; color: #276749; border: 1px solid #9ae6b4; display: block; }
+        .alert.error { background: #fff5f5; color: #c53030; border: 1px solid #feb2b2; display: block; }
+
+        /* Submissions list */
+        .submission-item {
+            border: 1.5px solid #e2d9d0;
+            border-radius: 10px;
+            padding: 16px;
+            margin-bottom: 12px;
+            display: flex;
+            gap: 14px;
+            align-items: flex-start;
+        }
+        .submission-thumb {
+            width: 80px;
+            height: 80px;
+            object-fit: cover;
+            border-radius: 8px;
+            border: 1px solid #e2d9d0;
+            flex-shrink: 0;
+            cursor: pointer;
+        }
+        .submission-info { flex: 1; font-size: 13px; color: #4a5568; line-height: 1.8; }
+        .submission-info strong { color: #2d3748; }
+        .status-badge {
+            display: inline-block;
+            padding: 3px 10px;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: 700;
+        }
+        .status-pending { background: #fefcbf; color: #744210; }
+        .status-approved { background: #c6f6d5; color: #276749; }
+        .status-rejected { background: #fed7e2; color: #97266d; }
+        .empty-state { text-align: center; padding: 30px; color: #a0aec0; font-style: italic; }
+        .loading-text { text-align: center; padding: 20px; color: #a0aec0; }
+
+        /* Lightbox */
+        #lightbox {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(0,0,0,0.88);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+        }
+        #lightbox.open { display: flex; }
+        #lightbox img { max-width: 95vw; max-height: 92vh; border-radius: 8px; }
+        #lightbox button {
+            position: absolute;
+            top: 16px;
+            right: 20px;
+            background: none;
+            border: none;
+            color: white;
+            font-size: 36px;
+            cursor: pointer;
+        }
+
+        @media (max-width: 540px) {
+            .form-row { grid-template-columns: 1fr; }
+        }
+    </style>
+</head>
+<body>
+
+<header>
+    <h1>🪪 Meeting Card Upload</h1>
+    <div class="header-nav">
+        <a href="dashboard.html">← Dashboard</a>
+    </div>
+</header>
+
+<div class="container">
+
+    <div id="memberBanner" style="background: linear-gradient(135deg, var(--hh-primary) 0%, var(--hh-gold) 100%); color: white; padding: 14px 20px; border-radius: 10px; margin-bottom: 22px; display:none;">
+        <strong id="memberBannerName"></strong> — Upload a photo of your attendance card for staff to verify.
+    </div>
+
+    <!-- Upload Form -->
+    <div class="card">
+        <h2>📷 Submit Attendance Card</h2>
+
+        <div id="submitAlert" class="alert"></div>
+
+        <form id="uploadForm" onsubmit="submitCard(event)">
+            <div class="form-row">
+                <div class="form-group">
+                    <label>Meeting Type <span class="required">*</span></label>
+                    <select id="meetingType" required>
+                        <option value="">— Select —</option>
+                        <option value="AA">AA (Alcoholics Anonymous)</option>
+                        <option value="NA">NA (Narcotics Anonymous)</option>
+                        <option value="CA">CA (Cocaine Anonymous)</option>
+                        <option value="SMART">SMART Recovery</option>
+                        <option value="Other">Other</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Meeting Date <span class="required">*</span></label>
+                    <input type="date" id="meetingDate" required>
+                </div>
+            </div>
+
+            <div class="form-row">
+                <div class="form-group">
+                    <label>Meeting Name / Location</label>
+                    <input type="text" id="meetingName" placeholder="e.g., Friday Night Big Book, 123 Main St">
+                </div>
+                <div class="form-group">
+                    <label>Speaker / Chair <span style="color:#a0aec0;font-weight:400;">(optional)</span></label>
+                    <input type="text" id="speaker" placeholder="Name of speaker or chair">
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label>Notes <span style="color:#a0aec0;font-weight:400;">(optional)</span></label>
+                <textarea id="notes" placeholder="Any notes about the meeting..."></textarea>
+            </div>
+
+            <!-- Photo upload -->
+            <div class="form-group" style="margin-bottom: 0;">
+                <label>Card Photo <span class="required">*</span></label>
+            </div>
+            <div class="upload-zone" id="uploadZone">
+                <input type="file" id="cardFile" accept="image/*" capture="environment" onchange="handleFileSelect(event)">
+                <div class="upload-icon">📷</div>
+                <p><strong>Take a photo</strong> or tap to choose from your camera roll</p>
+                <small>JPG, PNG, HEIC accepted · Max 10 MB</small>
+                <span class="camera-hint">📸 Open Camera</span>
+            </div>
+
+            <div id="previewContainer">
+                <img id="previewImg" src="" alt="Card preview">
+                <button type="button" id="removePreview" onclick="clearFile()" title="Remove">✕</button>
+            </div>
+
+            <div>
+                <button type="submit" class="btn-submit" id="submitBtn">Upload Meeting Card</button>
+            </div>
+        </form>
+    </div>
+
+    <!-- My Submissions -->
+    <div class="card">
+        <h2>📋 My Submitted Cards</h2>
+        <div id="listLoading" class="loading-text">Loading...</div>
+        <div id="submissionsList" style="display:none;"></div>
+    </div>
+
+</div>
+
+<!-- Lightbox -->
+<div id="lightbox">
+    <button onclick="closeLightbox()">✕</button>
+    <img id="lightboxImg" src="" alt="">
+</div>
+
+<script>
+    const API_BASE = 'https://horizon-portal-backend-production-3532.up.railway.app';
+    const urlParams = new URLSearchParams(window.location.search);
+    const memberId = urlParams.get('id') || localStorage.getItem('memberId');
+    let memberName = localStorage.getItem('memberFirstName')
+        ? `${localStorage.getItem('memberFirstName') || ''} ${localStorage.getItem('memberLastName') || ''}`.trim()
+        : '';
+
+    // Banner
+    if (memberId) {
+        document.getElementById('memberBanner').style.display = 'block';
+        document.getElementById('memberBannerName').textContent = memberName || `Member #${memberId}`;
+        if (!memberName) {
+            fetch(`${API_BASE}/api/getMember?id=${encodeURIComponent(memberId)}`)
+                .then(r => r.json())
+                .then(data => {
+                    if (data) {
+                        const fn = data.FIRST_NAME || data['FIRST\r\nNAME'] || '';
+                        const ln = data.LAST_NAME || data['LAST\r\nNAME'] || '';
+                        memberName = `${fn} ${ln}`.trim();
+                        document.getElementById('memberBannerName').textContent = memberName || `Member #${memberId}`;
+                    }
+                }).catch(() => {});
+        }
+    }
+
+    // Default date to today
+    document.getElementById('meetingDate').value = new Date().toISOString().split('T')[0];
+
+    // Drag-over styling
+    const zone = document.getElementById('uploadZone');
+    zone.addEventListener('dragover', e => { e.preventDefault(); zone.classList.add('drag-over'); });
+    zone.addEventListener('dragleave', () => zone.classList.remove('drag-over'));
+    zone.addEventListener('drop', e => {
+        e.preventDefault();
+        zone.classList.remove('drag-over');
+        const file = e.dataTransfer.files[0];
+        if (file) applyFile(file);
+    });
+
+    function handleFileSelect(e) {
+        const file = e.target.files[0];
+        if (file) applyFile(file);
+    }
+
+    function applyFile(file) {
+        if (!file.type.startsWith('image/')) {
+            showAlert('Please select an image file.', 'error');
+            return;
+        }
+        if (file.size > 10 * 1024 * 1024) {
+            showAlert('File is too large (max 10 MB).', 'error');
+            return;
+        }
+        const reader = new FileReader();
+        reader.onload = e => {
+            document.getElementById('previewImg').src = e.target.result;
+            document.getElementById('previewContainer').style.display = 'block';
+            document.getElementById('uploadZone').style.display = 'none';
+        };
+        reader.readAsDataURL(file);
+    }
+
+    function clearFile() {
+        document.getElementById('cardFile').value = '';
+        document.getElementById('previewContainer').style.display = 'none';
+        document.getElementById('uploadZone').style.display = 'block';
+        document.getElementById('previewImg').src = '';
+    }
+
+    function showAlert(msg, type) {
+        const el = document.getElementById('submitAlert');
+        el.textContent = msg;
+        el.className = 'alert ' + type;
+        el.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+    }
+
+    async function submitCard(e) {
+        e.preventDefault();
+
+        if (!memberId) {
+            showAlert('You must be logged in to submit a card.', 'error');
+            return;
+        }
+
+        const file = document.getElementById('cardFile').files[0];
+        if (!file) {
+            showAlert('Please select or take a photo of your meeting card.', 'error');
+            return;
+        }
+
+        const meetingType = document.getElementById('meetingType').value;
+        const meetingDate = document.getElementById('meetingDate').value;
+        if (!meetingType || !meetingDate) {
+            showAlert('Please fill in all required fields.', 'error');
+            return;
+        }
+
+        const btn = document.getElementById('submitBtn');
+        btn.disabled = true;
+        btn.textContent = 'Uploading...';
+
+        try {
+            const formData = new FormData();
+            formData.append('card', file);
+            formData.append('memberId', String(memberId));
+            formData.append('memberName', memberName || `Member #${memberId}`);
+            formData.append('meetingType', meetingType);
+            formData.append('meetingDate', meetingDate);
+            formData.append('meetingName', document.getElementById('meetingName').value.trim());
+            formData.append('speaker', document.getElementById('speaker').value.trim());
+            formData.append('notes', document.getElementById('notes').value.trim());
+
+            const res = await fetch(`${API_BASE}/api/meetingCards`, {
+                method: 'POST',
+                body: formData
+            });
+            const result = await res.json();
+
+            if (result.success) {
+                showAlert('✅ Meeting card submitted! Staff will review it shortly.', 'success');
+                document.getElementById('uploadForm').reset();
+                clearFile();
+                document.getElementById('meetingDate').value = new Date().toISOString().split('T')[0];
+                loadMyCards();
+            } else {
+                showAlert('Error: ' + (result.error || 'Upload failed.'), 'error');
+            }
+        } catch (err) {
+            showAlert('Connection error. Please try again.', 'error');
+        }
+
+        btn.disabled = false;
+        btn.textContent = 'Upload Meeting Card';
+    }
+
+    async function loadMyCards() {
+        if (!memberId) {
+            document.getElementById('listLoading').textContent = 'Please log in to view submissions.';
+            return;
+        }
+        document.getElementById('listLoading').style.display = 'block';
+        document.getElementById('submissionsList').style.display = 'none';
+
+        try {
+            const res = await fetch(`${API_BASE}/api/meetingCards?memberId=${encodeURIComponent(memberId)}`);
+            const data = await res.json();
+            const cards = data.cards || [];
+
+            document.getElementById('listLoading').style.display = 'none';
+            const list = document.getElementById('submissionsList');
+            list.style.display = 'block';
+
+            if (cards.length === 0) {
+                list.innerHTML = '<div class="empty-state">No cards submitted yet.</div>';
+                return;
+            }
+
+            list.innerHTML = cards.map(c => `
+                <div class="submission-item">
+                    <img class="submission-thumb" src="${API_BASE}${c.imageUrl}" alt="Meeting card"
+                         onclick="openLightbox('${API_BASE}${c.imageUrl}')">
+                    <div class="submission-info">
+                        <div><strong>${c.meetingType}</strong> — ${fmtDate(c.meetingDate)}</div>
+                        ${c.meetingName ? `<div><strong>Location:</strong> ${c.meetingName}</div>` : ''}
+                        ${c.notes ? `<div><strong>Notes:</strong> ${c.notes}</div>` : ''}
+                        <div>
+                            <span class="status-badge status-${c.status}">${statusLabel(c.status)}</span>
+                        </div>
+                        ${c.staffNote ? `<div style="color:#c53030;"><strong>Staff Note:</strong> ${c.staffNote}</div>` : ''}
+                        <div style="color:#a0aec0;font-size:11px;">Submitted ${fmtDateTime(c.submittedAt)}</div>
+                    </div>
+                </div>
+            `).join('');
+        } catch (err) {
+            document.getElementById('listLoading').textContent = 'Error loading submissions.';
+        }
+    }
+
+    function statusLabel(s) {
+        if (s === 'approved') return '✅ Approved';
+        if (s === 'rejected') return '❌ Rejected';
+        return '⏳ Pending Review';
+    }
+
+    function fmtDate(d) {
+        if (!d) return '';
+        const [y, mo, da] = d.split('-');
+        return `${mo}/${da}/${y}`;
+    }
+
+    function fmtDateTime(iso) {
+        if (!iso) return '';
+        const dt = new Date(iso);
+        if (isNaN(dt)) return iso;
+        return dt.toLocaleDateString('en-US') + ' ' + dt.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' });
+    }
+
+    function openLightbox(src) {
+        document.getElementById('lightboxImg').src = src;
+        document.getElementById('lightbox').classList.add('open');
+    }
+    function closeLightbox() {
+        document.getElementById('lightbox').classList.remove('open');
+        document.getElementById('lightboxImg').src = '';
+    }
+    document.getElementById('lightbox').addEventListener('click', function(e) {
+        if (e.target === this) closeLightbox();
+    });
+
+    loadMyCards();
+</script>
+</body>
+</html>

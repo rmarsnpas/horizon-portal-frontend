@@ -566,6 +566,13 @@
                 <div class="card-count" id="schedulesCount">-</div>
                 <div class="card-label">Submitted Entries</div>
             </a>
+
+            <a href="/horizon-portal/members/staff-meeting-cards.html" class="dashboard-card">
+                <div class="card-icon">🪪</div>
+                <div class="card-title">Meeting Cards</div>
+                <div class="card-count" id="meetingCardsCount">-</div>
+                <div class="card-label">Pending Review</div>
+            </a>
         </div>
 
         <!-- Forms Section -->
@@ -749,6 +756,7 @@
                     drugScreensRes, 
                     signInOutRes,
                     schedulesRes,
+                    meetingCardsRes,
                     agreementsRes,
                     licenseeRes,
                     roiRes,
@@ -762,6 +770,7 @@
                     fetch(`${API_BASE}/api/drugScreens`),
                     fetch(`${API_BASE}/api/signInOut/current`),
                     fetch(`${API_BASE}/api/schedules`),
+                    fetch(`${API_BASE}/api/meetingCards`),
                     fetch(`${API_BASE}/api/intake/agreements`),
                     fetch(`${API_BASE}/api/intake/licensee-agreement`),
                     fetch(`${API_BASE}/api/intake/release-of-information`),
@@ -776,6 +785,7 @@
                 const drugScreens = await drugScreensRes.json();
                 const signInOut = await signInOutRes.json();
                 const schedulesData = await schedulesRes.json();
+                const meetingCardsData = await meetingCardsRes.json();
                 const agreements = await agreementsRes.json();
                 const licensee = await licenseeRes.json();
                 const roi = await roiRes.json();
@@ -798,6 +808,9 @@
 
                 // Schedule entries submitted
                 const totalSchedules = (schedulesData.schedules || []).length;
+
+                // Meeting cards pending review
+                const pendingMeetingCards = (meetingCardsData.cards || []).filter(c => c.status === 'pending').length;
 
                 // Total intake agreements
                 const totalAgreements = agreements.length;
@@ -825,6 +838,9 @@
                 document.getElementById('signInOutCount').textContent = membersOut;
                 if (document.getElementById('schedulesCount')) {
                     document.getElementById('schedulesCount').textContent = totalSchedules;
+                }
+                if (document.getElementById('meetingCardsCount')) {
+                    document.getElementById('meetingCardsCount').textContent = pendingMeetingCards;
                 }
                 if (document.getElementById('totalIntakeForms')) {
                     document.getElementById('totalIntakeForms').textContent = totalIntakeForms;
