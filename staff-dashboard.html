@@ -559,6 +559,13 @@
                 <div class="card-count" id="signInOutCount">-</div>
                 <div class="card-label">Currently Out</div>
             </a>
+
+            <a href="/horizon-portal/members/staff-schedules.html" class="dashboard-card">
+                <div class="card-icon">📅</div>
+                <div class="card-title">Member Schedules</div>
+                <div class="card-count" id="schedulesCount">-</div>
+                <div class="card-label">Submitted Entries</div>
+            </a>
         </div>
 
         <!-- Forms Section -->
@@ -740,7 +747,8 @@
                     applicationsRes, 
                     contactsRes, 
                     drugScreensRes, 
-                    signInOutRes, 
+                    signInOutRes,
+                    schedulesRes,
                     agreementsRes,
                     licenseeRes,
                     roiRes,
@@ -753,6 +761,7 @@
                     fetch(`${API_BASE}/api/contactSubmissions`),
                     fetch(`${API_BASE}/api/drugScreens`),
                     fetch(`${API_BASE}/api/signInOut/current`),
+                    fetch(`${API_BASE}/api/schedules`),
                     fetch(`${API_BASE}/api/intake/agreements`),
                     fetch(`${API_BASE}/api/intake/licensee-agreement`),
                     fetch(`${API_BASE}/api/intake/release-of-information`),
@@ -766,6 +775,7 @@
                 const contacts = await contactsRes.json();
                 const drugScreens = await drugScreensRes.json();
                 const signInOut = await signInOutRes.json();
+                const schedulesData = await schedulesRes.json();
                 const agreements = await agreementsRes.json();
                 const licensee = await licenseeRes.json();
                 const roi = await roiRes.json();
@@ -785,6 +795,9 @@
 
                 // Members currently signed out
                 const membersOut = signInOut.total || 0;
+
+                // Schedule entries submitted
+                const totalSchedules = (schedulesData.schedules || []).length;
 
                 // Total intake agreements
                 const totalAgreements = agreements.length;
@@ -810,6 +823,9 @@
                 document.getElementById('contactCount').textContent = unreadContacts;
                 document.getElementById('drugScreenCount').textContent = totalDrugScreens;
                 document.getElementById('signInOutCount').textContent = membersOut;
+                if (document.getElementById('schedulesCount')) {
+                    document.getElementById('schedulesCount').textContent = totalSchedules;
+                }
                 if (document.getElementById('totalIntakeForms')) {
                     document.getElementById('totalIntakeForms').textContent = totalIntakeForms;
                 }
