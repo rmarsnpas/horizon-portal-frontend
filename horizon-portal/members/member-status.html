@@ -450,7 +450,7 @@
                     if (isOut) {
                         detailsHtml = `
                             <div class="member-details">
-                                <div><span class="label">📅 Date:</span> <span class="value">${outInfo.date}</span></div>
+                                <div><span class="label">📅 Date:</span> <span class="value">${outInfo.date ? outInfo.date.replace(/^(\d{4})-(\d{2})-(\d{2})$/, '$2/$3/$1') : outInfo.date}</span></div>
                                 <div><span class="label">📍 Location:</span> <span class="value">${outInfo.destination}</span></div>
                                 <div><span class="label">🕐 Left At:</span> <span class="value">${outInfo.timeOut}</span></div>
                                 <div><span class="label">⏰ Return:</span> <span class="value">${outInfo.estimatedReturn}</span></div>
