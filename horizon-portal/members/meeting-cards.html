@@ -247,44 +247,13 @@
         <div id="submitAlert" class="alert"></div>
 
         <form id="uploadForm" onsubmit="submitCard(event)">
-            <div class="form-row">
-                <div class="form-group">
-                    <label>Meeting Type <span class="required">*</span></label>
-                    <select id="meetingType" required>
-                        <option value="">— Select —</option>
-                        <option value="AA">AA (Alcoholics Anonymous)</option>
-                        <option value="NA">NA (Narcotics Anonymous)</option>
-                        <option value="CA">CA (Cocaine Anonymous)</option>
-                        <option value="SMART">SMART Recovery</option>
-                        <option value="Other">Other</option>
-                    </select>
-                </div>
-                <div class="form-group">
-                    <label>Meeting Date <span class="required">*</span></label>
-                    <input type="date" id="meetingDate" required>
-                </div>
-            </div>
-
-            <div class="form-row">
-                <div class="form-group">
-                    <label>Meeting Name / Location</label>
-                    <input type="text" id="meetingName" placeholder="e.g., Friday Night Big Book, 123 Main St">
-                </div>
-                <div class="form-group">
-                    <label>Speaker / Chair <span style="color:#a0aec0;font-weight:400;">(optional)</span></label>
-                    <input type="text" id="speaker" placeholder="Name of speaker or chair">
-                </div>
-            </div>
 
             <div class="form-group">
-                <label>Notes <span style="color:#a0aec0;font-weight:400;">(optional)</span></label>
-                <textarea id="notes" placeholder="Any notes about the meeting..."></textarea>
+                <label>Week Ending Date <span class="required">*</span></label>
+                <input type="date" id="weekEndingDate" required>
             </div>
 
             <!-- Photo upload -->
-            <div class="form-group" style="margin-bottom: 0;">
-                <label>Card Photo <span class="required">*</span></label>
-            </div>
             <div class="upload-zone" id="uploadZone">
                 <input type="file" id="cardFile" accept="image/*" capture="environment" onchange="handleFileSelect(event)">
                 <div class="upload-icon">📷</div>
@@ -345,8 +314,15 @@
         }
     }
 
-    // Default date to today
-    document.getElementById('meetingDate').value = new Date().toISOString().split('T')[0];
+    // Default week ending date to the coming Sunday
+    (function() {
+        const today = new Date();
+        const day = today.getDay(); // 0=Sun
+        const daysUntilSunday = day === 0 ? 0 : 7 - day;
+        const sunday = new Date(today);
+        sunday.setDate(today.getDate() + daysUntilSunday);
+        document.getElementById('weekEndingDate').value = sunday.toISOString().split('T')[0];
+    })();
 
     // Drag-over styling
     const zone = document.getElementById('uploadZone');
@@ -410,10 +386,9 @@
             return;
         }
 
-        const meetingType = document.getElementById('meetingType').value;
-        const meetingDate = document.getElementById('meetingDate').value;
-        if (!meetingType || !meetingDate) {
-            showAlert('Please fill in all required fields.', 'error');
+        const weekEndingDate = document.getElementById('weekEndingDate').value;
+        if (!weekEndingDate) {
+            showAlert('Please select the week ending date.', 'error');
             return;
         }
 
@@ -426,11 +401,7 @@
             formData.append('card', file);
             formData.append('memberId', String(memberId));
             formData.append('memberName', memberName || `Member #${memberId}`);
-            formData.append('meetingType', meetingType);
-            formData.append('meetingDate', meetingDate);
-            formData.append('meetingName', document.getElementById('meetingName').value.trim());
-            formData.append('speaker', document.getElementById('speaker').value.trim());
-            formData.append('notes', document.getElementById('notes').value.trim());
+            formData.append('meetingDate', weekEndingDate);
 
             const res = await fetch(`${API_BASE}/api/meetingCards`, {
                 method: 'POST',
@@ -442,7 +413,12 @@
                 showAlert('✅ Meeting card submitted! Staff will review it shortly.', 'success');
                 document.getElementById('uploadForm').reset();
                 clearFile();
-                document.getElementById('meetingDate').value = new Date().toISOString().split('T')[0];
+                // Reset week ending date to next Sunday
+                const today = new Date();
+                const day = today.getDay();
+                const sunday = new Date(today);
+                sunday.setDate(today.getDate() + (day === 0 ? 0 : 7 - day));
+                document.getElementById('weekEndingDate').value = sunday.toISOString().split('T')[0];
                 loadMyCards();
             } else {
                 showAlert('Error: ' + (result.error || 'Upload failed.'), 'error');
