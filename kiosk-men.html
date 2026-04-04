@@ -765,5 +765,33 @@
             } catch { /* silently ignore */ }
         }
     </script>
+
+    <!-- 🐰 Easter Bunny — auto-expires 2026-04-06 23:59 -->
+    <script>(function() {
+        if (new Date() > new Date('2026-04-06T23:59:59')) return;
+        const el = document.createElement('div');
+        el.style.cssText = 'position:fixed;z-index:99999;text-align:center;pointer-events:none;user-select:none;';
+        el.innerHTML = '<div style="font-size:4rem;line-height:1">🐰</div>'
+            + '<div style="font-size:0.85rem;font-weight:900;color:#ff1493;text-shadow:0 0 6px #fff,0 0 14px #ff69b4;white-space:nowrap;letter-spacing:1px;margin-top:2px;">🌸 Happy Easter! 🌸</div>';
+        document.body.appendChild(el);
+        let x = 120, y = 200, vx = 2.2, vy = 1.3, t = 0;
+        function frame() {
+            if (new Date() > new Date('2026-04-06T23:59:59')) { el.remove(); return; }
+            t += 0.1;
+            const W = window.innerWidth, H = window.innerHeight;
+            const w = el.offsetWidth || 115, h = el.offsetHeight || 90;
+            x += vx; y += vy;
+            if (x <= 0)     { x = 0;     vx =  Math.abs(vx); }
+            if (x + w >= W) { x = W - w; vx = -Math.abs(vx); }
+            if (y <= 0)     { y = 0;     vy =  Math.abs(vy); }
+            if (y + h >= H) { y = H - h; vy = -Math.abs(vy); }
+            const hop = -Math.abs(Math.sin(t * 2.5)) * 18;
+            el.style.left = x + 'px';
+            el.style.top  = (y + hop) + 'px';
+            el.style.transform = vx > 0 ? 'scaleX(1)' : 'scaleX(-1)';
+            requestAnimationFrame(frame);
+        }
+        requestAnimationFrame(frame);
+    })();</script>
 </body>
 </html>
