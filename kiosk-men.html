@@ -284,6 +284,22 @@
             100% { transform: rotate(360deg); }
         }
 
+        /* Kiosk message banners */
+        #kioskMessages { margin-bottom: 20px; }
+        .kiosk-msg-banner {
+            background: #fff3cd; border: 2px solid #f0ad4e; border-radius: 12px;
+            padding: 14px 18px; margin-bottom: 12px;
+            display: flex; align-items: flex-start; gap: 12px;
+        }
+        .kiosk-msg-banner.target-everyone { border-color: #0066cc; background: #e8f0fe; }
+        .kiosk-msg-banner.target-men      { border-color: #0056b3; background: #dce8ff; }
+        .kiosk-msg-banner.target-individual { border-color: #198754; background: #d1f2e3; }
+        .kiosk-msg-banner .msg-icon { font-size: 1.6rem; flex-shrink: 0; }
+        .kiosk-msg-banner .msg-content { flex: 1; }
+        .kiosk-msg-banner .msg-title { font-weight: 700; font-size: 1.1rem; color: #003366; margin-bottom: 4px; }
+        .kiosk-msg-banner .msg-body  { font-size: 1rem; color: #333; white-space: pre-wrap; }
+        .kiosk-msg-banner .msg-from  { font-size: 0.8rem; color: #666; margin-top: 4px; }
+
         @media (max-width: 600px) {
             .kiosk-container {
                 padding: 30px 20px;
@@ -313,7 +329,10 @@
 
             <h2 style="margin-bottom: 10px;">Currently Signed Out</h2>
             <p style="color: #666; margin-bottom: 20px;" id="statusSummary">Loading...</p>
-            
+
+            <!-- Kiosk messages from staff -->
+            <div id="kioskMessages" style="margin-bottom: 12px;"></div>
+
             <div id="statusGrid" class="status-grid"></div>
             
             <div class="timestamp" id="statusTimestamp" style="margin-top: 20px;"></div>
@@ -422,7 +441,8 @@
 
         // Load status on page load
         loadStatusBoard();
-        setInterval(loadStatusBoard, 10000); // Refresh every 10 seconds
+        loadKioskMessages();
+        setInterval(() => { loadStatusBoard(); loadKioskMessages(); }, 10000); // Refresh every 10 seconds
 
         // Focus input on load
         document.getElementById('memberIdInput').focus();
@@ -722,6 +742,27 @@
                 showLoading(false);
                 showStatus(`Sign-out failed: ${error.message || 'Connection error'}`, 'error');
             }
+        }
+
+        async function loadKioskMessages() {
+            try {
+                const res = await fetch(`${API_URL}/api/kioskMessages?target=men`);
+                const msgs = await res.json();
+                const container = document.getElementById('kioskMessages');
+                if (!msgs.length) { container.innerHTML = ''; return; }
+                container.innerHTML = msgs.map(m => {
+                    const icon = m.target === 'everyone' ? '📢' : m.target === 'men' ? '🔵' : '👤';
+                    const cls  = m.target === 'everyone' ? 'target-everyone' : m.target === 'men' ? 'target-men' : 'target-individual';
+                    return `<div class="kiosk-msg-banner ${cls}">
+                        <div class="msg-icon">${icon}</div>
+                        <div class="msg-content">
+                            ${m.title ? `<div class="msg-title">${m.title}</div>` : ''}
+                            <div class="msg-body">${m.body}</div>
+                            <div class="msg-from">&mdash; ${m.createdBy}</div>
+                        </div>
+                    </div>`;
+                }).join('');
+            } catch { /* silently ignore */ }
         }
     </script>
 </body>
