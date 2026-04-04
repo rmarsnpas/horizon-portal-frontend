@@ -284,6 +284,30 @@
             100% { transform: rotate(360deg); }
         }
 
+        /* Kiosk message banners */
+        #kioskMessages {
+            margin-bottom: 20px;
+        }
+        .kiosk-msg-banner {
+            background: #fff3cd;
+            border: 2px solid #f0ad4e;
+            border-radius: 12px;
+            padding: 14px 18px;
+            margin-bottom: 12px;
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            gap: 12px;
+        }
+        .kiosk-msg-banner.target-everyone { border-color: #0066cc; background: #e8f0fe; }
+        .kiosk-msg-banner.target-women    { border-color: #d63384; background: #fce4ec; }
+        .kiosk-msg-banner.target-individual { border-color: #198754; background: #d1f2e3; }
+        .kiosk-msg-banner .msg-icon { font-size: 1.6rem; flex-shrink: 0; }
+        .kiosk-msg-banner .msg-content { flex: 1; }
+        .kiosk-msg-banner .msg-title { font-weight: 700; font-size: 1.1rem; color: #003366; margin-bottom: 4px; }
+        .kiosk-msg-banner .msg-body  { font-size: 1rem; color: #333; white-space: pre-wrap; }
+        .kiosk-msg-banner .msg-from  { font-size: 0.8rem; color: #666; margin-top: 4px; }
+
         @media (max-width: 600px) {
             .kiosk-container {
                 padding: 30px 20px;
@@ -312,7 +336,9 @@
             </div>
 
             <h2 style="margin-bottom: 10px;">Currently Signed Out</h2>
-            <p style="color: #666; margin-bottom: 20px;" id="statusSummary">Loading...</p>
+            
+            <!-- Kiosk messages from staff -->
+            <div id="kioskMessages" style="margin-bottom: 12px;"></div>
             
             <div id="statusGrid" class="status-grid"></div>
             
@@ -422,8 +448,8 @@
 
         // Load status on page load
         loadStatusBoard();
-        setInterval(loadStatusBoard, 10000); // Refresh every 10 seconds
-
+        loadKioskMessages();
+        setInterval(() => { loadStatusBoard(); loadKioskMessages(); }, 10000); // Refresh every 10 seconds
         // Focus input on load
         document.getElementById('memberIdInput').focus();
 
@@ -495,6 +521,27 @@
                 console.error('Error loading status:', error);
                 document.getElementById('statusSummary').textContent = 'Error loading status';
             }
+        }
+
+        async function loadKioskMessages() {
+            try {
+                const res = await fetch(`${API_URL}/api/kioskMessages?target=women`);
+                const msgs = await res.json();
+                const container = document.getElementById('kioskMessages');
+                if (!msgs.length) { container.innerHTML = ''; return; }
+                container.innerHTML = msgs.map(m => {
+                    const icon = m.target === 'everyone' ? '📢' : m.target === 'women' ? '🌸' : '👤';
+                    const cls  = m.target === 'everyone' ? 'target-everyone' : m.target === 'women' ? 'target-women' : 'target-individual';
+                    return `<div class="kiosk-msg-banner ${cls}">
+                        <div class="msg-icon">${icon}</div>
+                        <div class="msg-content">
+                            ${m.title ? `<div class="msg-title">${m.title}</div>` : ''}
+                            <div class="msg-body">${m.body}</div>
+                            <div class="msg-from">— ${m.createdBy}</div>
+                        </div>
+                    </div>`;
+                }).join('');
+            } catch { /* silently ignore */ }
         }
 
         function showStatus(message, type = 'info') {
@@ -604,6 +651,18 @@
 
                 // Check if this member is in the signed-out list
                 const isSignedOut = (statusData.membersOut || []).some(m => memberIdFrom(m) === normalizeId(memberId));
+
+                // Fetch any personal messages for this member and show them briefly
+                try {
+                    const msgRes = await fetch(`${API_URL}/api/kioskMessages?memberId=${encodeURIComponent(memberId)}`);
+                    const personalMsgs = await msgRes.json();
+                    const personal = personalMsgs.filter(m => m.target === 'individual');
+                    if (personal.length) {
+                        const preview = personal.map(m => (m.title ? m.title + ': ' : '') + m.body).join('\n');
+                        showStatus(`📬 Message for ${memberName}:\n${preview}`, 'info');
+                        await new Promise(r => setTimeout(r, 4000));
+                    }
+                } catch { /* silently ignore */ }
 
                 if (isSignedOut) {
                     // Currently signed OUT, so sign IN

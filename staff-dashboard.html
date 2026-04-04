@@ -660,6 +660,62 @@
                 </div>
             </div>
         </div>
+        <!-- Kiosk Messages Panel -->
+        <div id="kioskMsgSection" style="display: none; margin-top: 30px; margin-bottom: 20px;">
+            <div style="background: linear-gradient(135deg, #003366 0%, #0066cc 100%); color: white; padding: 20px; border-radius: 12px 12px 0 0; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px;">
+                <div>
+                    <h2 style="color: white; margin: 0;">📢 Kiosk Messages</h2>
+                    <p style="color: rgba(255,255,255,0.85); margin: 4px 0 0 0; font-size: 0.95rem;">Post messages to sign-in/out kiosks</p>
+                </div>
+                <button onclick="toggleNewMsgForm()" id="toggleMsgBtn" style="padding: 10px 20px; background: white; color: #003366; border: none; border-radius: 8px; font-weight: 700; cursor: pointer; font-size: 0.95rem;">+ New Message</button>
+            </div>
+
+            <!-- Compose form (hidden by default) -->
+            <div id="newMsgForm" style="display: none; background: #f0f4ff; border: 2px solid #0066cc; border-top: none; padding: 20px; border-radius: 0;">
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-bottom: 14px;">
+                    <div>
+                        <label style="font-weight: 600; display: block; margin-bottom: 4px; color: #003366;">Title <span style="font-weight:400;color:#666;">(optional)</span></label>
+                        <input id="kmTitle" type="text" placeholder="e.g. House Meeting Tonight" style="width:100%; padding:10px; border:2px solid #ccc; border-radius:6px; font-size:0.95rem;">
+                    </div>
+                    <div>
+                        <label style="font-weight: 600; display: block; margin-bottom: 4px; color: #003366;">Send To</label>
+                        <select id="kmTarget" style="width:100%; padding:10px; border:2px solid #ccc; border-radius:6px; font-size:0.95rem;" onchange="onTargetChange()">
+                            <option value="everyone">Everyone (both kiosks)</option>
+                            <option value="men">Men only</option>
+                            <option value="women">Women only</option>
+                            <option value="individual">Individual member</option>
+                        </select>
+                    </div>
+                </div>
+                <div id="kmIndividualRow" style="display: none; margin-bottom: 14px;">
+                    <label style="font-weight: 600; display: block; margin-bottom: 4px; color: #003366;">Member ID</label>
+                    <div style="display: flex; gap: 8px;">
+                        <input id="kmMemberId" type="text" placeholder="Enter member ID" style="flex:1; padding:10px; border:2px solid #ccc; border-radius:6px; font-size:0.95rem;" oninput="lookupMemberName()">
+                        <span id="kmMemberName" style="padding: 10px 14px; background: white; border:2px solid #28a745; border-radius:6px; color:#28a745; font-weight:600; min-width:120px;"></span>
+                    </div>
+                </div>
+                <div style="margin-bottom: 14px;">
+                    <label style="font-weight: 600; display: block; margin-bottom: 4px; color: #003366;">Message</label>
+                    <textarea id="kmBody" rows="3" placeholder="Type your message here..." style="width:100%; padding:10px; border:2px solid #ccc; border-radius:6px; font-size:0.95rem; resize:vertical;"></textarea>
+                </div>
+                <div style="display: flex; gap: 12px; align-items: center; flex-wrap: wrap;">
+                    <div>
+                        <label style="font-weight: 600; margin-right: 6px; color: #003366;">Expires:</label>
+                        <input id="kmExpires" type="datetime-local" style="padding:8px; border:2px solid #ccc; border-radius:6px; font-size:0.9rem;">
+                        <span style="color:#666; font-size:0.85rem; margin-left:4px;">(leave blank = no expiry)</span>
+                    </div>
+                    <button onclick="postKioskMessage()" style="padding:10px 24px; background:#28a745; color:white; border:none; border-radius:8px; font-weight:700; cursor:pointer; font-size:0.95rem; margin-left: auto;">Send Message</button>
+                    <button onclick="toggleNewMsgForm()" style="padding:10px 18px; background:#6c757d; color:white; border:none; border-radius:8px; cursor:pointer;">Cancel</button>
+                </div>
+                <div id="kmStatus" style="margin-top: 10px; font-weight: 600;"></div>
+            </div>
+
+            <!-- Active messages list -->
+            <div style="background: white; border: 2px solid #0066cc; border-top: none; padding: 16px; border-radius: 0 0 12px 12px; min-height: 60px;">
+                <div id="kioskMsgList"><span style="color:#999;">Loading...</span></div>
+            </div>
+        </div>
+
         <!-- Active Members Board -->
         <div class="section-header" id="memberBoardSection" style="display: none; margin-top: 30px; background: linear-gradient(135deg, #F58634 0%, #c95f00 100%); color: white; padding: 20px; border-radius: 12px; margin-bottom: 20px;">
             <h2 style="color: white; margin: 0;">👥 Active Members Board <span class="member-board-count" id="memberBoardCount">0</span></h2>
@@ -854,6 +910,8 @@
                 document.getElementById('dashboardGrid').style.display = 'grid';
                 document.getElementById('formsSection').style.display = 'block';
                 document.getElementById('formsGrid').style.display = 'grid';
+                document.getElementById('kioskMsgSection').style.display = 'block';
+                renderKioskMessages();
 
             } catch (error) {
                 console.error('Error loading dashboard data:', error);
@@ -1350,9 +1408,151 @@
             }
         }
 
+        // ── KIOSK MESSAGES ──────────────────────────────────────
+        let _allMembersCache = null;
+        async function getAllMembersCache() {
+            if (_allMembersCache) return _allMembersCache;
+            try {
+                const r = await fetch(`${API_BASE}/api/members`);
+                _allMembersCache = await r.json();
+            } catch { _allMembersCache = []; }
+            return _allMembersCache;
+        }
+
+        function toggleNewMsgForm() {
+            const form = document.getElementById('newMsgForm');
+            const btn  = document.getElementById('toggleMsgBtn');
+            if (form.style.display === 'none') {
+                form.style.display = 'block';
+                btn.textContent = '✕ Cancel';
+                document.getElementById('kmStatus').textContent = '';
+            } else {
+                form.style.display = 'none';
+                btn.textContent = '+ New Message';
+            }
+        }
+
+        function onTargetChange() {
+            const t = document.getElementById('kmTarget').value;
+            document.getElementById('kmIndividualRow').style.display = t === 'individual' ? 'block' : 'none';
+        }
+
+        let _memberLookupTimer = null;
+        async function lookupMemberName() {
+            clearTimeout(_memberLookupTimer);
+            const id = document.getElementById('kmMemberId').value.trim();
+            const nameEl = document.getElementById('kmMemberName');
+            if (!id) { nameEl.textContent = ''; return; }
+            _memberLookupTimer = setTimeout(async () => {
+                try {
+                    const all = await getAllMembersCache();
+                    const m = all.find(x => String(x.ID ?? x.id ?? '').trim() === id);
+                    if (m) {
+                        const fn = m['FIRST\r\nNAME'] || m['FIRST\nNAME'] || m.FIRST_NAME || '';
+                        const ln = m['LAST\r\nNAME']  || m['LAST\nNAME']  || m.LAST_NAME  || '';
+                        nameEl.textContent = `${fn} ${ln}`.trim() || 'Found';
+                        nameEl.style.borderColor = '#28a745';
+                        nameEl.style.color = '#28a745';
+                    } else {
+                        nameEl.textContent = 'Not found';
+                        nameEl.style.borderColor = '#dc3545';
+                        nameEl.style.color = '#dc3545';
+                    }
+                } catch { nameEl.textContent = ''; }
+            }, 400);
+        }
+
+        async function postKioskMessage() {
+            const title     = document.getElementById('kmTitle').value.trim();
+            const body      = document.getElementById('kmBody').value.trim();
+            const target    = document.getElementById('kmTarget').value;
+            const memberId  = document.getElementById('kmMemberId').value.trim();
+            const memberNameEl = document.getElementById('kmMemberName');
+            const expiresAt = document.getElementById('kmExpires').value;
+            const statusEl  = document.getElementById('kmStatus');
+            const staffName = (window.currentStaffName) || 'Staff';
+
+            if (!body) { statusEl.textContent = '⚠ Please enter a message.'; statusEl.style.color = '#dc3545'; return; }
+            if (target === 'individual' && !memberId) { statusEl.textContent = '⚠ Please enter a Member ID.'; statusEl.style.color = '#dc3545'; return; }
+
+            statusEl.textContent = 'Sending...'; statusEl.style.color = '#666';
+            try {
+                const payload = {
+                    title, body, target,
+                    targetMemberId: target === 'individual' ? memberId : undefined,
+                    targetMemberName: target === 'individual' ? memberNameEl.textContent : undefined,
+                    expiresAt: expiresAt ? new Date(expiresAt).toISOString() : null,
+                    createdBy: staffName
+                };
+                const r = await fetch(`${API_BASE}/api/kioskMessages`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+                const data = await r.json();
+                if (data.success) {
+                    statusEl.textContent = '✓ Message posted!'; statusEl.style.color = '#28a745';
+                    document.getElementById('kmTitle').value = '';
+                    document.getElementById('kmBody').value = '';
+                    document.getElementById('kmMemberId').value = '';
+                    document.getElementById('kmMemberName').textContent = '';
+                    document.getElementById('kmExpires').value = '';
+                    await renderKioskMessages();
+                    setTimeout(() => {
+                        document.getElementById('newMsgForm').style.display = 'none';
+                        document.getElementById('toggleMsgBtn').textContent = '+ New Message';
+                        statusEl.textContent = '';
+                    }, 2000);
+                } else {
+                    statusEl.textContent = '✗ ' + (data.error || 'Failed'); statusEl.style.color = '#dc3545';
+                }
+            } catch {
+                statusEl.textContent = '✗ Network error'; statusEl.style.color = '#dc3545';
+            }
+        }
+
+        async function deleteKioskMessage(id) {
+            if (!confirm('Delete this kiosk message?')) return;
+            try {
+                await fetch(`${API_BASE}/api/kioskMessages/${id}`, { method: 'DELETE' });
+                await renderKioskMessages();
+            } catch { alert('Error deleting message'); }
+        }
+
+        async function renderKioskMessages() {
+            const list = document.getElementById('kioskMsgList');
+            try {
+                const r = await fetch(`${API_BASE}/api/kioskMessages`);
+                const msgs = await r.json();
+                if (!msgs.length) {
+                    list.innerHTML = '<span style="color:#999; font-style:italic;">No active messages.</span>';
+                    return;
+                }
+                const targetLabel = { everyone: '📢 Everyone', men: '🔵 Men only', women: '🌸 Women only', individual: '👤 Individual' };
+                list.innerHTML = msgs.map(m => `
+                    <div style="display:flex; align-items:flex-start; justify-content:space-between; gap:12px; padding:12px; border:1px solid #ddd; border-radius:8px; margin-bottom:8px; background:#fafafa;">
+                        <div style="flex:1;">
+                            <div style="font-weight:700; color:#003366; margin-bottom:2px;">
+                                ${targetLabel[m.target] || m.target}
+                                ${m.target === 'individual' ? ` — <em>${m.targetMemberName || m.targetMemberId}</em>` : ''}
+                                ${m.title ? ` · ${m.title}` : ''}
+                            </div>
+                            <div style="white-space:pre-wrap; color:#333;">${m.body}</div>
+                            <div style="font-size:0.8rem; color:#888; margin-top:4px;">
+                                Posted by ${m.createdBy} · ${new Date(m.createdAt).toLocaleString()}
+                                ${m.expiresAt ? ` · Expires ${new Date(m.expiresAt).toLocaleString()}` : ''}
+                            </div>
+                        </div>
+                        <button onclick="deleteKioskMessage('${m.id}')" style="padding:6px 12px; background:#dc3545; color:white; border:none; border-radius:6px; cursor:pointer; font-weight:600; white-space:nowrap;">🗑 Delete</button>
+                    </div>
+                `).join('');
+            } catch {
+                list.innerHTML = '<span style="color:#dc3545;">Error loading messages</span>';
+            }
+        }
+
         // Streamlined edit workflow
         async function editMembersDatabase() {
-            const confirmed = confirm(
                 '📝 Edit Members Database\n\n' +
                 'This will:\n' +
                 '1. Download the current members.xlsx file\n' +
