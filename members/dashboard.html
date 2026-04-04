@@ -185,6 +185,42 @@
             background-color: var(--hh-primary);
             color: #fff;
         }
+
+        /* Individual message balloon */
+        #indivMsgBalloon {
+            position: fixed; left: 24px; top: 50%; transform: translateY(-50%);
+            width: 320px; max-width: calc(100vw - 48px);
+            background: #fff; border: 4px solid #198754; border-radius: 20px;
+            box-shadow: 0 8px 40px rgba(25,135,84,0.45);
+            padding: 22px 20px 18px; z-index: 9999; display: none;
+        }
+        #indivMsgBalloon::after {
+            content: ''; position: absolute; right: -20px; top: 50%;
+            transform: translateY(-50%);
+            border: 10px solid transparent; border-left-color: #198754;
+        }
+        #indivMsgBalloon.visible {
+            display: block;
+            animation: balloonPop 0.4s cubic-bezier(.3,1.3,.6,1) forwards,
+                       pulseGlow 2s ease-in-out 0.5s infinite;
+        }
+        @keyframes balloonPop {
+            0%   { transform: translateY(-50%) scale(0.6); opacity: 0; }
+            80%  { transform: translateY(-50%) scale(1.06); opacity: 1; }
+            100% { transform: translateY(-50%) scale(1); opacity: 1; }
+        }
+        @keyframes pulseGlow {
+            0%, 100% { box-shadow: 0 8px 40px rgba(25,135,84,0.45); }
+            50%       { box-shadow: 0 8px 60px rgba(25,135,84,0.85), 0 0 30px rgba(25,135,84,0.6); }
+        }
+        .indiv-msg-header { font-size: 1.1rem; font-weight: 800; color: #0a4d2b; margin-bottom: 10px; padding-bottom: 8px; border-bottom: 2px solid #c3e6cb; }
+        .indiv-msg-item { margin-bottom: 12px; padding-bottom: 12px; border-bottom: 1px solid #e8f5e9; }
+        .indiv-msg-item:last-of-type { border-bottom: none; margin-bottom: 14px; }
+        .indiv-msg-title { font-weight: 700; font-size: 1rem; color: #14532d; margin-bottom: 4px; }
+        .indiv-msg-body  { font-size: 0.95rem; color: #222; white-space: pre-wrap; line-height: 1.4; }
+        .indiv-msg-from  { font-size: 0.8rem; color: #555; margin-top: 5px; }
+        .indiv-msg-ok-btn { display: block; width: 100%; padding: 13px; background: #198754; color: #fff; border: none; border-radius: 10px; font-size: 1.15rem; font-weight: 800; cursor: pointer; letter-spacing: 0.5px; margin-top: 4px; }
+        .indiv-msg-ok-btn:hover { background: #146c43; }
     </style>
 </head>
 
@@ -353,6 +389,9 @@
                     
                     // Load recent announcements
                     loadRecentAnnouncements();
+
+                    // Check for individual kiosk messages
+                    checkIndivMessages(memberId);
                 }
             })
             .catch(error => {
@@ -763,6 +802,32 @@
         return formatMMDDYYYY(date);
     }
 
+    let _pendingIndivMsgIds = [];
+    async function checkIndivMessages(memberId) {
+        try {
+            const res = await fetch(`https://horizon-portal-backend-production-3532.up.railway.app/api/kioskMessages?memberId=${encodeURIComponent(memberId)}`);
+            const msgs = await res.json();
+            const personal = msgs.filter(m => m.target === 'individual');
+            if (!personal.length) return;
+            _pendingIndivMsgIds = personal.map(m => m.id);
+            document.getElementById('indivMsgContent').innerHTML = personal.map(m => `
+                <div class="indiv-msg-item">
+                    ${m.title ? `<div class="indiv-msg-title">${m.title}</div>` : ''}
+                    <div class="indiv-msg-body">${m.body}</div>
+                    <div class="indiv-msg-from">— ${m.createdBy}</div>
+                </div>
+            `).join('');
+            document.getElementById('indivMsgBalloon').classList.add('visible');
+        } catch(e) { /* silent */ }
+    }
+    async function acknowledgeIndivMsgs() {
+        document.getElementById('indivMsgBalloon').classList.remove('visible');
+        for (const id of _pendingIndivMsgIds) {
+            try { await fetch(`https://horizon-portal-backend-production-3532.up.railway.app/api/kioskMessages/${encodeURIComponent(id)}`, { method: 'DELETE' }); } catch(e) {}
+        }
+        _pendingIndivMsgIds = [];
+    }
+
     // Logout function
     function logout() {
         // Clear stored member data
@@ -776,6 +841,13 @@
         window.location.href = '/members/login.html';
     }
 </script>
+
+    <!-- Individual message balloon -->
+    <div id="indivMsgBalloon">
+        <div class="indiv-msg-header">📬 Message For You</div>
+        <div id="indivMsgContent"></div>
+        <button class="indiv-msg-ok-btn" onclick="acknowledgeIndivMsgs()">✓ OK, Got It!</button>
+    </div>
 
 </body>
 </html>
