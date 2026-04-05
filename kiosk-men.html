@@ -336,6 +336,35 @@
         .indiv-msg-ok-btn { display: block; width: 100%; padding: 13px; background: #198754; color: #fff; border: none; border-radius: 10px; font-size: 1.15rem; font-weight: 800; cursor: pointer; letter-spacing: 0.5px; margin-top: 4px; }
         .indiv-msg-ok-btn:hover { background: #146c43; }
 
+        #curfewWarning {
+            display: none;
+            background: #fff3cd;
+            border: 2px solid #e53e3e;
+            border-radius: 10px;
+            padding: 14px 16px;
+            margin-top: 10px;
+            font-size: 1rem;
+            font-weight: 700;
+            color: #7b1a1a;
+            text-align: center;
+            animation: curfewFlash 0.7s ease-in-out infinite alternate;
+        }
+        @keyframes curfewFlash {
+            0%   { background: #fff3cd; border-color: #e53e3e; }
+            100% { background: #fed7d7; border-color: #c53030; }
+        }
+        #curfewNextDay {
+            display: none;
+            background: #e9f5ff;
+            border: 1px solid #3182ce;
+            border-radius: 8px;
+            padding: 8px 12px;
+            margin-top: 8px;
+            font-size: 0.9rem;
+            color: #1a365d;
+            text-align: center;
+        }
+
         @media (max-width: 600px) {
             .kiosk-container {
                 padding: 30px 20px;
@@ -417,7 +446,10 @@
                             type="time" 
                             id="returnTimeInput"
                             style="font-size: 1.5rem;"
+                            oninput="checkReturnCurfew()"
                         >
+                        <div id="curfewNextDay">🌙 Return is next day (after midnight)</div>
+                        <div id="curfewWarning">⚠️ This return time is past curfew — you must notify your House Leader before leaving!</div>
                     </div>
                 </div>
 
@@ -581,10 +613,43 @@
             loading.className = show ? 'loading active' : 'loading';
         }
 
+        function checkReturnCurfew() {
+            const val = document.getElementById('returnTimeInput').value; // 'HH:MM'
+            const warn = document.getElementById('curfewWarning');
+            const nextDay = document.getElementById('curfewNextDay');
+            if (!val) { warn.style.display = 'none'; nextDay.style.display = 'none'; return; }
+
+            const [h, m] = val.split(':').map(Number);
+            const returnMins = h * 60 + m;
+
+            const now = new Date();
+            const nowMins = now.getHours() * 60 + now.getMinutes();
+
+            // If return time is earlier than current time it wraps to next day
+            const isNextDay = returnMins < nowMins;
+            nextDay.style.display = isNextDay ? 'block' : 'none';
+
+            // Determine which day the return will be on (today or tomorrow)
+            const returnDate = new Date(now);
+            if (isNextDay) returnDate.setDate(returnDate.getDate() + 1);
+            const dayOfWeek = returnDate.getDay(); // 0=Sun, 6=Sat
+
+            // Curfew: Sun(0)–Thu(4) = 22:00, Fri(5)/Sat(6) = no curfew (midnight)
+            let isCurfewViolation = false;
+            if (dayOfWeek >= 0 && dayOfWeek <= 4) {
+                isCurfewViolation = returnMins > 22 * 60;
+            }
+            // Fri/Sat: midnight (00:00) is technically next day so no violation
+
+            warn.style.display = isCurfewViolation ? 'block' : 'none';
+        }
+
         function clearForm() {
             document.getElementById('memberIdInput').value = '';
             document.getElementById('destinationInput').value = '';
             document.getElementById('returnTimeInput').value = '';
+            document.getElementById('curfewWarning').style.display = 'none';
+            document.getElementById('curfewNextDay').style.display = 'none';
             document.getElementById('signOutFields').style.display = 'none';
             document.getElementById('actionButtonText').textContent = 'Sign In/Out';
             showStatus('Enter your Member ID', 'info');
