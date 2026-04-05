@@ -281,6 +281,10 @@
                         <input type="text" id="destination" name="destination" required placeholder="e.g., Doctor appointment, Work, Grocery store">
                     </div>
                     <div class="form-group">
+                        <label for="dateOut">Date *</label>
+                        <input type="date" id="dateOut" name="dateOut" required>
+                    </div>
+                    <div class="form-group">
                         <label for="timeOut">Time Out *</label>
                         <input type="time" id="timeOut" name="timeOut" required>
                     </div>
@@ -304,6 +308,10 @@
                     <div class="form-group">
                         <label for="memberNameIn">Member Name *</label>
                         <input type="text" id="memberNameIn" name="memberName" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="dateIn">Date *</label>
+                        <input type="date" id="dateIn" name="dateIn" required>
                     </div>
                     <div class="form-group">
                         <label for="timeIn">Actual Time In *</label>
@@ -422,12 +430,15 @@
             }
         }
 
-        // Set default times
+        // Set default times and dates
         function setCurrentTime() {
             const now = new Date();
             const timeStr = now.toTimeString().slice(0, 5);
+            const dateStr = now.toISOString().split('T')[0]; // YYYY-MM-DD for input[type=date]
             document.getElementById('timeOut').value = timeStr;
             document.getElementById('timeIn').value = timeStr;
+            document.getElementById('dateOut').value = dateStr;
+            document.getElementById('dateIn').value = dateStr;
         }
 
         // Load current status
@@ -476,8 +487,10 @@
             try {
                 const formData = new FormData(e.target);
 
-                const now = new Date();
-                const today = `${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}-${String(now.getFullYear())}`;
+                const rawDateOut = formData.get('dateOut') || new Date().toISOString().split('T')[0];
+                // Convert YYYY-MM-DD → MM-DD-YYYY for backend
+                const [oy, om, od] = rawDateOut.split('-');
+                const today = `${om}-${od}-${oy}`;
                 const data = {
                     memberId: formData.get('memberId'),
                     memberName: formData.get('memberName'),
@@ -531,8 +544,10 @@
             try {
                 const formData = new FormData(e.target);
 
-                const now = new Date();
-                const today = `${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}-${String(now.getFullYear())}`;
+                const rawDateIn = formData.get('dateIn') || new Date().toISOString().split('T')[0];
+                // Convert YYYY-MM-DD → MM-DD-YYYY for backend
+                const [iy, im, id2] = rawDateIn.split('-');
+                const today = `${im}-${id2}-${iy}`;
                 const data = {
                     memberId: formData.get('memberId'),
                     memberName: formData.get('memberName'),
