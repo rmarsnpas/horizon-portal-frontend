@@ -257,6 +257,10 @@
                     <input class="modal-input" id="eeEstReturn" type="time">
                 </div>
                 <div>
+                    <label class="modal-label">Date In (if different from Date Out)</label>
+                    <input class="modal-input" id="eeDateIn" type="date">
+                </div>
+                <div>
                     <label class="modal-label">Time In (leave blank if still out)</label>
                     <input class="modal-input" id="eeTimeIn" type="time">
                 </div>
@@ -533,6 +537,13 @@
             document.getElementById('eeDate').value        = dateVal;
             document.getElementById('eeTimeOut').value     = r.timeOut || '';
             document.getElementById('eeEstReturn').value   = r.estimatedReturn || '';
+            // Date In
+            let dateInVal = '';
+            if (r.dateIn) {
+                const isoIn = r.dateIn.replace(/^(\d{2})-(\d{2})-(\d{4})$/, '$3-$1-$2');
+                dateInVal = /^\d{4}-\d{2}-\d{2}$/.test(isoIn) ? isoIn : r.dateIn;
+            }
+            document.getElementById('eeDateIn').value      = dateInVal;
             document.getElementById('eeTimeIn').value      = r.timeIn || '';
             document.getElementById('editMsg').textContent = '';
             document.getElementById('editModal').classList.add('open');
@@ -563,6 +574,7 @@
                 date:            dateOut,
                 timeOut:         document.getElementById('eeTimeOut').value,
                 estimatedReturn: document.getElementById('eeEstReturn').value,
+                dateIn:          (() => { const raw = document.getElementById('eeDateIn').value; if (!raw) return undefined; const [y,m,d] = raw.split('-'); return `${m}-${d}-${y}`; })(),
                 timeIn:          document.getElementById('eeTimeIn').value || undefined,
             };
 
