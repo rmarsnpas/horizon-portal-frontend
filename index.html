@@ -106,11 +106,12 @@
     .hover-box.scroll-active .hover-text{max-height:200px;opacity:1;margin-top:0.5rem}
     
     /* Construction Banner */
-    .construction-banner{background:linear-gradient(90deg,#ff9800,#ff5722,#ff9800);color:#fff;padding:0.8rem;text-align:center;font-weight:600;font-size:0.95rem;overflow:hidden;position:relative}
+    .construction-banner{background:linear-gradient(90deg,#ff9800,#ff5722,#ff9800);color:#fff;padding:0.5rem 0.75rem;text-align:center;font-weight:600;font-size:0.95rem;overflow:hidden;position:relative;white-space:nowrap;line-height:1.2}
     .construction-banner::before{content:'🚧';margin-right:8px}
     .construction-banner::after{content:'🚧';margin-left:8px}
-    .banner-text{display:inline-block;animation:slide 20s linear infinite}
+    .banner-text{display:inline-block;animation:slide 20s linear infinite;white-space:nowrap}
     @keyframes slide{0%{transform:translateX(100%);}100%{transform:translateX(-100%);}}
+    @media(max-width:640px){.construction-banner{font-size:0.78rem;padding:0.35rem 0.5rem}.construction-banner::before,.construction-banner::after{content:''}}
     
     /* Hamburger Menu Styles */
     .hamburger{display:none;background:none;border:none;cursor:pointer;padding:0.5rem;z-index:1001}
