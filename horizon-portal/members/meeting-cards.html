@@ -453,12 +453,14 @@
                 return;
             }
 
-            list.innerHTML = cards.map(c => `
+            list.innerHTML = cards.map(c => {
+                const imgSrc = c.imageUrl && c.imageUrl.startsWith('http') ? c.imageUrl : `${API_BASE}${c.imageUrl}`;
+                return `
                 <div class="submission-item">
-                    <img class="submission-thumb" src="${API_BASE}${c.imageUrl}" alt="Meeting card"
-                         onclick="openLightbox('${API_BASE}${c.imageUrl}')">
+                    <img class="submission-thumb" src="${imgSrc}" alt="Meeting card"
+                         onclick="openLightbox('${imgSrc}')">
                     <div class="submission-info">
-                        <div><strong>${c.meetingType}</strong> — ${fmtDate(c.meetingDate)}</div>
+                        <div><strong>${c.meetingType || 'Attendance Card'}</strong> — ${fmtDate(c.meetingDate)}</div>
                         ${c.meetingName ? `<div><strong>Location:</strong> ${c.meetingName}</div>` : ''}
                         ${c.notes ? `<div><strong>Notes:</strong> ${c.notes}</div>` : ''}
                         <div>
@@ -468,7 +470,7 @@
                         <div style="color:#a0aec0;font-size:11px;">Submitted ${fmtDateTime(c.submittedAt)}</div>
                     </div>
                 </div>
-            `).join('');
+            `}).join('');
         } catch (err) {
             document.getElementById('listLoading').textContent = 'Error loading submissions.';
         }

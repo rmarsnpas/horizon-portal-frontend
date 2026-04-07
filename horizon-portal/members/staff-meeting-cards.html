@@ -413,6 +413,7 @@
     }
 
     function buildCard(c) {
+        const imgSrc = c.imageUrl && c.imageUrl.startsWith('http') ? c.imageUrl : `${API_BASE}${c.imageUrl}`;
         const statusBadge = c.status === 'approved'
             ? '<span class="status-badge status-approved-badge">✅ Approved</span>'
             : c.status === 'rejected'
@@ -436,8 +437,8 @@
 
         return `
             <div class="card-item status-${c.status}" id="card-${c.id}">
-                <div class="card-image-wrap" onclick="openLightbox('${API_BASE}${c.imageUrl}')">
-                    <img src="${API_BASE}${c.imageUrl}" alt="Meeting card" loading="lazy">
+                <div class="card-image-wrap" onclick="openLightbox('${imgSrc}')">
+                    <img src="${imgSrc}" alt="Meeting card" loading="lazy">
                 </div>
                 <div class="card-body">
                     <div class="member-name">${c.memberName || 'Unknown Member'}</div>
