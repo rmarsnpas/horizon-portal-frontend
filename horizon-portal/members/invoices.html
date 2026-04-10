@@ -400,7 +400,6 @@
 
       const all = Array.isArray(payload?.invoices) ? payload.invoices : [];
 
-      debugInfo(memberId, all); // Show debug info
       const mine = all.filter((inv) => String(inv.memberId || '').trim() === String(memberId).trim());
       const unpaid = mine.filter((inv) => inv.status === 'unpaid');
       const paid = mine.filter((inv) => inv.status === 'paid');
