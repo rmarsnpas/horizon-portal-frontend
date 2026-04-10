@@ -116,6 +116,40 @@
     .hero-cta:hover{transform:translateY(-2px);box-shadow:0 6px 18px rgba(0,0,0,.18);}
     .hero-cta-primary{background:var(--amber);color:#1d1d1d;}
     .hero-cta-secondary{background:#fff;color:var(--slate);border:2.5px solid var(--slate);}
+
+    /* Floating side CTA tabs — desktop only */
+    .side-tab{
+      position:fixed;
+      top:50%;
+      z-index:900;
+      padding:.75rem 1.1rem;
+      font-size:.85rem;
+      font-weight:700;
+      text-decoration:none;
+      white-space:nowrap;
+      box-shadow:0 4px 14px rgba(0,0,0,.25);
+      transition:box-shadow .2s, transform .2s;
+      line-height:1.3;
+    }
+    .side-tab-left{
+      left:0;
+      transform:translateY(-50%);
+      border-radius:0 .5rem .5rem 0;
+      background:var(--amber);
+      color:#1d1d1d;
+    }
+    .side-tab-right{
+      right:0;
+      transform:translateY(-50%);
+      border-radius:.5rem 0 0 .5rem;
+      background:var(--slate);
+      color:#fff;
+    }
+    .side-tab-left:hover{transform:translateY(-50%) translateX(4px);box-shadow:0 6px 22px rgba(0,0,0,.32);}
+    .side-tab-right:hover{transform:translateY(-50%) translateX(-4px);box-shadow:0 6px 22px rgba(0,0,0,.32);}
+    @media(max-width:768px){
+      .side-tab{display:none;}
+    }
     
     /* Hover boxes */
     .hover-box{transition:all 0.3s ease;cursor:pointer;background:#fff;border-radius:8px;box-shadow:0 2px 4px rgba(0,0,0,0.1)}
@@ -267,6 +301,8 @@
   </script>
 </head>
 <body>
+<a href="application.html" class="side-tab side-tab-left" aria-label="Apply Now">Apply Now</a>
+<a href="contact-view.html" class="side-tab side-tab-right" aria-label="Schedule a Tour">Schedule a Tour</a>
   <a class="sr-only" href="#main">Skip to content</a>
   <header>
     <div class="wrap">
