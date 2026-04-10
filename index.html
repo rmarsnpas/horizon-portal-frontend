@@ -628,7 +628,7 @@
   }
 
   window.addEventListener('scroll', function(){
-    var should = wrap.getBoundingClientRect().bottom < 80;
+    var should = wrap.getBoundingClientRect().top < window.innerHeight * 0.55;
     if(should && !floating) splitOut();
     else if(!should && floating) rejoin();
   }, {passive:true});
