@@ -117,39 +117,33 @@
     .hero-cta-primary{background:var(--amber);color:#1d1d1d;}
     .hero-cta-secondary{background:#fff;color:var(--slate);border:2.5px solid var(--slate);}
 
-    /* Floating side CTA tabs — desktop only */
-    .side-tab{
+    /* Float-split CTA buttons — desktop only */
+    .float-cta{
       position:fixed;
       top:50%;
+      left:50%;
       z-index:900;
-      padding:.75rem 1.1rem;
-      font-size:.85rem;
+      padding:.8rem 1.7rem;
+      font-size:.95rem;
       font-weight:700;
       text-decoration:none;
+      border-radius:.6rem;
       white-space:nowrap;
-      box-shadow:0 4px 14px rgba(0,0,0,.25);
-      transition:box-shadow .2s, transform .2s;
-      line-height:1.3;
+      box-shadow:0 4px 16px rgba(0,0,0,.3);
+      opacity:0;
+      pointer-events:none;
+      transform:translateY(-50%) translateX(-50%);
+      transition:transform .55s cubic-bezier(.34,1.15,.64,1), opacity .4s ease, box-shadow .2s, filter .2s;
     }
-    .side-tab-left{
-      left:0;
-      transform:translateY(-50%);
-      border-radius:0 .5rem .5rem 0;
-      background:var(--amber);
-      color:#1d1d1d;
-    }
-    .side-tab-right{
-      right:0;
-      transform:translateY(-50%);
-      border-radius:.5rem 0 0 .5rem;
-      background:var(--slate);
-      color:#fff;
-    }
-    .side-tab-left:hover{transform:translateY(-50%) translateX(4px);box-shadow:0 6px 22px rgba(0,0,0,.32);}
-    .side-tab-right:hover{transform:translateY(-50%) translateX(-4px);box-shadow:0 6px 22px rgba(0,0,0,.32);}
-    @media(max-width:768px){
-      .side-tab{display:none;}
-    }
+    .float-cta:focus{outline:3px solid var(--amber);outline-offset:2px;}
+    .float-cta-left{background:var(--amber);color:#1d1d1d;}
+    .float-cta-right{background:var(--slate);color:#fff;}
+    .float-cta.split{opacity:1;pointer-events:auto;}
+    .float-cta-left.split{transform:translateY(-50%) translateX(calc(2.5rem - 50vw));}
+    .float-cta-right.split{transform:translateY(-50%) translateX(calc(50vw - 2.5rem - 100%));}
+    .float-cta-left.split:hover{box-shadow:0 6px 22px rgba(0,0,0,.38);filter:brightness(1.07);}
+    .float-cta-right.split:hover{box-shadow:0 6px 22px rgba(0,0,0,.38);filter:brightness(1.12);}
+    @media(max-width:768px){.float-cta{display:none;}}
     
     /* Hover boxes */
     .hover-box{transition:all 0.3s ease;cursor:pointer;background:#fff;border-radius:8px;box-shadow:0 2px 4px rgba(0,0,0,0.1)}
@@ -301,8 +295,8 @@
   </script>
 </head>
 <body>
-<a href="application.html" class="side-tab side-tab-left" aria-label="Apply Now">Apply Now</a>
-<a href="contact-view.html" class="side-tab side-tab-right" aria-label="Schedule a Tour">Schedule a Tour</a>
+<a href="application.html" class="float-cta float-cta-left" aria-label="Apply Now">Apply Now</a>
+<a href="contact-view.html" class="float-cta float-cta-right" aria-label="Schedule a Tour">Schedule a Tour</a>
   <a class="sr-only" href="#main">Skip to content</a>
   <header>
     <div class="wrap">
@@ -347,7 +341,7 @@
       <div class="trust" aria-label="Trust highlights">
         <span>Clear Expectations</span> • <span>Consistent Routines</span> • <span>A community that works</span>
       </div>
-      <div class="hero-cta-wrap">
+      <div class="hero-cta-wrap" id="heroCtas">
         <a href="application.html" class="hero-cta hero-cta-primary">Apply Now</a>
         <a href="contact-view.html" class="hero-cta hero-cta-secondary">Schedule a Tour</a>
       </div>
@@ -599,6 +593,21 @@
 <!-- 3CX Live Chat -->
 <call-us-selector phonesystem-url="https://rs10-2.ca.3cx.us" party="LiveChat100135"></call-us-selector>
 <script defer src="https://downloads-global.3cx.com/downloads/livechatandtalk/v1/callus.js" id="tcx-callus-js" charset="utf-8"></script>
+
+<!-- Float-split CTA scroll trigger -->
+<script>
+(function(){
+  var anchor = document.getElementById('heroCtas');
+  var btns = document.querySelectorAll('.float-cta');
+  function checkSplit(){
+    if(!anchor || !btns.length) return;
+    var shouldSplit = anchor.getBoundingClientRect().bottom < 80;
+    btns.forEach(function(el){ el.classList.toggle('split', shouldSplit); });
+  }
+  window.addEventListener('scroll', checkSplit, {passive:true});
+  checkSplit();
+})();
+</script>
 
 <!-- Back to top button -->
 <button id="backToTop" title="Back to top" onclick="window.scrollTo({top:0,behavior:'smooth'})" style="position:fixed;bottom:24px;left:24px;z-index:1001;background:#c98a22;color:#fff;border:none;border-radius:50%;width:48px;height:48px;font-size:22px;cursor:pointer;box-shadow:0 4px 12px rgba(0,0,0,0.2);display:none;align-items:center;justify-content:center;transition:background 0.2s,transform 0.2s;" aria-label="Back to top">&#8593;</button>
