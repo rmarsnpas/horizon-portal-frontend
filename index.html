@@ -97,6 +97,25 @@
     .expandable-content{max-height:0;overflow:hidden;transition:max-height 0.5s ease-out}
     .expandable-content.active{max-height:5000px;transition:max-height 0.8s ease-in}
     .expandable-content > div{padding-top:1.5rem}
+    .hero-cta-wrap{
+      display:flex;
+      gap:1rem;
+      justify-content:center;
+      flex-wrap:wrap;
+      margin-top:1.75rem;
+    }
+    .hero-cta{
+      display:inline-block;
+      padding:.9rem 2.2rem;
+      border-radius:.6rem;
+      font-size:1.1rem;
+      font-weight:700;
+      text-decoration:none;
+      transition:transform .15s,box-shadow .15s;
+    }
+    .hero-cta:hover{transform:translateY(-2px);box-shadow:0 6px 18px rgba(0,0,0,.18);}
+    .hero-cta-primary{background:var(--amber);color:#1d1d1d;}
+    .hero-cta-secondary{background:#fff;color:var(--slate);border:2.5px solid var(--slate);}
     
     /* Hover boxes */
     .hover-box{transition:all 0.3s ease;cursor:pointer;background:#fff;border-radius:8px;box-shadow:0 2px 4px rgba(0,0,0,0.1)}
@@ -275,7 +294,7 @@
   </header>
 
   <div class="construction-banner">
-    <span class="banner-text">Check back here often as this website is a work in progress and pages are being added and updated often.</span>
+    <span class="banner-text">Check back here soon as this website is a work in progress and pages are being added and updated often.</span>
   </div>
 
   <main id="main">
@@ -283,14 +302,18 @@
     </div>
     <img src="sunrise1.jpg" alt="Sunrise" style="width:100%;max-width:100%;display:block;margin:1rem 0;border-radius:.5rem;">
     <section class="hero wrap" aria-labelledby="hero-title">
-      <h1 id="hero-title">A safe, structured path to sober living and community</h1>
-      <p>We offer clear policies, respectful accountability, and a supportive environment so you can focus on recovery—one steady day at a time.</p>
+      <h1 id="hero-title">Rise - Recover - Rebuild</h1>
+      <p>A calm, accountable sober living community where Members rebuild their lives through structure, clarity, and shared purpose.</p>
       <p>
         <img src="HH logo grntree.jpg" alt="Horizon House logo" style="height:170px;">
       </p>
       <!-- Removed floating button from hero section -->
       <div class="trust" aria-label="Trust highlights">
-        <span>Peer driven growth</span> • <span>Accountability & guidance</span> • <span>Safety & support</span>
+        <span>Clear Expectations</span> • <span>Consistent Routines</span> • <span>A community that works</span>
+      </div>
+      <div class="hero-cta-wrap">
+        <a href="application.html" class="hero-cta hero-cta-primary">Apply Now</a>
+        <a href="contact-view.html" class="hero-cta hero-cta-secondary">Schedule a Tour</a>
       </div>
     </section>
 
