@@ -306,6 +306,16 @@
             cursor: pointer;
         }
         .btn-undo-small:hover { background: #f3f4f6; }
+        .btn-delete-small {
+            background: none;
+            border: 1px solid #fca5a5;
+            color: #dc2626;
+            padding: 6px 10px;
+            border-radius: 6px;
+            font-size: 12px;
+            cursor: pointer;
+        }
+        .btn-delete-small:hover { background: #fee2e2; }
 
         /* Lightbox */
         #lightbox {
@@ -533,6 +543,7 @@
                 <div class="approved-actions">
                     <button class="btn-view-full" onclick="openLightbox('${imgSrc}')">🔍 View</button>
                     <button class="btn-undo-small" onclick="reviewCard('${c.id}','pending')" title="Reset to pending">↩</button>
+                    <button class="btn-delete-small" onclick="deleteCard('${c.id}')" title="Permanently delete">🗑</button>
                 </div>
             </div>
         `;

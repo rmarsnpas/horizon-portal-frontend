@@ -211,6 +211,18 @@
         .status-rejected { background: #fed7e2; color: #97266d; }
         .empty-state { text-align: center; padding: 30px; color: #a0aec0; font-style: italic; }
         .loading-text { text-align: center; padding: 20px; color: #a0aec0; }
+        .btn-member-delete {
+            background: none;
+            border: 1px solid #fca5a5;
+            color: #dc2626;
+            border-radius: 6px;
+            padding: 6px 8px;
+            font-size: 14px;
+            cursor: pointer;
+            flex-shrink: 0;
+            line-height: 1;
+        }
+        .btn-member-delete:hover { background: #fee2e2; }
 
         /* Lightbox */
         #lightbox {
@@ -463,12 +475,18 @@
             const list = document.getElementById('submissionsList');
             list.style.display = 'block';
 
-            if (cards.length === 0) {
-                list.innerHTML = '<div class="empty-state">No cards submitted yet.</div>';
+            const hiddenKey = `hiddenCards_${memberId}`;
+            const hiddenIds = JSON.parse(localStorage.getItem(hiddenKey) || '[]');
+            const visibleCards = cards.filter(c => !hiddenIds.includes(c.id));
+
+            if (visibleCards.length === 0) {
+                list.innerHTML = cards.length > 0
+                    ? '<div class="empty-state">All cards removed from your list. Staff still has them on file.</div>'
+                    : '<div class="empty-state">No cards submitted yet.</div>';
                 return;
             }
 
-            list.innerHTML = cards.map(c => {
+            list.innerHTML = visibleCards.map(c => {
                 const imgSrc = c.imageUrl && c.imageUrl.startsWith('http') ? c.imageUrl : `${API_BASE}${c.imageUrl}`;
                 const isApproved = c.status === 'approved';
                 return `
@@ -481,6 +499,7 @@
                         ${c.staffNote ? `<div style="color:#c53030;font-size:12px;"><strong>Staff:</strong> ${c.staffNote}</div>` : ''}
                         <div class="submission-tap-hint">Tap to view full image</div>
                     </div>
+                    <button class="btn-member-delete" onclick="event.stopPropagation(); memberHideCard('${c.id}')" title="Remove from my list">🗑</button>
                 </div>
             `}).join('');
         } catch (err) {
@@ -518,6 +537,17 @@
     document.getElementById('lightbox').addEventListener('click', function(e) {
         if (e.target === this) closeLightbox();
     });
+
+    function memberHideCard(cardId) {
+        if (!confirm('Remove this card from your list?\n\nNote: Staff will still have it on file.')) return;
+        const key = `hiddenCards_${memberId}`;
+        const hidden = JSON.parse(localStorage.getItem(key) || '[]');
+        if (!hidden.includes(cardId)) {
+            hidden.push(cardId);
+            localStorage.setItem(key, JSON.stringify(hidden));
+        }
+        loadMyCards();
+    }
 
     loadMyCards();
 </script>
