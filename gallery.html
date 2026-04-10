@@ -88,5 +88,14 @@
 <!-- 3CX Live Chat -->
 <call-us-selector phonesystem-url="https://rs10-2.ca.3cx.us" party="LiveChat100135"></call-us-selector>
 <script defer src="https://downloads-global.3cx.com/downloads/livechatandtalk/v1/callus.js" id="tcx-callus-js" charset="utf-8"></script>
+
+<!-- Back to top button -->
+<button id="backToTop" title="Back to top" onclick="window.scrollTo({top:0,behavior:'smooth'})" style="position:fixed;bottom:24px;left:24px;z-index:1001;background:#c98a22;color:#fff;border:none;border-radius:50%;width:48px;height:48px;font-size:22px;cursor:pointer;box-shadow:0 4px 12px rgba(0,0,0,0.2);display:none;align-items:center;justify-content:center;transition:background 0.2s,transform 0.2s;" aria-label="Back to top">&#8593;</button>
+<script>
+  window.addEventListener('scroll',function(){
+    var b=document.getElementById('backToTop');
+    b.style.display=window.scrollY>300?'flex':'none';
+  });
+</script>
 </body>
 </html>
