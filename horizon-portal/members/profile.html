@@ -197,6 +197,17 @@
 
         <div class="form-row">
             <div class="form-group">
+                <label for="editFirstName">First Name</label>
+                <input type="text" id="editFirstName" placeholder="First name" autocomplete="given-name">
+            </div>
+            <div class="form-group">
+                <label for="editLastName">Last Name</label>
+                <input type="text" id="editLastName" placeholder="Last name" autocomplete="family-name">
+            </div>
+        </div>
+
+        <div class="form-row">
+            <div class="form-group">
                 <label for="editPhone">Phone Number</label>
                 <input type="tel" id="editPhone" placeholder="(760) 555-1234">
             </div>
@@ -329,6 +340,8 @@
             document.getElementById('profileCard').style.display = 'block';
 
             // Pre-fill edit form
+            document.getElementById('editFirstName').value = memberData.FIRST_NAME || '';
+            document.getElementById('editLastName').value  = memberData.LAST_NAME  || '';
             document.getElementById('editPhone').value   = memberData.PHONE || '';
             document.getElementById('editEmail').value   = memberData.EMAIL || '';
             document.getElementById('editDob').value     = toInputDate(memberData.DOB);
@@ -370,6 +383,8 @@
         try {
             const payload = {
                 id:          memberId,
+                firstName:   document.getElementById('editFirstName').value.trim(),
+                lastName:    document.getElementById('editLastName').value.trim(),
                 phone:       document.getElementById('editPhone').value.trim(),
                 email:       document.getElementById('editEmail').value.trim(),
                 dob:         document.getElementById('editDob').value,
