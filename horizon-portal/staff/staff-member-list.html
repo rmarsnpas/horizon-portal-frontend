@@ -204,6 +204,7 @@
                     <th>Email</th>
                     <th>Admit Date</th>
                     <th>Sober Date</th>
+                    <th>Bed</th>
                     <th></th>
                 </tr>
             </thead>
@@ -274,6 +275,10 @@
                     <input id="fAdmit" type="date">
                 </div>
                 <div class="form-group">
+                    <label>Discharge Date</label>
+                    <input id="fDischarge" type="date">
+                </div>
+                <div class="form-group">
                     <label>Sobriety Date</label>
                     <input id="fSober" type="date">
                 </div>
@@ -281,7 +286,23 @@
                     <label>Monthly Rate ($)</label>
                     <input id="fRate" type="number" min="0" step="0.01">
                 </div>
+
+                <div class="section-divider">Housing</div>
+                <div class="form-group">
+                    <label>Bed / Room #</label>
+                    <input id="fBed" type="text" autocomplete="off" placeholder="e.g. 2A">
+                </div>
                 <div class="form-group"></div><!-- spacer -->
+
+                <div class="section-divider">Emergency Contact</div>
+                <div class="form-group">
+                    <label>Contact Name</label>
+                    <input id="fEmerName" type="text" autocomplete="off">
+                </div>
+                <div class="form-group">
+                    <label>Contact Phone</label>
+                    <input id="fEmerPhone" type="tel" autocomplete="off">
+                </div>
 
                 <div class="section-divider">Access</div>
                 <div class="form-group">
@@ -297,6 +318,12 @@
                 <div class="form-group full">
                     <label>Internal Notes</label>
                     <textarea id="fNotes"></textarea>
+                </div>
+
+                <div class="section-divider">Custom Fields</div>
+                <div class="form-group full">
+                    <div id="customFieldsList"></div>
+                    <button type="button" class="btn btn-secondary btn-sm" onclick="addCustomField()" style="margin-top:8px">+ Add Field</button>
                 </div>
             </div>
             <div id="modalAlert"></div>
@@ -427,6 +454,7 @@
                 <td style="max-width:160px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${m.email||'—'}</td>
                 <td>${fmtDate(m.admitDate)}</td>
                 <td>${fmtDate(m.sobrietyDate)}</td>
+                <td>${m.bed||'—'}</td>
                 <td><button class="btn btn-secondary btn-sm" onclick="event.stopPropagation();openEdit('${m.id}')">Edit</button></td>
             </tr>
         `).join('');
@@ -439,13 +467,14 @@
     }
 
     function clearForm() {
-        ['fId','fFirst','fLast','fPhone','fEmail','fDob','fAdmit','fSober','fPin','fStaffPw','fNotes']
+        ['fId','fFirst','fLast','fPhone','fEmail','fDob','fAdmit','fDischarge','fSober','fPin','fStaffPw','fNotes','fBed','fEmerName','fEmerPhone']
             .forEach(id => { const el = document.getElementById(id); if (el) el.value = ''; });
         document.getElementById('fStatus').value = '1';
         document.getElementById('fGender').value = '';
         document.getElementById('fRate').value   = '';
         document.getElementById('modalAlert').textContent = '';
         document.getElementById('staffPwGroup').style.display = 'none';
+        renderCustomFields({});
     }
 
     function openAdd() {
@@ -474,10 +503,15 @@
         document.getElementById('fDob').value    = m.dob         || '';
         document.getElementById('fPhone').value  = m.phone       || '';
         document.getElementById('fEmail').value  = m.email       || '';
-        document.getElementById('fAdmit').value  = m.admitDate   || '';
-        document.getElementById('fSober').value  = m.sobrietyDate|| '';
-        document.getElementById('fRate').value   = m.rate        || '';
-        document.getElementById('fNotes').value  = m.notes       || '';
+        document.getElementById('fAdmit').value    = m.admitDate        || '';
+        document.getElementById('fDischarge').value = m.dischargeDate    || '';
+        document.getElementById('fSober').value     = m.sobrietyDate     || '';
+        document.getElementById('fRate').value      = m.rate             || '';
+        document.getElementById('fBed').value       = m.bed              || '';
+        document.getElementById('fEmerName').value  = m.emergencyContactName  || '';
+        document.getElementById('fEmerPhone').value = m.emergencyContactPhone || '';
+        document.getElementById('fNotes').value     = m.notes            || '';
+        renderCustomFields(m.customFields || {});
         // PIN and staffPw left blank on purpose — only set if changing
         toggleStaffPw();
         document.getElementById('modalOverlay').style.display = 'flex';
@@ -509,9 +543,14 @@
             phone:        document.getElementById('fPhone').value.trim(),
             email:        document.getElementById('fEmail').value.trim(),
             admitDate:    document.getElementById('fAdmit').value,
+            dischargeDate: document.getElementById('fDischarge').value,
             sobrietyDate: document.getElementById('fSober').value,
             rate:         parseFloat(document.getElementById('fRate').value) || 0,
+            bed:          document.getElementById('fBed').value.trim(),
+            emergencyContactName:  document.getElementById('fEmerName').value.trim(),
+            emergencyContactPhone: document.getElementById('fEmerPhone').value.trim(),
             notes:        document.getElementById('fNotes').value.trim(),
+            customFields: getCustomFields(),
         };
         if (pin) body.pin = pin;
         const staffPwVal = document.getElementById('fStaffPw').value.trim();
@@ -573,6 +612,41 @@
         document.getElementById('app').style.display = 'none';
         document.getElementById('authScreen').style.display = 'flex';
         document.getElementById('loginPw').value = '';
+    }
+
+    // ── Custom Fields helpers ────────────────────────────────────────────
+    function renderCustomFields(obj) {
+        const list = document.getElementById('customFieldsList');
+        if (!list) return;
+        list.innerHTML = '';
+        Object.entries(obj || {}).forEach(([k, v]) => appendCustomFieldRow(k, v));
+    }
+
+    function appendCustomFieldRow(key, val) {
+        const list = document.getElementById('customFieldsList');
+        const row  = document.createElement('div');
+        row.style.cssText = 'display:flex;gap:6px;margin-bottom:6px;align-items:center';
+        row.innerHTML = `
+            <input type="text" placeholder="Field name" value="${escHtml(key)}" style="flex:1;min-width:0" class="cf-key">
+            <input type="text" placeholder="Value" value="${escHtml(val)}" style="flex:2;min-width:0" class="cf-val">
+            <button type="button" style="background:none;border:none;cursor:pointer;font-size:18px;line-height:1;color:#e53e3e" onclick="this.parentElement.remove()" title="Remove field">&times;</button>`;
+        list.appendChild(row);
+    }
+
+    function addCustomField() { appendCustomFieldRow('', ''); }
+
+    function getCustomFields() {
+        const obj = {};
+        document.querySelectorAll('#customFieldsList > div').forEach(row => {
+            const k = row.querySelector('.cf-key').value.trim();
+            const v = row.querySelector('.cf-val').value.trim();
+            if (k) obj[k] = v;
+        });
+        return obj;
+    }
+
+    function escHtml(s) {
+        return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
     }
 
     // Restore session across page reload
