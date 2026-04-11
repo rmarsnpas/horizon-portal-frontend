@@ -1,0 +1,340 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Member Directory – Horizon House</title>
+    <style>
+        :root {
+            --hh-primary: #F58634;
+            --hh-gold: #E1C462;
+            --hh-green: #94A880;
+            --hh-bg: #FFF8F3;
+            --hh-card: #ffffff;
+            --hh-text: #222;
+        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: var(--hh-bg); min-height: 100vh; }
+
+        header {
+            background: var(--hh-primary);
+            color: #fff;
+            padding: 18px 24px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+        header h1 { font-size: 20px; }
+        .header-nav a {
+            color: #fff;
+            text-decoration: none;
+            font-size: 14px;
+            padding: 8px 14px;
+            background: rgba(255,255,255,0.2);
+            border-radius: 6px;
+            margin-left: 8px;
+        }
+        .header-nav a:hover { background: rgba(255,255,255,0.35); }
+
+        .container { max-width: 860px; margin: 30px auto; padding: 0 20px 60px; }
+
+        .notice {
+            background: #fff8f0;
+            border: 1px solid #f0e8df;
+            border-radius: 10px;
+            padding: 14px 18px;
+            font-size: 13px;
+            color: #744210;
+            margin-bottom: 22px;
+        }
+
+        .group-label {
+            font-size: 11px;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: 0.07em;
+            color: #a0aec0;
+            margin: 22px 0 10px;
+            padding-bottom: 6px;
+            border-bottom: 2px solid #f0e8df;
+        }
+
+        .member-card {
+            background: var(--hh-card);
+            border-radius: 10px;
+            padding: 16px 20px;
+            margin-bottom: 10px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+            border: 1px solid #f0e8df;
+            display: grid;
+            grid-template-columns: 1fr auto;
+            gap: 8px;
+            align-items: center;
+        }
+        .member-name {
+            font-size: 16px;
+            font-weight: 700;
+            color: var(--hh-text);
+            margin-bottom: 4px;
+        }
+        .member-admit {
+            font-size: 12px;
+            color: #a0aec0;
+            margin-bottom: 8px;
+        }
+        .member-contacts {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+        .contact-pill {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            font-size: 13px;
+            color: #4a5568;
+        }
+        .contact-pill a {
+            color: var(--hh-primary);
+            text-decoration: none;
+            font-weight: 600;
+        }
+        .contact-pill a:hover { text-decoration: underline; }
+        .contact-pill.missing { color: #c6b8a8; font-style: italic; }
+
+        .status-dot {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            flex-shrink: 0;
+        }
+        .dot-1 { background: #38a169; }
+        .dot-2 { background: #d69e2e; }
+
+        .days-pill {
+            display: inline-block;
+            background: #f0e8df;
+            color: #744210;
+            padding: 2px 9px;
+            border-radius: 10px;
+            font-size: 11px;
+            font-weight: 700;
+            white-space: nowrap;
+        }
+
+        .search-bar {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 16px;
+        }
+        .search-bar input {
+            flex: 1;
+            padding: 10px 14px;
+            border: 1.5px solid #e2d9d0;
+            border-radius: 8px;
+            font-size: 14px;
+            font-family: inherit;
+        }
+        .search-bar input:focus { outline: none; border-color: var(--hh-primary); }
+
+        .empty-state { text-align: center; padding: 40px; color: #a0aec0; font-style: italic; }
+        .loading-text { text-align: center; padding: 30px; color: #a0aec0; }
+        .access-denied { text-align: center; padding: 40px; }
+        .access-denied h2 { color: var(--hh-primary); margin-bottom: 12px; }
+
+        @media (max-width: 540px) {
+            .member-card { grid-template-columns: 1fr; }
+        }
+    </style>
+</head>
+<body>
+
+<header>
+    <h1>🏠 Member Directory</h1>
+    <div class="header-nav">
+        <a href="dashboard.html">← Dashboard</a>
+    </div>
+</header>
+
+<div class="container">
+    <div id="loadingText" class="loading-text">Loading directory…</div>
+
+    <div id="accessDenied" class="access-denied" style="display:none;">
+        <h2>🔒 Access Restricted</h2>
+        <p>The member directory is available to current residents only.</p>
+    </div>
+
+    <div id="directoryContent" style="display:none;">
+        <div class="notice">
+            📋 This directory is for residents only. Contact info is shared to help you connect with your fellow community members.
+            You can opt out of being listed by visiting <a href="profile.html" style="color:var(--hh-primary);font-weight:700;">My Profile</a>.
+        </div>
+
+        <div class="search-bar">
+            <input type="text" id="searchInput" placeholder="Search by name…" oninput="renderDirectory()">
+        </div>
+
+        <div id="status1Section">
+            <div class="group-label">Current Residents – Active (Status 1)</div>
+            <div id="status1List"></div>
+        </div>
+        <div id="status2Section">
+            <div class="group-label">Current Residents – Extended / Alumni (Status 2)</div>
+            <div id="status2List"></div>
+        </div>
+    </div>
+</div>
+
+<script>
+    const API_BASE = 'https://horizon-portal-backend-production-3532.up.railway.app';
+    const urlParams = new URLSearchParams(window.location.search);
+    const memberId  = urlParams.get('id') || localStorage.getItem('memberId');
+
+    let allMembers = [];
+    let allPrefs   = {};
+
+    function fmtDate(d) {
+        if (!d) return null;
+        const s = String(d).trim();
+        const iso = s.match(/^(\d{4})-(\d{2})-(\d{2})/);
+        if (iso) return `${iso[2]}/${iso[3]}/${iso[1]}`;
+        return s;
+    }
+
+    function daysSince(dateStr) {
+        if (!dateStr) return null;
+        const d = new Date(dateStr);
+        if (isNaN(d)) return null;
+        return Math.floor((Date.now() - d.getTime()) / 86400000);
+    }
+
+    function getField(m, ...keys) {
+        for (const k of keys) {
+            if (m[k] !== undefined && m[k] !== null && m[k] !== '') return String(m[k]).trim();
+        }
+        return '';
+    }
+
+    function buildCard(m, statusNum) {
+        const firstName = getField(m, 'FIRST_NAME', 'FIRST\r\nNAME', 'FIRST\nNAME', 'first_name');
+        const lastName  = getField(m, 'LAST_NAME',  'LAST\r\nNAME',  'LAST\nNAME',  'last_name');
+        const name      = `${firstName} ${lastName}`.trim() || 'Unknown Member';
+        const phone     = getField(m, 'PHONE', 'phone');
+        const email     = getField(m, 'EMAIL', 'email');
+        const admitRaw  = getField(m, 'ADMIT_DATE', 'ADMIT\r\nDATE', 'admit_date');
+        const admitFmt  = fmtDate(admitRaw);
+        const days      = daysSince(admitRaw);
+        const dotClass  = statusNum === 1 ? 'dot-1' : 'dot-2';
+
+        const admitLine = admitFmt
+            ? `Admitted ${admitFmt}${days !== null ? ` &nbsp;<span class="days-pill">${days} day${days !== 1 ? 's' : ''}</span>` : ''}`
+            : 'Admit date not on file';
+
+        const phoneHtml = phone
+            ? `<span class="contact-pill">📞 <a href="tel:${phone}">${phone}</a></span>`
+            : `<span class="contact-pill missing">📞 No phone on file</span>`;
+
+        const emailHtml = email
+            ? `<span class="contact-pill">✉️ <a href="mailto:${email}">${email}</a></span>`
+            : `<span class="contact-pill missing">✉️ No email on file</span>`;
+
+        return `
+            <div class="member-card">
+                <div>
+                    <div class="member-name"><span class="status-dot ${dotClass}" style="display:inline-block;vertical-align:middle;margin-right:6px;"></span>${name}</div>
+                    <div class="member-admit">${admitLine}</div>
+                    <div class="member-contacts">${phoneHtml}${emailHtml}</div>
+                </div>
+            </div>`;
+    }
+
+    function renderDirectory() {
+        const q = (document.getElementById('searchInput').value || '').toLowerCase().trim();
+
+        const optedOut = new Set(
+            Object.entries(allPrefs)
+                .filter(([id, p]) => p && p.directoryOptOut)
+                .map(([id]) => String(id))
+        );
+
+        function filterGroup(statusNum) {
+            return allMembers.filter(m => {
+                const st = parseInt(m.STATUS || m.status || m.STATU || 0);
+                if (st !== statusNum) return false;
+                const id = getField(m, 'ID', 'id');
+                if (optedOut.has(id)) return false;
+                if (q) {
+                    const fn = getField(m, 'FIRST_NAME', 'FIRST\r\nNAME', 'first_name').toLowerCase();
+                    const ln = getField(m, 'LAST_NAME',  'LAST\r\nNAME',  'last_name').toLowerCase();
+                    if (!fn.includes(q) && !ln.includes(q)) return false;
+                }
+                return true;
+            });
+        }
+
+        const s1 = filterGroup(1);
+        const s2 = filterGroup(2);
+
+        document.getElementById('status1List').innerHTML = s1.length
+            ? s1.map(m => buildCard(m, 1)).join('')
+            : '<div class="empty-state">No residents in this group.</div>';
+
+        document.getElementById('status2Section').style.display = s2.length ? '' : 'none';
+        document.getElementById('status2List').innerHTML = s2.map(m => buildCard(m, 2)).join('');
+    }
+
+    async function loadDirectory() {
+        if (!memberId) {
+            document.getElementById('loadingText').style.display = 'none';
+            document.getElementById('accessDenied').style.display = 'block';
+            return;
+        }
+
+        try {
+            // First verify this member has status 1 or 2
+            const meRes  = await fetch(`${API_BASE}/api/getMember?id=${encodeURIComponent(memberId)}`);
+            const meData = await meRes.json();
+
+            if (!meData) {
+                document.getElementById('loadingText').style.display = 'none';
+                document.getElementById('accessDenied').style.display = 'block';
+                return;
+            }
+
+            const myStatus = parseInt(meData.STATU || 0);
+            if (myStatus !== 1 && myStatus !== 2) {
+                document.getElementById('loadingText').style.display = 'none';
+                document.getElementById('accessDenied').style.display = 'block';
+                return;
+            }
+
+            // Load all members and all prefs
+            const [membersRes, prefsRes] = await Promise.all([
+                fetch(`${API_BASE}/api/members`),
+                fetch(`${API_BASE}/api/memberPrefs?id=all`).catch(() => new Response('{}'))
+            ]);
+            allMembers = await membersRes.json();
+
+            // api/memberPrefs?id=all may 400; in that case load prefs per-member lazily won't work at scale
+            // Instead we parse the body safely
+            try {
+                const raw = await prefsRes.text();
+                allPrefs = JSON.parse(raw);
+                // If response is a single member's prefs object, treat as empty set
+                if (allPrefs && !Object.values(allPrefs).some(v => typeof v === 'object')) allPrefs = {};
+            } catch (e) { allPrefs = {}; }
+
+            document.getElementById('loadingText').style.display = 'none';
+            document.getElementById('directoryContent').style.display = 'block';
+            renderDirectory();
+        } catch (err) {
+            document.getElementById('loadingText').textContent = 'Error loading directory. Please try again.';
+        }
+    }
+
+    loadDirectory();
+</script>
+</body>
+</html>

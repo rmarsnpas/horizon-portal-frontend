@@ -1,0 +1,412 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Profile – Horizon House</title>
+    <style>
+        :root {
+            --hh-primary: #F58634;
+            --hh-gold: #E1C462;
+            --hh-green: #94A880;
+            --hh-bg: #FFF8F3;
+            --hh-card: #ffffff;
+            --hh-text: #222;
+            --slate: #2b3440;
+        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: var(--hh-bg); min-height: 100vh; }
+
+        header {
+            background: var(--hh-primary);
+            color: #fff;
+            padding: 18px 24px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+        header h1 { font-size: 20px; }
+        .header-nav a {
+            color: #fff;
+            text-decoration: none;
+            font-size: 14px;
+            padding: 8px 14px;
+            background: rgba(255,255,255,0.2);
+            border-radius: 6px;
+            margin-left: 8px;
+        }
+        .header-nav a:hover { background: rgba(255,255,255,0.35); }
+
+        .container { max-width: 680px; margin: 30px auto; padding: 0 20px 60px; }
+
+        .section-card {
+            background: var(--hh-card);
+            border-radius: 12px;
+            padding: 28px;
+            box-shadow: 0 3px 12px rgba(0,0,0,0.08);
+            margin-bottom: 24px;
+            border: 1px solid #f0e8df;
+        }
+        .section-card h2 {
+            color: var(--hh-primary);
+            font-size: 18px;
+            margin-bottom: 18px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid var(--hh-gold);
+        }
+
+        .info-row {
+            display: grid;
+            grid-template-columns: 160px 1fr;
+            gap: 8px;
+            padding: 10px 0;
+            border-bottom: 1px solid #f0e8df;
+            align-items: center;
+        }
+        .info-row:last-child { border-bottom: none; }
+        .info-label {
+            font-size: 13px;
+            font-weight: 700;
+            color: #718096;
+            text-transform: uppercase;
+            letter-spacing: 0.04em;
+        }
+        .info-value {
+            font-size: 15px;
+            color: var(--hh-text);
+            font-weight: 600;
+        }
+        .info-value.missing {
+            color: #a0aec0;
+            font-style: italic;
+            font-weight: 400;
+        }
+        .days-pill {
+            display: inline-block;
+            background: var(--hh-primary);
+            color: #fff;
+            padding: 3px 10px;
+            border-radius: 12px;
+            font-size: 13px;
+            font-weight: 700;
+            margin-left: 8px;
+        }
+        .days-pill.green { background: var(--hh-green); }
+
+        /* Edit form */
+        .form-group { display: flex; flex-direction: column; gap: 5px; margin-bottom: 16px; }
+        .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 16px; }
+        label { font-size: 13px; font-weight: 700; color: #4a5568; }
+        input[type="text"], input[type="tel"], input[type="email"], input[type="date"], input[type="password"] {
+            padding: 10px 12px;
+            border: 1.5px solid #e2d9d0;
+            border-radius: 8px;
+            font-size: 14px;
+            color: var(--hh-text);
+            background: #fafafa;
+            font-family: inherit;
+            transition: border-color 0.2s;
+        }
+        input:focus { outline: none; border-color: var(--hh-primary); background: #fff; }
+
+        .opt-out-row {
+            display: flex;
+            align-items: flex-start;
+            gap: 10px;
+            background: #fff8f0;
+            border: 1px solid #f0e8df;
+            border-radius: 8px;
+            padding: 14px;
+            margin-bottom: 16px;
+        }
+        .opt-out-row input[type="checkbox"] {
+            width: 18px;
+            height: 18px;
+            margin-top: 2px;
+            accent-color: var(--hh-primary);
+            flex-shrink: 0;
+        }
+        .opt-out-row label {
+            font-size: 14px;
+            font-weight: 600;
+            color: #4a5568;
+            cursor: pointer;
+        }
+        .opt-out-row label small {
+            display: block;
+            font-weight: 400;
+            color: #718096;
+            margin-top: 3px;
+            font-size: 12px;
+        }
+
+        .pin-row { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+
+        .btn-save {
+            background: var(--hh-primary);
+            color: #fff;
+            border: none;
+            padding: 13px 32px;
+            border-radius: 8px;
+            font-size: 15px;
+            font-weight: 700;
+            cursor: pointer;
+            width: 100%;
+            transition: background 0.2s;
+            margin-top: 4px;
+        }
+        .btn-save:hover { background: #d4722a; }
+        .btn-save:disabled { background: #ccc; cursor: not-allowed; }
+
+        .alert { padding: 12px 16px; border-radius: 8px; margin-bottom: 14px; font-weight: 600; display: none; }
+        .alert.success { background: #f0fff4; color: #276749; border: 1px solid #9ae6b4; display: block; }
+        .alert.error   { background: #fff5f5; color: #c53030; border: 1px solid #feb2b2; display: block; }
+
+        .loading-text { text-align: center; padding: 30px; color: #a0aec0; }
+
+        @media (max-width: 540px) {
+            .form-row, .pin-row { grid-template-columns: 1fr; }
+            .info-row { grid-template-columns: 1fr; gap: 2px; }
+        }
+    </style>
+</head>
+<body>
+
+<header>
+    <h1>👤 My Profile</h1>
+    <div class="header-nav">
+        <a href="dashboard.html">← Dashboard</a>
+    </div>
+</header>
+
+<div class="container">
+    <div id="loadingText" class="loading-text">Loading your profile…</div>
+
+    <!-- Profile summary card -->
+    <div id="profileCard" class="section-card" style="display:none;">
+        <h2>Profile Information</h2>
+        <div id="profileRows"></div>
+    </div>
+
+    <!-- Edit form card -->
+    <div id="editCard" class="section-card" style="display:none;">
+        <h2>✏️ Update My Information</h2>
+        <div id="editAlert" class="alert"></div>
+
+        <div class="form-row">
+            <div class="form-group">
+                <label for="editPhone">Phone Number</label>
+                <input type="tel" id="editPhone" placeholder="(760) 555-1234">
+            </div>
+            <div class="form-group">
+                <label for="editEmail">Email Address</label>
+                <input type="email" id="editEmail" placeholder="you@example.com">
+            </div>
+        </div>
+
+        <div class="form-row">
+            <div class="form-group">
+                <label for="editDob">Date of Birth</label>
+                <input type="date" id="editDob">
+            </div>
+            <div class="form-group">
+                <label for="editSoberDate">Sobriety Date</label>
+                <input type="date" id="editSoberDate">
+            </div>
+        </div>
+
+        <div class="opt-out-row">
+            <input type="checkbox" id="directoryOptOut">
+            <label for="directoryOptOut">
+                Opt out of member phone directory
+                <small>When checked, your name and contact info will not appear in the member directory visible to other residents. Staff can still see your full profile.</small>
+            </label>
+        </div>
+
+        <div class="section-card" style="background:#f8fafc; box-shadow:none; border:1.5px solid #e2d9d0; padding:18px; margin-bottom:16px;">
+            <h2 style="font-size:15px; margin-bottom:14px; border-bottom-color:#e2d9d0;">🔑 Change PIN</h2>
+            <div class="pin-row">
+                <div class="form-group">
+                    <label for="editPin">New PIN</label>
+                    <input type="password" id="editPin" placeholder="4-6 digits" maxlength="6" inputmode="numeric">
+                </div>
+                <div class="form-group">
+                    <label for="editPinConfirm">Confirm PIN</label>
+                    <input type="password" id="editPinConfirm" placeholder="Repeat PIN" maxlength="6" inputmode="numeric">
+                </div>
+            </div>
+            <p style="font-size:12px;color:#718096;">Leave blank to keep your current PIN.</p>
+        </div>
+
+        <button class="btn-save" id="saveBtn" onclick="saveProfile()">Save Changes</button>
+    </div>
+</div>
+
+<script>
+    const API_BASE = 'https://horizon-portal-backend-production-3532.up.railway.app';
+    const urlParams = new URLSearchParams(window.location.search);
+    const memberId = urlParams.get('id') || localStorage.getItem('memberId');
+    let memberData = null;
+
+    function fmtDate(d) {
+        if (!d) return null;
+        const s = String(d).trim();
+        // ISO yyyy-mm-dd
+        const iso = s.match(/^(\d{4})-(\d{2})-(\d{2})/);
+        if (iso) return `${iso[2]}/${iso[3]}/${iso[1]}`;
+        return s;
+    }
+
+    function toInputDate(d) {
+        if (!d) return '';
+        const s = String(d).trim();
+        if (/^\d{4}-\d{2}-\d{2}$/.test(s)) return s;
+        const iso = s.match(/^(\d{4})-(\d{2})-(\d{2})/);
+        if (iso) return `${iso[1]}-${iso[2]}-${iso[3]}`;
+        return '';
+    }
+
+    function daysSince(dateStr) {
+        if (!dateStr) return null;
+        const d = new Date(dateStr);
+        if (isNaN(d)) return null;
+        return Math.floor((Date.now() - d.getTime()) / 86400000);
+    }
+
+    function row(label, value, extra) {
+        const val = value || '';
+        const missing = !val;
+        let display = missing
+            ? '<span class="info-value missing">Not on file</span>'
+            : `<span class="info-value">${val}${extra || ''}</span>`;
+        return `<div class="info-row"><span class="info-label">${label}</span>${display}</div>`;
+    }
+
+    async function loadProfile() {
+        if (!memberId) {
+            document.getElementById('loadingText').textContent = 'Please log in to view your profile.';
+            return;
+        }
+
+        try {
+            const [memberRes, prefsRes] = await Promise.all([
+                fetch(`${API_BASE}/api/getMember?id=${encodeURIComponent(memberId)}`),
+                fetch(`${API_BASE}/api/memberPrefs?id=${encodeURIComponent(memberId)}`)
+            ]);
+            memberData = await memberRes.json();
+            const prefs = await prefsRes.json().catch(() => ({}));
+
+            document.getElementById('loadingText').style.display = 'none';
+
+            if (!memberData) {
+                document.getElementById('loadingText').style.display = 'block';
+                document.getElementById('loadingText').textContent = 'Member not found.';
+                return;
+            }
+
+            // Build profile summary rows
+            const admitDays = daysSince(memberData.ADMIT_DATE);
+            const soberDays = daysSince(memberData.SOBRIETY_DATE);
+            const admitExtra = admitDays !== null
+                ? ` <span class="days-pill">${admitDays} day${admitDays !== 1 ? 's' : ''}</span>` : '';
+            const soberExtra = soberDays !== null
+                ? ` <span class="days-pill green">${soberDays} day${soberDays !== 1 ? 's' : ''} sober</span>` : '';
+
+            document.getElementById('profileRows').innerHTML = [
+                row('Member ID',   memberData.ID),
+                row('First Name',  memberData.FIRST_NAME),
+                row('Last Name',   memberData.LAST_NAME),
+                row('Date of Birth', fmtDate(memberData.DOB)),
+                row('Phone',       memberData.PHONE),
+                row('Email',       memberData.EMAIL),
+                row('Admit Date',  fmtDate(memberData.ADMIT_DATE), admitExtra),
+                row('Sobriety Date', fmtDate(memberData.SOBRIETY_DATE), soberExtra),
+            ].join('');
+
+            document.getElementById('profileCard').style.display = 'block';
+
+            // Pre-fill edit form
+            document.getElementById('editPhone').value   = memberData.PHONE || '';
+            document.getElementById('editEmail').value   = memberData.EMAIL || '';
+            document.getElementById('editDob').value     = toInputDate(memberData.DOB);
+            document.getElementById('editSoberDate').value = toInputDate(memberData.SOBRIETY_DATE);
+            document.getElementById('directoryOptOut').checked = !!(prefs.directoryOptOut);
+
+            document.getElementById('editCard').style.display = 'block';
+
+        } catch (err) {
+            document.getElementById('loadingText').textContent = 'Error loading profile. Please try again.';
+        }
+    }
+
+    function showAlert(msg, type) {
+        const el = document.getElementById('editAlert');
+        el.textContent = msg;
+        el.className = 'alert ' + type;
+        el.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+    }
+
+    async function saveProfile() {
+        const pin        = document.getElementById('editPin').value.trim();
+        const pinConfirm = document.getElementById('editPinConfirm').value.trim();
+        const optOut     = document.getElementById('directoryOptOut').checked;
+
+        if (pin && pin !== pinConfirm) {
+            showAlert('PINs do not match.', 'error');
+            return;
+        }
+        if (pin && !/^\d{4,6}$/.test(pin)) {
+            showAlert('PIN must be 4–6 digits.', 'error');
+            return;
+        }
+
+        const btn = document.getElementById('saveBtn');
+        btn.disabled = true;
+        btn.textContent = 'Saving…';
+
+        try {
+            const payload = {
+                id:          memberId,
+                phone:       document.getElementById('editPhone').value.trim(),
+                email:       document.getElementById('editEmail').value.trim(),
+                dob:         document.getElementById('editDob').value,
+                sobrietyDate: document.getElementById('editSoberDate').value,
+            };
+            if (pin) payload.pin = pin;
+
+            const [profileRes, prefsRes] = await Promise.all([
+                fetch(`${API_BASE}/api/updateMember`, {
+                    method: 'PATCH',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                }),
+                fetch(`${API_BASE}/api/memberPrefs`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ id: memberId, directoryOptOut: optOut })
+                })
+            ]);
+
+            const result = await profileRes.json();
+            if (result.success) {
+                showAlert('✅ Profile updated successfully!', 'success');
+                document.getElementById('editPin').value = '';
+                document.getElementById('editPinConfirm').value = '';
+                loadProfile(); // refresh display
+            } else {
+                showAlert('Error: ' + (result.error || 'Update failed.'), 'error');
+            }
+        } catch (err) {
+            showAlert('Connection error. Please try again.', 'error');
+        }
+
+        btn.disabled = false;
+        btn.textContent = 'Save Changes';
+    }
+
+    loadProfile();
+</script>
+</body>
+</html>
