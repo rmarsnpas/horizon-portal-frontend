@@ -228,6 +228,13 @@
             </div>
         </div>
 
+        <div class="form-row" style="margin-bottom:8px;">
+            <div class="form-group">
+                <label for="editNickname">Nickname <small style="font-weight:400;color:#a0856b;">(shown in member directory)</small></label>
+                <input type="text" id="editNickname" placeholder="e.g. Bobby" autocomplete="off">
+            </div>
+        </div>
+
         <div class="opt-out-row">
             <input type="checkbox" id="directoryOptOut">
             <label for="directoryOptOut">
@@ -347,6 +354,7 @@
             document.getElementById('editDob').value     = toInputDate(memberData.DOB);
             document.getElementById('editSoberDate').value = toInputDate(memberData.SOBRIETY_DATE);
             document.getElementById('directoryOptOut').checked = !!(prefs.directoryOptOut);
+            document.getElementById('editNickname').value = prefs.nickname || '';
 
             document.getElementById('editCard').style.display = 'block';
 
@@ -401,7 +409,7 @@
                 fetch(`${API_BASE}/api/memberPrefs`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ id: memberId, directoryOptOut: optOut })
+                    body: JSON.stringify({ id: memberId, directoryOptOut: optOut, nickname: document.getElementById('editNickname').value.trim() })
                 })
             ]);
 

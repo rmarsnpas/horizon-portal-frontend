@@ -217,10 +217,11 @@
         return '';
     }
 
-    function buildCard(m, statusNum) {
+    function buildCard(m, statusNum, prefs) {
         const firstName = getField(m, 'FIRST_NAME', 'FIRST\r\nNAME', 'FIRST\nNAME', 'first_name');
         const lastName  = getField(m, 'LAST_NAME',  'LAST\r\nNAME',  'LAST\nNAME',  'last_name');
         const name      = `${firstName} ${lastName}`.trim() || 'Unknown Member';
+        const nickname  = (prefs && prefs.nickname) ? prefs.nickname : '';
         const phone     = getField(m, 'PHONE', 'phone');
         const email     = getField(m, 'EMAIL', 'email');
         const admitRaw  = getField(m, 'ADMIT_DATE', 'ADMIT\nDATE', 'ADMIT\r\nDATE', 'ADMIT DATE', 'admit_date');
@@ -243,7 +244,7 @@
         return `
             <div class="member-card">
                 <div>
-                    <div class="member-name"><span class="status-dot ${dotClass}" style="display:inline-block;vertical-align:middle;margin-right:6px;"></span>${name}</div>
+                    <div class="member-name"><span class="status-dot ${dotClass}" style="display:inline-block;vertical-align:middle;margin-right:6px;"></span>${name}${nickname ? ` <span style="font-size:13px;color:#a0856b;font-weight:400;">"${nickname}"</span>` : ''}</div>
                     <div class="member-admit">${admitLine}</div>
                     <div class="member-contacts">${phoneHtml}${emailHtml}</div>
                 </div>
@@ -278,11 +279,11 @@
         const s2 = filterGroup(2);
 
         document.getElementById('status1List').innerHTML = s1.length
-            ? s1.map(m => buildCard(m, 1)).join('')
+            ? s1.map(m => buildCard(m, 1, allPrefs[getField(m, 'ID', 'id')] || {})).join('')
             : '<div class="empty-state">No residents in this group.</div>';
 
         document.getElementById('status2Section').style.display = s2.length ? '' : 'none';
-        document.getElementById('status2List').innerHTML = s2.map(m => buildCard(m, 2)).join('');
+        document.getElementById('status2List').innerHTML = s2.map(m => buildCard(m, 2, allPrefs[getField(m, 'ID', 'id')] || {})).join('');
     }
 
     async function loadDirectory() {
