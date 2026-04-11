@@ -1,0 +1,592 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Member Management — Horizon House Staff</title>
+    <style>
+        :root {
+            --hh-primary: #F58634;
+            --hh-gold: #E1C462;
+            --hh-green: #94A880;
+            --hh-bg: #FFF8F3;
+        }
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body { font-family: 'Segoe UI', system-ui, sans-serif; background: var(--hh-bg); color: #2d2d2d; min-height: 100vh; }
+
+        /* ── Auth Screen ─────────────────────────────────────────────── */
+        #authScreen {
+            display: flex; align-items: center; justify-content: center;
+            min-height: 100vh; padding: 24px;
+        }
+        .auth-card {
+            background: #fff; border-radius: 16px; padding: 40px 36px;
+            box-shadow: 0 4px 24px rgba(0,0,0,0.10); width: 100%; max-width: 380px;
+            text-align: center;
+        }
+        .auth-card h1 { font-size: 22px; color: var(--hh-primary); margin-bottom: 4px; }
+        .auth-card p  { font-size: 13px; color: #718096; margin-bottom: 24px; }
+        .auth-card input {
+            width: 100%; padding: 11px 14px; border: 1.5px solid #e2e8f0;
+            border-radius: 8px; font-size: 15px; margin-bottom: 12px;
+        }
+        .auth-card input:focus { outline: none; border-color: var(--hh-primary); }
+        #authAlert { color: #e53e3e; font-size: 13px; margin-bottom: 12px; display: none; }
+
+        /* ── Shared Buttons ──────────────────────────────────────────── */
+        .btn { padding: 10px 18px; border: none; border-radius: 8px; font-size: 14px; font-weight: 600; cursor: pointer; transition: opacity .15s; }
+        .btn:hover { opacity: .85; }
+        .btn:disabled { opacity: .5; cursor: default; }
+        .btn-primary  { background: var(--hh-primary); color: #fff; }
+        .btn-secondary{ background: #e2e8f0; color: #4a5568; }
+        .btn-danger   { background: #fed7d7; color: #c53030; }
+        .btn-sm       { padding: 5px 12px; font-size: 12px; }
+        .auth-card .btn { width: 100%; padding: 12px; font-size: 15px; margin-top: 4px; }
+
+        /* ── App Layout ──────────────────────────────────────────────── */
+        #app { display: none; }
+        header {
+            background: var(--hh-primary); color: #fff; padding: 0 24px;
+            display: flex; align-items: center; justify-content: space-between;
+            height: 56px; position: sticky; top: 0; z-index: 100; box-shadow: 0 2px 8px rgba(0,0,0,.12);
+        }
+        header h1 { font-size: 18px; font-weight: 700; }
+        .staff-name { font-size: 13px; opacity: .85; margin-left: 8px; }
+
+        /* ── Toolbar ─────────────────────────────────────────────────── */
+        .toolbar {
+            padding: 14px 24px; background: #fff; border-bottom: 1px solid #e2e8f0;
+            display: flex; flex-wrap: wrap; gap: 10px; align-items: center;
+        }
+        .filter-tabs { display: flex; gap: 6px; flex-wrap: wrap; flex: 1; }
+        .tab {
+            padding: 6px 14px; border-radius: 20px; border: 1.5px solid #e2e8f0;
+            background: #fff; font-size: 13px; font-weight: 600; cursor: pointer; color: #4a5568;
+            transition: all .15s;
+        }
+        .tab.active { background: var(--hh-primary); border-color: var(--hh-primary); color: #fff; }
+        .toolbar-right { display: flex; gap: 8px; align-items: center; }
+        #searchInput {
+            padding: 8px 14px; border: 1.5px solid #e2e8f0; border-radius: 8px;
+            font-size: 14px; width: 200px;
+        }
+        #searchInput:focus { outline: none; border-color: var(--hh-primary); }
+
+        /* ── Import Banner ───────────────────────────────────────────── */
+        #importBanner {
+            margin: 16px 24px; padding: 14px 18px; background: #fffbeb;
+            border: 1.5px solid var(--hh-gold); border-radius: 10px;
+            display: flex; align-items: center; justify-content: space-between; gap: 12px;
+        }
+        #importBanner p { font-size: 14px; color: #744210; }
+
+        /* ── Table ───────────────────────────────────────────────────── */
+        .table-wrap { padding: 16px 24px; overflow-x: auto; }
+        table { width: 100%; border-collapse: collapse; background: #fff; border-radius: 12px; overflow: hidden; box-shadow: 0 1px 8px rgba(0,0,0,.06); }
+        thead { background: #f8fafc; }
+        th { padding: 11px 14px; text-align: left; font-size: 12px; font-weight: 700; color: #718096; text-transform: uppercase; letter-spacing: .04em; border-bottom: 1px solid #e2e8f0; }
+        td { padding: 11px 14px; font-size: 14px; border-bottom: 1px solid #f0f4f8; vertical-align: middle; }
+        tr:last-child td { border-bottom: none; }
+        tbody tr:hover { background: #fffbf5; cursor: pointer; }
+        td code { font-size: 12px; background: #f0f4f8; padding: 2px 6px; border-radius: 4px; }
+
+        /* ── Status Badges ───────────────────────────────────────────── */
+        .badge { display: inline-block; padding: 3px 10px; border-radius: 12px; font-size: 12px; font-weight: 700; color: #fff; }
+        .badge-0 { background: #a0aec0; }
+        .badge-1 { background: #48bb78; }
+        .badge-2 { background: #ecc94b; color: #744210; }
+        .badge-3 { background: #ed8936; }
+        .badge-4 { background: #4299e1; }
+        .badge-5 { background: #805ad5; }
+
+        /* ── Empty / Loading ─────────────────────────────────────────── */
+        #emptyState { display: none; text-align: center; padding: 48px; color: #a0aec0; font-size: 15px; }
+
+        /* ── Modal ───────────────────────────────────────────────────── */
+        .modal-overlay {
+            display: none; position: fixed; inset: 0; background: rgba(0,0,0,.45);
+            z-index: 200; align-items: center; justify-content: center; padding: 16px;
+        }
+        .modal {
+            background: #fff; border-radius: 16px; width: 100%; max-width: 680px;
+            max-height: 90vh; overflow-y: auto; box-shadow: 0 8px 40px rgba(0,0,0,.18);
+        }
+        .modal-header {
+            padding: 20px 24px 16px; display: flex; align-items: center;
+            justify-content: space-between; border-bottom: 1px solid #e2e8f0; position: sticky; top: 0; background: #fff; z-index: 1;
+        }
+        .modal-header h2 { font-size: 18px; color: var(--hh-primary); }
+        .modal-close { background: none; border: none; font-size: 22px; cursor: pointer; color: #a0aec0; line-height: 1; padding: 0 4px; }
+        .modal-body { padding: 20px 24px; }
+        .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+        .form-group { display: flex; flex-direction: column; gap: 5px; }
+        .form-group.full { grid-column: 1 / -1; }
+        .form-group label { font-size: 12px; font-weight: 700; color: #718096; text-transform: uppercase; letter-spacing: .04em; }
+        .form-group input, .form-group select, .form-group textarea {
+            padding: 9px 12px; border: 1.5px solid #e2e8f0; border-radius: 8px; font-size: 14px; font-family: inherit;
+        }
+        .form-group input:focus, .form-group select:focus, .form-group textarea:focus {
+            outline: none; border-color: var(--hh-primary);
+        }
+        .form-group textarea { resize: vertical; min-height: 60px; }
+        #modalAlert { font-size: 13px; color: #e53e3e; margin-top: 12px; min-height: 18px; }
+        .modal-footer {
+            padding: 16px 24px; border-top: 1px solid #e2e8f0; display: flex;
+            gap: 10px; justify-content: flex-end; position: sticky; bottom: 0; background: #fff;
+        }
+        .section-divider { grid-column: 1 / -1; border-top: 1px solid #e2e8f0; padding-top: 10px; margin-top: 4px; font-size: 11px; font-weight: 700; color: #a0aec0; text-transform: uppercase; letter-spacing: .06em; }
+
+        /* ── Mobile ──────────────────────────────────────────────────── */
+        @media (max-width: 640px) {
+            .toolbar { flex-direction: column; align-items: stretch; }
+            .toolbar-right { justify-content: space-between; }
+            #searchInput { width: 100%; }
+            .table-wrap th:nth-child(5), .table-wrap td:nth-child(5) { display: none; }
+            .form-grid { grid-template-columns: 1fr; }
+        }
+    </style>
+</head>
+<body>
+
+<!-- ── Auth Screen ─────────────────────────────────────────────────────── -->
+<div id="authScreen">
+    <div class="auth-card">
+        <h1>Member Management</h1>
+        <p>Staff access only</p>
+        <div id="authAlert"></div>
+        <input id="loginId" type="text" placeholder="Staff Member ID" autocomplete="username">
+        <input id="loginPw" type="password" placeholder="Staff Password" autocomplete="current-password"
+               onkeydown="if(event.key==='Enter') login()">
+        <button class="btn btn-primary" onclick="login()">Sign In</button>
+    </div>
+</div>
+
+<!-- ── Main App ─────────────────────────────────────────────────────────── -->
+<div id="app">
+    <header>
+        <div style="display:flex;align-items:center;gap:8px;">
+            <h1>Member Management</h1>
+            <span class="staff-name" id="staffName"></span>
+        </div>
+        <div style="display:flex;gap:8px;align-items:center;">
+            <span id="memberCount" style="font-size:13px;opacity:.8;"></span>
+            <button class="btn btn-secondary btn-sm" onclick="logout()">Sign Out</button>
+        </div>
+    </header>
+
+    <div class="toolbar">
+        <div class="filter-tabs">
+            <button class="tab active" data-filter="active"   onclick="setFilter('active',this)">Active (1)</button>
+            <button class="tab"        data-filter="extended" onclick="setFilter('extended',this)">Extended (2)</button>
+            <button class="tab"        data-filter="staff"    onclick="setFilter('staff',this)">Staff</button>
+            <button class="tab"        data-filter="all"      onclick="setFilter('all',this)">All</button>
+            <button class="tab"        data-filter="inactive" onclick="setFilter('inactive',this)">Inactive</button>
+        </div>
+        <div class="toolbar-right">
+            <input id="searchInput" type="search" placeholder="Search name or ID…" oninput="renderTable()">
+            <button class="btn btn-primary btn-sm" onclick="openAdd()">+ Add Member</button>
+        </div>
+    </div>
+
+    <div id="importBanner" style="display:none">
+        <p>📋 No members in the database yet. Click <strong>Import from Excel</strong> to migrate your existing <code>members.xlsx</code> data.</p>
+        <button id="importBtn" class="btn btn-primary btn-sm" onclick="importFromExcel()">Import from Excel</button>
+    </div>
+
+    <div class="table-wrap">
+        <table id="memberTable">
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Name</th>
+                    <th>Status</th>
+                    <th>Phone</th>
+                    <th>Email</th>
+                    <th>Admit Date</th>
+                    <th>Sober Date</th>
+                    <th></th>
+                </tr>
+            </thead>
+            <tbody id="tableBody"></tbody>
+        </table>
+        <div id="emptyState">No members match this filter.</div>
+    </div>
+</div>
+
+<!-- ── Add / Edit Modal ─────────────────────────────────────────────────── -->
+<div class="modal-overlay" id="modalOverlay" onclick="if(event.target===this)closeModal()">
+    <div class="modal">
+        <div class="modal-header">
+            <h2 id="modalTitle">Add New Member</h2>
+            <button class="modal-close" onclick="closeModal()">&times;</button>
+        </div>
+        <div class="modal-body">
+            <div class="form-grid">
+                <!-- Identity -->
+                <div class="form-group">
+                    <label>Member ID *</label>
+                    <input id="fId" type="text" placeholder="e.g. 0101">
+                </div>
+                <div class="form-group">
+                    <label>Status</label>
+                    <select id="fStatus" onchange="toggleStaffPw()">
+                        <option value="1">Active Resident</option>
+                        <option value="2">Extended Stay</option>
+                        <option value="4">Staff</option>
+                        <option value="5">Admin / Manager</option>
+                        <option value="0">Inactive / Discharged</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>First Name *</label>
+                    <input id="fFirst" type="text" autocomplete="off">
+                </div>
+                <div class="form-group">
+                    <label>Last Name *</label>
+                    <input id="fLast" type="text" autocomplete="off">
+                </div>
+                <div class="form-group">
+                    <label>Gender</label>
+                    <select id="fGender">
+                        <option value="">—</option>
+                        <option value="M">Male</option>
+                        <option value="F">Female</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Date of Birth</label>
+                    <input id="fDob" type="date">
+                </div>
+
+                <div class="section-divider">Contact</div>
+                <div class="form-group">
+                    <label>Phone</label>
+                    <input id="fPhone" type="tel" autocomplete="off">
+                </div>
+                <div class="form-group">
+                    <label>Email</label>
+                    <input id="fEmail" type="email" autocomplete="off">
+                </div>
+
+                <div class="section-divider">Dates &amp; Financials</div>
+                <div class="form-group">
+                    <label>Admit Date</label>
+                    <input id="fAdmit" type="date">
+                </div>
+                <div class="form-group">
+                    <label>Sobriety Date</label>
+                    <input id="fSober" type="date">
+                </div>
+                <div class="form-group">
+                    <label>Monthly Rate ($)</label>
+                    <input id="fRate" type="number" min="0" step="0.01">
+                </div>
+                <div class="form-group"></div><!-- spacer -->
+
+                <div class="section-divider">Access</div>
+                <div class="form-group">
+                    <label>Portal PIN (4–6 digits)</label>
+                    <input id="fPin" type="text" maxlength="6" inputmode="numeric" autocomplete="new-password" placeholder="Leave blank to keep">
+                </div>
+                <div class="form-group" id="staffPwGroup" style="display:none">
+                    <label>Staff Password</label>
+                    <input id="fStaffPw" type="password" autocomplete="new-password" placeholder="Leave blank to keep">
+                </div>
+
+                <div class="section-divider">Notes</div>
+                <div class="form-group full">
+                    <label>Internal Notes</label>
+                    <textarea id="fNotes"></textarea>
+                </div>
+            </div>
+            <div id="modalAlert"></div>
+        </div>
+        <div class="modal-footer">
+            <button class="btn btn-secondary" onclick="closeModal()">Cancel</button>
+            <button class="btn btn-danger"    id="deactivateBtn" style="display:none" onclick="deactivateMember()">Deactivate</button>
+            <button class="btn btn-primary"   onclick="saveMember()">Save Member</button>
+        </div>
+    </div>
+</div>
+
+<script>
+    const API_BASE = 'https://horizon-portal-backend-production-3532.up.railway.app';
+    let staffCreds = null;   // { id, pw, name }
+    let allMembers = [];
+    let editingId  = null;
+    let curFilter  = 'active';
+
+    const STATUS_LABEL = { 0:'Inactive', 1:'Active', 2:'Extended', 3:'On Hold', 4:'Staff', 5:'Admin' };
+    const STATUS_BADGE = { 0:'badge-0', 1:'badge-1', 2:'badge-2', 3:'badge-3', 4:'badge-4', 5:'badge-5' };
+
+    function statusBadge(s) {
+        const n = parseInt(s) || 0;
+        return `<span class="badge ${STATUS_BADGE[n] || 'badge-0'}">${STATUS_LABEL[n] || 'Unknown'}</span>`;
+    }
+    function fmtDate(d) {
+        if (!d) return '—';
+        try { return new Date(d + 'T12:00:00').toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'}); }
+        catch(e) { return d; }
+    }
+
+    // Auth headers for API calls
+    function authHeaders() {
+        return { 'Content-Type':'application/json', 'X-Staff-Id': staffCreds.id, 'X-Staff-Pw': staffCreds.pw };
+    }
+
+    async function login() {
+        const id = document.getElementById('loginId').value.trim();
+        const pw = document.getElementById('loginPw').value.trim();
+        const authAlert = document.getElementById('authAlert');
+        authAlert.style.display = 'none';
+        if (!id || !pw) { authAlert.textContent = 'Enter your staff ID and password.'; authAlert.style.display = 'block'; return; }
+
+        let res, data;
+        try {
+            res  = await fetch(`${API_BASE}/api/verifyStaff`, { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({ id, pw }) });
+            data = await res.json();
+        } catch(e) { authAlert.textContent = 'Could not connect to server.'; authAlert.style.display = 'block'; return; }
+
+        if (!data.ok) {
+            authAlert.textContent = data.reason === 'no_staff_pw' ? 'No staff password on file for this ID.' : 'Invalid ID or password.';
+            authAlert.style.display = 'block'; return;
+        }
+
+        // Get member name for display
+        let memberName = id;
+        try {
+            const mr = await fetch(`${API_BASE}/api/getMember?id=${encodeURIComponent(id)}`);
+            const md = await mr.json();
+            if (md) memberName = [md.FIRST_NAME, md.LAST_NAME].filter(Boolean).join(' ') || id;
+        } catch(e) {}
+
+        staffCreds = { id, pw, name: memberName };
+        sessionStorage.setItem('staffCreds', JSON.stringify(staffCreds));
+        document.getElementById('staffName').textContent = `(${memberName})`;
+        document.getElementById('authScreen').style.display = 'none';
+        document.getElementById('app').style.display = 'block';
+        await fetchMembers();
+    }
+
+    async function fetchMembers() {
+        try {
+            const r = await fetch(`${API_BASE}/api/memberDB`, { headers: authHeaders() });
+            if (!r.ok) { console.error('fetchMembers failed', r.status); return; }
+            allMembers = await r.json();
+        } catch(e) { allMembers = []; }
+
+        const empty = allMembers.length === 0;
+        document.getElementById('importBanner').style.display = empty ? 'flex' : 'none';
+        if (document.getElementById('importBtn')) {
+            document.getElementById('importBtn').textContent = 'Import from Excel';
+            document.getElementById('importBtn').disabled = false;
+        }
+        renderTable();
+    }
+
+    function setFilter(f, btn) {
+        curFilter = f;
+        document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+        if (btn) btn.classList.add('active');
+        renderTable();
+    }
+
+    function filterMatch(m) {
+        const st = parseInt(m.status || 0);
+        if (curFilter === 'active'   && st !== 1) return false;
+        if (curFilter === 'extended' && st !== 2) return false;
+        if (curFilter === 'staff'    && st !== 4 && st !== 5) return false;
+        if (curFilter === 'inactive' && st !== 0) return false;
+        const q = document.getElementById('searchInput').value.toLowerCase();
+        if (q) {
+            const name = `${m.firstName||''} ${m.lastName||''}`.toLowerCase();
+            if (!name.includes(q) && !String(m.id||'').toLowerCase().includes(q)) return false;
+        }
+        return true;
+    }
+
+    function renderTable() {
+        const filtered = allMembers.filter(filterMatch);
+        const tbody    = document.getElementById('tableBody');
+        const empty    = document.getElementById('emptyState');
+        const count    = document.getElementById('memberCount');
+        count.textContent = `${allMembers.filter(m => parseInt(m.status||0) === 1).length} active`;
+
+        if (filtered.length === 0) { tbody.innerHTML = ''; empty.style.display = 'block'; return; }
+        empty.style.display = 'none';
+
+        tbody.innerHTML = filtered.map(m => `
+            <tr onclick="openEdit('${m.id}')">
+                <td><code>${m.id||'—'}</code></td>
+                <td>
+                    <strong>${m.firstName||''} ${m.lastName||''}</strong>
+                    ${m.notes ? `<br><small style="color:#a0aec0;font-size:11px">${m.notes.slice(0,50)}${m.notes.length>50?'…':''}</small>` : ''}
+                </td>
+                <td>${statusBadge(m.status)}</td>
+                <td>${m.phone||'—'}</td>
+                <td style="max-width:160px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${m.email||'—'}</td>
+                <td>${fmtDate(m.admitDate)}</td>
+                <td>${fmtDate(m.sobrietyDate)}</td>
+                <td><button class="btn btn-secondary btn-sm" onclick="event.stopPropagation();openEdit('${m.id}')">Edit</button></td>
+            </tr>
+        `).join('');
+    }
+
+    function nextId() {
+        if (!allMembers.length) return '0101';
+        const nums = allMembers.map(m => parseInt(m.id)||0).filter(n => !isNaN(n) && n > 0);
+        return nums.length ? String(Math.max(...nums) + 1).padStart(4, '0') : '0101';
+    }
+
+    function clearForm() {
+        ['fId','fFirst','fLast','fPhone','fEmail','fDob','fAdmit','fSober','fPin','fStaffPw','fNotes']
+            .forEach(id => { const el = document.getElementById(id); if (el) el.value = ''; });
+        document.getElementById('fStatus').value = '1';
+        document.getElementById('fGender').value = '';
+        document.getElementById('fRate').value   = '';
+        document.getElementById('modalAlert').textContent = '';
+        document.getElementById('staffPwGroup').style.display = 'none';
+    }
+
+    function openAdd() {
+        editingId = null;
+        document.getElementById('modalTitle').textContent = 'Add New Member';
+        document.getElementById('deactivateBtn').style.display = 'none';
+        clearForm();
+        document.getElementById('fId').value    = nextId();
+        document.getElementById('fAdmit').value = new Date().toISOString().split('T')[0];
+        document.getElementById('modalOverlay').style.display = 'flex';
+        setTimeout(() => document.getElementById('fFirst').focus(), 100);
+    }
+
+    function openEdit(id) {
+        editingId = id;
+        const m = allMembers.find(m => String(m.id) === String(id));
+        if (!m) return;
+        document.getElementById('modalTitle').textContent = `Edit: ${m.firstName||''} ${m.lastName||''}`;
+        document.getElementById('deactivateBtn').style.display = parseInt(m.status||0) > 0 ? '' : 'none';
+        clearForm();
+        document.getElementById('fId').value     = m.id    || '';
+        document.getElementById('fStatus').value = String(m.status || '1');
+        document.getElementById('fFirst').value  = m.firstName   || '';
+        document.getElementById('fLast').value   = m.lastName    || '';
+        document.getElementById('fGender').value = m.gender      || '';
+        document.getElementById('fDob').value    = m.dob         || '';
+        document.getElementById('fPhone').value  = m.phone       || '';
+        document.getElementById('fEmail').value  = m.email       || '';
+        document.getElementById('fAdmit').value  = m.admitDate   || '';
+        document.getElementById('fSober').value  = m.sobrietyDate|| '';
+        document.getElementById('fRate').value   = m.rate        || '';
+        document.getElementById('fNotes').value  = m.notes       || '';
+        // PIN and staffPw left blank on purpose — only set if changing
+        toggleStaffPw();
+        document.getElementById('modalOverlay').style.display = 'flex';
+    }
+
+    function toggleStaffPw() {
+        const st = parseInt(document.getElementById('fStatus').value) || 0;
+        document.getElementById('staffPwGroup').style.display = st >= 4 ? '' : 'none';
+    }
+
+    async function saveMember() {
+        const firstName = document.getElementById('fFirst').value.trim();
+        const lastName  = document.getElementById('fLast').value.trim();
+        const id        = document.getElementById('fId').value.trim();
+        const pin       = document.getElementById('fPin').value.trim();
+        const alert     = document.getElementById('modalAlert');
+        alert.textContent = '';
+
+        if (!id)        { alert.textContent = 'Member ID is required.'; return; }
+        if (!firstName) { alert.textContent = 'First name is required.'; return; }
+        if (!lastName)  { alert.textContent = 'Last name is required.'; return; }
+        if (pin && !/^\d{4,6}$/.test(pin)) { alert.textContent = 'PIN must be 4–6 digits.'; return; }
+
+        const body = {
+            id, firstName, lastName,
+            status:       parseInt(document.getElementById('fStatus').value) || 1,
+            gender:       document.getElementById('fGender').value,
+            dob:          document.getElementById('fDob').value,
+            phone:        document.getElementById('fPhone').value.trim(),
+            email:        document.getElementById('fEmail').value.trim(),
+            admitDate:    document.getElementById('fAdmit').value,
+            sobrietyDate: document.getElementById('fSober').value,
+            rate:         parseFloat(document.getElementById('fRate').value) || 0,
+            notes:        document.getElementById('fNotes').value.trim(),
+        };
+        if (pin) body.pin = pin;
+        const staffPwVal = document.getElementById('fStaffPw').value.trim();
+        if (staffPwVal) body.memberStaffPw = staffPwVal;
+
+        const url    = editingId ? `${API_BASE}/api/memberDB/${encodeURIComponent(editingId)}` : `${API_BASE}/api/memberDB`;
+        const method = editingId ? 'PATCH' : 'POST';
+
+        let res, data;
+        try {
+            res  = await fetch(url, { method, headers: authHeaders(), body: JSON.stringify(body) });
+            data = await res.json();
+        } catch(e) { alert.textContent = 'Network error. Please try again.'; return; }
+
+        if (!res.ok || !data.success) { alert.textContent = data?.error || 'Save failed.'; return; }
+
+        closeModal();
+        await fetchMembers();
+    }
+
+    async function deactivateMember() {
+        if (!editingId) return;
+        if (!confirm('Mark this member as Inactive / Discharged? They will no longer appear in the active member list or directory.')) return;
+
+        const res = await fetch(`${API_BASE}/api/memberDB/${encodeURIComponent(editingId)}`, {
+            method: 'PATCH', headers: authHeaders(), body: JSON.stringify({ status: 0 })
+        }).catch(() => null);
+
+        if (res && res.ok) { closeModal(); await fetchMembers(); }
+        else { document.getElementById('modalAlert').textContent = 'Deactivation failed.'; }
+    }
+
+    async function importFromExcel() {
+        if (!confirm('Import all members from members.xlsx into the new member database?\n\nThis is a one-time migration. The Excel file will remain but the portal will use the database going forward.')) return;
+
+        const btn = document.getElementById('importBtn');
+        btn.textContent = 'Importing…'; btn.disabled = true;
+
+        const res  = await fetch(`${API_BASE}/api/memberDB/import`, { method:'POST', headers: authHeaders() }).catch(() => null);
+        const data = await res?.json().catch(() => ({}));
+
+        if (res && res.ok && data.success) {
+            alert(`✅ Successfully imported ${data.count} members.`);
+            await fetchMembers();
+        } else {
+            alert('Import failed: ' + (data?.error || 'Unknown error'));
+            btn.textContent = 'Import from Excel'; btn.disabled = false;
+        }
+    }
+
+    function closeModal() {
+        document.getElementById('modalOverlay').style.display = 'none';
+        editingId = null;
+    }
+
+    function logout() {
+        sessionStorage.removeItem('staffCreds');
+        staffCreds = null; allMembers = [];
+        document.getElementById('app').style.display = 'none';
+        document.getElementById('authScreen').style.display = 'flex';
+        document.getElementById('loginPw').value = '';
+    }
+
+    // Restore session across page reload
+    (function restoreSession() {
+        const saved = sessionStorage.getItem('staffCreds');
+        if (!saved) return;
+        try {
+            staffCreds = JSON.parse(saved);
+            document.getElementById('authScreen').style.display = 'none';
+            document.getElementById('app').style.display = 'block';
+            document.getElementById('staffName').textContent = `(${staffCreds.name || staffCreds.id})`;
+            fetchMembers();
+        } catch(e) {}
+    })();
+</script>
+</body>
+</html>
