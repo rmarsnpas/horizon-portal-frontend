@@ -223,7 +223,7 @@
         const name      = `${firstName} ${lastName}`.trim() || 'Unknown Member';
         const phone     = getField(m, 'PHONE', 'phone');
         const email     = getField(m, 'EMAIL', 'email');
-        const admitRaw  = getField(m, 'ADMIT_DATE', 'ADMIT\r\nDATE', 'admit_date');
+        const admitRaw  = getField(m, 'ADMIT_DATE', 'ADMIT\nDATE', 'ADMIT\r\nDATE', 'ADMIT DATE', 'admit_date');
         const admitFmt  = fmtDate(admitRaw);
         const days      = daysSince(admitRaw);
         const dotClass  = statusNum === 1 ? 'dot-1' : 'dot-2';
