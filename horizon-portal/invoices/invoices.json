@@ -1,165 +1,225 @@
-﻿{
-    "generatedAt":  "2026-04-09T23:31:17.351Z",
-    "invoices":  [
-                     {
-                         "memberId":  "142",
-                         "invoiceNumber":  "142-20260320_DUE03-20-2026",
-                         "dueDate":  "03-20-2026",
-                         "paidDate":  null,
-                         "status":  "unpaid",
-                         "pdfPath":  "invoices/unpaid/MID142_INV142-20260320_DUE03-20-2026.pdf",
-                         "fileName":  "MID142_INV142-20260320_DUE03-20-2026.pdf",
-                         "parseOk":  true
-                     },
-                     {
-                         "memberId":  "143",
-                         "invoiceNumber":  "143-20260325_DUE03-25-2026",
-                         "dueDate":  "03-25-2026",
-                         "paidDate":  null,
-                         "status":  "unpaid",
-                         "pdfPath":  "invoices/unpaid/MID143_INV143-20260325_DUE03-25-2026.pdf",
-                         "fileName":  "MID143_INV143-20260325_DUE03-25-2026.pdf",
-                         "parseOk":  true
-                     },
-                     {
-                         "memberId":  "146",
-                         "invoiceNumber":  "146-20260403_DUE04-03-2026",
-                         "dueDate":  "04-03-2026",
-                         "paidDate":  null,
-                         "status":  "unpaid",
-                         "pdfPath":  "invoices/unpaid/MID146_INV146-20260403_DUE04-03-2026.pdf",
-                         "fileName":  "MID146_INV146-20260403_DUE04-03-2026.pdf",
-                         "parseOk":  true
-                     },
-                     {
-                         "memberId":  "148",
-                         "invoiceNumber":  "148-20260401_DUE04-01-2026",
-                         "dueDate":  "04-01-2026",
-                         "paidDate":  null,
-                         "status":  "unpaid",
-                         "pdfPath":  "invoices/unpaid/MID148_INV148-20260401_DUE04-01-2026.pdf",
-                         "fileName":  "MID148_INV148-20260401_DUE04-01-2026.pdf",
-                         "parseOk":  true
-                     },
-                     {
-                         "memberId":  "150",
-                         "invoiceNumber":  "150-20260401_DUE04-01-2026",
-                         "dueDate":  "04-01-2026",
-                         "paidDate":  null,
-                         "status":  "unpaid",
-                         "pdfPath":  "invoices/unpaid/MID150_INV150-20260401_DUE04-01-2026.pdf",
-                         "fileName":  "MID150_INV150-20260401_DUE04-01-2026.pdf",
-                         "parseOk":  true
-                     },
-                     {
-                         "memberId":  "156",
-                         "invoiceNumber":  "156-20260401_COUNTY_DUE04-01-2026",
-                         "dueDate":  "04-01-2026",
-                         "paidDate":  null,
-                         "status":  "unpaid",
-                         "pdfPath":  "invoices/unpaid/MID156_INV156-20260401_COUNTY_DUE04-01-2026.pdf",
-                         "fileName":  "MID156_INV156-20260401_COUNTY_DUE04-01-2026.pdf",
-                         "parseOk":  true
-                     },
-                     {
-                         "memberId":  "116",
-                         "invoiceNumber":  "116-20260320_DUE03-20-2026",
-                         "dueDate":  "03-20-2026",
-                         "paidDate":  null,
-                         "status":  "paid",
-                         "pdfPath":  "invoices/paid/MID116_INV116-20260320_DUE03-20-2026.pdf",
-                         "fileName":  "MID116_INV116-20260320_DUE03-20-2026.pdf",
-                         "parseOk":  true
-                     },
-                     {
-                         "memberId":  "116",
-                         "invoiceNumber":  "116-20260320_DUE03-20-2026_PAID03-31-2026",
-                         "dueDate":  "03-20-2026",
-                         "paidDate":  "03-31-2026",
-                         "status":  "paid",
-                         "pdfPath":  "invoices/paid/MID116_INV116-20260320_DUE03-20-2026_PAID03-31-2026.pdf",
-                         "fileName":  "MID116_INV116-20260320_DUE03-20-2026_PAID03-31-2026.pdf",
-                         "parseOk":  true
-                     },
-                     {
-                         "memberId":  "140",
-                         "invoiceNumber":  "140-20260401_DUE04-01-2026",
-                         "dueDate":  "04-01-2026",
-                         "paidDate":  null,
-                         "status":  "paid",
-                         "pdfPath":  "invoices/paid/MID140_INV140-20260401_DUE04-01-2026.pdf",
-                         "fileName":  "MID140_INV140-20260401_DUE04-01-2026.pdf",
-                         "parseOk":  true
-                     },
-                     {
-                         "memberId":  "140",
-                         "invoiceNumber":  "140-20260401_DUE04-01-2026_PAID04-05-2026",
-                         "dueDate":  "04-01-2026",
-                         "paidDate":  "04-05-2026",
-                         "status":  "paid",
-                         "pdfPath":  "invoices/paid/MID140_INV140-20260401_DUE04-01-2026_PAID04-05-2026.pdf",
-                         "fileName":  "MID140_INV140-20260401_DUE04-01-2026_PAID04-05-2026.pdf",
-                         "parseOk":  true
-                     },
-                     {
-                         "memberId":  "142",
-                         "invoiceNumber":  "142-20260321_DUE03-21-2026",
-                         "dueDate":  "03-21-2026",
-                         "paidDate":  null,
-                         "status":  "paid",
-                         "pdfPath":  "invoices/paid/MID142_INV142-20260321_DUE03-21-2026.pdf",
-                         "fileName":  "MID142_INV142-20260321_DUE03-21-2026.pdf",
-                         "parseOk":  true
-                     },
-                     {
-                         "memberId":  "142",
-                         "invoiceNumber":  "142-20260321_DUE03-21-2026_PAID03-23-2026",
-                         "dueDate":  "03-21-2026",
-                         "paidDate":  "03-23-2026",
-                         "status":  "paid",
-                         "pdfPath":  "invoices/paid/MID142_INV142-20260321_DUE03-21-2026_PAID03-23-2026.pdf",
-                         "fileName":  "MID142_INV142-20260321_DUE03-21-2026_PAID03-23-2026.pdf",
-                         "parseOk":  true
-                     },
-                     {
-                         "memberId":  "143",
-                         "invoiceNumber":  "143-20260325_DUE03-25-2026",
-                         "dueDate":  "03-25-2026",
-                         "paidDate":  null,
-                         "status":  "paid",
-                         "pdfPath":  "invoices/paid/MID143_INV143-20260325_DUE03-25-2026.pdf",
-                         "fileName":  "MID143_INV143-20260325_DUE03-25-2026.pdf",
-                         "parseOk":  true
-                     },
-                     {
-                         "memberId":  "143",
-                         "invoiceNumber":  "143-20260325_DUE03-25-2026_PAID03-28-2026",
-                         "dueDate":  "03-25-2026",
-                         "paidDate":  "03-28-2026",
-                         "status":  "paid",
-                         "pdfPath":  "invoices/paid/MID143_INV143-20260325_DUE03-25-2026_PAID03-28-2026.pdf",
-                         "fileName":  "MID143_INV143-20260325_DUE03-25-2026_PAID03-28-2026.pdf",
-                         "parseOk":  true
-                     },
-                     {
-                         "memberId":  "144",
-                         "invoiceNumber":  "144-20260327_DUE03-27-2026",
-                         "dueDate":  "03-27-2026",
-                         "paidDate":  null,
-                         "status":  "paid",
-                         "pdfPath":  "invoices/paid/MID144_INV144-20260327_DUE03-27-2026.pdf",
-                         "fileName":  "MID144_INV144-20260327_DUE03-27-2026.pdf",
-                         "parseOk":  true
-                     },
-                     {
-                         "memberId":  "144",
-                         "invoiceNumber":  "144-20260327_DUE03-27-2026_PAID03-31-2026",
-                         "dueDate":  "03-27-2026",
-                         "paidDate":  "03-31-2026",
-                         "status":  "paid",
-                         "pdfPath":  "invoices/paid/MID144_INV144-20260327_DUE03-27-2026_PAID03-31-2026.pdf",
-                         "fileName":  "MID144_INV144-20260327_DUE03-27-2026_PAID03-31-2026.pdf",
-                         "parseOk":  true
-                     }
-                 ]
+{
+  "generatedAt": "2026-04-12T18:24:43.785Z",
+  "invoices": [
+    {
+      "memberId": "142",
+      "invoiceNumber": "142-20260320",
+      "status": "unpaid",
+      "dueDate": "03-20-2026",
+      "paidDate": null,
+      "amount": null,
+      "pdfPath": "invoices/unpaid/MID142_INV142-20260320_DUE03-20-2026.pdf",
+      "fileName": "MID142_INV142-20260320_DUE03-20-2026.pdf",
+      "parseOk": true
+    },
+    {
+      "memberId": "143",
+      "invoiceNumber": "143-20260325",
+      "status": "unpaid",
+      "dueDate": "03-25-2026",
+      "paidDate": null,
+      "amount": null,
+      "pdfPath": "invoices/unpaid/MID143_INV143-20260325_DUE03-25-2026.pdf",
+      "fileName": "MID143_INV143-20260325_DUE03-25-2026.pdf",
+      "parseOk": true
+    },
+    {
+      "memberId": "148",
+      "invoiceNumber": "148-20260401",
+      "status": "unpaid",
+      "dueDate": "04-01-2026",
+      "paidDate": null,
+      "amount": null,
+      "pdfPath": "invoices/unpaid/MID148_INV148-20260401_DUE04-01-2026.pdf",
+      "fileName": "MID148_INV148-20260401_DUE04-01-2026.pdf",
+      "parseOk": true
+    },
+    {
+      "memberId": "156",
+      "invoiceNumber": "156-20260401",
+      "status": "unpaid",
+      "dueDate": "04-01-2026",
+      "paidDate": null,
+      "amount": null,
+      "pdfPath": "invoices/unpaid/MID156_INV156-20260401_COUNTY_DUE04-01-2026.pdf",
+      "fileName": "MID156_INV156-20260401_COUNTY_DUE04-01-2026.pdf",
+      "parseOk": true
+    },
+    {
+      "memberId": "146",
+      "invoiceNumber": "146-20260403",
+      "status": "unpaid",
+      "dueDate": "04-03-2026",
+      "paidDate": null,
+      "amount": null,
+      "pdfPath": "invoices/unpaid/MID146_INV146-20260403_DUE04-03-2026.pdf",
+      "fileName": "MID146_INV146-20260403_DUE04-03-2026.pdf",
+      "parseOk": true
+    },
+    {
+      "memberId": "155",
+      "invoiceNumber": "155-20260410",
+      "status": "unpaid",
+      "dueDate": "04-10-2026",
+      "paidDate": null,
+      "amount": null,
+      "pdfPath": "invoices/unpaid/MID155_INV155-20260410_DUE04-10-2026.pdf",
+      "fileName": "MID155_INV155-20260410_DUE04-10-2026.pdf",
+      "parseOk": true
+    },
+    {
+      "memberId": "148",
+      "invoiceNumber": "148-20260319",
+      "status": "paid",
+      "dueDate": "03-19-2026",
+      "paidDate": "04-11-2026",
+      "amount": null,
+      "pdfPath": "invoices/paid/MID148_INV148-20260319_DUE03-19-2026_PAID04-11-2026.pdf",
+      "fileName": "MID148_INV148-20260319_DUE03-19-2026_PAID04-11-2026.pdf",
+      "parseOk": true
+    },
+    {
+      "memberId": "140",
+      "invoiceNumber": "140-20260401",
+      "status": "paid",
+      "dueDate": "04-01-2026",
+      "paidDate": "04-05-2026",
+      "amount": null,
+      "pdfPath": "invoices/paid/MID140_INV140-20260401_DUE04-01-2026_PAID04-05-2026.pdf",
+      "fileName": "MID140_INV140-20260401_DUE04-01-2026_PAID04-05-2026.pdf",
+      "parseOk": true
+    },
+    {
+      "memberId": "150",
+      "invoiceNumber": "150-20260401",
+      "status": "paid",
+      "dueDate": "04-01-2026",
+      "paidDate": "04-01-2026",
+      "amount": null,
+      "pdfPath": "invoices/paid/MID150_INV150-20260401_DUE04-01-2026_PAID04-01-2026.pdf",
+      "fileName": "MID150_INV150-20260401_DUE04-01-2026_PAID04-01-2026.pdf",
+      "parseOk": true
+    },
+    {
+      "memberId": "116",
+      "invoiceNumber": "116-20260320",
+      "status": "paid",
+      "dueDate": "03-20-2026",
+      "paidDate": "03-31-2026",
+      "amount": null,
+      "pdfPath": "invoices/paid/MID116_INV116-20260320_DUE03-20-2026_PAID03-31-2026.pdf",
+      "fileName": "MID116_INV116-20260320_DUE03-20-2026_PAID03-31-2026.pdf",
+      "parseOk": true
+    },
+    {
+      "memberId": "144",
+      "invoiceNumber": "144-20260327",
+      "status": "paid",
+      "dueDate": "03-27-2026",
+      "paidDate": "03-31-2026",
+      "amount": null,
+      "pdfPath": "invoices/paid/MID144_INV144-20260327_DUE03-27-2026_PAID03-31-2026.pdf",
+      "fileName": "MID144_INV144-20260327_DUE03-27-2026_PAID03-31-2026.pdf",
+      "parseOk": true
+    },
+    {
+      "memberId": "143",
+      "invoiceNumber": "143-20260325",
+      "status": "paid",
+      "dueDate": "03-25-2026",
+      "paidDate": "03-28-2026",
+      "amount": null,
+      "pdfPath": "invoices/paid/MID143_INV143-20260325_DUE03-25-2026_PAID03-28-2026.pdf",
+      "fileName": "MID143_INV143-20260325_DUE03-25-2026_PAID03-28-2026.pdf",
+      "parseOk": true
+    },
+    {
+      "memberId": "142",
+      "invoiceNumber": "142-20260321",
+      "status": "paid",
+      "dueDate": "03-21-2026",
+      "paidDate": "03-23-2026",
+      "amount": null,
+      "pdfPath": "invoices/paid/MID142_INV142-20260321_DUE03-21-2026_PAID03-23-2026.pdf",
+      "fileName": "MID142_INV142-20260321_DUE03-21-2026_PAID03-23-2026.pdf",
+      "parseOk": true
+    },
+    {
+      "memberId": "116",
+      "invoiceNumber": "116-20260320",
+      "status": "paid",
+      "dueDate": "03-20-2026",
+      "paidDate": null,
+      "amount": null,
+      "pdfPath": "invoices/paid/MID116_INV116-20260320_DUE03-20-2026.pdf",
+      "fileName": "MID116_INV116-20260320_DUE03-20-2026.pdf",
+      "parseOk": true
+    },
+    {
+      "memberId": "140",
+      "invoiceNumber": "140-20260401",
+      "status": "paid",
+      "dueDate": "04-01-2026",
+      "paidDate": null,
+      "amount": null,
+      "pdfPath": "invoices/paid/MID140_INV140-20260401_DUE04-01-2026.pdf",
+      "fileName": "MID140_INV140-20260401_DUE04-01-2026.pdf",
+      "parseOk": true
+    },
+    {
+      "memberId": "142",
+      "invoiceNumber": "142-20260321",
+      "status": "paid",
+      "dueDate": "03-21-2026",
+      "paidDate": null,
+      "amount": null,
+      "pdfPath": "invoices/paid/MID142_INV142-20260321_DUE03-21-2026.pdf",
+      "fileName": "MID142_INV142-20260321_DUE03-21-2026.pdf",
+      "parseOk": true
+    },
+    {
+      "memberId": "143",
+      "invoiceNumber": "143-20260325",
+      "status": "paid",
+      "dueDate": "03-25-2026",
+      "paidDate": null,
+      "amount": null,
+      "pdfPath": "invoices/paid/MID143_INV143-20260325_DUE03-25-2026.pdf",
+      "fileName": "MID143_INV143-20260325_DUE03-25-2026.pdf",
+      "parseOk": true
+    },
+    {
+      "memberId": "144",
+      "invoiceNumber": "144-20260327",
+      "status": "paid",
+      "dueDate": "03-27-2026",
+      "paidDate": null,
+      "amount": null,
+      "pdfPath": "invoices/paid/MID144_INV144-20260327_DUE03-27-2026.pdf",
+      "fileName": "MID144_INV144-20260327_DUE03-27-2026.pdf",
+      "parseOk": true
+    },
+    {
+      "memberId": "148",
+      "invoiceNumber": "148-20260319",
+      "status": "paid",
+      "dueDate": "03-19-2026",
+      "paidDate": null,
+      "amount": null,
+      "pdfPath": "invoices/paid/MID148_INV148-20260319_DUE03-19-2026.pdf",
+      "fileName": "MID148_INV148-20260319_DUE03-19-2026.pdf",
+      "parseOk": true
+    },
+    {
+      "memberId": "150",
+      "invoiceNumber": "150-20260401",
+      "status": "paid",
+      "dueDate": "04-01-2026",
+      "paidDate": null,
+      "amount": null,
+      "pdfPath": "invoices/paid/MID150_INV150-20260401_DUE04-01-2026.pdf",
+      "fileName": "MID150_INV150-20260401_DUE04-01-2026.pdf",
+      "parseOk": true
+    }
+  ]
 }
