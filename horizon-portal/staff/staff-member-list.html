@@ -186,6 +186,7 @@
             <input id="searchInput" type="search" placeholder="Search name or ID…" oninput="renderTable()">
             <input type="file" id="excelFileInput" accept=".xlsx,.xls" style="display:none" onchange="uploadAndSync(this)">
             <button id="importBtn" class="btn btn-secondary btn-sm" onclick="document.getElementById('excelFileInput').click()">Sync from Excel</button>
+            <button class="btn btn-secondary btn-sm" onclick="downloadDB()">⬇ Download DB</button>
             <button class="btn btn-primary btn-sm" onclick="openAdd()">+ Add Member</button>
         </div>
     </div>
@@ -574,6 +575,13 @@
 
         if (res && res.ok) { closeModal(); await fetchMembers(); }
         else { document.getElementById('modalAlert').textContent = 'Deactivation failed.'; }
+    }
+
+    function downloadDB() {
+        const a = document.createElement('a');
+        a.href = `${API_BASE}/api/downloadMembers`;
+        a.download = 'members-db.json';
+        a.click();
     }
 
     async function uploadAndSync(input) {
