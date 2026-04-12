@@ -585,7 +585,9 @@
         const data = await res?.json().catch(() => ({}));
 
         if (res && res.ok && data.success) {
-            alert(`✅ Synced ${data.count} members (${data.synced || 0} merged from Excel).`);
+            const dbg = data.debug || {};
+            const detail = dbg.error ? `\nError: ${dbg.error}` : `\nExcel rows found: ${dbg.totalExcelRows ?? '?'}\nID column key: "${dbg.idKey ?? '?'}"\nUpdated: ${dbg.updated ?? 0}  Added: ${dbg.added ?? 0}`;
+            alert(`✅ Synced ${data.count} members (${data.synced || 0} merged from Excel).${detail}`);
             await fetchMembers();
         } else {
             alert('Import failed: ' + (data?.error || 'Unknown error'));
