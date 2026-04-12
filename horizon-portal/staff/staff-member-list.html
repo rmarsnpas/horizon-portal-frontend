@@ -184,13 +184,9 @@
         </div>
         <div class="toolbar-right">
             <input id="searchInput" type="search" placeholder="Search name or ID…" oninput="renderTable()">
+            <button id="importBtn" class="btn btn-secondary btn-sm" onclick="importFromExcel()">Import from Excel</button>
             <button class="btn btn-primary btn-sm" onclick="openAdd()">+ Add Member</button>
         </div>
-    </div>
-
-    <div id="importBanner" style="display:none">
-        <p>📋 No members in the database yet. Click <strong>Import from Excel</strong> to migrate your existing <code>members.xlsx</code> data.</p>
-        <button id="importBtn" class="btn btn-primary btn-sm" onclick="importFromExcel()">Import from Excel</button>
     </div>
 
     <div class="table-wrap">
@@ -402,12 +398,8 @@
             allMembers = await r.json();
         } catch(e) { allMembers = []; }
 
-        const empty = allMembers.length === 0;
-        document.getElementById('importBanner').style.display = empty ? 'flex' : 'none';
-        if (document.getElementById('importBtn')) {
-            document.getElementById('importBtn').textContent = 'Import from Excel';
-            document.getElementById('importBtn').disabled = false;
-        }
+        document.getElementById('importBtn').textContent = 'Import from Excel';
+        document.getElementById('importBtn').disabled = false;
         renderTable();
     }
 
