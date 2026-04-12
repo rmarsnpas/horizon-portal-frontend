@@ -184,7 +184,7 @@
         </div>
         <div class="toolbar-right">
             <input id="searchInput" type="search" placeholder="Search name or ID…" oninput="renderTable()">
-            <button id="importBtn" class="btn btn-secondary btn-sm" onclick="importFromExcel()">Import from Excel</button>
+            <button id="importBtn" class="btn btn-secondary btn-sm" onclick="importFromExcel()">Sync from Excel</button>
             <button class="btn btn-primary btn-sm" onclick="openAdd()">+ Add Member</button>
         </div>
     </div>
@@ -585,7 +585,7 @@
         const data = await res?.json().catch(() => ({}));
 
         if (res && res.ok && data.success) {
-            alert(`✅ Successfully imported ${data.count} members.`);
+            alert(`✅ Synced ${data.count} members (${data.synced || 0} merged from Excel).`);
             await fetchMembers();
         } else {
             alert('Import failed: ' + (data?.error || 'Unknown error'));
