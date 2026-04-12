@@ -900,11 +900,12 @@
         localStorage.removeItem('memberId');
         localStorage.removeItem('memberFirstName');
         localStorage.removeItem('memberLastName');
+        localStorage.removeItem('memberEmail');
         sessionStorage.removeItem('memberId');
         sessionStorage.removeItem('memberName');
         
         // Redirect to login page
-        window.location.href = '/members/login.html';
+        window.location.href = '/member-login-fixed.html';
     }
 // Ensure Invoices links always include memberId
 document.addEventListener('DOMContentLoaded', function() {
