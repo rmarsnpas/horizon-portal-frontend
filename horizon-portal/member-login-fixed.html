@@ -118,7 +118,7 @@
         <!-- STEP 2: ENTER PIN -->
         <div id="enterPin" style="display:none;">
             <label for="pinInput">Enter Your PIN</label>
-            <input type="text" id="pinInput" class="pin-input" inputmode="numeric" maxlength="6" placeholder="4–6 digit PIN" autocomplete="new-password">
+            <input type="text" id="pinInput" class="pin-input" maxlength="20" placeholder="Your PIN" autocomplete="new-password">
             <button type="button" onclick="verifyPin()">Continue</button>
         </div>
 
@@ -126,8 +126,8 @@
         <div id="createPinStep" style="display:none;">
             <label>Create a PIN</label>
             <p style="font-size:13px;color:#555;margin:0 0 8px">You don't have a PIN yet. Choose a 4–6 digit PIN to use for future logins.</p>
-            <input type="text" id="newPin1" class="pin-input" inputmode="numeric" maxlength="6" placeholder="Choose PIN" autocomplete="new-password">
-            <input type="text" id="newPin2" class="pin-input" inputmode="numeric" maxlength="6" placeholder="Confirm PIN" autocomplete="new-password" style="margin-top:8px">
+            <input type="text" id="newPin1" class="pin-input" maxlength="20" placeholder="Choose PIN" autocomplete="new-password">
+            <input type="text" id="newPin2" class="pin-input" maxlength="20" placeholder="Confirm PIN" autocomplete="new-password" style="margin-top:8px">
             <button type="button" onclick="createPin()">Save PIN &amp; Continue</button>
         </div>
 
@@ -211,7 +211,7 @@
             clearError();
             const pin1 = document.getElementById('newPin1').value.trim();
             const pin2 = document.getElementById('newPin2').value.trim();
-            if (!/^\d{4,6}$/.test(pin1)) { showError('PIN must be 4–6 digits.'); return; }
+            if (!pin1 || pin1.length < 4) { showError('PIN must be at least 4 characters.'); return; }
             if (pin1 !== pin2) { showError('PINs do not match.'); return; }
             if (!userRecord) { showError('Session expired. Please reload and try again.'); return; }
 
@@ -245,7 +245,7 @@
             clearError();
             const pin = document.getElementById('pinInput').value.trim();
             
-            if (!/^\d{4}$/.test(pin)) { showError('Enter a 4-digit PIN.'); return; }
+            if (!pin || pin.length < 4) { showError('Enter your PIN.'); return; }
             if (!userRecord) { showError('User record missing.'); return; }
             
             // Convert both to strings for comparison
