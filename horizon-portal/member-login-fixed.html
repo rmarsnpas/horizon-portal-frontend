@@ -118,8 +118,17 @@
         <!-- STEP 2: ENTER PIN -->
         <div id="enterPin" style="display:none;">
             <label for="pinInput">Enter Your PIN</label>
-            <input type="text" id="pinInput" class="pin-input" inputmode="numeric" maxlength="4" placeholder="4-digit PIN">
+            <input type="text" id="pinInput" class="pin-input" inputmode="numeric" maxlength="6" placeholder="4–6 digit PIN" autocomplete="new-password">
             <button type="button" onclick="verifyPin()">Continue</button>
+        </div>
+
+        <!-- STEP 2b: CREATE PIN (first-time) -->
+        <div id="createPinStep" style="display:none;">
+            <label>Create a PIN</label>
+            <p style="font-size:13px;color:#555;margin:0 0 8px">You don't have a PIN yet. Choose a 4–6 digit PIN to use for future logins.</p>
+            <input type="text" id="newPin1" class="pin-input" inputmode="numeric" maxlength="6" placeholder="Choose PIN" autocomplete="new-password">
+            <input type="text" id="newPin2" class="pin-input" inputmode="numeric" maxlength="6" placeholder="Confirm PIN" autocomplete="new-password" style="margin-top:8px">
+            <button type="button" onclick="createPin()">Save PIN &amp; Continue</button>
         </div>
 
         <!-- STEP 3: STAFF/ADMIN PASSWORD -->
@@ -181,9 +190,11 @@
                     return;
                 }
 
-                // Check if PIN exists
+                // Check if PIN exists — if not, let them create one
                 if (!userRecord.PIN) {
-                    showError('No PIN found. Please see your manager to set up your PIN.');
+                    document.getElementById('step1').style.display = 'none';
+                    document.getElementById('createPinStep').style.display = 'block';
+                    document.getElementById('newPin1').focus();
                     return;
                 }
 
@@ -192,6 +203,40 @@
             } catch (err) {
                 console.error(err);
                 showError('Unable to contact the verification server.');
+            }
+        }
+
+        // STEP 2b — CREATE PIN (first-time setup)
+        async function createPin() {
+            clearError();
+            const pin1 = document.getElementById('newPin1').value.trim();
+            const pin2 = document.getElementById('newPin2').value.trim();
+            if (!/^\d{4,6}$/.test(pin1)) { showError('PIN must be 4–6 digits.'); return; }
+            if (pin1 !== pin2) { showError('PINs do not match.'); return; }
+            if (!userRecord) { showError('Session expired. Please reload and try again.'); return; }
+
+            try {
+                const res = await fetch('https://horizon-portal-backend-production-3532.up.railway.app/api/savePin', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ id: String(userRecord.MemberID).trim(), pin: pin1 })
+                });
+                const json = await res.json();
+                if (!res.ok) throw new Error(json.error || 'Save failed');
+            } catch(e) {
+                showError('Could not save PIN. Please try again or contact staff.');
+                return;
+            }
+
+            userRecord.PIN = pin1;
+            document.getElementById('createPinStep').style.display = 'none';
+            // Continue same flow as successful PIN verify
+            if (userRecord.AccessCode >= 4) {
+                document.getElementById('staffPw').style.display = 'block';
+            } else if ([1,2].includes(userRecord.AccessCode)) {
+                routeUser();
+            } else {
+                showError('Access denied.');
             }
         }
 
