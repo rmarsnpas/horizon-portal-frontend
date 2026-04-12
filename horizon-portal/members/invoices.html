@@ -382,6 +382,18 @@
     async function loadInvoices() {
       hideError();
 
+      // Check if this member should see invoices (REF=H means county-managed, no portal invoices)
+      try {
+        const API_BASE = 'https://horizon-portal-backend-production-3532.up.railway.app';
+        const mr = await fetch(`${API_BASE}/api/getMember?id=${encodeURIComponent(memberId)}`);
+        const md = await mr.json();
+        if (md && md.HIDE_INVOICES) {
+          document.querySelectorAll('.section.card').forEach(el => el.style.display = 'none');
+          showError('Invoices are managed through your program coordinator. Please contact staff for billing questions.');
+          return;
+        }
+      } catch(e) { /* continue if check fails */ }
+
       // Relative URL so it works when the portal is hosted at root or under /horizon-portal/
       const manifestUrl = `../invoices/invoices.json?t=${Date.now()}`;
 
