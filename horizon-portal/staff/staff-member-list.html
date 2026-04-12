@@ -184,7 +184,8 @@
         </div>
         <div class="toolbar-right">
             <input id="searchInput" type="search" placeholder="Search name or ID…" oninput="renderTable()">
-            <button id="importBtn" class="btn btn-secondary btn-sm" onclick="importFromExcel()">Sync from Excel</button>
+            <input type="file" id="excelFileInput" accept=".xlsx,.xls" style="display:none" onchange="uploadAndSync(this)">
+            <button id="importBtn" class="btn btn-secondary btn-sm" onclick="document.getElementById('excelFileInput').click()">Sync from Excel</button>
             <button class="btn btn-primary btn-sm" onclick="openAdd()">+ Add Member</button>
         </div>
     </div>
@@ -398,7 +399,7 @@
             allMembers = await r.json();
         } catch(e) { allMembers = []; }
 
-        document.getElementById('importBtn').textContent = 'Import from Excel';
+        document.getElementById('importBtn').textContent = 'Sync from Excel';
         document.getElementById('importBtn').disabled = false;
         renderTable();
     }
@@ -575,23 +576,37 @@
         else { document.getElementById('modalAlert').textContent = 'Deactivation failed.'; }
     }
 
-    async function importFromExcel() {
-        if (!confirm('Import all members from members.xlsx into the new member database?\n\nThis is a one-time migration. The Excel file will remain but the portal will use the database going forward.')) return;
+    async function uploadAndSync(input) {
+        const file = input.files[0];
+        if (!file) return;
+        input.value = ''; // reset so same file can be picked again
 
         const btn = document.getElementById('importBtn');
-        btn.textContent = 'Importing…'; btn.disabled = true;
+        btn.textContent = 'Uploading…'; btn.disabled = true;
 
-        const res  = await fetch(`${API_BASE}/api/memberDB/import`, { method:'POST', headers: authHeaders() }).catch(() => null);
+        // Step 1: upload the Excel file to Railway
+        const formData = new FormData();
+        formData.append('file', file);
+        const upRes = await fetch(`${API_BASE}/api/uploadMembers`, { method: 'POST', body: formData }).catch(() => null);
+        const upData = await upRes?.json().catch(() => ({}));
+        if (!upRes || !upRes.ok) {
+            alert('Upload failed: ' + (upData?.error || 'Unknown error'));
+            btn.textContent = 'Sync from Excel'; btn.disabled = false;
+            return;
+        }
+
+        // Step 2: sync the uploaded Excel into the member DB
+        btn.textContent = 'Syncing…';
+        const res  = await fetch(`${API_BASE}/api/memberDB/import`, { method: 'POST', headers: authHeaders() }).catch(() => null);
         const data = await res?.json().catch(() => ({}));
 
+        btn.textContent = 'Sync from Excel'; btn.disabled = false;
+
         if (res && res.ok && data.success) {
-            const dbg = data.debug || {};
-            const detail = dbg.error ? `\nError: ${dbg.error}` : `\nExcel rows found: ${dbg.totalExcelRows ?? '?'}\nID column key: "${dbg.idKey ?? '?'}"\nUpdated: ${dbg.updated ?? 0}  Added: ${dbg.added ?? 0}`;
-            alert(`✅ Synced ${data.count} members (${data.synced || 0} merged from Excel).${detail}`);
+            alert(`✅ Synced ${data.count} members (${data.synced || 0} merged from Excel).`);
             await fetchMembers();
         } else {
-            alert('Import failed: ' + (data?.error || 'Unknown error'));
-            btn.textContent = 'Import from Excel'; btn.disabled = false;
+            alert('Sync failed: ' + (data?.error || 'Unknown error'));
         }
     }
 
