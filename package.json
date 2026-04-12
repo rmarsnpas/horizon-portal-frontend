@@ -1,5 +1,5 @@
 {
   "scripts": {
-    "build": "node horizon-portal/backend/generate-invoices-manifest.js"
+    "build": "node generate-invoices-manifest.js"
   }
 }
