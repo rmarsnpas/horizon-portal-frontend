@@ -1,4 +1,5 @@
 {
+  "buildCommand": "node horizon-portal/backend/generate-invoices-manifest.js",
   "cleanUrls": true,
   "trailingSlash": false,
   "rewrites": [

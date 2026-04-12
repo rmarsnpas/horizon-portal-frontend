@@ -1,10 +1,5 @@
 {
   "scripts": {
     "build": "node horizon-portal/backend/generate-invoices-manifest.js"
-  },
-  "dependencies": {
-    "cors": "^2.8.6",
-    "express": "^5.2.1",
-    "xlsx": "^0.18.5"
   }
 }
