@@ -25,7 +25,7 @@
 const fs = require('fs');
 const path = require('path');
 
-const portalRoot = path.resolve(__dirname, '..');
+const portalRoot = path.join(__dirname, 'horizon-portal');
 const invoicesRoot = path.join(portalRoot, 'invoices');
 const unpaidDir = path.join(invoicesRoot, 'unpaid');
 const paidDir = path.join(invoicesRoot, 'paid');
