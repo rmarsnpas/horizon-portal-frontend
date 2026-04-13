@@ -231,9 +231,37 @@
                     <select id="fStatus" onchange="toggleStaffPw()">
                         <option value="1">Active Resident</option>
                         <option value="2">Extended Stay</option>
+                        <option value="hold" style="display:none">Bed Hold</option>
+                        <option value="wait" style="display:none">Wait List</option>
                         <option value="4">Staff</option>
                         <option value="5">Admin / Manager</option>
                         <option value="0">Inactive / Discharged</option>
+                    <script>
+                    // Dynamically show/hide Bed Hold/Wait List status options and change admit label
+                    document.getElementById('fId').addEventListener('input', function() {
+                        const idVal = this.value.trim().toLowerCase();
+                        const statusSel = document.getElementById('fStatus');
+                        const admitLabel = document.querySelector('label[for="fAdmit"], label[for=fAdmit]') || document.querySelector('label:contains("Admit Date")');
+                        const holdOpt = statusSel.querySelector('option[value="hold"]');
+                        const waitOpt = statusSel.querySelector('option[value="wait"]');
+                        if (idVal === 'hold') {
+                            holdOpt.style.display = '';
+                            waitOpt.style.display = 'none';
+                            statusSel.value = 'hold';
+                            if (admitLabel) admitLabel.textContent = 'Expected Admit Date';
+                        } else if (idVal === 'wait') {
+                            holdOpt.style.display = 'none';
+                            waitOpt.style.display = '';
+                            statusSel.value = 'wait';
+                            if (admitLabel) admitLabel.textContent = 'Expected Admit Date';
+                        } else {
+                            holdOpt.style.display = 'none';
+                            waitOpt.style.display = 'none';
+                            if (statusSel.value === 'hold' || statusSel.value === 'wait') statusSel.value = '1';
+                            if (admitLabel) admitLabel.textContent = 'Admit Date';
+                        }
+                    });
+                    </script>
                     </select>
                 </div>
                 <div class="form-group">
@@ -443,7 +471,7 @@
                     <strong>${m.firstName||''} ${m.lastName||''}</strong>
                     ${m.notes ? `<br><small style="color:#a0aec0;font-size:11px">${m.notes.slice(0,50)}${m.notes.length>50?'…':''}</small>` : ''}
                 </td>
-                <td>${statusBadge(m.status)}</td>
+                <td>${m.status === 'hold' ? 'Hold' : m.status === 'wait' ? 'Wait List' : statusBadge(m.status)}</td>
                 <td>${m.phone||'—'}</td>
                 <td style="max-width:160px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${m.email||'—'}</td>
                 <td>${fmtDate(m.admitDate)}</td>
