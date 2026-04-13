@@ -668,6 +668,7 @@
                     <div class="card-label" style="color: rgba(255,255,255,0.9);">members.xlsx</div>
                 </div>
                 <div style="display: flex; flex-direction: column; gap: 8px; margin-top: 15px;">
+                    <button onclick="openAllMembersModal()" style="width: 100%; padding: 12px; background: #003366; color: white; border: none; border-radius: 6px; cursor: pointer; font-weight: 700; font-size: 16px; box-shadow: 0 2px 8px rgba(0,0,0,0.2);">👁️ View All Members</button>
                     <button onclick="editMembersDatabase()" style="width: 100%; padding: 12px; background: white; color: #38a169; border: none; border-radius: 6px; cursor: pointer; font-weight: 700; font-size: 16px; box-shadow: 0 2px 8px rgba(0,0,0,0.2);">✏️ Edit Database</button>
                     <div style="display: flex; gap: 8px;">
                         <a href="https://horizon-portal-backend-production-3532.up.railway.app/api/downloadMembers" style="flex: 1; padding: 8px; background: rgba(255,255,255,0.2); color: white; text-decoration: none; border-radius: 6px; text-align: center; font-weight: 600; font-size: 13px;" download>⬇️ Download</a>
@@ -675,6 +676,145 @@
                     </div>
                 </div>
             </div>
+            <!-- All Members Modal -->
+            <div id="allMembersModal" class="modal" style="display:none;">
+                <div class="modal-content" style="max-width:90vw;max-height:90vh;overflow:auto;">
+                    <div class="modal-header" style="display:flex;justify-content:space-between;align-items:center;">
+                        <h2>👁️ All Members Database</h2>
+                        <span class="close" onclick="closeAllMembersModal()" style="font-size:2rem;cursor:pointer;">&times;</span>
+                    </div>
+                    <div style="margin-bottom:12px;">
+                        <input id="allMembersSearch" type="text" placeholder="Search..." style="width:100%;padding:10px;font-size:1rem;border:1px solid #ccc;border-radius:6px;" oninput="filterAllMembersTable()">
+                    </div>
+                    <div style="overflow-x:auto;">
+                        <table id="allMembersTable" class="member-board-table" style="font-size:13px;">
+                            <thead id="allMembersTableHead"></thead>
+                            <tbody id="allMembersTableBody"></tbody>
+                        </table>
+                        <!-- Edit Member Modal -->
+                        <div id="editMemberModal" class="modal" style="display:none;">
+                            <div class="modal-content" style="max-width:600px;">
+                                <div class="modal-header" style="display:flex;justify-content:space-between;align-items:center;">
+                                    <h2>✏️ Edit Member</h2>
+                                    <span class="close" onclick="closeEditMemberModal()" style="font-size:2rem;cursor:pointer;">&times;</span>
+                                </div>
+                                <form id="editMemberForm" onsubmit="submitEditMember(event)">
+                                    <div id="editMemberFields"></div>
+                                    <div style="margin-top:18px;display:flex;gap:12px;">
+                                        <button type="submit" style="flex:1;padding:12px;background:#28a745;color:white;border:none;border-radius:6px;font-weight:700;font-size:1.1rem;">Save</button>
+                                        <button type="button" onclick="closeEditMemberModal()" style="flex:1;padding:12px;background:#6c757d;color:white;border:none;border-radius:6px;font-weight:700;font-size:1.1rem;">Cancel</button>
+                                    </div>
+                                    <div id="editMemberStatus" style="margin-top:10px;font-weight:600;"></div>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <script>
+            async function openAllMembersModal() {
+                const modal = document.getElementById('allMembersModal');
+                modal.style.display = 'block';
+                document.body.style.overflow = 'hidden';
+                // Fetch all members
+                let members = [];
+                try {
+                    const res = await fetch(`${API_BASE}/api/members`);
+                    members = await res.json();
+                } catch {
+                    document.getElementById('allMembersTableHead').innerHTML = '';
+                    document.getElementById('allMembersTableBody').innerHTML = '<tr><td colspan="20" style="text-align:center;color:#e53e3e;">Error loading members</td></tr>';
+                    return;
+                }
+                if (!members.length) {
+                    document.getElementById('allMembersTableHead').innerHTML = '';
+                    document.getElementById('allMembersTableBody').innerHTML = '<tr><td colspan="20" style="text-align:center;color:#999;">No members found</td></tr>';
+                    return;
+                }
+                // Build table head from all unique keys
+                const allKeys = Array.from(new Set(members.flatMap(m => Object.keys(m))));
+                document.getElementById('allMembersTableHead').innerHTML = '<tr>' + allKeys.map(k => `<th>${k}</th>`).join('') + '<th>Edit</th></tr>';
+                // Build table body with Edit button
+                document.getElementById('allMembersTableBody').innerHTML = members.map((m, idx) =>
+                    '<tr>' +
+                        allKeys.map(k => `<td>${m[k] !== undefined ? m[k] : ''}</td>`).join('') +
+                        `<td><button onclick="openEditMemberModal(${idx})" style="padding:6px 14px;background:#003366;color:white;border:none;border-radius:6px;cursor:pointer;font-weight:600;">Edit</button></td>` +
+                    '</tr>'
+                ).join('');
+                // Store for search and editing
+                window._allMembersTableData = { members, allKeys };
+                function openEditMemberModal(idx) {
+                    const { members, allKeys } = window._allMembersTableData;
+                    const member = members[idx];
+                    window._editMemberIdx = idx;
+                    // Build form fields (skip ID fields for editing)
+                    const fieldsHtml = allKeys.map(k => {
+                        const isId = k.toLowerCase().includes('id') && k.length <= 4;
+                        const val = member[k] !== undefined ? member[k] : '';
+                        return `<div style='margin-bottom:10px;'><label style='font-weight:600;'>${k}</label><input name='${k}' value="${val}" ${isId ? 'readonly style="background:#eee;"' : ''} style='width:100%;padding:8px;font-size:1rem;border:1px solid #ccc;border-radius:6px;'></div>`;
+                    }).join('');
+                    document.getElementById('editMemberFields').innerHTML = fieldsHtml;
+                    document.getElementById('editMemberStatus').textContent = '';
+                    document.getElementById('editMemberModal').style.display = 'block';
+                    document.body.style.overflow = 'hidden';
+                }
+
+                function closeEditMemberModal() {
+                    document.getElementById('editMemberModal').style.display = 'none';
+                    document.body.style.overflow = '';
+                }
+
+                async function submitEditMember(event) {
+                    event.preventDefault();
+                    const idx = window._editMemberIdx;
+                    const { members, allKeys } = window._allMembersTableData;
+                    const member = members[idx];
+                    const form = event.target;
+                    const updated = {};
+                    allKeys.forEach(k => {
+                        updated[k] = form.elements[k] ? form.elements[k].value : '';
+                    });
+                    // Send update to backend
+                    document.getElementById('editMemberStatus').textContent = 'Saving...';
+                    try {
+                        const res = await fetch(`${API_BASE}/api/updateMember`, {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify(updated)
+                        });
+                        const result = await res.json();
+                        if (result.success) {
+                            document.getElementById('editMemberStatus').textContent = '✓ Saved!';
+                            // Update local data and table
+                            members[idx] = { ...updated };
+                            filterAllMembersTable();
+                            setTimeout(closeEditMemberModal, 900);
+                        } else {
+                            document.getElementById('editMemberStatus').textContent = 'Error: ' + (result.error || 'Unknown');
+                        }
+                    } catch (e) {
+                        document.getElementById('editMemberStatus').textContent = 'Network error';
+                    }
+                }
+            }
+
+            function closeAllMembersModal() {
+                document.getElementById('allMembersModal').style.display = 'none';
+                document.body.style.overflow = '';
+            }
+
+            function filterAllMembersTable() {
+                const search = document.getElementById('allMembersSearch').value.toLowerCase();
+                const { members, allKeys } = window._allMembersTableData || {};
+                if (!members || !allKeys) return;
+                const filtered = !search ? members : members.filter(m =>
+                    allKeys.some(k => (m[k] !== undefined && String(m[k]).toLowerCase().includes(search)))
+                );
+                document.getElementById('allMembersTableBody').innerHTML = filtered.map(m =>
+                    '<tr>' + allKeys.map(k => `<td>${m[k] !== undefined ? m[k] : ''}</td>`).join('') + '</tr>'
+                ).join('');
+            }
+            </script>
         </div>
         <!-- Kiosk Messages Panel -->
         <div id="kioskMsgSection" style="display: none; margin-top: 30px; margin-bottom: 20px;">
