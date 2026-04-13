@@ -734,7 +734,12 @@
 
         <!-- Active Members Board -->
         <div class="section-header" id="memberBoardSection" style="display: none; margin-top: 30px; background: linear-gradient(135deg, #F58634 0%, #c95f00 100%); color: white; padding: 20px; border-radius: 12px; margin-bottom: 20px;">
-            <h2 style="color: white; margin: 0;">👥 Active Members Board <span class="member-board-count" id="memberBoardCount">0</span></h2>
+            <h2 style="color: white; margin: 0;">
+                👥 Active Members Board
+                <span class="member-board-count" id="memberBoardCount">0</span>
+                <span class="member-board-count" id="memberBoardMCount" style="background:#667eea; color:white; margin-left:10px;">M: 0</span>
+                <span class="member-board-count" id="memberBoardFCount" style="background:#e91e8c; color:white; margin-left:10px;">F: 0</span>
+            </h2>
             <p style="color: rgba(255,255,255,0.9); margin: 5px 0 0 0;">Current residents with active status</p>
         </div>
 
@@ -1442,7 +1447,17 @@
                     }).join('');
                 }
 
+
+                // Count M and F
+                let mCount = 0, fCount = 0;
+                activeMembers.forEach(member => {
+                    const gender = (member['M/F'] || member.GENDER || member.gender || '').toString().toUpperCase().trim();
+                    if (gender === 'M') mCount++;
+                    else if (gender === 'F') fCount++;
+                });
                 document.getElementById('memberBoardCount').textContent = activeMembers.length;
+                document.getElementById('memberBoardMCount').textContent = `M: ${mCount}`;
+                document.getElementById('memberBoardFCount').textContent = `F: ${fCount}`;
                 document.getElementById('memberBoardSection').style.display = 'block';
                 document.getElementById('memberBoardContainer').style.display = 'block';
 
