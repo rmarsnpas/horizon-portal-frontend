@@ -1312,12 +1312,26 @@
 
                 if (response.ok) {
                     uploadStatus.className = 'upload-status success';
-                    uploadStatus.textContent = '✅ File uploaded successfully! Members database updated.';
+                    uploadStatus.textContent = '⏳ File uploaded, importing into database…';
                     uploadStatus.style.display = 'block';
+
+                    // Now import the uploaded file into members-db.json
+                    try {
+                        const importRes = await fetch(`${API_BASE}/api/memberDB/import`, { method: 'POST' });
+                        const importData = await importRes.json();
+                        if (importData.success) {
+                            uploadStatus.textContent = `✅ Import complete! ${importData.count} members loaded.`;
+                        } else {
+                            uploadStatus.textContent = '✅ Uploaded. Import note: ' + (importData.error || 'unknown');
+                        }
+                    } catch(e) {
+                        uploadStatus.textContent = '✅ Uploaded (import step failed: ' + e.message + ')';
+                    }
+
                     setTimeout(() => {
                         closeUploadModal();
                         loadDashboardData(); // Refresh dashboard data
-                    }, 2000);
+                    }, 2500);
                 } else {
                     throw new Error(result.message || 'Upload failed');
                 }
