@@ -409,14 +409,14 @@
         .member-board-table {
             width: 100%;
             border-collapse: collapse;
-            font-size: 14px;
+            font-size: 12px;
             min-width: 700px;
         }
 
         .member-board-table th {
             background: #F58634;
             color: white;
-            padding: 12px 14px;
+            padding: 7px 8px;
             text-align: left;
             font-weight: 600;
             white-space: nowrap;
@@ -426,11 +426,13 @@
         .member-board-table th:last-child  { border-radius: 0 12px 0 0; }
 
         .member-board-table td {
-            padding: 10px 14px;
+            padding: 6px 8px;
             border-bottom: 1px solid #e2e8f0;
             color: #2d3748;
             white-space: nowrap;
         }
+        .member-board-table td.wrap { white-space: normal; word-break: break-all; min-width: 140px; }
+        .member-board-table td.narrow { width: 36px; text-align: center; }
 
         .member-board-table tbody tr:last-child td {
             border-bottom: none;
@@ -744,14 +746,14 @@
                             <th>#</th>
                             <th>ID</th>
                             <th>Name</th>
-                            <th>Nickname</th>
+                            <th>Nick</th>
                             <th>M/F</th>
                             <th>Bed</th>
                             <th>DOB</th>
-                            <th>Admit Date</th>
-                            <th>Days Here</th>
-                            <th>Sober Date</th>
-                            <th>Days Sober</th>
+                            <th>Admit</th>
+                            <th>Days</th>
+                            <th>Sober</th>
+                            <th>Sober Days</th>
                             <th>Rate</th>
                             <th>Phone</th>
                             <th>Email</th>
@@ -1422,20 +1424,20 @@
 
                         return `
                             <tr>
-                                <td>${index + 1}</td>
-                                <td>${memberId}</td>
+                                <td class="narrow">${index + 1}</td>
+                                <td class="narrow">${memberId}</td>
                                 <td><strong>${fullName}</strong></td>
                                 <td>${nickname}</td>
-                                <td>${genderTag}</td>
-                                <td>${bed}</td>
+                                <td class="narrow">${genderTag}</td>
+                                <td class="narrow">${bed}</td>
                                 <td>${dob}</td>
                                 <td>${admitText}</td>
-                                <td>${daysHere}</td>
+                                <td class="narrow">${daysHere}</td>
                                 <td>${soberText}</td>
-                                <td style="color:#2e7d32;font-weight:bold;">${daysSober}</td>
+                                <td class="narrow" style="color:#2e7d32;font-weight:bold;">${daysSober}</td>
                                 <td>${rateDisplay}</td>
                                 <td>${phone}</td>
-                                <td>${email}</td>
+                                <td class="wrap">${email}</td>
                             </tr>`;
                     }).join('');
                 }
