@@ -1351,11 +1351,11 @@
                 const response = await fetch(`${API_BASE}/api/members`);
                 const allMembers = await response.json();
 
-                // Filter to status = 1 (active members only)
+                // Filter to status = 1 (active members only) with a bed assigned
                 const activeMembers = allMembers.filter(m => {
-                    const vals = Object.values(m);
-                    const status = m.STATUS || m.status || m.STATU || vals[3];
-                    return Number(status) === 1;
+                    const status = Number(m.STATUS ?? m.status ?? -1);
+                    const bed = (m.BED || m['BED#'] || m.bed || '').toString().trim();
+                    return status === 1 && bed !== '';
                 });
 
                 function parseDate(val) {
@@ -1377,29 +1377,23 @@
                     tbody.innerHTML = '<tr><td colspan="10" style="text-align:center;color:#718096;padding:24px;">No active members found</td></tr>';
                 } else {
                     tbody.innerHTML = activeMembers.map((member, index) => {
-                        const vals = Object.values(member);
-                        const rowNum   = vals[0] !== null && vals[0] !== undefined ? vals[0] : (index + 1);
-                        const memberId = vals[2] || '';
-                        const firstName = member['FIRST\r\nNAME'] || member['FIRST\nNAME'] || member.FIRST_NAME || member.first_name || vals[5] || '';
-                        const lastName  = member['LAST\r\nNAME']  || member['LAST\nNAME']  || member.LAST_NAME  || member.last_name  || vals[6] || '';
+                        const memberId  = member.ID || member.id || '';
+                        const firstName = member['FIRST\r\nNAME'] || member['FIRST\nNAME'] || member['FIRST NAME'] || member.firstName || '';
+                        const lastName  = member['LAST\r\nNAME']  || member['LAST\nNAME']  || member['LAST NAME']  || member.lastName  || '';
                         const fullName  = `${firstName} ${lastName}`.trim() || '—';
-                        const gender    = member['M/F'] || vals[4] || '';
-                        const bed       = member.BED || vals[10] || '';
-                        const admitRaw  = vals[7];
-                        const daysRaw   = vals[9];
-                        const rate      = vals[13];
-                        const phone     = vals[18] || '';
-                        const email     = vals[19] || '';
+                        const gender    = member['M/F'] || member.GENDER || member.gender || '';
+                        const bed       = member.BED || member['BED#'] || member.bed || '';
+                        const admitRaw  = member['ADMIT\r\nDATE'] || member['ADMIT\nDATE'] || member['ADMIT DATE'] || member.admitDate || '';
+                        const rate      = member.RATE || member.rate || '';
+                        const phone     = member.PHONE || member.phone || '';
+                        const email     = member.EMAIL || member.email || '';
 
                         const admitDate = parseDate(admitRaw);
                         const admitText = admitDate
                             ? admitDate.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })
                             : '';
 
-                        let daysHere = daysRaw;
-                        if ((daysHere === null || daysHere === undefined || daysHere === '') && admitDate) {
-                            daysHere = Math.floor((today - admitDate) / 86400000);
-                        }
+                        const daysHere = admitDate ? Math.floor((today - admitDate) / 86400000) : '';
 
                         const genderTag = gender === 'M'
                             ? '<span class="gender-m">M</span>'
@@ -1411,7 +1405,7 @@
 
                         return `
                             <tr>
-                                <td>${rowNum}</td>
+                                <td>${index + 1}</td>
                                 <td>${memberId}</td>
                                 <td><strong>${fullName}</strong></td>
                                 <td>${genderTag}</td>
