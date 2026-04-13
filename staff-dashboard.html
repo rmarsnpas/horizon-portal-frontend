@@ -1388,7 +1388,11 @@
                         const nickname  = member['NIC NAME'] || member.nickname || '';
                         const gender    = member['M/F'] || member.GENDER || member.gender || '';
                         const bed       = member.BED || member['BED#'] || member.bed || '';
-                        const dob       = member.DOB || member.dob || '';
+                        const dob       = (() => {
+                            const raw = member.DOB || member.dob || '';
+                            const d = parseDate(raw);
+                            return d ? d.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) : (raw || '');
+                        })();
                         const admitRaw  = member['ADMIT\r\nDATE'] || member['ADMIT\nDATE'] || member['ADMIT DATE'] || member.admitDate || '';
                         const soberRaw  = member['SOBER\r\nDATE'] || member['SOBER\nDATE'] || member['SOBER DATE'] || member.sobrietyDate || '';
                         const rate      = member.RATE || member.rate || '';
