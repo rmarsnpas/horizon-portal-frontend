@@ -455,23 +455,30 @@
             
             return sortedMembers.map(member => {
                 const memberId = member.ID || '';
-                const firstName = member['FIRST\r\nNAME'] || member['FIRST NAME'] || member.FIRST_NAME || '';
-                const lastName = member['LAST\r\nNAME'] || member['LAST NAME'] || member.LAST_NAME || '';
+                const firstName = member['FIRST\r\nNAME'] || member['FIRST\nNAME'] || member['FIRST NAME'] || '';
+                const lastName = member['LAST\r\nNAME'] || member['LAST\nNAME'] || member['LAST NAME'] || '';
                 const fullName = `${firstName} ${lastName}`.trim();
+                const nickname = member['NIC NAME'] || member.nickname || '';
                 const bed = member.BED || member['BED#'] || '-';
                 const phone = member.PHONE || member['PHONE NUMBER'] || '-';
-                const admitDate = excelDateToJS(member['ADMIT\r\nDATE'] || member['ADMIT DATE'] || member.ADMIT_DATE);
-                const soberDate = excelDateToJS(member['SOBER\r\nDATE'] || member['SOBER DATE'] || member.SOBRIETY_DATE);
-                const daysSober = calculateDaysSober(member['SOBER\r\nDATE'] || member['SOBER DATE'] || member.SOBRIETY_DATE);
+                const dob = member.DOB || '-';
+                const admitDate = excelDateToJS(member['ADMIT\r\nDATE'] || member['ADMIT\nDATE'] || member['ADMIT DATE'] || member.ADMIT_DATE);
+                const soberDateRaw = member['SOBER\r\nDATE'] || member['SOBER\nDATE'] || member['SOBER DATE'] || member.SOBRIETY_DATE || '';
+                const soberDate = excelDateToJS(soberDateRaw);
+                const daysSober = calculateDaysSober(soberDateRaw);
                 
                 return `
                     <div class="bed-card occupied" data-bed="${bed}" data-name="${fullName}" data-id="${memberId}">
                         <div class="bed-number">Bed ${bed}</div>
-                        <div class="member-name">${fullName}</div>
+                        <div class="member-name">${fullName}${nickname ? ` <span style="font-size:0.85em;font-weight:normal;opacity:0.85;">(${nickname})</span>` : ''}</div>
                         <div class="member-info">
                             <div class="info-row">
                                 <span class="info-label">Member ID:</span>
                                 <span class="info-value">${memberId}</span>
+                            </div>
+                            <div class="info-row">
+                                <span class="info-label">DOB:</span>
+                                <span class="info-value">${dob}</span>
                             </div>
                             <div class="info-row">
                                 <span class="info-label">Phone:</span>
