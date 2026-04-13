@@ -744,10 +744,14 @@
                             <th>#</th>
                             <th>ID</th>
                             <th>Name</th>
+                            <th>Nickname</th>
                             <th>M/F</th>
                             <th>Bed</th>
+                            <th>DOB</th>
                             <th>Admit Date</th>
                             <th>Days Here</th>
+                            <th>Sober Date</th>
+                            <th>Days Sober</th>
                             <th>Rate</th>
                             <th>Phone</th>
                             <th>Email</th>
@@ -1381,9 +1385,12 @@
                         const firstName = member['FIRST\r\nNAME'] || member['FIRST\nNAME'] || member['FIRST NAME'] || member.firstName || '';
                         const lastName  = member['LAST\r\nNAME']  || member['LAST\nNAME']  || member['LAST NAME']  || member.lastName  || '';
                         const fullName  = `${firstName} ${lastName}`.trim() || '—';
+                        const nickname  = member['NIC NAME'] || member.nickname || '';
                         const gender    = member['M/F'] || member.GENDER || member.gender || '';
                         const bed       = member.BED || member['BED#'] || member.bed || '';
+                        const dob       = member.DOB || member.dob || '';
                         const admitRaw  = member['ADMIT\r\nDATE'] || member['ADMIT\nDATE'] || member['ADMIT DATE'] || member.admitDate || '';
+                        const soberRaw  = member['SOBER\r\nDATE'] || member['SOBER\nDATE'] || member['SOBER DATE'] || member.sobrietyDate || '';
                         const rate      = member.RATE || member.rate || '';
                         const phone     = member.PHONE || member.phone || '';
                         const email     = member.EMAIL || member.email || '';
@@ -1394,6 +1401,12 @@
                             : '';
 
                         const daysHere = admitDate ? Math.floor((today - admitDate) / 86400000) : '';
+
+                        const soberDate = parseDate(soberRaw);
+                        const soberText = soberDate
+                            ? soberDate.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })
+                            : '';
+                        const daysSober = soberDate ? Math.floor((today - soberDate) / 86400000) : '';
 
                         const genderTag = gender === 'M'
                             ? '<span class="gender-m">M</span>'
@@ -1408,10 +1421,14 @@
                                 <td>${index + 1}</td>
                                 <td>${memberId}</td>
                                 <td><strong>${fullName}</strong></td>
+                                <td>${nickname}</td>
                                 <td>${genderTag}</td>
                                 <td>${bed}</td>
+                                <td>${dob}</td>
                                 <td>${admitText}</td>
-                                <td>${daysHere !== null && daysHere !== undefined && daysHere !== '' ? daysHere : ''}</td>
+                                <td>${daysHere}</td>
+                                <td>${soberText}</td>
+                                <td style="color:#2e7d32;font-weight:bold;">${daysSober}</td>
                                 <td>${rateDisplay}</td>
                                 <td>${phone}</td>
                                 <td>${email}</td>
