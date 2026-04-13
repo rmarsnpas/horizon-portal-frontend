@@ -972,20 +972,21 @@
                 <table class="member-board-table">
                     <thead>
                         <tr>
-                            <th>#</th>
-                            <th>ID</th>
+                            <th class="narrow">#</th>
+                            <th class="narrow">Yr</th>
+                            <th class="narrow">ID</th>
                             <th>Name</th>
                             <th>Nick</th>
-                            <th>M/F</th>
-                            <th>Bed</th>
+                            <th class="narrow">M/F</th>
+                            <th class="narrow">Bed</th>
                             <th>DOB</th>
                             <th>Admit</th>
-                            <th>Days</th>
+                            <th class="narrow">Days</th>
                             <th>Sober</th>
-                            <th>Sober Days</th>
+                            <th class="narrow">Days</th>
                             <th>Rate</th>
                             <th>Phone</th>
-                            <th>Email</th>
+                            <th class="wrap">Email</th>
                         </tr>
                     </thead>
                     <tbody id="memberBoardBody">
@@ -1612,11 +1613,12 @@
                     tbody.innerHTML = '<tr><td colspan="10" style="text-align:center;color:#718096;padding:24px;">No active members found</td></tr>';
                 } else {
                     tbody.innerHTML = activeMembers.map((member, index) => {
+                        const yr = member.YR || member.yr || member.Year || '';
                         const memberId  = member.ID || member.id || '';
                         const firstName = member['FIRST\r\nNAME'] || member['FIRST\nNAME'] || member['FIRST NAME'] || member.firstName || '';
                         const lastName  = member['LAST\r\nNAME']  || member['LAST\nNAME']  || member['LAST NAME']  || member.lastName  || '';
                         const fullName  = `${firstName} ${lastName}`.trim() || '—';
-                        const nickname  = member['NIC NAME'] || member.nickname || '';
+                        const nickname  = member['NIC NAME'] || member.nickname || member.nick || '';
                         const gender    = member['M/F'] || member.GENDER || member.gender || '';
                         const bed       = member.BED || member['BED#'] || member.bed || '';
                         const dob       = (() => {
@@ -1654,6 +1656,7 @@
                         return `
                             <tr>
                                 <td class="narrow">${index + 1}</td>
+                                <td class="narrow">${yr}</td>
                                 <td class="narrow">${memberId}</td>
                                 <td><strong>${fullName}</strong></td>
                                 <td>${nickname}</td>
