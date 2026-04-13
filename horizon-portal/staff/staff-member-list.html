@@ -185,7 +185,7 @@
         <div class="toolbar-right">
             <input id="searchInput" type="search" placeholder="Search name or ID…" oninput="renderTable()">
             <input type="file" id="excelFileInput" accept=".xlsx,.xls" style="display:none" onchange="uploadAndSync(this)">
-            <button id="importBtn" class="btn btn-secondary btn-sm" onclick="document.getElementById('excelFileInput').click()">Sync from Excel</button>
+            <button id="importBtn" class="btn btn-secondary btn-sm" onclick="syncExcel()">Sync from Excel</button>
             <button class="btn btn-secondary btn-sm" onclick="downloadDB()">⬇ Download DB</button>
             <button class="btn btn-primary btn-sm" onclick="openAdd()">+ Add Member</button>
         </div>
@@ -582,6 +582,28 @@
         a.href = `${API_BASE}/api/downloadMembers`;
         a.download = 'members-db.json';
         a.click();
+    }
+
+    async function syncExcel() {
+        // Try direct sync first (works if OneDrive URL is configured on server)
+        const btn = document.getElementById('importBtn');
+        btn.textContent = 'Syncing…'; btn.disabled = true;
+        const res  = await fetch(`${API_BASE}/api/memberDB/import`, { method: 'POST', headers: authHeaders() }).catch(() => null);
+        const data = await res?.json().catch(() => ({}));
+        btn.textContent = 'Sync from Excel'; btn.disabled = false;
+
+        if (res && res.ok && data.success) {
+            const dbg = data.debug || {};
+            const detail = dbg.error ? `\nError: ${dbg.error}` :
+                `\nExcel rows found: ${dbg.totalExcelRows ?? '?'}\nID key: "${dbg.idKey ?? '?'}"\nUpdated: ${dbg.updated ?? 0}  Added: ${dbg.added ?? 0}`;
+            alert(`✅ Synced ${data.count} members (${data.synced || 0} merged from Excel).${detail}`);
+            await fetchMembers();
+        } else if (data?.error && data.error.includes('not found')) {
+            // No OneDrive URL configured — fall back to file picker
+            document.getElementById('excelFileInput').click();
+        } else {
+            alert('Sync failed: ' + (data?.error || 'Unknown error'));
+        }
     }
 
     async function uploadAndSync(input) {
