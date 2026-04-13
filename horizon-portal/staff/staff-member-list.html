@@ -598,11 +598,9 @@
                 `\nExcel rows found: ${dbg.totalExcelRows ?? '?'}\nID key: "${dbg.idKey ?? '?'}"\nUpdated: ${dbg.updated ?? 0}  Added: ${dbg.added ?? 0}`;
             alert(`✅ Synced ${data.count} members (${data.synced || 0} merged from Excel).${detail}`);
             await fetchMembers();
-        } else if (data?.useFilePicker || (data?.error && (data.error.includes('not found') || data.error.includes('USE_FILE_PICKER')))) {
-            // OneDrive unavailable — open file picker silently
-            document.getElementById('excelFileInput').click();
         } else {
-            alert('Sync failed: ' + (data?.error || 'Unknown error'));
+            // Auto-sync didn't work (OneDrive blocked, file missing, etc.) — open file picker
+            document.getElementById('excelFileInput').click();
         }
     }
 
