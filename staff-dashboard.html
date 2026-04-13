@@ -5,6 +5,44 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Staff Dashboard - Horizon House</title>
     <style>
+                /* Sticky header for All Members modal table */
+                #allMembersTable {
+                    border-collapse: collapse;
+                    width: 100%;
+                    min-width: 900px;
+                }
+                #allMembersTable th {
+                    position: sticky;
+                    top: 0;
+                    z-index: 2;
+                    background: #F58634;
+                    color: white;
+                    padding: 7px 6px;
+                    font-weight: 600;
+                    white-space: nowrap;
+                }
+                #allMembersTable td {
+                    padding: 5px 6px;
+                    white-space: nowrap;
+                    font-size: 12px;
+                }
+                #allMembersTable th.narrow, #allMembersTable td.narrow {
+                    width: 48px;
+                    min-width: 36px;
+                    max-width: 60px;
+                    text-align: center;
+                }
+                #allMembersTable th.status, #allMembersTable td.status {
+                    width: 60px;
+                    min-width: 40px;
+                    max-width: 70px;
+                    text-align: center;
+                }
+                #allMembersTable th.nickname, #allMembersTable td.nickname {
+                    width: 90px;
+                    min-width: 60px;
+                    max-width: 120px;
+                }
         * {
             margin: 0;
             padding: 0;
@@ -731,18 +769,64 @@
                     document.getElementById('allMembersTableBody').innerHTML = '<tr><td colspan="20" style="text-align:center;color:#999;">No members found</td></tr>';
                     return;
                 }
-                // Build table head from all unique keys
-                const allKeys = Array.from(new Set(members.flatMap(m => Object.keys(m))));
-                document.getElementById('allMembersTableHead').innerHTML = '<tr>' + allKeys.map(k => `<th>${k}</th>`).join('') + '<th>Edit</th></tr>';
+                // Custom column order: [ID, Name, Yr, Nickname, Status, Days, ...rest]
+                const allKeysRaw = Array.from(new Set(members.flatMap(m => Object.keys(m))));
+                // Try to find best matches for key names
+                function findKey(possibles) {
+                    return allKeysRaw.find(k => possibles.includes(k.toLowerCase()));
+                }
+                const idKey = findKey(['id', 'memberid', 'member id']);
+                const nameKey = findKey(['name', 'fullname', 'full name']);
+                const yrKey = findKey(['yr', 'year']);
+                const nicknameKey = findKey(['nickname', 'nick', 'nick name']);
+                const statusKey = findKey(['status', 'statu']);
+                const daysKey = findKey(['days', 'days in', 'daysin']);
+                // Build custom order, then add the rest
+                let orderedKeys = [idKey, nameKey, yrKey, nicknameKey, statusKey, daysKey].filter(Boolean);
+                orderedKeys = [...orderedKeys, ...allKeysRaw.filter(k => !orderedKeys.includes(k))];
+                // Build table head with classes for styling
+                document.getElementById('allMembersTableHead').innerHTML = '<tr>' +
+                    orderedKeys.map(k => {
+                        let cls = '';
+                        if (k === yrKey) cls = 'narrow';
+                        if (k === statusKey) cls = 'status';
+                        if (k === daysKey) cls = 'narrow';
+                        if (k === nicknameKey) cls = 'nickname';
+                        return `<th class="${cls}">${k}</th>`;
+                    }).join('') +
+                    '<th>Edit</th></tr>';
                 // Build table body with Edit button
                 document.getElementById('allMembersTableBody').innerHTML = members.map((m, idx) =>
                     '<tr>' +
-                        allKeys.map(k => `<td>${m[k] !== undefined ? m[k] : ''}</td>`).join('') +
+                        orderedKeys.map(k => {
+                            let val = m[k] !== undefined ? m[k] : '';
+                            // Format likely date fields
+                            const dateKeys = ['dob', 'admit', 'sober', 'date', 'admit date', 'discharge', 'birth'];
+                            if (val && typeof val === 'string' && dateKeys.some(dk => k.toLowerCase().includes(dk))) {
+                                const parsed = new Date(val);
+                                if (!isNaN(parsed.getTime())) {
+                                    val = parsed.toLocaleDateString('en-US');
+                                }
+                            } else if (val && typeof val === 'number' && dateKeys.some(dk => k.toLowerCase().includes(dk))) {
+                                // Excel serial date
+                                const excelEpoch = new Date(1899, 11, 30);
+                                const date = new Date(excelEpoch.getTime() + val * 86400000);
+                                if (!isNaN(date.getTime())) {
+                                    val = date.toLocaleDateString('en-US');
+                                }
+                            }
+                            let cls = '';
+                            if (k === yrKey) cls = 'narrow';
+                            if (k === statusKey) cls = 'status';
+                            if (k === daysKey) cls = 'narrow';
+                            if (k === nicknameKey) cls = 'nickname';
+                            return `<td class="${cls}">${val}</td>`;
+                        }).join('') +
                         `<td><button onclick="openEditMemberModal(${idx})" style="padding:6px 14px;background:#003366;color:white;border:none;border-radius:6px;cursor:pointer;font-weight:600;">Edit</button></td>` +
                     '</tr>'
                 ).join('');
                 // Store for search and editing
-                window._allMembersTableData = { members, allKeys };
+                window._allMembersTableData = { members, allKeys: orderedKeys };
                 function openEditMemberModal(idx) {
                     const { members, allKeys } = window._allMembersTableData;
                     const member = members[idx];
