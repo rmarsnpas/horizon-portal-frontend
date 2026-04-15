@@ -726,8 +726,33 @@
                     </div>
                     <div style="overflow-x:auto;">
                         <table id="allMembersTable" class="member-board-table" style="font-size:13px;">
-                            <thead id="allMembersTableHead"></thead>
-                            <tbody id="allMembersTableBody"></tbody>
+                                                        <thead class="sticky-header" id="allMembersTableHead">
+                                                            <tr>
+                                                                <th class="narrow" colname="#"><span class="vertical-text">#</span></th>
+                                                                <th class="narrow" colname="YR"><span class="vertical-text">YR</span></th>
+                                                                <th class="narrow" colname="ID"><span class="vertical-text">ID</span></th>
+                                                                <th class="narrow" colname="STATUS"><span class="vertical-text">STATUS</span></th>
+                                                                <th class="narrow" colname="M/F"><span class="vertical-text">M/F</span></th>
+                                                                <th colname="FIRST"><span class="vertical-text">FIRST</span></th>
+                                                                <th colname="LAST"><span class="vertical-text">LAST</span></th>
+                                                                <th colname="ADMIT DATE"><span class="vertical-text">ADMIT DATE</span></th>
+                                                                <th colname="DISCHARGE DATE"><span class="vertical-text">DISCHARGE DATE</span></th>
+                                                                <th class="narrow" colname="DAYS HERE"><span class="vertical-text">DAYS HERE</span></th>
+                                                                <th class="narrow" colname="BED"><span class="vertical-text">BED</span></th>
+                                                                <th class="narrow" colname="KEY"><span class="vertical-text">KEY</span></th>
+                                                                <th class="narrow" colname="REF"><span class="vertical-text">REF</span></th>
+                                                                <th class="narrow" colname="RATE"><span class="vertical-text">RATE</span></th>
+                                                                <th class="nickname" colname="NICKNAME"><span class="vertical-text">NICKNAME</span></th>
+                                                                <th colname="DOB"><span class="vertical-text">DOB</span></th>
+                                                                <th colname="SOBER DATE"><span class="vertical-text">SOBER DATE</span></th>
+                                                                <th class="narrow" colname="DAYSOBER"><span class="vertical-text">DAYSOBER</span></th>
+                                                                <th colname="PHONE"><span class="vertical-text">PHONE</span></th>
+                                                                <th colname="EMAIL"><span class="vertical-text">EMAIL</span></th>
+                                                                <th class="narrow" colname="PIN"><span class="vertical-text">PIN</span></th>
+                                                                <th colname="BILL ON DAY"><span class="vertical-text">BILL ON DAY</span></th>
+                                                            </tr>
+                                                        </thead>
+                                                        <tbody id="allMembersTableBody"></tbody>
                         </table>
                         <!-- Edit Member Modal -->
                         <div id="editMemberModal" class="modal" style="display:none;">
@@ -769,62 +794,67 @@
                     document.getElementById('allMembersTableBody').innerHTML = '<tr><td colspan="20" style="text-align:center;color:#999;">No members found</td></tr>';
                     return;
                 }
-                // Custom column order: [ID, Name, Yr, Nickname, Status, Days, ...rest]
-                const allKeysRaw = Array.from(new Set(members.flatMap(m => Object.keys(m))));
-                // Try to find best matches for key names
-                function findKey(possibles) {
-                    return allKeysRaw.find(k => possibles.includes(k.toLowerCase()));
-                }
-                const idKey = findKey(['id', 'memberid', 'member id']);
-                const nameKey = findKey(['name', 'fullname', 'full name']);
-                const yrKey = findKey(['yr', 'year']);
-                const nicknameKey = findKey(['nickname', 'nick', 'nick name']);
-                const statusKey = findKey(['status', 'statu']);
-                const daysKey = findKey(['days', 'days in', 'daysin']);
-                // Build custom order, then add the rest
-                let orderedKeys = [idKey, nameKey, yrKey, nicknameKey, statusKey, daysKey].filter(Boolean);
-                orderedKeys = [...orderedKeys, ...allKeysRaw.filter(k => !orderedKeys.includes(k))];
-                // Build table head with classes for styling
-                document.getElementById('allMembersTableHead').innerHTML = '<tr>' +
-                    orderedKeys.map(k => {
-                        let cls = '';
-                        if (k === yrKey) cls = 'narrow';
-                        if (k === statusKey) cls = 'status';
-                        if (k === daysKey) cls = 'narrow';
-                        if (k === nicknameKey) cls = 'nickname';
-                        return `<th class="${cls}">${k}</th>`;
-                    }).join('') +
-                    '<th>Edit</th></tr>';
-                // Build table body with Edit button
-                document.getElementById('allMembersTableBody').innerHTML = members.map((m, idx) =>
-                    '<tr>' +
-                        orderedKeys.map(k => {
-                            let val = m[k] !== undefined ? m[k] : '';
-                            // Format likely date fields
-                            const dateKeys = ['dob', 'admit', 'sober', 'date', 'admit date', 'discharge', 'birth'];
-                            if (val && typeof val === 'string' && dateKeys.some(dk => k.toLowerCase().includes(dk))) {
-                                const parsed = new Date(val);
-                                if (!isNaN(parsed.getTime())) {
-                                    val = parsed.toLocaleDateString('en-US');
-                                }
-                            } else if (val && typeof val === 'number' && dateKeys.some(dk => k.toLowerCase().includes(dk))) {
-                                // Excel serial date
-                                const excelEpoch = new Date(1899, 11, 30);
-                                const date = new Date(excelEpoch.getTime() + val * 86400000);
-                                if (!isNaN(date.getTime())) {
-                                    val = date.toLocaleDateString('en-US');
-                                }
-                            }
-                            let cls = '';
-                            if (k === yrKey) cls = 'narrow';
-                            if (k === statusKey) cls = 'status';
-                            if (k === daysKey) cls = 'narrow';
-                            if (k === nicknameKey) cls = 'nickname';
-                            return `<td class="${cls}">${val}</td>`;
-                        }).join('') +
-                        `<td><button onclick="openEditMemberModal(${idx})" style="padding:6px 14px;background:#003366;color:white;border:none;border-radius:6px;cursor:pointer;font-weight:600;">Edit</button></td>` +
-                    '</tr>'
-                ).join('');
+                                // Define the new column order and mapping
+                                const columnOrder = [
+                                    '#','YR','ID','STATUS','M/F','FIRST','LAST','ADMIT DATE','DISCHARGE DATE','DAYS HERE','BED','KEY','REF','RATE','NICKNAME','DOB','SOBER DATE','DAYSOBER','PHONE','EMAIL','PIN','BILL ON DAY'
+                                ];
+                                // Build table body with new layout
+                                document.getElementById('allMembersTableBody').innerHTML = members.map((m, idx) => {
+                                    function getVal(key) {
+                                        switch(key) {
+                                            case '#': return idx+1;
+                                            case 'YR': return m["YR"]||m["yr"]||'';
+                                            case 'ID': return m["ID"]||m["id"]||'';
+                                            case 'STATUS': return m["STATUS"]||m["status"]||'';
+                                            case 'M/F': return m["M/F"]||m["GENDER"]||m["gender"]||'';
+                                            case 'FIRST': return m["FIRST"]||m["first"]||'';
+                                            case 'LAST': return m["LAST"]||m["last"]||'';
+                                            case 'ADMIT DATE': return formatDate(m["ADMIT DATE"]||m["admitDate"]||'');
+                                            case 'DISCHARGE DATE': return formatDate(m["DISCHARGE DATE"]||m["dischargeDate"]||'');
+                                            case 'DAYS HERE': return m["DAYS HERE"]||m["daysHere"]||'';
+                                            case 'BED': return m["BED"]||m["bed"]||'';
+                                            case 'KEY': return m["KEY"]||m["key"]||'';
+                                            case 'REF': return m["REF"]||m["ref"]||'';
+                                            case 'RATE': return m["RATE"]||m["rate"]||'';
+                                            case 'NICKNAME': return m["NICKNAME"]||m["nickname"]||'';
+                                            case 'DOB': return formatDate(m["DOB"]||m["dob"]||'');
+                                            case 'SOBER DATE': return formatDate(m["SOBER DATE"]||m["soberDate"]||'');
+                                            case 'DAYSOBER': return m["DAYSOBER"]||m["daysSober"]||'';
+                                            case 'PHONE': return m["PHONE"]||m["phone"]||'';
+                                            case 'EMAIL': return m["EMAIL"]||m["email"]||'';
+                                            case 'PIN': return m["PIN"]||m["pin"]||'';
+                                            case 'BILL ON DAY': return m["BILL ON DAY"]||m["billOnDay"]||'';
+                                            default: return '';
+                                        }
+                                    }
+                                    function formatDate(val) {
+                                        if (!val) return '';
+                                        let d = val;
+                                        if (typeof d === 'string') {
+                                            if (/^\d{4}-\d{2}-\d{2}$/.test(d)) {
+                                                d = new Date(d + 'T00:00:00');
+                                            } else if (/^\d{1,2}\/\d{1,2}\/\d{4}$/.test(d)) {
+                                                const [m, dd, yyyy] = d.split('/');
+                                                d = new Date(`${yyyy}-${m.padStart(2,'0')}-${dd.padStart(2,'0')}T00:00:00`);
+                                            } else {
+                                                d = new Date(d);
+                                            }
+                                        }
+                                        if (d instanceof Date && !isNaN(d)) {
+                                            const mm = String(d.getMonth()+1).padStart(2,'0');
+                                            const dd = String(d.getDate()).padStart(2,'0');
+                                            const yyyy = d.getFullYear();
+                                            return `${mm}/${dd}/${yyyy}`;
+                                        }
+                                        return val;
+                                    }
+                                    return '<tr>' + columnOrder.map(col => {
+                                        let cls = '';
+                                        if (["#","YR","ID","STATUS","M/F","DAYS HERE","BED","KEY","REF","RATE","DAYSOBER","PIN"].includes(col)) cls = 'narrow';
+                                        if (col === 'NICKNAME') cls = 'nickname';
+                                        return `<td class="${cls}" colname="${col}">${getVal(col)}</td>`;
+                                    }).join('') + '</tr>';
+                                }).join('');
                 // Store for search and editing
                 window._allMembersTableData = { members, allKeys: orderedKeys };
                 function openEditMemberModal(idx) {
