@@ -586,7 +586,6 @@
           </div>
         </div>
         <script>
-          const API_BASE = 'https://horizon-portal-backend-production-3532.up.railway.app';
           function formatDate(val) {
             if (!val) return '';
             let d = val;
@@ -870,7 +869,13 @@
 
     <script>
         const API_BASE = 'https://horizon-portal-backend-production-3532.up.railway.app';
-        const STAFF_PASSWORD = 'house2026'; // Change this password
+                const STAFF_PASSWORD = 'house2026'; // Change this password
+
+                // AUTO-BYPASS LOGIN FOR TROUBLESHOOTING
+                window.addEventListener('DOMContentLoaded', function() {
+                    document.getElementById('loginContainer').style.display = 'none';
+                    document.getElementById('dashboardContainer').style.display = 'block';
+                });
         const SESSION_KEY = 'horizonStaffAuth';
 
         // Check if already logged in
