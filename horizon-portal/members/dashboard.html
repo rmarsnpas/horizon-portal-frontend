@@ -15,8 +15,6 @@
       color: #fff;
       font-weight: 700;
       vertical-align: bottom;
-      writing-mode: vertical-rl;
-      text-orientation: mixed;
       height: 120px;
       min-width: 32px;
       max-width: 60px;
@@ -25,11 +23,17 @@
       border-right: 2px solid #fff;
       font-size: 13px;
       letter-spacing: 0.5px;
-      transform: rotate(180deg);
       text-align: center;
       justify-content: center;
-      align-items: center;
+      align-items: flex-end;
       display: flex;
+    }
+    th .vertical-text {
+      writing-mode: vertical-rl;
+      text-orientation: mixed;
+      transform: rotate(180deg);
+      display: inline-block;
+      margin: 0 auto;
     }
     th.nickname, td.nickname { background: #ffe0b2; }
     th[colspan], td[colspan] { writing-mode: horizontal-tb; }
@@ -54,28 +58,28 @@
       <table>
         <thead class="sticky-header">
           <tr>
-            <th class="narrow" colname="#">#</th>
-            <th class="narrow" colname="YR">YR</th>
-            <th class="narrow" colname="ID">ID</th>
-            <th class="narrow" colname="STATUS">STATUS</th>
-            <th class="narrow" colname="M/F">M/F</th>
-            <th colname="FIRST">FIRST</th>
-            <th colname="LAST">LAST</th>
-            <th colname="ADMIT DATE">ADMIT DATE</th>
-            <th colname="DISCHARGE DATE">DISCHARGE DATE</th>
-            <th class="narrow" colname="DAYS HERE">DAYS HERE</th>
-            <th class="narrow" colname="BED">BED</th>
-            <th class="narrow" colname="KEY">KEY</th>
-            <th class="narrow" colname="REF">REF</th>
-            <th class="narrow" colname="RATE">RATE</th>
-            <th class="nickname" colname="NICKNAME">NICKNAME</th>
-            <th colname="DOB">DOB</th>
-            <th colname="SOBER DATE">SOBER DATE</th>
-            <th class="narrow" colname="DAYSOBER">DAYSOBER</th>
-            <th colname="PHONE">PHONE</th>
-            <th colname="EMAIL">EMAIL</th>
-            <th class="narrow" colname="PIN">PIN</th>
-            <th colname="BILL ON DAY">BILL ON DAY</th>
+            <th class="narrow" colname="#"><span class="vertical-text">#</span></th>
+            <th class="narrow" colname="YR"><span class="vertical-text">YR</span></th>
+            <th class="narrow" colname="ID"><span class="vertical-text">ID</span></th>
+            <th class="narrow" colname="STATUS"><span class="vertical-text">STATUS</span></th>
+            <th class="narrow" colname="M/F"><span class="vertical-text">M/F</span></th>
+            <th colname="FIRST"><span class="vertical-text">FIRST</span></th>
+            <th colname="LAST"><span class="vertical-text">LAST</span></th>
+            <th colname="ADMIT DATE"><span class="vertical-text">ADMIT DATE</span></th>
+            <th colname="DISCHARGE DATE"><span class="vertical-text">DISCHARGE DATE</span></th>
+            <th class="narrow" colname="DAYS HERE"><span class="vertical-text">DAYS HERE</span></th>
+            <th class="narrow" colname="BED"><span class="vertical-text">BED</span></th>
+            <th class="narrow" colname="KEY"><span class="vertical-text">KEY</span></th>
+            <th class="narrow" colname="REF"><span class="vertical-text">REF</span></th>
+            <th class="narrow" colname="RATE"><span class="vertical-text">RATE</span></th>
+            <th class="nickname" colname="NICKNAME"><span class="vertical-text">NICKNAME</span></th>
+            <th colname="DOB"><span class="vertical-text">DOB</span></th>
+            <th colname="SOBER DATE"><span class="vertical-text">SOBER DATE</span></th>
+            <th class="narrow" colname="DAYSOBER"><span class="vertical-text">DAYSOBER</span></th>
+            <th colname="PHONE"><span class="vertical-text">PHONE</span></th>
+            <th colname="EMAIL"><span class="vertical-text">EMAIL</span></th>
+            <th class="narrow" colname="PIN"><span class="vertical-text">PIN</span></th>
+            <th colname="BILL ON DAY"><span class="vertical-text">BILL ON DAY</span></th>
             <th style="writing-mode:horizontal-tb;">Edit</th>
           </tr>
         </thead>
