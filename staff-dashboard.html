@@ -725,6 +725,10 @@
                         <input id="allMembersSearch" type="text" placeholder="Search..." style="width:100%;padding:10px;font-size:1rem;border:1px solid #ccc;border-radius:6px;" oninput="filterAllMembersTable()">
                     </div>
                     <div style="overflow-x:auto;">
+                                                <div style="margin-bottom:12px;display:flex;justify-content:space-between;align-items:center;">
+                                                    <input id="allMembersSearch" type="text" placeholder="Search..." style="width:60%;padding:10px;font-size:1rem;border:1px solid #ccc;border-radius:6px;" oninput="filterAllMembersTable()">
+                                                    <button onclick="openAddMemberModal()" style="padding:10px 18px;background:#28a745;color:white;border:none;border-radius:6px;font-weight:700;font-size:1rem;">+ Add New Member</button>
+                                                </div>
                                                 <table id="allMembersTable" style="border-collapse: collapse; width: 100%; font-size: 14px;">
                                                     <thead class="sticky-header" id="allMembersTableHead">
                                                         <tr>
@@ -750,6 +754,7 @@
                                                             <th colname="EMAIL"><span class="vertical-text">EMAIL</span></th>
                                                             <th class="narrow" colname="PIN"><span class="vertical-text">PIN</span></th>
                                                             <th colname="BILL ON DAY"><span class="vertical-text">BILL ON DAY</span></th>
+                                                            <th>Edit</th>
                                                         </tr>
                                                     </thead>
                                                     <tbody id="allMembersTableBody"></tbody>
