@@ -548,256 +548,108 @@
             </div>
         </div>
 
-        <div id="loading" class="loading">Loading dashboard data...</div>
-
-        <!-- Milestones Alert Section -->
-        <div class="section-header" id="milestonesSection" style="display: none; background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%); color: white; padding: 20px; border-radius: 12px; margin-bottom: 20px;">
-            <h2 style="color: white; margin: 0;">🎉 Birthdays & Milestones</h2>
-            <p style="color: rgba(255,255,255,0.9); margin: 5px 0 0 0;">Recent & Upcoming (7 days either way)</p>
+        <div class="container">
+          <h1>Member List</h1>
+          <div id="loading" style="text-align:center;color:#c95f00;font-size:18px;margin:18px 0;">Loading members…</div>
+          <div style="overflow-x:auto;">
+            <table>
+              <thead class="sticky-header">
+                <tr>
+                  <th class="narrow" colname="#"><span class="vertical-text">#</span></th>
+                  <th class="narrow" colname="YR"><span class="vertical-text">YR</span></th>
+                  <th class="narrow" colname="ID"><span class="vertical-text">ID</span></th>
+                  <th class="narrow" colname="STATUS"><span class="vertical-text">STATUS</span></th>
+                  <th class="narrow" colname="M/F"><span class="vertical-text">M/F</span></th>
+                  <th colname="FIRST"><span class="vertical-text">FIRST</span></th>
+                  <th colname="LAST"><span class="vertical-text">LAST</span></th>
+                  <th colname="ADMIT DATE"><span class="vertical-text">ADMIT DATE</span></th>
+                  <th colname="DISCHARGE DATE"><span class="vertical-text">DISCHARGE DATE</span></th>
+                  <th class="narrow" colname="DAYS HERE"><span class="vertical-text">DAYS HERE</span></th>
+                  <th class="narrow" colname="BED"><span class="vertical-text">BED</span></th>
+                  <th class="narrow" colname="KEY"><span class="vertical-text">KEY</span></th>
+                  <th class="narrow" colname="REF"><span class="vertical-text">REF</span></th>
+                  <th class="narrow" colname="RATE"><span class="vertical-text">RATE</span></th>
+                  <th class="nickname" colname="NICKNAME"><span class="vertical-text">NICKNAME</span></th>
+                  <th colname="DOB"><span class="vertical-text">DOB</span></th>
+                  <th colname="SOBER DATE"><span class="vertical-text">SOBER DATE</span></th>
+                  <th class="narrow" colname="DAYSOBER"><span class="vertical-text">DAYSOBER</span></th>
+                  <th colname="PHONE"><span class="vertical-text">PHONE</span></th>
+                  <th colname="EMAIL"><span class="vertical-text">EMAIL</span></th>
+                  <th class="narrow" colname="PIN"><span class="vertical-text">PIN</span></th>
+                  <th colname="BILL ON DAY"><span class="vertical-text">BILL ON DAY</span></th>
+                </tr>
+              </thead>
+              <tbody id="memberTableBody">
+                <!-- Data rows will be inserted here by JS -->
+              </tbody>
+            </table>
+          </div>
         </div>
-
-        <div id="milestonesGrid" class="dashboard-grid" style="display: none; margin-bottom: 30px;"></div>
-
-        <!-- New Members Alert Section -->
-        <div class="section-header" id="newMembersSection" style="display: none; background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%); color: white; padding: 20px; border-radius: 12px; margin-bottom: 20px;">
-            <h2 style="color: white; margin: 0;">👋 New Members</h2>
-            <p style="color: rgba(255,255,255,0.9); margin: 5px 0 0 0;">Recently arrived (last 3 days)</p>
-        </div>
-
-        <div id="newMembersGrid" class="dashboard-grid" style="display: none; margin-bottom: 30px;"></div>
-
-        <div class="section-header" id="pendingSection" style="display: none;">
-            <h2>⏳ Pending Review</h2>
-            <p>Items requiring staff attention</p>
-        </div>
-
-        <div class="dashboard-grid" id="dashboardGrid" style="display: none;">
-            <a href="/horizon-portal/staff-reviews.html" class="dashboard-card">
-                <div class="card-icon">📋</div>
-                <div class="card-title">Applications</div>
-                <div class="card-count" id="appCount">-</div>
-                <div class="card-label">Pending Review</div>
-            </a>
-
-            <a href="/contact-view.html" class="dashboard-card">
-                <div class="card-icon">📬</div>
-                <div class="card-title">Contact Forms</div>
-                <div class="card-count" id="contactCount">-</div>
-                <div class="card-label">Unread Messages</div>
-            </a>
-
-            <a href="/drug-screen-history.html" class="dashboard-card">
-                <div class="card-icon">🧪</div>
-                <div class="card-title">Drug Screens</div>
-                <div class="card-count" id="drugScreenCount">-</div>
-                <div class="card-label">Total Tests</div>
-            </a>
-
-            <a href="/horizon-portal/members/member-status.html" class="dashboard-card">
-                <div class="card-icon">🚪</div>
-                <div class="card-title">Sign In/Out</div>
-                <div class="card-count" id="signInOutCount">-</div>
-                <div class="card-label">Currently Out</div>
-            </a>
-
-            <a href="/horizon-portal/members/sign-inout.html" class="dashboard-card">
-                <div class="card-icon">✏️</div>
-                <div class="card-title">Manual Sign In/Out</div>
-                <div class="card-count" style="font-size: 24px; color: #718096;">Correct</div>
-                <div class="card-label">Staff Corrections</div>
-            </a>
-
-            <a href="/horizon-portal/members/staff-schedules.html" class="dashboard-card">
-                <div class="card-icon">📅</div>
-                <div class="card-title">Member Schedules</div>
-                <div class="card-count" id="schedulesCount">-</div>
-                <div class="card-label">Submitted Entries</div>
-            </a>
-
-            <a href="/horizon-portal/members/staff-meeting-cards.html" class="dashboard-card">
-                <div class="card-icon">🪪</div>
-                <div class="card-title">Meeting Cards</div>
-                <div class="card-count" id="meetingCardsCount">-</div>
-                <div class="card-label">Pending Review</div>
-            </a>
-
-            <a href="/horizon-portal/staff/staff-member-list.html" class="dashboard-card" style="background: linear-gradient(135deg, #F58634 0%, #e07020 100%); color: white;">
-                <div class="card-icon" style="color:white;">👥</div>
-                <div class="card-title" style="color:white;">Member Management</div>
-                <div class="card-count" style="font-size:24px;color:rgba(255,255,255,0.9);">Add / Edit</div>
-                <div class="card-label" style="color:rgba(255,255,255,0.85);">Master Member List</div>
-            </a>
-        </div>
-
-        <!-- Forms Section -->
-        <div class="section-header" id="formsSection" style="display: none; margin-top: 30px;">
-            <h2>📝 Forms & Intake</h2>
-            <p>Create, manage, and review facility forms</p>
-        </div>
-
-        <div class="dashboard-grid" id="formsGrid" style="display: none;">
-            <a href="/horizon-portal/staff-intake-portal.html" class="dashboard-card" style="grid-column: span 2; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white;">
-                <div class="card-icon" style="font-size: 48px;">📋</div>
-                <div class="card-title" style="color: white; font-size: 28px;">Intake Forms Portal</div>
-                <div class="card-count" id="totalIntakeForms" style="font-size: 32px; color: white;">-</div>
-                <div class="card-label" style="color: rgba(255,255,255,0.9);">Manage All 6 Intake Forms</div>
-            </a>
-
-            <a href="/discharge-combined-fillable.html" class="dashboard-card">
-                <div class="card-icon">📄</div>
-                <div class="card-title">Discharge Form</div>
-                <div class="card-count" style="font-size: 24px; color: #718096;">Create</div>
-                <div class="card-label">Member Discharge</div>
-            </a>
-
-            <a href="/property-storage-form.html" class="dashboard-card">
-                <div class="card-icon">📦</div>
-                <div class="card-title">Property Storage Log</div>
-                <div class="card-count" style="font-size: 24px; color: #718096;">Create</div>
-                <div class="card-label">Member Property</div>
-            </a>
-
-            <a href="/horizon-portal/forms-viewer.html" class="dashboard-card" style="background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%); color: white;">
-                <div class="card-icon" style="font-size: 48px; color: white;">📂</div>
-                <div class="card-title" style="color: white;">Submitted Forms</div>
-                <div class="card-count" id="submittedFormsCount" style="font-size: 32px; color: white;">-</div>
-                <div class="card-label" style="color: rgba(255,255,255,0.9);">Pending Filing</div>
-            </a>
-
-            <div class="dashboard-card" style="opacity: 0.6; cursor: not-allowed; background: #f0f0f0;">
-                <div class="card-icon">🔧</div>
-                <div class="card-title">Maintenance Request</div>
-                <div class="card-count" style="font-size: 18px; color: #718096;">Coming Soon</div>
-                <div class="card-label">Facility Repairs</div>
-            </div>
-
-            <a href="/drug-screen.html" class="dashboard-card">
-                <div class="card-icon">🧪</div>
-                <div class="card-title">Drug Screen Form</div>
-                <div class="card-count" style="font-size: 24px; color: #718096;">New Test</div>
-                <div class="card-label">Record Test Results</div>
-            </a>
-
-            <div class="dashboard-card" style="display: flex; flex-direction: column;">
-                <a href="/application.html" style="text-decoration: none; color: inherit; flex: 1;">
-                    <div class="card-icon">📝</div>
-                    <div class="card-title">Application Form</div>
-                    <div class="card-count" style="font-size: 24px; color: #718096;">View Form</div>
-                    <div class="card-label">Member Application</div>
-                </a>
-                <div style="display: flex; gap: 8px; margin-top: 10px;">
-                    <a href="#" onclick="emailApplicationLink(event)" class="card-email-btn" style="flex: 1;">✉️ Email Link</a>
-                    <button onclick="copyApplicationLink(event)" class="card-email-btn" style="flex: 1; border: none;">📋 Copy Link</button>
-                </div>
-            </div>
-
-            <a href="#" class="dashboard-card" style="opacity: 0.6; cursor: not-allowed;">
-                <div class="card-icon">📋</div>
-                <div class="card-title">Contract Form</div>
-                <div class="card-count" style="font-size: 24px; color: #718096;">Coming Soon</div>
-                <div class="card-label">Behavioral Contract</div>
-            </a>
-
-            <div class="dashboard-card" style="background: linear-gradient(135deg, #48bb78 0%, #38a169 100%); color: white; display: flex; flex-direction: column; justify-content: space-between;">
-                <div>
-                    <div class="card-icon" style="font-size: 48px;">📊</div>
-                    <div class="card-title" style="color: white;">Members Database</div>
-                    <div class="card-count" style="font-size: 18px; color: white;">Edit & Manage</div>
-                    <div class="card-label" style="color: rgba(255,255,255,0.9);">members.xlsx</div>
-                </div>
-                <div style="display: flex; flex-direction: column; gap: 8px; margin-top: 15px;">
-                    <button onclick="openAllMembersModal()" style="width: 100%; padding: 12px; background: #003366; color: white; border: none; border-radius: 6px; cursor: pointer; font-weight: 700; font-size: 16px; box-shadow: 0 2px 8px rgba(0,0,0,0.2);">👁️ View All Members</button>
-                    <button onclick="editMembersDatabase()" style="width: 100%; padding: 12px; background: white; color: #38a169; border: none; border-radius: 6px; cursor: pointer; font-weight: 700; font-size: 16px; box-shadow: 0 2px 8px rgba(0,0,0,0.2);">✏️ Edit Database</button>
-                    <div style="display: flex; gap: 8px;">
-                        <a href="https://horizon-portal-backend-production-3532.up.railway.app/api/downloadMembers" style="flex: 1; padding: 8px; background: rgba(255,255,255,0.2); color: white; text-decoration: none; border-radius: 6px; text-align: center; font-weight: 600; font-size: 13px;" download>⬇️ Download</a>
-                        <button onclick="openUploadModal()" style="flex: 1; padding: 8px; background: rgba(255,255,255,0.2); color: white; border: none; border-radius: 6px; cursor: pointer; font-weight: 600; font-size: 13px;">⬆️ Upload</button>
-                    </div>
-                </div>
-            </div>
-            <!-- All Members Modal -->
-            <div id="allMembersModal" class="modal" style="display:none;">
-                <div class="modal-content" style="max-width:90vw;max-height:90vh;overflow:auto;">
-                    <div class="modal-header" style="display:flex;justify-content:space-between;align-items:center;">
-                        <h2>👁️ All Members Database</h2>
-                        <span class="close" onclick="closeAllMembersModal()" style="font-size:2rem;cursor:pointer;">&times;</span>
-                    </div>
-                    <div style="margin-bottom:12px;">
-                        <input id="allMembersSearch" type="text" placeholder="Search..." style="width:100%;padding:10px;font-size:1rem;border:1px solid #ccc;border-radius:6px;" oninput="filterAllMembersTable()">
-                    </div>
-                    <div style="overflow-x:auto;">
-                        <table id="allMembersTable" class="member-board-table" style="font-size:13px;">
-                            <thead id="allMembersTableHead"></thead>
-                            <tbody id="allMembersTableBody"></tbody>
-                        </table>
-                        <!-- Edit Member Modal -->
-                        <div id="editMemberModal" class="modal" style="display:none;">
-                            <div class="modal-content" style="max-width:600px;">
-                                <div class="modal-header" style="display:flex;justify-content:space-between;align-items:center;">
-                                    <h2>✏️ Edit Member</h2>
-                                    <span class="close" onclick="closeEditMemberModal()" style="font-size:2rem;cursor:pointer;">&times;</span>
-                                </div>
-                                <form id="editMemberForm" onsubmit="submitEditMember(event)">
-                                    <div id="editMemberFields"></div>
-                                    <div style="margin-top:18px;display:flex;gap:12px;">
-                                        <button type="submit" style="flex:1;padding:12px;background:#28a745;color:white;border:none;border-radius:6px;font-weight:700;font-size:1.1rem;">Save</button>
-                                        <button type="button" onclick="closeEditMemberModal()" style="flex:1;padding:12px;background:#6c757d;color:white;border:none;border-radius:6px;font-weight:700;font-size:1.1rem;">Cancel</button>
-                                    </div>
-                                    <div id="editMemberStatus" style="margin-top:10px;font-weight:600;"></div>
-                                </form>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            <script>
-            async function openAllMembersModal() {
-                const modal = document.getElementById('allMembersModal');
-                modal.style.display = 'block';
-                document.body.style.overflow = 'hidden';
-                // Fetch all members
-                let members = [];
-                try {
-                    const res = await fetch(`${API_BASE}/api/members`);
-                    members = await res.json();
-                } catch {
-                    document.getElementById('allMembersTableHead').innerHTML = '';
-                    document.getElementById('allMembersTableBody').innerHTML = '<tr><td colspan="20" style="text-align:center;color:#e53e3e;">Error loading members</td></tr>';
-                    return;
-                }
-                if (!members.length) {
-                    document.getElementById('allMembersTableHead').innerHTML = '';
-                    document.getElementById('allMembersTableBody').innerHTML = '<tr><td colspan="20" style="text-align:center;color:#999;">No members found</td></tr>';
-                    return;
-                }
-                // Custom column order: [ID, Name, Yr, Nickname, Status, Days, ...rest]
-                const allKeysRaw = Array.from(new Set(members.flatMap(m => Object.keys(m))));
-                // Try to find best matches for key names
-                function findKey(possibles) {
-                    return allKeysRaw.find(k => possibles.includes(k.toLowerCase()));
-                }
-                const idKey = findKey(['id', 'memberid', 'member id']);
-                const nameKey = findKey(['name', 'fullname', 'full name']);
-                const yrKey = findKey(['yr', 'year']);
-                const nicknameKey = findKey(['nickname', 'nick', 'nick name']);
-                const statusKey = findKey(['status', 'statu']);
-                const daysKey = findKey(['days', 'days in', 'daysin']);
-                // Build custom order, then add the rest
-                let orderedKeys = [idKey, nameKey, yrKey, nicknameKey, statusKey, daysKey].filter(Boolean);
-                orderedKeys = [...orderedKeys, ...allKeysRaw.filter(k => !orderedKeys.includes(k))];
-                // Build table head with classes for styling
-                document.getElementById('allMembersTableHead').innerHTML = '<tr>' +
-                    orderedKeys.map(k => {
-                        let cls = '';
-                        if (k === yrKey) cls = 'narrow';
-                        if (k === statusKey) cls = 'status';
-                        if (k === daysKey) cls = 'narrow';
-                        if (k === nicknameKey) cls = 'nickname';
-                        return `<th class="${cls}">${k}</th>`;
-                    }).join('') +
-                    '<th>Edit</th></tr>';
-                // Build table body with Edit button
-                document.getElementById('allMembersTableBody').innerHTML = members.map((m, idx) =>
-                    '<tr>' +
+        <script>
+          const API_BASE = 'https://horizon-portal-backend-production-3532.up.railway.app';
+          function formatDate(val) {
+            if (!val) return '';
+            let d = val;
+            if (typeof d === 'string') {
+              if (/^\d{4}-\d{2}-\d{2}$/.test(d)) {
+                d = new Date(d + 'T00:00:00');
+              } else if (/^\d{1,2}\/\d{1,2}\/\d{4}$/.test(d)) {
+                const [m, dd, yyyy] = d.split('/');
+                d = new Date(`${yyyy}-${m.padStart(2,'0')}-${dd.padStart(2,'0')}T00:00:00`);
+              } else {
+                d = new Date(d);
+              }
+            }
+            if (d instanceof Date && !isNaN(d)) {
+              const mm = String(d.getMonth()+1).padStart(2,'0');
+              const dd = String(d.getDate()).padStart(2,'0');
+              const yyyy = d.getFullYear();
+              return `${mm}/${dd}/${yyyy}`;
+            }
+            return val;
+          }
+          async function loadMembers() {
+            document.getElementById('loading').style.display = 'block';
+            try {
+              const res = await fetch(`${API_BASE}/api/members`);
+              const members = await res.json();
+              renderTable(members);
+              document.getElementById('loading').style.display = 'none';
+            } catch (e) {
+              document.getElementById('loading').textContent = 'Error loading members.';
+            }
+          }
+          function renderTable(members) {
+            const tbody = document.getElementById('memberTableBody');
+            tbody.innerHTML = members.map((m, i) => `
+              <tr>
+                <td class="narrow">${i+1}</td>
+                <td class="narrow">${m["YR"]||m["yr"]||''}</td>
+                <td class="narrow">${m["ID"]||m["id"]||''}</td>
+                <td class="narrow">${m["STATUS"]||m["status"]||''}</td>
+                <td class="narrow">${m["M/F"]||m["GENDER"]||m["gender"]||''}</td>
+                <td>${m["FIRST"]||m["first"]||''}</td>
+                <td>${m["LAST"]||m["last"]||''}</td>
+                <td>${formatDate(m["ADMIT DATE"]||m["admitDate"]||'')}</td>
+                <td>${formatDate(m["DISCHARGE DATE"]||m["dischargeDate"]||'')}</td>
+                <td class="narrow">${m["DAYS HERE"]||m["daysHere"]||''}</td>
+                <td class="narrow">${m["BED"]||m["bed"]||''}</td>
+                <td class="narrow">${m["KEY"]||m["key"]||''}</td>
+                <td class="narrow">${m["REF"]||m["ref"]||''}</td>
+                <td class="narrow">${m["RATE"]||m["rate"]||''}</td>
+                <td class="nickname">${m["NICKNAME"]||m["nickname"]||''}</td>
+                <td>${formatDate(m["DOB"]||m["dob"]||'')}</td>
+                <td>${formatDate(m["SOBER DATE"]||m["soberDate"]||'')}</td>
+                <td class="narrow">${m["DAYSOBER"]||m["daysSober"]||''}</td>
+                <td>${m["PHONE"]||m["phone"]||''}</td>
+                <td>${m["EMAIL"]||m["email"]||''}</td>
+                <td class="narrow">${m["PIN"]||m["pin"]||''}</td>
+                <td>${m["BILL ON DAY"]||m["billOnDay"]||''}</td>
+              </tr>
+            `).join('');
+          }
+          loadMembers();
+        </script>
                         orderedKeys.map(k => {
                             let val = m[k] !== undefined ? m[k] : '';
                             // Format likely date fields
@@ -973,11 +825,12 @@
                     <thead>
                         <tr>
                             <th class="narrow">#</th>
-                            <th class="narrow">Yr</th>
+                            <th class="narrow">YR</th>
                             <th class="narrow">ID</th>
+                            <th class="narrow">STAT</th>
+                            <th class="narrow">M/F</th>
                             <th>Name</th>
                             <th>Nick</th>
-                            <th class="narrow">M/F</th>
                             <th class="narrow">Bed</th>
                             <th>DOB</th>
                             <th>Admit</th>
@@ -1615,11 +1468,12 @@
                     tbody.innerHTML = activeMembers.map((member, index) => {
                         const yr = member.YR || member.yr || member.Year || '';
                         const memberId  = member.ID || member.id || '';
+                        const stat = member.STATUS || member.status || member.STAT || '';
+                        const gender    = member['M/F'] || member.GENDER || member.gender || '';
                         const firstName = member['FIRST\r\nNAME'] || member['FIRST\nNAME'] || member['FIRST NAME'] || member.firstName || '';
                         const lastName  = member['LAST\r\nNAME']  || member['LAST\nNAME']  || member['LAST NAME']  || member.lastName  || '';
                         const fullName  = `${firstName} ${lastName}`.trim() || '—';
                         const nickname  = member['NIC NAME'] || member.nickname || member.nick || '';
-                        const gender    = member['M/F'] || member.GENDER || member.gender || '';
                         const bed       = member.BED || member['BED#'] || member.bed || '';
                         const dob       = (() => {
                             const raw = member.DOB || member.dob || '';
@@ -1658,9 +1512,10 @@
                                 <td class="narrow">${index + 1}</td>
                                 <td class="narrow">${yr}</td>
                                 <td class="narrow">${memberId}</td>
+                                <td class="narrow">${stat}</td>
+                                <td class="narrow">${genderTag}</td>
                                 <td><strong>${fullName}</strong></td>
                                 <td>${nickname}</td>
-                                <td class="narrow">${genderTag}</td>
                                 <td class="narrow">${bed}</td>
                                 <td>${dob}</td>
                                 <td>${admitText}</td>
