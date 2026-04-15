@@ -1,238 +1,58 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Member List Dashboard</title>
+  <title>Member Dashboard – Horizon House</title>
   <style>
-    body { font-family: Arial, sans-serif; background: #f7f7f7; margin: 0; padding: 0; }
-    .container { max-width: 1400px; margin: 40px auto; background: #fff; border-radius: 10px; box-shadow: 0 4px 24px rgba(0,0,0,0.08); padding: 32px; }
-    h1 { text-align: center; color: #c95f00; margin-bottom: 32px; }
-    table { border-collapse: collapse; width: 100%; font-size: 14px; }
-    th, td { border: 1px solid #e0e0e0; padding: 4px 2px; text-align: center; font-size: 13px; }
-    th {
-      background: #F58634;
-      color: #fff;
-      font-weight: 700;
-      vertical-align: bottom;
-      height: 120px;
-      min-width: 32px;
-      max-width: 60px;
-      white-space: nowrap;
-      border-bottom: 3px solid #fff;
-      border-right: 2px solid #fff;
-      font-size: 13px;
-      letter-spacing: 0.5px;
-      text-align: center;
-      justify-content: center;
-      align-items: flex-end;
-      display: flex;
-    }
-    th .vertical-text {
-      writing-mode: vertical-rl;
-      text-orientation: mixed;
-      transform: rotate(180deg);
-      display: inline-block;
-      margin: 0 auto;
-    }
-    th.nickname, td.nickname { background: #ffe0b2; }
-    th[colspan], td[colspan] { writing-mode: horizontal-tb; }
-    tr:nth-child(even) { background: #faf6f2; }
-    tr:hover { background: #fff3e8; }
-    .sticky-header th { position: sticky; top: 0; z-index: 2; }
-    /* Precise column widths */
-    th.narrow, td.narrow { width: 32px; min-width: 32px; max-width: 36px; }
-    th[colname="NICKNAME"], td[colname="NICKNAME"] { min-width: 80px; max-width: 120px; background: #ffe0b2; }
-    th[colname="FIRST"], td[colname="FIRST"], th[colname="LAST"], td[colname="LAST"] { min-width: 70px; max-width: 110px; }
-    th[colname="EMAIL"], td[colname="EMAIL"] { min-width: 120px; max-width: 220px; }
-    th[colname="PHONE"], td[colname="PHONE"] { min-width: 90px; max-width: 120px; }
-    th[colname="ADMIT DATE"], td[colname="ADMIT DATE"], th[colname="DISCHARGE DATE"], td[colname="DISCHARGE DATE"], th[colname="DOB"], td[colname="DOB"], th[colname="SOBER DATE"], td[colname="SOBER DATE"] { min-width: 60px; max-width: 90px; }
-    th[colname="BILL ON DAY"], td[colname="BILL ON DAY"] { min-width: 40px; max-width: 60px; }
+    body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: #FFF8F3; margin: 0; min-height: 100vh; }
+    header { background: #F58634; color: #fff; padding: 18px 24px; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 10px; }
+    header h1 { font-size: 20px; }
+    .header-nav a { color: #fff; text-decoration: none; font-size: 14px; padding: 8px 14px; background: rgba(255,255,255,0.2); border-radius: 6px; margin-left: 8px; }
+    .header-nav a:hover { background: rgba(255,255,255,0.35); }
+    .container { max-width: 900px; margin: 40px auto; padding: 0 20px 60px; }
+    .dashboard-cards { display: flex; flex-wrap: wrap; gap: 28px; justify-content: center; margin-top: 40px; }
+    .dashboard-card { background: #fff; border-radius: 14px; box-shadow: 0 3px 12px rgba(0,0,0,0.08); padding: 38px 36px 32px 36px; min-width: 180px; max-width: 220px; flex: 1 1 180px; text-align: center; border: 1px solid #f0e8df; transition: box-shadow 0.2s, border 0.2s; text-decoration: none; color: #2b3440; font-size: 18px; font-weight: 600; }
+    .dashboard-card:hover { box-shadow: 0 6px 24px rgba(245,134,52,0.13); border: 1.5px solid #F58634; color: #F58634; }
+    .dashboard-card .icon { font-size: 38px; margin-bottom: 18px; display: block; }
+    @media (max-width: 700px) { .dashboard-cards { flex-direction: column; gap: 18px; } .dashboard-card { min-width: 0; max-width: 100%; } }
   </style>
 </head>
 <body>
+  <header>
+    <h1>Member Dashboard</h1>
+    <nav class="header-nav">
+      <a href="profile.html">Profile</a>
+      <a href="invoices.html">Invoices</a>
+      <a href="schedule.html">Schedule</a>
+      <a href="announcements.html">Announcements</a>
+      <a href="meeting-cards.html">Meeting Cards</a>
+    </nav>
+  </header>
   <div class="container">
-    <h1>Member List</h1>
-    <button id="addMemberBtn" style="margin-bottom:18px;padding:10px 22px;background:#F58634;color:#fff;border:none;border-radius:6px;font-weight:700;font-size:16px;cursor:pointer;">+ Add Member</button>
-    <div style="overflow-x:auto;">
-      <table>
-        <thead class="sticky-header">
-          <tr>
-            <th class="narrow" colname="#"><span class="vertical-text">#</span></th>
-            <th class="narrow" colname="YR"><span class="vertical-text">YR</span></th>
-            <th class="narrow" colname="ID"><span class="vertical-text">ID</span></th>
-            <th class="narrow" colname="STATUS"><span class="vertical-text">STATUS</span></th>
-            <th class="narrow" colname="M/F"><span class="vertical-text">M/F</span></th>
-            <th colname="FIRST"><span class="vertical-text">FIRST</span></th>
-            <th colname="LAST"><span class="vertical-text">LAST</span></th>
-            <th colname="ADMIT DATE"><span class="vertical-text">ADMIT DATE</span></th>
-            <th colname="DISCHARGE DATE"><span class="vertical-text">DISCHARGE DATE</span></th>
-            <th class="narrow" colname="DAYS HERE"><span class="vertical-text">DAYS HERE</span></th>
-            <th class="narrow" colname="BED"><span class="vertical-text">BED</span></th>
-            <th class="narrow" colname="KEY"><span class="vertical-text">KEY</span></th>
-            <th class="narrow" colname="REF"><span class="vertical-text">REF</span></th>
-            <th class="narrow" colname="RATE"><span class="vertical-text">RATE</span></th>
-            <th class="nickname" colname="NICKNAME"><span class="vertical-text">NICKNAME</span></th>
-            <th colname="DOB"><span class="vertical-text">DOB</span></th>
-            <th colname="SOBER DATE"><span class="vertical-text">SOBER DATE</span></th>
-            <th class="narrow" colname="DAYSOBER"><span class="vertical-text">DAYSOBER</span></th>
-            <th colname="PHONE"><span class="vertical-text">PHONE</span></th>
-            <th colname="EMAIL"><span class="vertical-text">EMAIL</span></th>
-            <th class="narrow" colname="PIN"><span class="vertical-text">PIN</span></th>
-            <th colname="BILL ON DAY"><span class="vertical-text">BILL ON DAY</span></th>
-            <th style="writing-mode:horizontal-tb;">Edit</th>
-          </tr>
-        </thead>
-        <tbody id="memberTableBody">
-          <!-- Data rows will be inserted here by JS -->
-        </tbody>
-      </table>
+    <div class="dashboard-cards">
+      <a class="dashboard-card" href="profile.html">
+        <span class="icon">👤</span>
+        My Profile
+      </a>
+      <a class="dashboard-card" href="invoices.html">
+        <span class="icon">💳</span>
+        View Invoices
+      </a>
+      <a class="dashboard-card" href="schedule.html">
+        <span class="icon">📅</span>
+        My Schedule
+      </a>
+      <a class="dashboard-card" href="announcements.html">
+        <span class="icon">📢</span>
+        Announcements
+      </a>
+      <a class="dashboard-card" href="meeting-cards.html">
+        <span class="icon">📝</span>
+        Meeting Cards
+      </a>
     </div>
   </div>
-
-  <!-- Modal for Add/Edit Member -->
-  <div id="memberModal" style="display:none;position:fixed;z-index:1000;left:0;top:0;width:100vw;height:100vh;background:rgba(0,0,0,0.4);align-items:center;justify-content:center;">
-    <div style="background:#fff;padding:32px 28px 24px 28px;border-radius:10px;max-width:520px;width:95vw;box-shadow:0 8px 32px rgba(0,0,0,0.18);position:relative;">
-      <button id="closeModalBtn" style="position:absolute;top:12px;right:16px;font-size:1.5rem;background:none;border:none;color:#888;cursor:pointer;">&times;</button>
-      <h2 id="modalTitle">Add Member</h2>
-      <form id="memberForm">
-        <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
-          <input name="YR" placeholder="YR">
-          <input name="ID" placeholder="ID">
-          <input name="STATUS" placeholder="STATUS">
-          <input name="M/F" placeholder="M/F">
-          <input name="FIRST" placeholder="FIRST">
-          <input name="LAST" placeholder="LAST">
-          <input name="ADMIT DATE" placeholder="ADMIT DATE">
-          <input name="DISCHARGE DATE" placeholder="DISCHARGE DATE">
-          <input name="DAYS HERE" placeholder="DAYS HERE">
-          <input name="BED" placeholder="BED">
-          <input name="KEY" placeholder="KEY">
-          <input name="REF" placeholder="REF">
-          <input name="RATE" placeholder="RATE">
-          <input name="NICKNAME" placeholder="NICKNAME">
-          <input name="DOB" placeholder="DOB">
-          <input name="SOBER DATE" placeholder="SOBER DATE">
-          <input name="DAYSOBER" placeholder="DAYSOBER">
-          <input name="PHONE" placeholder="PHONE">
-          <input name="EMAIL" placeholder="EMAIL">
-          <input name="PIN" placeholder="PIN">
-          <input name="BILL ON DAY" placeholder="BILL ON DAY">
-        </div>
-        <button type="submit" style="margin-top:18px;padding:10px 22px;background:#28a745;color:#fff;border:none;border-radius:6px;font-weight:700;font-size:16px;cursor:pointer;width:100%;">Save</button>
-        <div id="modalStatus" style="margin-top:10px;font-weight:600;"></div>
-      </form>
-    </div>
-  </div>
-
-  <script>
-    // Demo data for now
-    let members = [
-      {"YR":"2026","ID":"001","STATUS":"1","M/F":"M","FIRST":"John","LAST":"Doe","ADMIT DATE":"2026-01-01","DISCHARGE DATE":"","DAYS HERE":"100","BED":"A1","KEY":"Y","REF":"Ref1","RATE":"200","NICKNAME":"Johnny","DOB":"1990-01-01","SOBER DATE":"2025-12-01","DAYSOBER":"120","PHONE":"555-1234","EMAIL":"john@example.com","PIN":"1234","BILL ON DAY":"1"}
-    ];
-    let editIndex = null;
-
-    function formatDate(val) {
-      if (!val) return '';
-      // Accepts yyyy-mm-dd, mm/dd/yyyy, or Date
-      let d = val;
-      if (typeof d === 'string') {
-        if (/^\d{4}-\d{2}-\d{2}$/.test(d)) {
-          d = new Date(d + 'T00:00:00');
-        } else if (/^\d{1,2}\/\d{1,2}\/\d{4}$/.test(d)) {
-          const [m, dd, yyyy] = d.split('/');
-          d = new Date(`${yyyy}-${m.padStart(2,'0')}-${dd.padStart(2,'0')}T00:00:00`);
-        } else {
-          d = new Date(d);
-        }
-      }
-      if (d instanceof Date && !isNaN(d)) {
-        const mm = String(d.getMonth()+1).padStart(2,'0');
-        const dd = String(d.getDate()).padStart(2,'0');
-        const yyyy = d.getFullYear();
-        return `${mm}/${dd}/${yyyy}`;
-      }
-      return val;
-    }
-
-    function renderTable() {
-      const tbody = document.getElementById('memberTableBody');
-      tbody.innerHTML = members.map((m, i) => `
-        <tr>
-          <td class="narrow">${i+1}</td>
-          <td class="narrow">${m["YR"]||''}</td>
-          <td class="narrow">${m["ID"]||''}</td>
-          <td class="narrow">${m["STATUS"]||''}</td>
-          <td class="narrow">${m["M/F"]||''}</td>
-          <td>${m["FIRST"]||''}</td>
-          <td>${m["LAST"]||''}</td>
-          <td>${formatDate(m["ADMIT DATE"])}</td>
-          <td>${formatDate(m["DISCHARGE DATE"])}</td>
-          <td>${m["DAYS HERE"]||''}</td>
-          <td>${m["BED"]||''}</td>
-          <td>${m["KEY"]||''}</td>
-          <td>${m["REF"]||''}</td>
-          <td>${m["RATE"]||''}</td>
-          <td class="nickname">${m["NICKNAME"]||''}</td>
-          <td>${formatDate(m["DOB"])}</td>
-          <td>${formatDate(m["SOBER DATE"])}</td>
-          <td>${m["DAYSOBER"]||''}</td>
-          <td>${m["PHONE"]||''}</td>
-          <td>${m["EMAIL"]||''}</td>
-          <td>${m["PIN"]||''}</td>
-          <td>${m["BILL ON DAY"]||''}</td>
-          <td><button onclick="openEditMember(${i})" style="padding:4px 12px;background:#003366;color:#fff;border:none;border-radius:5px;cursor:pointer;">Edit</button></td>
-        </tr>
-      `).join('');
-    }
-
-    function openAddMember() {
-      editIndex = null;
-      document.getElementById('modalTitle').textContent = 'Add Member';
-      document.getElementById('memberForm').reset();
-      document.getElementById('modalStatus').textContent = '';
-      document.getElementById('memberModal').style.display = 'flex';
-    }
-
-    function openEditMember(idx) {
-      editIndex = idx;
-      document.getElementById('modalTitle').textContent = 'Edit Member';
-      const form = document.getElementById('memberForm');
-      const m = members[idx];
-      for (const el of form.elements) {
-        if (el.name && m[el.name] !== undefined) el.value = m[el.name];
-      }
-      document.getElementById('modalStatus').textContent = '';
-      document.getElementById('memberModal').style.display = 'flex';
-    }
-
-    function closeModal() {
-      document.getElementById('memberModal').style.display = 'none';
-    }
-
-    document.getElementById('addMemberBtn').onclick = openAddMember;
-    document.getElementById('closeModalBtn').onclick = closeModal;
-    document.getElementById('memberModal').onclick = function(e) { if (e.target === this) closeModal(); };
-
-    document.getElementById('memberForm').onsubmit = function(e) {
-      e.preventDefault();
-      const form = e.target;
-      const data = {};
-      for (const el of form.elements) {
-        if (el.name) data[el.name] = el.value;
-      }
-      if (editIndex === null) {
-        members.push(data);
-        document.getElementById('modalStatus').textContent = 'Member added!';
-      } else {
-        members[editIndex] = data;
-        document.getElementById('modalStatus').textContent = 'Member updated!';
-      }
-      renderTable();
-      setTimeout(closeModal, 800);
-    };
-
-    renderTable();
-  </script>
 </body>
 </html>
