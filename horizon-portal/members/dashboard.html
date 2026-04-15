@@ -25,6 +25,11 @@
       border-right: 2px solid #fff;
       font-size: 13px;
       letter-spacing: 0.5px;
+      transform: rotate(180deg);
+      text-align: center;
+      justify-content: center;
+      align-items: center;
+      display: flex;
     }
     th.nickname, td.nickname { background: #ffe0b2; }
     th[colspan], td[colspan] { writing-mode: horizontal-tb; }
@@ -123,6 +128,29 @@
     ];
     let editIndex = null;
 
+    function formatDate(val) {
+      if (!val) return '';
+      // Accepts yyyy-mm-dd, mm/dd/yyyy, or Date
+      let d = val;
+      if (typeof d === 'string') {
+        if (/^\d{4}-\d{2}-\d{2}$/.test(d)) {
+          d = new Date(d + 'T00:00:00');
+        } else if (/^\d{1,2}\/\d{1,2}\/\d{4}$/.test(d)) {
+          const [m, dd, yyyy] = d.split('/');
+          d = new Date(`${yyyy}-${m.padStart(2,'0')}-${dd.padStart(2,'0')}T00:00:00`);
+        } else {
+          d = new Date(d);
+        }
+      }
+      if (d instanceof Date && !isNaN(d)) {
+        const mm = String(d.getMonth()+1).padStart(2,'0');
+        const dd = String(d.getDate()).padStart(2,'0');
+        const yyyy = d.getFullYear();
+        return `${mm}/${dd}/${yyyy}`;
+      }
+      return val;
+    }
+
     function renderTable() {
       const tbody = document.getElementById('memberTableBody');
       tbody.innerHTML = members.map((m, i) => `
@@ -134,16 +162,16 @@
           <td class="narrow">${m["M/F"]||''}</td>
           <td>${m["FIRST"]||''}</td>
           <td>${m["LAST"]||''}</td>
-          <td>${m["ADMIT DATE"]||''}</td>
-          <td>${m["DISCHARGE DATE"]||''}</td>
+          <td>${formatDate(m["ADMIT DATE"])}</td>
+          <td>${formatDate(m["DISCHARGE DATE"])}</td>
           <td>${m["DAYS HERE"]||''}</td>
           <td>${m["BED"]||''}</td>
           <td>${m["KEY"]||''}</td>
           <td>${m["REF"]||''}</td>
           <td>${m["RATE"]||''}</td>
           <td class="nickname">${m["NICKNAME"]||''}</td>
-          <td>${m["DOB"]||''}</td>
-          <td>${m["SOBER DATE"]||''}</td>
+          <td>${formatDate(m["DOB"])}</td>
+          <td>${formatDate(m["SOBER DATE"])}</td>
           <td>${m["DAYSOBER"]||''}</td>
           <td>${m["PHONE"]||''}</td>
           <td>${m["EMAIL"]||''}</td>
