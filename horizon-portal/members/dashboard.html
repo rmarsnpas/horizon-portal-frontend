@@ -9,44 +9,69 @@
     .container { max-width: 1400px; margin: 40px auto; background: #fff; border-radius: 10px; box-shadow: 0 4px 24px rgba(0,0,0,0.08); padding: 32px; }
     h1 { text-align: center; color: #c95f00; margin-bottom: 32px; }
     table { border-collapse: collapse; width: 100%; font-size: 14px; }
-    th, td { border: 1px solid #e0e0e0; padding: 8px 6px; text-align: left; }
-    th { background: #F58634; color: #fff; font-weight: 700; }
+    th, td { border: 1px solid #e0e0e0; padding: 4px 2px; text-align: center; font-size: 13px; }
+    th {
+      background: #F58634;
+      color: #fff;
+      font-weight: 700;
+      vertical-align: bottom;
+      writing-mode: vertical-rl;
+      text-orientation: mixed;
+      height: 120px;
+      min-width: 32px;
+      max-width: 60px;
+      white-space: nowrap;
+      border-bottom: 3px solid #fff;
+      border-right: 2px solid #fff;
+      font-size: 13px;
+      letter-spacing: 0.5px;
+    }
+    th.nickname, td.nickname { background: #ffe0b2; }
+    th[colspan], td[colspan] { writing-mode: horizontal-tb; }
     tr:nth-child(even) { background: #faf6f2; }
     tr:hover { background: #fff3e8; }
-    th.narrow, td.narrow { width: 44px; text-align: center; }
-    th.nickname, td.nickname { background: #ffe0b2; }
     .sticky-header th { position: sticky; top: 0; z-index: 2; }
+    /* Precise column widths */
+    th.narrow, td.narrow { width: 32px; min-width: 32px; max-width: 36px; }
+    th[colname="NICKNAME"], td[colname="NICKNAME"] { min-width: 80px; max-width: 120px; background: #ffe0b2; }
+    th[colname="FIRST"], td[colname="FIRST"], th[colname="LAST"], td[colname="LAST"] { min-width: 70px; max-width: 110px; }
+    th[colname="EMAIL"], td[colname="EMAIL"] { min-width: 120px; max-width: 220px; }
+    th[colname="PHONE"], td[colname="PHONE"] { min-width: 90px; max-width: 120px; }
+    th[colname="ADMIT DATE"], td[colname="ADMIT DATE"], th[colname="DISCHARGE DATE"], td[colname="DISCHARGE DATE"], th[colname="DOB"], td[colname="DOB"], th[colname="SOBER DATE"], td[colname="SOBER DATE"] { min-width: 60px; max-width: 90px; }
+    th[colname="BILL ON DAY"], td[colname="BILL ON DAY"] { min-width: 40px; max-width: 60px; }
   </style>
 </head>
 <body>
   <div class="container">
     <h1>Member List</h1>
+    <button id="addMemberBtn" style="margin-bottom:18px;padding:10px 22px;background:#F58634;color:#fff;border:none;border-radius:6px;font-weight:700;font-size:16px;cursor:pointer;">+ Add Member</button>
     <div style="overflow-x:auto;">
       <table>
         <thead class="sticky-header">
           <tr>
-            <th class="narrow">#</th>
-            <th class="narrow">YR</th>
-            <th class="narrow">ID</th>
-            <th class="narrow">STATUS</th>
-            <th class="narrow">M/F</th>
-            <th>FIRST</th>
-            <th>LAST</th>
-            <th>ADMIT DATE</th>
-            <th>DISCHARGE DATE</th>
-            <th>DAYS HERE</th>
-            <th>BED</th>
-            <th>KEY</th>
-            <th>REF</th>
-            <th>RATE</th>
-            <th class="nickname">NICKNAME</th>
-            <th>DOB</th>
-            <th>SOBER DATE</th>
-            <th>DAYSOBER</th>
-            <th>PHONE</th>
-            <th>EMAIL</th>
-            <th>PIN</th>
-            <th>BILL ON DAY</th>
+            <th class="narrow" colname="#">#</th>
+            <th class="narrow" colname="YR">YR</th>
+            <th class="narrow" colname="ID">ID</th>
+            <th class="narrow" colname="STATUS">STATUS</th>
+            <th class="narrow" colname="M/F">M/F</th>
+            <th colname="FIRST">FIRST</th>
+            <th colname="LAST">LAST</th>
+            <th colname="ADMIT DATE">ADMIT DATE</th>
+            <th colname="DISCHARGE DATE">DISCHARGE DATE</th>
+            <th class="narrow" colname="DAYS HERE">DAYS HERE</th>
+            <th class="narrow" colname="BED">BED</th>
+            <th class="narrow" colname="KEY">KEY</th>
+            <th class="narrow" colname="REF">REF</th>
+            <th class="narrow" colname="RATE">RATE</th>
+            <th class="nickname" colname="NICKNAME">NICKNAME</th>
+            <th colname="DOB">DOB</th>
+            <th colname="SOBER DATE">SOBER DATE</th>
+            <th class="narrow" colname="DAYSOBER">DAYSOBER</th>
+            <th colname="PHONE">PHONE</th>
+            <th colname="EMAIL">EMAIL</th>
+            <th class="narrow" colname="PIN">PIN</th>
+            <th colname="BILL ON DAY">BILL ON DAY</th>
+            <th style="writing-mode:horizontal-tb;">Edit</th>
           </tr>
         </thead>
         <tbody id="memberTableBody">
@@ -55,9 +80,127 @@
       </table>
     </div>
   </div>
+
+  <!-- Modal for Add/Edit Member -->
+  <div id="memberModal" style="display:none;position:fixed;z-index:1000;left:0;top:0;width:100vw;height:100vh;background:rgba(0,0,0,0.4);align-items:center;justify-content:center;">
+    <div style="background:#fff;padding:32px 28px 24px 28px;border-radius:10px;max-width:520px;width:95vw;box-shadow:0 8px 32px rgba(0,0,0,0.18);position:relative;">
+      <button id="closeModalBtn" style="position:absolute;top:12px;right:16px;font-size:1.5rem;background:none;border:none;color:#888;cursor:pointer;">&times;</button>
+      <h2 id="modalTitle">Add Member</h2>
+      <form id="memberForm">
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
+          <input name="YR" placeholder="YR">
+          <input name="ID" placeholder="ID">
+          <input name="STATUS" placeholder="STATUS">
+          <input name="M/F" placeholder="M/F">
+          <input name="FIRST" placeholder="FIRST">
+          <input name="LAST" placeholder="LAST">
+          <input name="ADMIT DATE" placeholder="ADMIT DATE">
+          <input name="DISCHARGE DATE" placeholder="DISCHARGE DATE">
+          <input name="DAYS HERE" placeholder="DAYS HERE">
+          <input name="BED" placeholder="BED">
+          <input name="KEY" placeholder="KEY">
+          <input name="REF" placeholder="REF">
+          <input name="RATE" placeholder="RATE">
+          <input name="NICKNAME" placeholder="NICKNAME">
+          <input name="DOB" placeholder="DOB">
+          <input name="SOBER DATE" placeholder="SOBER DATE">
+          <input name="DAYSOBER" placeholder="DAYSOBER">
+          <input name="PHONE" placeholder="PHONE">
+          <input name="EMAIL" placeholder="EMAIL">
+          <input name="PIN" placeholder="PIN">
+          <input name="BILL ON DAY" placeholder="BILL ON DAY">
+        </div>
+        <button type="submit" style="margin-top:18px;padding:10px 22px;background:#28a745;color:#fff;border:none;border-radius:6px;font-weight:700;font-size:16px;cursor:pointer;width:100%;">Save</button>
+        <div id="modalStatus" style="margin-top:10px;font-weight:600;"></div>
+      </form>
+    </div>
+  </div>
+
   <script>
-    // Placeholder for dynamic data loading
-    // Example: fetch('/api/members').then(...)
+    // Demo data for now
+    let members = [
+      {"YR":"2026","ID":"001","STATUS":"1","M/F":"M","FIRST":"John","LAST":"Doe","ADMIT DATE":"2026-01-01","DISCHARGE DATE":"","DAYS HERE":"100","BED":"A1","KEY":"Y","REF":"Ref1","RATE":"200","NICKNAME":"Johnny","DOB":"1990-01-01","SOBER DATE":"2025-12-01","DAYSOBER":"120","PHONE":"555-1234","EMAIL":"john@example.com","PIN":"1234","BILL ON DAY":"1"}
+    ];
+    let editIndex = null;
+
+    function renderTable() {
+      const tbody = document.getElementById('memberTableBody');
+      tbody.innerHTML = members.map((m, i) => `
+        <tr>
+          <td class="narrow">${i+1}</td>
+          <td class="narrow">${m["YR"]||''}</td>
+          <td class="narrow">${m["ID"]||''}</td>
+          <td class="narrow">${m["STATUS"]||''}</td>
+          <td class="narrow">${m["M/F"]||''}</td>
+          <td>${m["FIRST"]||''}</td>
+          <td>${m["LAST"]||''}</td>
+          <td>${m["ADMIT DATE"]||''}</td>
+          <td>${m["DISCHARGE DATE"]||''}</td>
+          <td>${m["DAYS HERE"]||''}</td>
+          <td>${m["BED"]||''}</td>
+          <td>${m["KEY"]||''}</td>
+          <td>${m["REF"]||''}</td>
+          <td>${m["RATE"]||''}</td>
+          <td class="nickname">${m["NICKNAME"]||''}</td>
+          <td>${m["DOB"]||''}</td>
+          <td>${m["SOBER DATE"]||''}</td>
+          <td>${m["DAYSOBER"]||''}</td>
+          <td>${m["PHONE"]||''}</td>
+          <td>${m["EMAIL"]||''}</td>
+          <td>${m["PIN"]||''}</td>
+          <td>${m["BILL ON DAY"]||''}</td>
+          <td><button onclick="openEditMember(${i})" style="padding:4px 12px;background:#003366;color:#fff;border:none;border-radius:5px;cursor:pointer;">Edit</button></td>
+        </tr>
+      `).join('');
+    }
+
+    function openAddMember() {
+      editIndex = null;
+      document.getElementById('modalTitle').textContent = 'Add Member';
+      document.getElementById('memberForm').reset();
+      document.getElementById('modalStatus').textContent = '';
+      document.getElementById('memberModal').style.display = 'flex';
+    }
+
+    function openEditMember(idx) {
+      editIndex = idx;
+      document.getElementById('modalTitle').textContent = 'Edit Member';
+      const form = document.getElementById('memberForm');
+      const m = members[idx];
+      for (const el of form.elements) {
+        if (el.name && m[el.name] !== undefined) el.value = m[el.name];
+      }
+      document.getElementById('modalStatus').textContent = '';
+      document.getElementById('memberModal').style.display = 'flex';
+    }
+
+    function closeModal() {
+      document.getElementById('memberModal').style.display = 'none';
+    }
+
+    document.getElementById('addMemberBtn').onclick = openAddMember;
+    document.getElementById('closeModalBtn').onclick = closeModal;
+    document.getElementById('memberModal').onclick = function(e) { if (e.target === this) closeModal(); };
+
+    document.getElementById('memberForm').onsubmit = function(e) {
+      e.preventDefault();
+      const form = e.target;
+      const data = {};
+      for (const el of form.elements) {
+        if (el.name) data[el.name] = el.value;
+      }
+      if (editIndex === null) {
+        members.push(data);
+        document.getElementById('modalStatus').textContent = 'Member added!';
+      } else {
+        members[editIndex] = data;
+        document.getElementById('modalStatus').textContent = 'Member updated!';
+      }
+      renderTable();
+      setTimeout(closeModal, 800);
+    };
+
+    renderTable();
   </script>
 </body>
 </html>
