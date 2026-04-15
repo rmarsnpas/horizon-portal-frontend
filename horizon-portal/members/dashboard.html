@@ -1,1 +1,540 @@
-...updated staff-dashboard.html content with correct Active Members Board columns...
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>Staff Dashboard - Horizon House</title>
+	<style>
+				/* Sticky header for All Members modal table */
+				#allMembersTable {
+					border-collapse: collapse;
+					width: 100%;
+					min-width: 900px;
+				}
+				#allMembersTable th {
+					position: sticky;
+					top: 0;
+					z-index: 2;
+					background: #F58634;
+					color: white;
+					padding: 7px 6px;
+					font-weight: 600;
+					white-space: nowrap;
+				}
+				#allMembersTable td {
+					padding: 5px 6px;
+					white-space: nowrap;
+					font-size: 12px;
+				}
+				#allMembersTable th.narrow, #allMembersTable td.narrow {
+					width: 48px;
+					min-width: 36px;
+					max-width: 60px;
+					text-align: center;
+				}
+				#allMembersTable th.status, #allMembersTable td.status {
+					width: 60px;
+					min-width: 40px;
+					max-width: 70px;
+					text-align: center;
+				}
+				#allMembersTable th.nickname, #allMembersTable td.nickname {
+					width: 90px;
+					min-width: 60px;
+					max-width: 120px;
+				}
+		* {
+			margin: 0;
+			padding: 0;
+			box-sizing: border-box;
+		}
+
+		body {
+			font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+			background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+			min-height: 100vh;
+			display: flex;
+			align-items: center;
+			justify-content: center;
+			padding: 20px;
+		}
+
+		.login-container {
+			background: white;
+			padding: 40px;
+			border-radius: 12px;
+			box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+			max-width: 400px;
+			width: 100%;
+			text-align: center;
+		}
+
+		.login-container h1 {
+			color: #2d3748;
+			margin-bottom: 10px;
+			font-size: 28px;
+		}
+
+		.login-container p {
+			color: #718096;
+			margin-bottom: 30px;
+		}
+
+		.form-group {
+			margin-bottom: 20px;
+			text-align: left;
+		}
+
+		.form-group label {
+			display: block;
+			color: #4a5568;
+			font-weight: 600;
+			margin-bottom: 8px;
+		}
+
+		.form-group input {
+			width: 100%;
+			padding: 12px;
+			border: 1px solid #cbd5e0;
+			border-radius: 6px;
+			font-size: 15px;
+		}
+
+		.form-group input:focus {
+			outline: none;
+			border-color: #667eea;
+		}
+
+		.btn-login {
+			width: 100%;
+			padding: 12px;
+			background: #667eea;
+			color: white;
+			border: none;
+			border-radius: 6px;
+			font-size: 16px;
+			font-weight: 600;
+			cursor: pointer;
+			transition: background 0.2s;
+		}
+
+		.btn-login:hover {
+			background: #5568d3;
+		}
+
+		.error-message {
+			color: #e53e3e;
+			margin-top: 10px;
+			display: none;
+		}
+
+		.dashboard-container {
+			display: none;
+			max-width: 1200px;
+			width: 100%;
+		}
+
+		.dashboard-header {
+			background: white;
+			padding: 30px;
+			border-radius: 12px;
+			margin-bottom: 30px;
+			box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+			display: flex;
+			justify-content: space-between;
+			align-items: center;
+		}
+
+		.dashboard-header-content {
+			display: flex;
+			align-items: center;
+			gap: 20px;
+		}
+
+		.dashboard-logo {
+			max-width: 80px;
+			max-height: 80px;
+		}
+
+		.dashboard-header h1 {
+			color: #2d3748;
+			font-size: 32px;
+		}
+
+		.btn-logout {
+			padding: 10px 20px;
+			background: #718096;
+			color: white;
+			border: none;
+			border-radius: 6px;
+			cursor: pointer;
+			font-weight: 600;
+		}
+
+		.btn-logout:hover {
+			background: #4a5568;
+		}
+
+		.btn-home {
+			padding: 10px 20px;
+			background: #667eea;
+			color: white;
+			border: none;
+			border-radius: 6px;
+			cursor: pointer;
+			font-weight: 600;
+			text-decoration: none;
+			display: inline-block;
+		}
+
+		.btn-home:hover {
+			background: #5568d3;
+		}
+
+		.header-buttons {
+			display: flex;
+			gap: 10px;
+		}
+
+		.dashboard-grid {
+			display: grid;
+			grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+			gap: 25px;
+		}
+
+		.dashboard-card {
+			background: white;
+			padding: 30px;
+			border-radius: 12px;
+			box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+			text-align: center;
+			cursor: pointer;
+			transition: transform 0.2s, box-shadow 0.2s;
+			text-decoration: none;
+			color: inherit;
+			display: block;
+		}
+
+		.dashboard-card:hover {
+			transform: translateY(-5px);
+			box-shadow: 0 10px 20px rgba(0,0,0,0.15);
+		}
+
+		.card-icon {
+			font-size: 48px;
+			margin-bottom: 15px;
+		}
+
+		.card-title {
+			font-size: 20px;
+			font-weight: 600;
+			color: #2d3748;
+			margin-bottom: 10px;
+		}
+
+		.card-count {
+			font-size: 36px;
+			font-weight: bold;
+			color: #667eea;
+			margin-bottom: 5px;
+		}
+
+		.card-label {
+			color: #718096;
+			font-size: 14px;
+		}
+
+		.badge {
+			display: inline-block;
+			background: #e53e3e;
+			color: white;
+			padding: 4px 12px;
+			border-radius: 12px;
+			font-size: 14px;
+			font-weight: 600;
+			margin-left: 10px;
+		}
+
+		.badge.zero {
+			background: #48bb78;
+		}
+
+		.card-email-btn {
+			display: inline-block;
+			margin-top: 10px;
+			padding: 8px 16px;
+			background: #48bb78;
+			color: white;
+			border: none;
+			border-radius: 6px;
+			font-size: 14px;
+			font-weight: 600;
+			cursor: pointer;
+			text-decoration: none;
+			transition: background 0.2s;
+		}
+
+		.card-email-btn:hover {
+			background: #38a169;
+		}
+
+		.modal {
+			display: none;
+			position: fixed;
+			z-index: 1000;
+			left: 0;
+			top: 0;
+			width: 100%;
+			height: 100%;
+			background-color: rgba(0,0,0,0.5);
+			animation: fadeIn 0.3s;
+		}
+
+		.modal-content {
+			background-color: white;
+			margin: 10% auto;
+			padding: 40px;
+			border-radius: 12px;
+			width: 90%;
+			max-width: 500px;
+			box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+		}
+
+		.modal-header {
+			display: flex;
+			justify-content: space-between;
+			align-items: center;
+			margin-bottom: 20px;
+		}
+
+		.modal-header h2 {
+			color: #2d3748;
+			font-size: 24px;
+			margin: 0;
+		}
+
+		.close {
+			color: #718096;
+			font-size: 32px;
+			font-weight: bold;
+			cursor: pointer;
+			line-height: 1;
+		}
+
+		.close:hover {
+			color: #2d3748;
+		}
+
+		.upload-area {
+			border: 3px dashed #cbd5e0;
+			border-radius: 12px;
+			padding: 40px;
+			text-align: center;
+			margin: 20px 0;
+			background: #f7fafc;
+			cursor: pointer;
+			transition: all 0.3s;
+		}
+
+		.upload-area:hover {
+			border-color: #667eea;
+			background: #eef2ff;
+		}
+
+		.upload-area.dragover {
+			border-color: #667eea;
+			background: #e0e7ff;
+		}
+
+		.upload-icon {
+			font-size: 48px;
+			margin-bottom: 15px;
+		}
+
+		.file-input {
+			display: none;
+		}
+
+		.btn-upload {
+			width: 100%;
+			padding: 12px;
+			background: #48bb78;
+			color: white;
+			border: none;
+			border-radius: 6px;
+			font-size: 16px;
+			font-weight: 600;
+			cursor: pointer;
+			transition: background 0.2s;
+		}
+
+		.btn-upload:hover {
+			background: #38a169;
+		}
+
+		.btn-upload:disabled {
+			background: #a0aec0;
+			cursor: not-allowed;
+		}
+
+		.upload-status {
+			margin-top: 15px;
+			padding: 12px;
+			border-radius: 6px;
+			display: none;
+		}
+
+		.upload-status.success {
+			background: #c6f6d5;
+			color: #22543d;
+			border: 1px solid #9ae6b4;
+		}
+
+		.upload-status.error {
+			background: #fed7d7;
+			color: #742a2a;
+			border: 1px solid #fc8181;
+		}
+
+		.section-header {
+			background: white;
+			padding: 20px 30px;
+			border-radius: 12px;
+			margin-bottom: 20px;
+			box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+		}
+
+		.section-header h2 {
+			color: #2d3748;
+			font-size: 24px;
+			margin: 0;
+		}
+
+		.section-header p {
+			color: #718096;
+			margin: 5px 0 0 0;
+			font-size: 14px;
+		}
+
+		.loading {
+			text-align: center;
+			color: white;
+			font-size: 18px;
+			margin-top: 20px;
+		}
+
+		@media (max-width: 768px) {
+			.dashboard-header {
+				flex-direction: column;
+				gap: 15px;
+				text-align: center;
+			}
+
+			.dashboard-grid {
+				grid-template-columns: 1fr;
+			}
+		}
+
+		/* Active Members Board */
+		.member-board-wrapper {
+			background: white;
+			border-radius: 12px;
+			box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+			overflow-x: auto;
+			margin-bottom: 30px;
+		}
+
+		.member-board-table {
+			width: 100%;
+			border-collapse: collapse;
+			font-size: 12px;
+			min-width: 700px;
+		}
+
+		.member-board-table th {
+			background: #F58634;
+			color: white;
+			padding: 7px 8px;
+			text-align: left;
+			font-weight: 600;
+			white-space: nowrap;
+		}
+
+		.member-board-table th:first-child { border-radius: 12px 0 0 0; }
+		.member-board-table th:last-child  { border-radius: 0 12px 0 0; }
+
+		.member-board-table td {
+			padding: 6px 8px;
+			border-bottom: 1px solid #e2e8f0;
+			color: #2d3748;
+			white-space: nowrap;
+		}
+		.member-board-table td.wrap { white-space: normal; word-break: break-all; min-width: 140px; }
+		.member-board-table td.narrow { width: 36px; text-align: center; }
+
+		.member-board-table tbody tr:last-child td {
+			border-bottom: none;
+		}
+
+		.member-board-table tbody tr:hover td {
+			background: #fff3e8;
+		}
+
+		.member-board-table tbody tr:nth-child(even) td {
+			background: #fafafa;
+		}
+
+		.member-board-table tbody tr:nth-child(even):hover td {
+			background: #fff3e8;
+		}
+
+		.gender-m {
+			background: #667eea;
+			color: white;
+			padding: 2px 8px;
+			border-radius: 10px;
+			font-size: 12px;
+			font-weight: 700;
+		}
+
+		.gender-f {
+			background: #e91e8c;
+			color: white;
+			padding: 2px 8px;
+			border-radius: 10px;
+			font-size: 12px;
+			font-weight: 700;
+		}
+
+		.member-board-count {
+			display: inline-block;
+			background: rgba(255,255,255,0.25);
+			padding: 3px 12px;
+			border-radius: 12px;
+			font-size: 14px;
+			font-weight: 700;
+			margin-left: 10px;
+		}
+	</style>
+</head>
+<body>
+	<!-- Login Form -->
+	<div class="login-container" id="loginContainer">
+		<h1>🔐 Staff Login</h1>
+		<p>Enter password to access staff dashboard</p>
+		<form id="loginForm">
+			<div class="form-group">
+				<label for="password">Password</label>
+				<input type="password" id="password" name="password" required autofocus>
+			</div>
+			<button type="submit" class="btn-login">Login</button>
+			<div class="error-message" id="errorMessage">Incorrect password. Please try again.</div>
+		</form>
+	</div>
+
+	<!-- Dashboard -->
+	<div class="dashboard-container" id="dashboardContainer">
+		...existing code...
+	</div>
+</body>
+</html>
