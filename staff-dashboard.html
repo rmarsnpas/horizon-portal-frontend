@@ -1457,6 +1457,45 @@
                         : '';
                     const daysHere = admitDate ? Math.floor((today - admitDate) / 86400000) : '';
                     const soberDate = parseDate(soberRaw);
+
+        // Restore missing function declaration for loadMemberBoard
+        async function loadMemberBoard() {
+            try {
+                // Fetch all members
+                const response = await fetch(`${API_BASE}/api/members`);
+                const allMembers = await response.json();
+                // Filter active members (status 1, 2, 4, 5)
+                const activeMembers = allMembers.filter(m => {
+                    const status = m.STATUS || m.status || m.STATU;
+                    return [1, 2, 4, 5].includes(status);
+                });
+                // Render member board table
+                const tbody = document.getElementById('memberBoardBody');
+                tbody.innerHTML = activeMembers.map((member, idx) => {
+                    const firstName = member['FIRST\r\nNAME'] || member['FIRST\nNAME'] || member['FIRST NAME'] || member.firstName || '';
+                    const lastName  = member['LAST\r\nNAME']  || member['LAST\nNAME']  || member['LAST NAME']  || member.lastName  || '';
+                    const fullName  = `${firstName} ${lastName}`.trim() || '—';
+                    const nickname  = member['NIC NAME'] || member.nickname || member.nick || '';
+                    const gender    = member['M/F'] || member.GENDER || member.gender || '';
+                    const bed       = member.BED || member['BED#'] || member.bed || '';
+                    const dob       = (() => {
+                        const raw = member.DOB || member.dob || '';
+                        const d = parseDate(raw);
+                        return d ? d.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) : (raw || '');
+                    })();
+                    const admitRaw  = member['ADMIT\r\nDATE'] || member['ADMIT\nDATE'] || member['ADMIT DATE'] || member.admitDate || '';
+                    const soberRaw  = member['SOBER\r\nDATE'] || member['SOBER\nDATE'] || member['SOBER DATE'] || member.sobrietyDate || '';
+                    const rate      = member.RATE || member.rate || '';
+                    const phone     = member.PHONE || member.phone || '';
+                    const email     = member.EMAIL || member.email || '';
+                    const admitDate = parseDate(admitRaw);
+                    const admitText = admitDate
+                        ? admitDate.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })
+                        : '';
+                    const today = new Date();
+                    today.setHours(0, 0, 0, 0);
+                    const daysHere = admitDate ? Math.floor((today - admitDate) / 86400000) : '';
+                    const soberDate = parseDate(soberRaw);
                     const soberText = soberDate
                         ? soberDate.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })
                         : '';
@@ -1467,8 +1506,24 @@
                             ? '<span class="gender-f">F</span>'
                             : gender;
                     const rateDisplay = rate !== null && rate !== undefined && rate !== '' ? '$' + rate : '';
-                    // ...existing code for rendering new members table if needed...
-                });
+                    return `<tr>
+                        <td>${idx + 1}</td>
+                        <td>${member.YR || ''}</td>
+                        <td>${member.ID || ''}</td>
+                        <td>${fullName}</td>
+                        <td>${nickname}</td>
+                        <td>${genderTag}</td>
+                        <td>${bed}</td>
+                        <td>${dob}</td>
+                        <td>${admitText}</td>
+                        <td>${daysHere}</td>
+                        <td>${soberText}</td>
+                        <td>${daysSober}</td>
+                        <td>${rateDisplay}</td>
+                        <td>${phone}</td>
+                        <td>${email}</td>
+                    </tr>`;
+                }).join('');
                 // Count M and F
                 let mCount = 0, fCount = 0;
                 activeMembers.forEach(member => {
