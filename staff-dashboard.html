@@ -1065,6 +1065,51 @@
             }
             </script>
         <script>
+        // Handle file upload for members.xlsx
+        function uploadFile() {
+            const fileInput = document.getElementById('fileInput');
+            const file = fileInput.files[0];
+            const statusEl = document.getElementById('uploadStatus');
+            if (!file) {
+                statusEl.textContent = 'Please select a file.';
+                statusEl.className = 'upload-status error';
+                statusEl.style.display = 'block';
+                return;
+            }
+            statusEl.textContent = 'Uploading...';
+            statusEl.className = '';
+            statusEl.style.display = 'block';
+
+            const formData = new FormData();
+            formData.append('file', file);
+
+            fetch('https://horizon-portal-backend-production-3532.up.railway.app/api/uploadMembers', {
+                method: 'POST',
+                body: formData
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    statusEl.textContent = '✓ Upload successful!';
+                    statusEl.className = 'upload-status success';
+                    setTimeout(() => {
+                        document.getElementById('uploadModal').style.display = 'none';
+                        document.body.style.overflow = '';
+                        location.reload();
+                    }, 1200);
+                } else {
+                    statusEl.textContent = '✗ Upload failed: ' + (data.error || 'Unknown error');
+                    statusEl.className = 'upload-status error';
+                }
+            })
+            .catch(() => {
+                statusEl.textContent = '✗ Network error';
+                statusEl.className = 'upload-status error';
+            });
+        }
+        window.uploadFile = uploadFile;
+        </script>
+        <script>
         // Handle file selection for upload modal
         function handleFileSelect(event) {
             const fileInput = event.target;
