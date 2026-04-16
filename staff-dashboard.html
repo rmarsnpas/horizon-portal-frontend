@@ -1454,8 +1454,15 @@
                     const admitText = admitDate
                         ? admitDate.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })
                         : '';
-                    const daysHere = admitDate ? Math.floor((today - admitDate) / 86400000) : '';
-                    const soberDate = parseDate(soberRaw);
+				const daysHere = admitDate ? Math.floor((today - admitDate) / 86400000) : '';
+				const soberDate = parseDate(soberRaw);
+                    // ...existing code for rendering new members table if needed...
+                });
+                // ...existing code for updating new members UI if needed...
+            } catch (error) {
+                console.error('Error loading new members:', error);
+            }
+        }
 
         // Restore missing function declaration for loadMemberBoard
         async function loadMemberBoard() {
