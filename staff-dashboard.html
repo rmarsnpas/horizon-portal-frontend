@@ -1,3 +1,4 @@
+<!-- Trigger redeploy: blank comment -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -761,7 +762,7 @@
                                                 </table>
                         <!-- Edit Member Modal -->
                         <div id="editMemberModal" class="modal" style="display:none;">
-                            <div class="modal-content" style="max-width:600px;">
+                            <div class="modal-content" style="max-width:600px; max-height:90vh; overflow-y:auto;">
                                 <div class="modal-header" style="display:flex;justify-content:space-between;align-items:center;">
                                     <h2>✏️ Edit Member</h2>
                                     <span class="close" onclick="closeEditMemberModal()" style="font-size:2rem;cursor:pointer;">&times;</span>
@@ -818,7 +819,6 @@
                                             case 'LAST': return m["LAST"]||m["last"]||'';
                                             case 'ADMIT DATE': return formatDate(m["ADMIT DATE"]||m["admitDate"]||'');
                                             case 'DISCHARGE DATE': return formatDate(m["DISCHARGE DATE"]||m["dischargeDate"]||'');
-                                            case 'DAYS HERE': return m["DAYS HERE"]||m["daysHere"]||'';
                                             case 'BED': return m["BED"]||m["bed"]||'';
                                             case 'KEY': return m["KEY"]||m["key"]||'';
                                             case 'REF': return m["REF"]||m["ref"]||'';
@@ -826,7 +826,6 @@
                                             case 'NICKNAME': return m["NICKNAME"]||m["nickname"]||'';
                                             case 'DOB': return formatDate(m["DOB"]||m["dob"]||'');
                                             case 'SOBER DATE': return formatDate(m["SOBER DATE"]||m["soberDate"]||'');
-                                            case 'DAYSOBER': return m["DAYSOBER"]||m["daysSober"]||'';
                                             case 'PHONE': return m["PHONE"]||m["phone"]||'';
                                             case 'EMAIL': return m["EMAIL"]||m["email"]||'';
                                             case 'PIN': return m["PIN"]||m["pin"]||'';
@@ -855,12 +854,14 @@
                                         }
                                         return val;
                                     }
-                                    return '<tr>' + columnOrder.map(col => {
+                                    // Only show fields we want in the table
+                                    const visibleCols = columnOrder.filter(col => !["DAYS HERE","DAYSOBER"].includes(col));
+                                    return '<tr>' + visibleCols.map(col => {
                                         let cls = '';
-                                        if (["#","YR","ID","STATUS","M/F","DAYS HERE","BED","KEY","REF","RATE","DAYSOBER","PIN"].includes(col)) cls = 'narrow';
+                                        if (["#","YR","ID","STATUS","M/F","BED","KEY","REF","RATE","PIN"].includes(col)) cls = 'narrow';
                                         if (col === 'NICKNAME') cls = 'nickname';
-                                        return `<td class="${cls}" colname="${col}">${getVal(col)}</td>`;
-                                    }).join('') + '</tr>';
+                                        return `<td class=\"${cls}\" colname=\"${col}\">${getVal(col)}</td>`;
+                                    }).join('') + `<td><button onclick=\"openEditMemberModal(${idx})\" style=\"padding:4px 10px;font-size:12px;background:#667eea;color:white;border:none;border-radius:4px;cursor:pointer;\">Edit</button></td></tr>`;
                                 }).join('');
                                 // Store for search and editing
                                 window._allMembersTableData = { members, allKeys: orderedKeys };
@@ -949,11 +950,14 @@
             function openAddMemberModal() {
                 const { allKeys } = window._allMembersTableData || {};
                 if (!allKeys) return;
-                // Build empty form fields for new member
-                const fieldsHtml = allKeys.map(k => {
+                // Only show fields we want in the form
+                const formKeys = allKeys.filter(k => k !== 'DAYS HERE' && k !== 'DAYSOBER' && k !== 'YR');
+                const fieldsHtml = [
+                    `<div style='margin-bottom:10px;'><label style='font-weight:600;'>YR</label><input name='YR' value="26" readonly style='background:#eee;width:100%;padding:8px;font-size:1rem;border:1px solid #ccc;border-radius:6px;'></div>`
+                ].concat(formKeys.map(k => {
                     const isId = k.toLowerCase().includes('id') && k.length <= 4;
                     return `<div style='margin-bottom:10px;'><label style='font-weight:600;'>${k}</label><input name='${k}' value="" ${isId ? '' : ''} style='width:100%;padding:8px;font-size:1rem;border:1px solid #ccc;border-radius:6px;'></div>`;
-                }).join('');
+                })).join('');
                 document.getElementById('editMemberFields').innerHTML = fieldsHtml;
                 document.getElementById('editMemberStatus').textContent = '';
                 document.getElementById('editMemberModal').style.display = 'block';
@@ -1062,7 +1066,7 @@
                             <th>Admit</th>
                             <th class="narrow">Days</th>
                             <th>Sober</th>
-                            <th class="narrow">Days</th>
+                            <th class="narrow" style="color:#2e7d32;font-weight:bold;">Days</th>
                             <th>Rate</th>
                             <th>Phone</th>
                             <th class="wrap">Email</th>
@@ -1384,7 +1388,7 @@
                             <div class="dashboard-card" style="background: ${bgColor}; color: white; border: none;">
                                 <div class="card-icon" style="font-size: 48px;">${m.icon}</div>
                                 <div class="card-title" style="color: white;">${m.name}</div>
-                                <div class="card-count" style="color: white; font-size: 24px;">${dayText}</div>
+                                <div class="card-count" style="color: white; font-size: 24px; font-weight: 700;">${dayText}</div>
                                 <div class="card-label" style="color: rgba(255,255,255,0.9);">${m.detail}</div>
                                 <div class="card-label" style="color: rgba(255,255,255,0.8); font-size: 13px; margin-top: 5px;">📅 ${dateText}</div>
                             </div>
@@ -1411,268 +1415,16 @@
             try {
                 const response = await fetch(`${API_BASE}/api/members`);
                 const allMembers = await response.json();
-                
                 // Filter active members (status 1, 2, 4, 5)
                 const activeMembers = allMembers.filter(m => {
                     const status = m.STATUS || m.status || m.STATU;
                     return [1, 2, 4, 5].includes(status);
                 });
-
                 const newMembers = [];
                 const today = new Date();
                 today.setHours(0, 0, 0, 0);
                 const lookBackDays = 3; // Show members who arrived in last 3 days
-
                 // Helper to parse Excel date or regular date
-                function parseDate(val) {
-                    if (!val) return null;
-                    if (typeof val === 'number' || (!isNaN(val) && val > 10000)) {
-                        const excelEpoch = new Date(1899, 11, 30);
-                        const date = new Date(excelEpoch.getTime() + val * 86400000);
-                        return date;
-                    }
-                    const parsed = new Date(val);
-                    return isNaN(parsed.getTime()) ? null : parsed;
-                }
-
-                activeMembers.forEach(member => {
-                    const firstName = member['FIRST\r\nNAME'] || member['FIRST\nNAME'] || member.FIRST_NAME || member.first_name || '';
-                    const lastName = member['LAST\r\nNAME'] || member['LAST\nNAME'] || member.LAST_NAME || member.last_name || '';
-                    const fullName = `${firstName} ${lastName}`.trim() || 'Unknown';
-                    
-                    // Check column H - try various possible column names for move-in/admission date
-                    const moveInStr = member['MOVE IN DATE'] || member['MOVE-IN DATE'] || member['ADMISSION DATE'] || 
-                                      member['MOVE IN'] || member.MOVE_IN_DATE || member.ADMISSION_DATE || 
-                                      member['MOVE\r\nIN'] || member['MOVE\nIN'] || Object.values(member)[7]; // Column H is index 7
-                    
-                    if (moveInStr) {
-                        const moveInDate = parseDate(moveInStr);
-                        if (moveInDate) {
-                            moveInDate.setHours(0, 0, 0, 0);
-                            const daysSince = Math.floor((today - moveInDate) / (1000 * 60 * 60 * 24));
-                            
-                            // Show if moved in within last 3 days (0-3 days ago)
-                            if (daysSince >= 0 && daysSince <= lookBackDays) {
-                                newMembers.push({
-                                    name: fullName,
-                                    moveInDate: moveInDate,
-                                    daysSince: daysSince
-                                });
-                            }
-                        }
-                    }
-                });
-
-                // Sort by most recent first
-                newMembers.sort((a, b) => a.daysSince - b.daysSince);
-
-                // Display new members
-                if (newMembers.length > 0) {
-                    const newMembersGrid = document.getElementById('newMembersGrid');
-                    newMembersGrid.innerHTML = newMembers.map(m => {
-                        let dayText;
-                        if (m.daysSince === 0) {
-                            dayText = 'Arrived TODAY!';
-                        } else if (m.daysSince === 1) {
-                            dayText = 'Arrived Yesterday';
-                        } else {
-                            dayText = `Arrived ${m.daysSince} days ago`;
-                        }
-                        
-                        const dateText = m.moveInDate.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
-                        
-                        return `
-                            <div class="dashboard-card" style="background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%); color: #1a202c; border: none;">
-                                <div class="card-icon" style="font-size: 48px;">👋</div>
-                                <div class="card-title" style="color: #1a202c; font-weight: 600;">${m.name}</div>
-                                <div class="card-count" style="color: #2d3748; font-size: 24px; font-weight: 700;">${dayText}</div>
-                                <div class="card-label" style="color: #2d3748; opacity: 0.9;">Welcome to Horizon House!</div>
-                                <div class="card-label" style="color: #2d3748; opacity: 0.8; font-size: 13px; margin-top: 5px;">📅 ${dateText}</div>
-                            </div>
-                        `;
-                    }).join('');
-                    
-                    document.getElementById('newMembersSection').style.display = 'block';
-                    newMembersGrid.style.display = 'grid';
-                } else {
-                    document.getElementById('newMembersSection').style.display = 'none';
-                    document.getElementById('newMembersGrid').style.display = 'none';
-                }
-
-            } catch (error) {
-                console.error('Error loading new members:', error);
-                document.getElementById('newMembersSection').style.display = 'none';
-                document.getElementById('newMembersGrid').style.display = 'none';
-            }
-        }
-
-        // Auto-refresh every 30 seconds
-        setInterval(() => {
-            if (sessionStorage.getItem(SESSION_KEY) === 'true') {
-                loadDashboardData();
-            }
-        }, 30000);
-
-        // Email application link function
-        function emailApplicationLink(event) {
-            event.preventDefault();
-            const applicationURL = window.location.origin + '/application.html';
-            const subject = encodeURIComponent('Horizon House Sober Living - Application Form');
-            const body = encodeURIComponent(
-                'Hello,\n\n' +
-                'Please complete the Horizon House Sober Living application form at the link below:\n\n' +
-                applicationURL + '\n\n' +
-                'If you have any questions, please contact us at mars@horizon-house.org or call us directly.\n\n' +
-                'Best regards,\n' +
-                'Horizon House Staff\n' +
-                'mars@horizon-house.org'
-            );
-            window.location.href = `mailto:?subject=${subject}&body=${body}`;
-        }
-
-        // Copy application link to clipboard
-        async function copyApplicationLink(event) {
-            event.preventDefault();
-            const applicationURL = window.location.origin + '/application.html';
-            
-            try {
-                await navigator.clipboard.writeText(applicationURL);
-                const btn = event.target;
-                const originalText = btn.innerHTML;
-                btn.innerHTML = '✅ Copied!';
-                btn.style.background = '#48bb78';
-                setTimeout(() => {
-                    btn.innerHTML = originalText;
-                    btn.style.background = '#48bb78';
-                }, 2000);
-            } catch (err) {
-                console.error('Failed to copy:', err);
-                alert('Failed to copy link. Please copy manually: ' + applicationURL);
-            }
-        }
-
-        // Upload modal functions
-        let selectedFile = null;
-
-        function openUploadModal() {
-            document.getElementById('uploadModal').style.display = 'block';
-        }
-
-        function closeUploadModal() {
-            document.getElementById('uploadModal').style.display = 'none';
-            selectedFile = null;
-            document.getElementById('selectedFileName').style.display = 'none';
-            document.getElementById('uploadButton').disabled = true;
-            document.getElementById('uploadStatus').style.display = 'none';
-        }
-
-        function handleFileSelect(event) {
-            const file = event.target.files[0];
-            if (file && file.name.endsWith('.xlsx')) {
-                selectedFile = file;
-                document.getElementById('selectedFileName').textContent = '✅ ' + file.name;
-                document.getElementById('selectedFileName').style.display = 'block';
-                document.getElementById('uploadButton').disabled = false;
-            } else {
-                alert('Please select a valid .xlsx file');
-            }
-        }
-
-        // Drag and drop functionality
-        const uploadArea = document.getElementById('uploadArea');
-        
-        uploadArea.addEventListener('dragover', (e) => {
-            e.preventDefault();
-            uploadArea.classList.add('dragover');
-        });
-
-        uploadArea.addEventListener('dragleave', () => {
-            uploadArea.classList.remove('dragover');
-        });
-
-        uploadArea.addEventListener('drop', (e) => {
-            e.preventDefault();
-            uploadArea.classList.remove('dragover');
-            const file = e.dataTransfer.files[0];
-            if (file && file.name.endsWith('.xlsx')) {
-                selectedFile = file;
-                document.getElementById('selectedFileName').textContent = '✅ ' + file.name;
-                document.getElementById('selectedFileName').style.display = 'block';
-                document.getElementById('uploadButton').disabled = false;
-            } else {
-                alert('Please select a valid .xlsx file');
-            }
-        });
-
-        async function uploadFile() {
-            if (!selectedFile) return;
-
-            const uploadButton = document.getElementById('uploadButton');
-            const uploadStatus = document.getElementById('uploadStatus');
-
-            uploadButton.disabled = true;
-            uploadButton.textContent = 'Uploading...';
-            uploadStatus.style.display = 'none';
-
-            const formData = new FormData();
-            formData.append('file', selectedFile);
-
-            try {
-                const response = await fetch(`${API_BASE}/api/uploadMembers`, {
-                    method: 'POST',
-                    body: formData
-                });
-
-                const result = await response.json();
-
-                if (response.ok) {
-                    uploadStatus.className = 'upload-status success';
-                    uploadStatus.textContent = '⏳ File uploaded, importing into database…';
-                    uploadStatus.style.display = 'block';
-
-                    // Now import the uploaded file into members-db.json
-                    try {
-                        const importRes = await fetch(`${API_BASE}/api/memberDB/import`, { method: 'POST' });
-                        const importData = await importRes.json();
-                        if (importData.success) {
-                            uploadStatus.textContent = `✅ Import complete! ${importData.count} members loaded.`;
-                        } else {
-                            uploadStatus.textContent = '✅ Uploaded. Import note: ' + (importData.error || 'unknown');
-                        }
-                    } catch(e) {
-                        uploadStatus.textContent = '✅ Uploaded (import step failed: ' + e.message + ')';
-                    }
-
-                    setTimeout(() => {
-                        closeUploadModal();
-                        loadDashboardData(); // Refresh dashboard data
-                    }, 2500);
-                } else {
-                    throw new Error(result.message || 'Upload failed');
-                }
-            } catch (error) {
-                console.error('Upload error:', error);
-                uploadStatus.className = 'upload-status error';
-                uploadStatus.textContent = '❌ Upload failed: ' + error.message;
-                uploadStatus.style.display = 'block';
-                uploadButton.disabled = false;
-                uploadButton.textContent = 'Upload File';
-            }
-        }
-
-        // Load active members board (status = 1 only)
-        async function loadMemberBoard() {
-            try {
-                const response = await fetch(`${API_BASE}/api/members`);
-                const allMembers = await response.json();
-
-                // Filter to status = 1 (active members only) with a bed assigned
-                const activeMembers = allMembers.filter(m => {
-                    const status = Number(m.STATUS ?? m.status ?? -1);
-                    const bed = (m.BED || m['BED#'] || m.bed || '').toString().trim();
-                    return status === 1 && bed !== '';
-                });
-
                 function parseDate(val) {
                     if (!val) return null;
                     if (typeof val === 'number' || (!isNaN(val) && String(val).length > 4 && val > 10000)) {
@@ -1682,78 +1434,41 @@
                     const parsed = new Date(val);
                     return isNaN(parsed.getTime()) ? null : parsed;
                 }
-
-                const today = new Date();
-                today.setHours(0, 0, 0, 0);
-
-                const tbody = document.getElementById('memberBoardBody');
-
-                if (activeMembers.length === 0) {
-                    tbody.innerHTML = '<tr><td colspan="10" style="text-align:center;color:#718096;padding:24px;">No active members found</td></tr>';
-                } else {
-                    tbody.innerHTML = activeMembers.map((member, index) => {
-                        const yr = member.YR || member.yr || member.Year || '';
-                        const memberId  = member.ID || member.id || '';
-                        const firstName = member['FIRST\r\nNAME'] || member['FIRST\nNAME'] || member['FIRST NAME'] || member.firstName || '';
-                        const lastName  = member['LAST\r\nNAME']  || member['LAST\nNAME']  || member['LAST NAME']  || member.lastName  || '';
-                        const fullName  = `${firstName} ${lastName}`.trim() || '—';
-                        const nickname  = member['NIC NAME'] || member.nickname || member.nick || '';
-                        const gender    = member['M/F'] || member.GENDER || member.gender || '';
-                        const bed       = member.BED || member['BED#'] || member.bed || '';
-                        const dob       = (() => {
-                            const raw = member.DOB || member.dob || '';
-                            const d = parseDate(raw);
-                            return d ? d.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) : (raw || '');
-                        })();
-                        const admitRaw  = member['ADMIT\r\nDATE'] || member['ADMIT\nDATE'] || member['ADMIT DATE'] || member.admitDate || '';
-                        const soberRaw  = member['SOBER\r\nDATE'] || member['SOBER\nDATE'] || member['SOBER DATE'] || member.sobrietyDate || '';
-                        const rate      = member.RATE || member.rate || '';
-                        const phone     = member.PHONE || member.phone || '';
-                        const email     = member.EMAIL || member.email || '';
-
-                        const admitDate = parseDate(admitRaw);
-                        const admitText = admitDate
-                            ? admitDate.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })
-                            : '';
-
-                        const daysHere = admitDate ? Math.floor((today - admitDate) / 86400000) : '';
-
-                        const soberDate = parseDate(soberRaw);
-                        const soberText = soberDate
-                            ? soberDate.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })
-                            : '';
-                        const daysSober = soberDate ? Math.floor((today - soberDate) / 86400000) : '';
-
-                        const genderTag = gender === 'M'
-                            ? '<span class="gender-m">M</span>'
-                            : gender === 'F'
-                                ? '<span class="gender-f">F</span>'
-                                : gender;
-
-                        const rateDisplay = rate !== null && rate !== undefined && rate !== '' ? '$' + rate : '';
-
-                        return `
-                            <tr>
-                                <td class="narrow">${index + 1}</td>
-                                <td class="narrow">${yr}</td>
-                                <td class="narrow">${memberId}</td>
-                                <td><strong>${fullName}</strong></td>
-                                <td>${nickname}</td>
-                                <td class="narrow">${genderTag}</td>
-                                <td class="narrow">${bed}</td>
-                                <td>${dob}</td>
-                                <td>${admitText}</td>
-                                <td class="narrow">${daysHere}</td>
-                                <td>${soberText}</td>
-                                <td class="narrow" style="color:#2e7d32;font-weight:bold;">${daysSober}</td>
-                                <td>${rateDisplay}</td>
-                                <td>${phone}</td>
-                                <td class="wrap">${email}</td>
-                            </tr>`;
-                    }).join('');
-                }
-
-
+                activeMembers.forEach((member, index) => {
+                    const firstName = member['FIRST\r\nNAME'] || member['FIRST\nNAME'] || member['FIRST NAME'] || member.firstName || '';
+                    const lastName  = member['LAST\r\nNAME']  || member['LAST\nNAME']  || member['LAST NAME']  || member.lastName  || '';
+                    const fullName  = `${firstName} ${lastName}`.trim() || '—';
+                    const nickname  = member['NIC NAME'] || member.nickname || member.nick || '';
+                    const gender    = member['M/F'] || member.GENDER || member.gender || '';
+                    const bed       = member.BED || member['BED#'] || member.bed || '';
+                    const dob       = (() => {
+                        const raw = member.DOB || member.dob || '';
+                        const d = parseDate(raw);
+                        return d ? d.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) : (raw || '');
+                    })();
+                    const admitRaw  = member['ADMIT\r\nDATE'] || member['ADMIT\nDATE'] || member['ADMIT DATE'] || member.admitDate || '';
+                    const soberRaw  = member['SOBER\r\nDATE'] || member['SOBER\nDATE'] || member['SOBER DATE'] || member.sobrietyDate || '';
+                    const rate      = member.RATE || member.rate || '';
+                    const phone     = member.PHONE || member.phone || '';
+                    const email     = member.EMAIL || member.email || '';
+                    const admitDate = parseDate(admitRaw);
+                    const admitText = admitDate
+                        ? admitDate.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })
+                        : '';
+                    const daysHere = admitDate ? Math.floor((today - admitDate) / 86400000) : '';
+                    const soberDate = parseDate(soberRaw);
+                    const soberText = soberDate
+                        ? soberDate.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })
+                        : '';
+                    const daysSober = soberDate ? Math.floor((today - soberDate) / 86400000) : '';
+                    const genderTag = gender === 'M'
+                        ? '<span class="gender-m">M</span>'
+                        : gender === 'F'
+                            ? '<span class="gender-f">F</span>'
+                            : gender;
+                    const rateDisplay = rate !== null && rate !== undefined && rate !== '' ? '$' + rate : '';
+                    // ...existing code for rendering new members table if needed...
+                });
                 // Count M and F
                 let mCount = 0, fCount = 0;
                 activeMembers.forEach(member => {
@@ -1766,7 +1481,6 @@
                 document.getElementById('memberBoardFCount').textContent = `F: ${fCount}`;
                 document.getElementById('memberBoardSection').style.display = 'block';
                 document.getElementById('memberBoardContainer').style.display = 'block';
-
             } catch (error) {
                 console.error('Error loading member board:', error);
                 document.getElementById('memberBoardSection').style.display = 'none';
