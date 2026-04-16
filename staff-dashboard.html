@@ -865,7 +865,6 @@
                                 // Store for search and editing
                                 window._allMembersTableData = { members, allKeys: orderedKeys };
                 function openEditMemberModal(idx) {
-                                    window.openEditMemberModal = openEditMemberModal;
                     const { members, allKeys } = window._allMembersTableData;
                     const member = members[idx];
                     window._editMemberIdx = idx;
@@ -880,6 +879,7 @@
                     document.getElementById('editMemberModal').style.display = 'block';
                     document.body.style.overflow = 'hidden';
                 }
+                window.openEditMemberModal = openEditMemberModal;
 
                 window.closeEditMemberModal = function closeEditMemberModal() {
                     document.getElementById('editMemberModal').style.display = 'none';
@@ -961,6 +961,8 @@
                             <button type='button' id='addMemberSaveBtn' style='flex:1;padding:12px;background:#28a745;color:white;border:none;border-radius:6px;font-weight:700;font-size:1.1rem;'>Save</button>
                             <button type='button' id='addMemberCancelBtn' style='flex:1;padding:12px;background:#6c757d;color:white;border:none;border-radius:6px;font-weight:700;font-size:1.1rem;'>Cancel</button>
                         </div><div id='editMemberStatus' style='margin-top:10px;font-weight:600;'></div>`;
+                // Always clear modal content before rendering
+                document.getElementById('editMemberFields').innerHTML = '';
                 document.getElementById('editMemberFields').innerHTML = fieldsHtml + buttonsHtml;
                 document.getElementById('editMemberStatus').textContent = '';
                 document.getElementById('editMemberModal').style.display = 'block';
