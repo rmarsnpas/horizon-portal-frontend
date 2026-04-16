@@ -887,41 +887,78 @@
 
                 async function submitEditMember(event) {
                     event.preventDefault();
-                    const idx = window._editMemberIdx;
                     const { members, allKeys } = window._allMembersTableData;
-                    const member = members[idx];
                     const form = event.target;
                     const updated = {};
                     allKeys.forEach(k => {
                         updated[k] = form.elements[k] ? form.elements[k].value : '';
                     });
-                    // Send update to backend
                     document.getElementById('editMemberStatus').textContent = 'Saving...';
-                    try {
-                        const res = await fetch(`${API_BASE}/api/updateMember`, {
-                            method: 'POST',
-                            headers: { 'Content-Type': 'application/json' },
-                            body: JSON.stringify(updated)
-                        });
-                        const result = await res.json();
-                        if (result.success) {
-                            document.getElementById('editMemberStatus').textContent = '✓ Saved!';
-                            // Update local data and table
-                            members[idx] = { ...updated };
-                            filterAllMembersTable();
-                            setTimeout(closeEditMemberModal, 900);
-                        } else {
-                            document.getElementById('editMemberStatus').textContent = 'Error: ' + (result.error || 'Unknown');
+                    // If in add mode, POST to /api/addMember, else update existing
+                    if (window._addMemberMode) {
+                        try {
+                            const res = await fetch(`${API_BASE}/api/addMember`, {
+                                method: 'POST',
+                                headers: { 'Content-Type': 'application/json' },
+                                body: JSON.stringify(updated)
+                            });
+                            const result = await res.json();
+                            if (result.success) {
+                                document.getElementById('editMemberStatus').textContent = '✓ Member added!';
+                                // Add to local data and refresh table
+                                members.push({ ...updated });
+                                filterAllMembersTable();
+                                setTimeout(() => {
+                                    closeEditMemberModal();
+                                    window._addMemberMode = false;
+                                }, 900);
+                            } else {
+                                document.getElementById('editMemberStatus').textContent = 'Error: ' + (result.error || 'Unknown');
+                            }
+                        } catch (e) {
+                            document.getElementById('editMemberStatus').textContent = 'Network error';
                         }
-                    } catch (e) {
-                        document.getElementById('editMemberStatus').textContent = 'Network error';
+                    } else {
+                        // Edit mode (existing logic)
+                        const idx = window._editMemberIdx;
+                        try {
+                            const res = await fetch(`${API_BASE}/api/updateMember`, {
+                                method: 'POST',
+                                headers: { 'Content-Type': 'application/json' },
+                                body: JSON.stringify(updated)
+                            });
+                            const result = await res.json();
+                            if (result.success) {
+                                document.getElementById('editMemberStatus').textContent = '✓ Saved!';
+                                members[idx] = { ...updated };
+                                filterAllMembersTable();
+                                setTimeout(closeEditMemberModal, 900);
+                            } else {
+                                document.getElementById('editMemberStatus').textContent = 'Error: ' + (result.error || 'Unknown');
+                            }
+                        } catch (e) {
+                            document.getElementById('editMemberStatus').textContent = 'Network error';
+                        }
                     }
                 }
             }
 
             // Add Member Modal (stub)
             function openAddMemberModal() {
-                alert('Add Member functionality coming soon!');
+                const { allKeys } = window._allMembersTableData || {};
+                if (!allKeys) return;
+                // Build empty form fields for new member
+                const fieldsHtml = allKeys.map(k => {
+                    const isId = k.toLowerCase().includes('id') && k.length <= 4;
+                    return `<div style='margin-bottom:10px;'><label style='font-weight:600;'>${k}</label><input name='${k}' value="" ${isId ? '' : ''} style='width:100%;padding:8px;font-size:1rem;border:1px solid #ccc;border-radius:6px;'></div>`;
+                }).join('');
+                document.getElementById('editMemberFields').innerHTML = fieldsHtml;
+                document.getElementById('editMemberStatus').textContent = '';
+                document.getElementById('editMemberModal').style.display = 'block';
+                document.body.style.overflow = 'hidden';
+                // Set a flag to indicate add mode
+                window._addMemberMode = true;
+            }
             }
             function closeAllMembersModal() {
                 document.getElementById('allMembersModal').style.display = 'none';
