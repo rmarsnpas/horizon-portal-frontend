@@ -1064,6 +1064,25 @@
                 ).join('');
             }
             </script>
+        <script>
+        // Handle file selection for upload modal
+        function handleFileSelect(event) {
+            const fileInput = event.target;
+            const file = fileInput.files[0];
+            const fileNameEl = document.getElementById('selectedFileName');
+            const uploadBtn = document.getElementById('uploadButton');
+            if (file) {
+                fileNameEl.textContent = file.name;
+                fileNameEl.style.display = 'block';
+                uploadBtn.disabled = false;
+            } else {
+                fileNameEl.textContent = '';
+                fileNameEl.style.display = 'none';
+                uploadBtn.disabled = true;
+            }
+        }
+        window.handleFileSelect = handleFileSelect;
+        </script>
         </div>
         <!-- Kiosk Messages Panel -->
         <div id="kioskMsgSection" style="display: none; margin-top: 30px; margin-bottom: 20px;">
