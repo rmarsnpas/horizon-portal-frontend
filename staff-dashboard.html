@@ -957,12 +957,49 @@
                     const isId = k.toLowerCase().includes('id') && k.length <= 4;
                     return `<div style='margin-bottom:10px;'><label style='font-weight:600;'>${k}</label><input name='${k}' value="" ${isId ? '' : ''} style='width:100%;padding:8px;font-size:1rem;border:1px solid #ccc;border-radius:6px;'></div>`;
                 })).join('');
-                document.getElementById('editMemberFields').innerHTML = fieldsHtml;
+                // Add Save and Cancel buttons for Add Member
+                const buttonsHtml = `<div style='margin-top:18px;display:flex;gap:12px;'>
+                    <button type='button' onclick='submitAddMember()' style='flex:1;padding:12px;background:#28a745;color:white;border:none;border-radius:6px;font-weight:700;font-size:1.1rem;'>Save</button>
+                    <button type='button' onclick='closeEditMemberModal()' style='flex:1;padding:12px;background:#6c757d;color:white;border:none;border-radius:6px;font-weight:700;font-size:1.1rem;'>Cancel</button>
+                </div><div id='editMemberStatus' style='margin-top:10px;font-weight:600;'></div>`;
+                document.getElementById('editMemberFields').innerHTML = fieldsHtml + buttonsHtml;
                 document.getElementById('editMemberStatus').textContent = '';
                 document.getElementById('editMemberModal').style.display = 'block';
                 document.body.style.overflow = 'hidden';
-                // Set a flag to indicate add mode
                 window._addMemberMode = true;
+
+                // Add handler for Save button
+                window.submitAddMember = async function() {
+                    const { allKeys, members } = window._allMembersTableData || {};
+                    if (!allKeys) return;
+                    const form = document.getElementById('editMemberForm');
+                    const updated = {};
+                    allKeys.forEach(k => {
+                        updated[k] = form.elements[k] ? form.elements[k].value : '';
+                    });
+                    document.getElementById('editMemberStatus').textContent = 'Saving...';
+                    try {
+                        const res = await fetch(`${API_BASE}/api/addMember`, {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify(updated)
+                        });
+                        const result = await res.json();
+                        if (result.success) {
+                            document.getElementById('editMemberStatus').textContent = '✓ Member added!';
+                            members.push({ ...updated });
+                            filterAllMembersTable();
+                            setTimeout(() => {
+                                closeEditMemberModal();
+                                window._addMemberMode = false;
+                            }, 900);
+                        } else {
+                            document.getElementById('editMemberStatus').textContent = 'Error: ' + (result.error || 'Unknown');
+                        }
+                    } catch (e) {
+                        document.getElementById('editMemberStatus').textContent = 'Network error';
+                    }
+                }
             }
             function closeAllMembersModal() {
                 document.getElementById('allMembersModal').style.display = 'none';
