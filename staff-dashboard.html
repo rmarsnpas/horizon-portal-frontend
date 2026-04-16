@@ -881,8 +881,7 @@
                     document.body.style.overflow = 'hidden';
                 }
 
-                function closeEditMemberModal() {
-                                    window.closeEditMemberModal = closeEditMemberModal;
+                window.closeEditMemberModal = function closeEditMemberModal() {
                     document.getElementById('editMemberModal').style.display = 'none';
                     document.body.style.overflow = '';
                 }
@@ -958,15 +957,59 @@
                     return `<div style='margin-bottom:10px;'><label style='font-weight:600;'>${k}</label><input name='${k}' value="" ${isId ? '' : ''} style='width:100%;padding:8px;font-size:1rem;border:1px solid #ccc;border-radius:6px;'></div>`;
                 })).join('');
                 // Add Save and Cancel buttons for Add Member
-                const buttonsHtml = `<div style='margin-top:18px;display:flex;gap:12px;'>
-                    <button type='button' onclick='submitAddMember()' style='flex:1;padding:12px;background:#28a745;color:white;border:none;border-radius:6px;font-weight:700;font-size:1.1rem;'>Save</button>
-                    <button type='button' onclick='closeEditMemberModal()' style='flex:1;padding:12px;background:#6c757d;color:white;border:none;border-radius:6px;font-weight:700;font-size:1.1rem;'>Cancel</button>
-                </div><div id='editMemberStatus' style='margin-top:10px;font-weight:600;'></div>`;
+                        const buttonsHtml = `<div style='margin-top:18px;display:flex;gap:12px;'>
+                            <button type='button' id='addMemberSaveBtn' style='flex:1;padding:12px;background:#28a745;color:white;border:none;border-radius:6px;font-weight:700;font-size:1.1rem;'>Save</button>
+                            <button type='button' id='addMemberCancelBtn' style='flex:1;padding:12px;background:#6c757d;color:white;border:none;border-radius:6px;font-weight:700;font-size:1.1rem;'>Cancel</button>
+                        </div><div id='editMemberStatus' style='margin-top:10px;font-weight:600;'></div>`;
                 document.getElementById('editMemberFields').innerHTML = fieldsHtml + buttonsHtml;
                 document.getElementById('editMemberStatus').textContent = '';
                 document.getElementById('editMemberModal').style.display = 'block';
                 document.body.style.overflow = 'hidden';
                 window._addMemberMode = true;
+                        // Add handler for Save and Cancel buttons
+                        setTimeout(() => {
+                            const saveBtn = document.getElementById('addMemberSaveBtn');
+                            const cancelBtn = document.getElementById('addMemberCancelBtn');
+                            if (saveBtn) {
+                                saveBtn.onclick = async function() {
+                                    const { allKeys, members } = window._allMembersTableData || {};
+                                    if (!allKeys) return;
+                                    const form = document.getElementById('editMemberForm');
+                                    const updated = {};
+                                    allKeys.forEach(k => {
+                                        updated[k] = form.elements[k] ? form.elements[k].value : '';
+                                    });
+                                    document.getElementById('editMemberStatus').textContent = 'Saving...';
+                                    try {
+                                        const res = await fetch(`${API_BASE}/api/addMember`, {
+                                            method: 'POST',
+                                            headers: { 'Content-Type': 'application/json' },
+                                            body: JSON.stringify(updated)
+                                        });
+                                        const result = await res.json();
+                                        if (result.success) {
+                                            document.getElementById('editMemberStatus').textContent = '✓ Member added!';
+                                            members.push({ ...updated });
+                                            filterAllMembersTable();
+                                            setTimeout(() => {
+                                                closeEditMemberModal();
+                                                window._addMemberMode = false;
+                                            }, 900);
+                                        } else {
+                                            document.getElementById('editMemberStatus').textContent = 'Error: ' + (result.error || 'Unknown');
+                                        }
+                                    } catch (e) {
+                                        document.getElementById('editMemberStatus').textContent = 'Network error';
+                                    }
+                                };
+                            }
+                            if (cancelBtn) {
+                                cancelBtn.onclick = function() {
+                                    closeEditMemberModal();
+                                    window._addMemberMode = false;
+                                };
+                            }
+                        }, 0);
 
                 // Add handler for Save button
                 window.submitAddMember = async function() {
@@ -1311,21 +1354,6 @@
                     const firstName = member['FIRST\r\nNAME'] || member['FIRST\nNAME'] || member.FIRST_NAME || member.first_name || '';
                     const lastName = member['LAST\r\nNAME'] || member['LAST\nNAME'] || member.LAST_NAME || member.last_name || '';
                     const fullName = `${firstName} ${lastName}`.trim() || 'Unknown';
-                    
-                    // Helper to parse Excel date or regular date
-                    function parseDate(val) {
-                        if (!val) return null;
-                        // Check if it's an Excel serial number (25569 = 1/1/1970 in Excel)
-                        if (typeof val === 'number' || (!isNaN(val) && val > 10000)) {
-                            const excelEpoch = new Date(1899, 11, 30); // Excel epoch
-                            const date = new Date(excelEpoch.getTime() + val * 86400000);
-                            return date;
-                        }
-                        // Try parsing as regular date
-                        const parsed = new Date(val);
-                        return isNaN(parsed.getTime()) ? null : parsed;
-                    }
-                    
                     // Check birthday
                     const dobStr = member.DOB || member.dob;
                     if (dobStr) {
@@ -1460,16 +1488,6 @@
                 const today = new Date();
                 today.setHours(0, 0, 0, 0);
                 const lookBackDays = 3; // Show members who arrived in last 3 days
-                // Helper to parse Excel date or regular date
-                function parseDate(val) {
-                    if (!val) return null;
-                    if (typeof val === 'number' || (!isNaN(val) && String(val).length > 4 && val > 10000)) {
-                        const excelEpoch = new Date(1899, 11, 30);
-                        return new Date(excelEpoch.getTime() + val * 86400000);
-                    }
-                    const parsed = new Date(val);
-                    return isNaN(parsed.getTime()) ? null : parsed;
-                }
                 activeMembers.forEach((member, index) => {
                     const firstName = member['FIRST\r\nNAME'] || member['FIRST\nNAME'] || member['FIRST NAME'] || member.firstName || '';
                     const lastName  = member['LAST\r\nNAME']  || member['LAST\nNAME']  || member['LAST NAME']  || member.lastName  || '';
@@ -1501,6 +1519,16 @@
             }
         }
 
+        // Global helper to parse Excel date or regular date
+        function parseDate(val) {
+            if (!val) return null;
+            if (typeof val === 'number' || (!isNaN(val) && String(val).length > 4 && val > 10000)) {
+                const excelEpoch = new Date(1899, 11, 30);
+                return new Date(excelEpoch.getTime() + val * 86400000);
+            }
+            const parsed = new Date(val);
+            return isNaN(parsed.getTime()) ? null : parsed;
+        }
         // Restore missing function declaration for loadMemberBoard
         async function loadMemberBoard() {
             try {
