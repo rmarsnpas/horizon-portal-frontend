@@ -865,6 +865,7 @@
                                 // Store for search and editing
                                 window._allMembersTableData = { members, allKeys: orderedKeys };
                 function openEditMemberModal(idx) {
+                                    window.openEditMemberModal = openEditMemberModal;
                     const { members, allKeys } = window._allMembersTableData;
                     const member = members[idx];
                     window._editMemberIdx = idx;
@@ -881,6 +882,7 @@
                 }
 
                 function closeEditMemberModal() {
+                                    window.closeEditMemberModal = closeEditMemberModal;
                     document.getElementById('editMemberModal').style.display = 'none';
                     document.body.style.overflow = '';
                 }
