@@ -803,6 +803,8 @@
                                 const columnOrder = [
                                     '#','YR','ID','STATUS','M/F','FIRST','LAST','ADMIT DATE','DISCHARGE DATE','DAYS HERE','BED','KEY','REF','RATE','NICKNAME','DOB','SOBER DATE','DAYSOBER','PHONE','EMAIL','PIN','BILL ON DAY'
                                 ];
+                                // Compute orderedKeys for search/editing
+                                const orderedKeys = columnOrder.filter(k => k !== '#');
                                 // Build table body with new layout
                                 document.getElementById('allMembersTableBody').innerHTML = members.map((m, idx) => {
                                     function getVal(key) {
@@ -860,8 +862,8 @@
                                         return `<td class="${cls}" colname="${col}">${getVal(col)}</td>`;
                                     }).join('') + '</tr>';
                                 }).join('');
-                // Store for search and editing
-                window._allMembersTableData = { members, allKeys: orderedKeys };
+                                // Store for search and editing
+                                window._allMembersTableData = { members, allKeys: orderedKeys };
                 function openEditMemberModal(idx) {
                     const { members, allKeys } = window._allMembersTableData;
                     const member = members[idx];
@@ -917,6 +919,10 @@
                 }
             }
 
+            // Add Member Modal (stub)
+            function openAddMemberModal() {
+                alert('Add Member functionality coming soon!');
+            }
             function closeAllMembersModal() {
                 document.getElementById('allMembersModal').style.display = 'none';
                 document.body.style.overflow = '';
