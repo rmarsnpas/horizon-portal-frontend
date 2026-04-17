@@ -974,7 +974,70 @@
                             if (result.success) {
                                 document.getElementById('editMemberStatus').textContent = '✓ Saved!';
                                 members[idx] = { ...updated };
-                                filterAllMembersTable();
+                                // Re-render the All Members table with updated data
+                                const allFields = window._allMembersTableData.allKeys;
+                                document.getElementById('allMembersTableBody').innerHTML = members.map((member, idx) => {
+                                    const firstName = member['FIRST\r\nNAME'] || member['FIRST\nNAME'] || member['FIRST NAME'] || member.firstName || member.FIRST || '';
+                                    const lastName  = member['LAST\r\nNAME']  || member['LAST\nNAME']  || member['LAST NAME']  || member.lastName  || member.LAST || '';
+                                    const fullName  = `${firstName} ${lastName}`.trim() || '—';
+                                    const nickname  = member['NIC NAME'] || member.nickname || member.nick || member.NICKNAME || '';
+                                    const gender    = member['M/F'] || member.GENDER || member.gender || '';
+                                    const bed       = member.BED || member['BED#'] || member.bed || '';
+                                    const dob       = (() => {
+                                        const raw = member.DOB || member.dob || '';
+                                        const d = parseDate(raw);
+                                        return d ? d.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) : (raw || '');
+                                    })();
+                                    const admitRaw  = member['ADMIT\r\nDATE'] || member['ADMIT\nDATE'] || member['ADMIT DATE'] || member.admitDate || '';
+                                    const dischargeRaw = member['DISCHARGE DATE'] || member['DISCHARGE\nDATE'] || member.dischargeDate || '';
+                                    const soberRaw  = member['SOBER\r\nDATE'] || member['SOBER\nDATE'] || member['SOBER DATE'] || member.sobrietyDate || '';
+                                    const rate      = member.RATE || member.rate || '';
+                                    const phone     = member.PHONE || member.phone || '';
+                                    const email     = member.EMAIL || member.email || '';
+                                    const pin       = member.PIN || member.pin || '';
+                                    const billOnDay = member['BILL ON DAY'] || member.billOnDay || '';
+                                    const key       = member.KEY || member.key || '';
+                                    const ref       = member.REF || member.ref || '';
+                                    const id        = member.ID || member.id || '';
+                                    const yr        = member.YR || member.yr || '';
+                                    const status    = member.STATUS || member.status || '';
+                                    const admitDate = parseDate(admitRaw);
+                                    const admitText = admitDate ? admitDate.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) : '';
+                                    const dischargeDate = parseDate(dischargeRaw);
+                                    const dischargeText = dischargeDate ? dischargeDate.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) : '';
+                                    const today = new Date(); today.setHours(0, 0, 0, 0);
+                                    const daysHere = admitDate ? Math.floor((today - admitDate) / 86400000) : '';
+                                    const soberDate = parseDate(soberRaw);
+                                    const soberText = soberDate ? soberDate.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) : '';
+                                    const daysSober = soberDate ? Math.floor((today - soberDate) / 86400000) : '';
+                                    const genderTag = gender === 'M' ? '<span class="gender-m">M</span>' : gender === 'F' ? '<span class="gender-f">F</span>' : gender;
+                                    const rateDisplay = rate !== null && rate !== undefined && rate !== '' ? '$' + rate : '';
+                                    return `<tr>
+                                        <td>${idx + 1}</td>
+                                        <td>${yr}</td>
+                                        <td>${id}</td>
+                                        <td>${status}</td>
+                                        <td>${firstName}</td>
+                                        <td>${lastName}</td>
+                                        <td>${nickname}</td>
+                                        <td>${genderTag}</td>
+                                        <td>${bed}</td>
+                                        <td>${dob}</td>
+                                        <td>${admitText}</td>
+                                        <td>${dischargeText}</td>
+                                        <td>${daysHere}</td>
+                                        <td>${soberText}</td>
+                                        <td>${daysSober}</td>
+                                        <td>${rateDisplay}</td>
+                                        <td>${phone}</td>
+                                        <td>${email}</td>
+                                        <td>${pin}</td>
+                                        <td>${billOnDay}</td>
+                                        <td>${key}</td>
+                                        <td>${ref}</td>
+                                        <td><button onclick="openEditMemberModal(${idx})" style="padding:4px 10px;font-size:12px;background:#667eea;color:white;border:none;border-radius:4px;cursor:pointer;">Edit</button></td>
+                                    </tr>`;
+                                }).join('');
                                 setTimeout(closeEditMemberModal, 900);
                             } else {
                                 document.getElementById('editMemberStatus').textContent = 'Error: ' + (result.error || 'Unknown');
