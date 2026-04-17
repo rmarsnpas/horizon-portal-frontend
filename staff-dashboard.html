@@ -531,18 +531,8 @@
                 <div style="background:white;max-width:480px;width:96vw;padding:32px 24px 24px 24px;border-radius:12px;box-shadow:0 8px 32px rgba(0,0,0,0.18);position:relative;">
                     <button onclick="closeStaffProfileModal()" style="position:absolute;top:12px;right:16px;background:none;border:none;font-size:1.5rem;">&times;</button>
                     <h2 id="staffProfileModalTitle">Member Profile</h2>
-                    <form id="staffProfileForm" style="margin-top:18px;display:flex;flex-direction:column;gap:12px;">
-                        <input id="profileId" name="id" type="text" placeholder="Member ID" style="padding:8px;font-size:1rem;border:1px solid #ccc;border-radius:6px;" required>
-                        <input id="profileFirstName" name="firstName" type="text" placeholder="First Name" style="padding:8px;font-size:1rem;border:1px solid #ccc;border-radius:6px;">
-                        <input id="profileLastName" name="lastName" type="text" placeholder="Last Name" style="padding:8px;font-size:1rem;border:1px solid #ccc;border-radius:6px;">
-                        <input id="profilePhone" name="phone" type="text" placeholder="Phone" style="padding:8px;font-size:1rem;border:1px solid #ccc;border-radius:6px;">
-                        <input id="profileEmail" name="email" type="email" placeholder="Email" style="padding:8px;font-size:1rem;border:1px solid #ccc;border-radius:6px;">
-                        <label style="font-weight:600;">DOB <input id="profileDob" name="dob" type="date" style="margin-left:8px;padding:8px;font-size:1rem;border:1px solid #ccc;border-radius:6px;"></label>
-                        <label style="font-weight:600;">Sober Date <input id="profileSoberDate" name="sobrietyDate" type="date" style="margin-left:8px;padding:8px;font-size:1rem;border:1px solid #ccc;border-radius:6px;"></label>
-                        <input id="profilePin" name="pin" type="text" placeholder="PIN (optional)" style="padding:8px;font-size:1rem;border:1px solid #ccc;border-radius:6px;">
-                        <div id="staffProfileStatus" style="min-height:24px;color:#e53e3e;font-weight:600;"></div>
-                        <button type="submit" style="padding:12px;background:#28a745;color:white;border:none;border-radius:6px;font-weight:700;font-size:1.1rem;">Save</button>
-                    </form>
+                    <form id="staffProfileForm" style="margin-top:18px;display:flex;flex-direction:column;gap:12px;"></form>
+                    <div id="staffProfileStatus" style="min-height:24px;color:#e53e3e;font-weight:600;"></div>
                 </div>
             </div>
 
@@ -814,9 +804,11 @@
             </div>
             <script>
                     // Staff Profile Modal Logic
+
                     function closeStaffProfileModal() {
                         document.getElementById('staffProfileModal').style.display = 'none';
                     }
+
 
                     async function openStaffProfileModal() {
                         const memberId = document.getElementById('staffProfileSearch').value.trim();
@@ -827,45 +819,46 @@
                         document.getElementById('staffProfileModal').style.display = 'flex';
                         document.getElementById('staffProfileModalTitle').textContent = 'Member Profile';
                         document.getElementById('staffProfileStatus').textContent = '';
-                        // Clear form
-                        ['profileId','profileFirstName','profileLastName','profilePhone','profileEmail','profileDob','profileSoberDate','profilePin'].forEach(id => {
-                            document.getElementById(id).value = '';
-                        });
-                        // Try to load member data
+                        const form = document.getElementById('staffProfileForm');
+                        form.innerHTML = '';
+                        let member = {};
+                        let isNew = false;
                         try {
                             const res = await fetch(`${API_BASE}/api/getMember?id=${encodeURIComponent(memberId)}`);
                             if (res.ok) {
-                                const member = await res.json();
-                                document.getElementById('profileId').value = member.ID || member.id || '';
-                                document.getElementById('profileFirstName').value = member.FIRST || member.firstName || '';
-                                document.getElementById('profileLastName').value = member.LAST || member.lastName || '';
-                                document.getElementById('profilePhone').value = member.PHONE || member.phone || '';
-                                document.getElementById('profileEmail').value = member.EMAIL || member.email || '';
-                                document.getElementById('profileDob').value = member.DOB || member.dob || '';
-                                document.getElementById('profileSoberDate').value = member['SOBER DATE'] || member.sobrietyDate || '';
-                                document.getElementById('profilePin').value = member.PIN || member.pin || '';
+                                member = await res.json();
+                                if (!member || Object.keys(member).length === 0) {
+                                    isNew = true;
+                                    member = { ID: memberId };
+                                }
                             } else {
-                                // New member, leave form empty except ID
-                                document.getElementById('profileId').value = memberId;
+                                isNew = true;
+                                member = { ID: memberId };
                             }
                         } catch {
-                            document.getElementById('profileId').value = memberId;
+                            isNew = true;
+                            member = { ID: memberId };
                         }
+
+                        // Build fields for all keys in member object
+                        const keys = Object.keys(member);
+                        keys.forEach(key => {
+                            const val = member[key] || '';
+                            const label = key.replace(/_/g, ' ').replace(/\b\w/g, c => c.toUpperCase());
+                            const isId = key.toLowerCase().includes('id') && key.length <= 4;
+                            form.innerHTML += `<div style='margin-bottom:10px;'><label style='font-weight:600;'>${label}</label><input name='${key}' value="${val}" ${isId ? 'readonly style="background:#eee;"' : ''} style='width:100%;padding:8px;font-size:1rem;border:1px solid #ccc;border-radius:6px;'></div>`;
+                        });
+                        // Add Save button
+                        form.innerHTML += `<button type="submit" style="padding:12px;background:#28a745;color:white;border:none;border-radius:6px;font-weight:700;font-size:1.1rem;">Save</button>`;
                     }
 
                     document.getElementById('staffProfileForm').onsubmit = async function(event) {
                         event.preventDefault();
-                        const payload = {
-                            id: document.getElementById('profileId').value.trim(),
-                            firstName: document.getElementById('profileFirstName').value.trim(),
-                            lastName: document.getElementById('profileLastName').value.trim(),
-                            phone: document.getElementById('profilePhone').value.trim(),
-                            email: document.getElementById('profileEmail').value.trim(),
-                            dob: document.getElementById('profileDob').value,
-                            sobrietyDate: document.getElementById('profileSoberDate').value,
-                        };
-                        const pin = document.getElementById('profilePin').value.trim();
-                        if (pin) payload.pin = pin;
+                        const form = event.target;
+                        const payload = {};
+                        for (const el of form.elements) {
+                            if (el.name) payload[el.name] = el.value;
+                        }
                         document.getElementById('staffProfileStatus').textContent = 'Saving...';
                         try {
                             // Try PATCH first (edit), if 404 then POST (add)
