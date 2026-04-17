@@ -884,12 +884,26 @@
                         event.preventDefault();
                         const form = event.target;
                         const payload = {};
+                        // Normalize date fields to YYYY-MM-DD
+                        const dateFields = ['DOB', 'ADMIT DATE', 'DISCHARGE DATE', 'SOBER DATE'];
                         for (const el of form.elements) {
                             if (!el.name) continue;
                             if (el.name === 'HIDE_INVOICES') {
                                 payload.HIDE_INVOICES = (el.value === '1' || el.value === 'true' || el.value === 'H') ? true : false;
                             } else if (el.type === 'checkbox') {
                                 payload[el.name] = el.checked ? true : false;
+                            } else if (dateFields.includes(el.name)) {
+                                // Normalize to YYYY-MM-DD if not empty
+                                if (el.value) {
+                                    const d = new Date(el.value);
+                                    if (!isNaN(d)) {
+                                        payload[el.name] = d.toISOString().slice(0, 10);
+                                    } else {
+                                        payload[el.name] = el.value;
+                                    }
+                                } else {
+                                    payload[el.name] = '';
+                                }
                             } else {
                                 payload[el.name] = el.value;
                             }
@@ -1094,8 +1108,26 @@
                     const { members, allKeys } = window._allMembersTableData;
                     const form = event.target;
                     const updated = {};
+                    const dateFields = ['DOB', 'ADMIT DATE', 'DISCHARGE DATE', 'SOBER DATE'];
                     allKeys.forEach(k => {
-                        updated[k] = form.elements[k] ? form.elements[k].value : '';
+                        if (form.elements[k]) {
+                            if (dateFields.includes(k)) {
+                                if (form.elements[k].value) {
+                                    const d = new Date(form.elements[k].value);
+                                    if (!isNaN(d)) {
+                                        updated[k] = d.toISOString().slice(0, 10);
+                                    } else {
+                                        updated[k] = form.elements[k].value;
+                                    }
+                                } else {
+                                    updated[k] = '';
+                                }
+                            } else {
+                                updated[k] = form.elements[k].value;
+                            }
+                        } else {
+                            updated[k] = '';
+                        }
                     });
                     document.getElementById('editMemberStatus').textContent = 'Saving...';
                     // If in add mode, POST to /api/addMember, else update existing
@@ -1203,16 +1235,33 @@
                     const { allKeys } = window._allMembersTableData || {};
                     if (!allKeys) return;
                     const form = document.getElementById('editMemberForm');
-                    // Build minimal payload for add (like PATCH)
+                    // Normalize date fields to YYYY-MM-DD
+                    const dateFields = ['DOB', 'ADMIT DATE', 'DISCHARGE DATE', 'SOBER DATE'];
                     const payload = {
                         id: form.elements['ID'] ? form.elements['ID'].value : '',
                         firstName: form.elements['FIRST'] ? form.elements['FIRST'].value : '',
                         lastName: form.elements['LAST'] ? form.elements['LAST'].value : '',
                         phone: form.elements['PHONE'] ? form.elements['PHONE'].value : '',
                         email: form.elements['EMAIL'] ? form.elements['EMAIL'].value : '',
-                        dob: form.elements['DOB'] ? form.elements['DOB'].value : '',
-                        sobrietyDate: form.elements['SOBER DATE'] ? form.elements['SOBER DATE'].value : ''
+                        dob: '',
+                        sobrietyDate: ''
                     };
+                    if (form.elements['DOB'] && form.elements['DOB'].value) {
+                        const d = new Date(form.elements['DOB'].value);
+                        if (!isNaN(d)) {
+                            payload.dob = d.toISOString().slice(0, 10);
+                        } else {
+                            payload.dob = form.elements['DOB'].value;
+                        }
+                    }
+                    if (form.elements['SOBER DATE'] && form.elements['SOBER DATE'].value) {
+                        const d = new Date(form.elements['SOBER DATE'].value);
+                        if (!isNaN(d)) {
+                            payload.sobrietyDate = d.toISOString().slice(0, 10);
+                        } else {
+                            payload.sobrietyDate = form.elements['SOBER DATE'].value;
+                        }
+                    }
                     if (form.elements['PIN'] && form.elements['PIN'].value) payload.pin = form.elements['PIN'].value;
                     document.getElementById('editMemberStatus').textContent = 'Saving...';
                     try {
