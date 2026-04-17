@@ -733,28 +733,28 @@
                                                 <table id="allMembersTable" style="border-collapse: collapse; width: 100%; font-size: 14px;">
                                                     <thead class="sticky-header" id="allMembersTableHead">
                                                         <tr>
-                                                            <th class="narrow" colname="#"><span class="vertical-text">#</span></th>
-                                                            <th class="narrow" colname="YR"><span class="vertical-text">YR</span></th>
-                                                            <th class="narrow" colname="ID"><span class="vertical-text">ID</span></th>
-                                                            <th class="narrow" colname="STATUS"><span class="vertical-text">STATUS</span></th>
-                                                            <th class="narrow" colname="M/F"><span class="vertical-text">M/F</span></th>
-                                                            <th colname="FIRST"><span class="vertical-text">FIRST</span></th>
-                                                            <th colname="LAST"><span class="vertical-text">LAST</span></th>
-                                                            <th colname="ADMIT DATE"><span class="vertical-text">ADMIT DATE</span></th>
-                                                            <th colname="DISCHARGE DATE"><span class="vertical-text">DISCHARGE DATE</span></th>
-                                                            <th class="narrow" colname="DAYS HERE"><span class="vertical-text">DAYS HERE</span></th>
-                                                            <th class="narrow" colname="BED"><span class="vertical-text">BED</span></th>
-                                                            <th class="narrow" colname="KEY"><span class="vertical-text">KEY</span></th>
-                                                            <th class="narrow" colname="REF"><span class="vertical-text">REF</span></th>
-                                                            <th class="narrow" colname="RATE"><span class="vertical-text">RATE</span></th>
-                                                            <th class="nickname" colname="NICKNAME"><span class="vertical-text">NICKNAME</span></th>
-                                                            <th colname="DOB"><span class="vertical-text">DOB</span></th>
-                                                            <th colname="SOBER DATE"><span class="vertical-text">SOBER DATE</span></th>
-                                                            <th class="narrow" colname="DAYSOBER"><span class="vertical-text">DAYSOBER</span></th>
-                                                            <th colname="PHONE"><span class="vertical-text">PHONE</span></th>
-                                                            <th colname="EMAIL"><span class="vertical-text">EMAIL</span></th>
-                                                            <th class="narrow" colname="PIN"><span class="vertical-text">PIN</span></th>
-                                                            <th colname="BILL ON DAY"><span class="vertical-text">BILL ON DAY</span></th>
+                                                            <th class="narrow">#</th>
+                                                            <th class="narrow">YR</th>
+                                                            <th class="narrow">ID</th>
+                                                            <th class="narrow">STATUS</th>
+                                                            <th>FIRST</th>
+                                                            <th>LAST</th>
+                                                            <th>NICKNAME</th>
+                                                            <th class="narrow">M/F</th>
+                                                            <th class="narrow">BED</th>
+                                                            <th>DOB</th>
+                                                            <th>ADMIT DATE</th>
+                                                            <th>DISCHARGE DATE</th>
+                                                            <th>DAYS HERE</th>
+                                                            <th>SOBER DATE</th>
+                                                            <th>DAYSOBER</th>
+                                                            <th>RATE</th>
+                                                            <th>PHONE</th>
+                                                            <th>EMAIL</th>
+                                                            <th>PIN</th>
+                                                            <th>BILL ON DAY</th>
+                                                            <th>KEY</th>
+                                                            <th>REF</th>
                                                             <th>Edit</th>
                                                         </tr>
                                                     </thead>
@@ -804,6 +804,8 @@
                                 const allFields = [
                                     '#','YR','ID','STATUS','FIRST','LAST','NICKNAME','M/F','BED','DOB','ADMIT DATE','DISCHARGE DATE','DAYS HERE','SOBER DATE','DAYSOBER','RATE','PHONE','EMAIL','PIN','BILL ON DAY','KEY','REF'
                                 ];
+                                // Store for search and editing
+                                window._allMembersTableData = { members, allKeys: allFields };
                                 document.getElementById('allMembersTableBody').innerHTML = members.map((member, idx) => {
                                     const firstName = member['FIRST\r\nNAME'] || member['FIRST\nNAME'] || member['FIRST NAME'] || member.firstName || member.FIRST || '';
                                     const lastName  = member['LAST\r\nNAME']  || member['LAST\nNAME']  || member['LAST NAME']  || member.lastName  || member.LAST || '';
@@ -867,15 +869,38 @@
                                     </tr>`;
                                 }).join('');
                                 // Store for search and editing
-                                window._allMembersTableData = { members, allKeys: orderedKeys };
                 function openEditMemberModal(idx) {
                     const { members, allKeys } = window._allMembersTableData;
                     const member = members[idx];
                     window._editMemberIdx = idx;
-                    // Build form fields (skip ID fields for editing)
-                    const fieldsHtml = allKeys.map(k => {
+                    // Build form fields for allFields (skip # and Edit)
+                    const fieldsHtml = allKeys.filter(k => k !== '#' && k !== 'Edit').map(k => {
+                        let val = '';
+                        switch(k) {
+                            case 'YR': val = member.YR || member.yr || ''; break;
+                            case 'ID': val = member.ID || member.id || ''; break;
+                            case 'STATUS': val = member.STATUS || member.status || ''; break;
+                            case 'FIRST': val = member['FIRST\r\nNAME'] || member['FIRST\nNAME'] || member['FIRST NAME'] || member.firstName || member.FIRST || ''; break;
+                            case 'LAST': val = member['LAST\r\nNAME'] || member['LAST\nNAME'] || member['LAST NAME'] || member.lastName || member.LAST || ''; break;
+                            case 'NICKNAME': val = member['NIC NAME'] || member.nickname || member.nick || member.NICKNAME || ''; break;
+                            case 'M/F': val = member['M/F'] || member.GENDER || member.gender || ''; break;
+                            case 'BED': val = member.BED || member['BED#'] || member.bed || ''; break;
+                            case 'DOB': val = member.DOB || member.dob || ''; break;
+                            case 'ADMIT DATE': val = member['ADMIT\r\nDATE'] || member['ADMIT\nDATE'] || member['ADMIT DATE'] || member.admitDate || ''; break;
+                            case 'DISCHARGE DATE': val = member['DISCHARGE DATE'] || member['DISCHARGE\nDATE'] || member.dischargeDate || ''; break;
+                            case 'DAYS HERE': val = member['DAYS HERE'] || ''; break;
+                            case 'SOBER DATE': val = member['SOBER\r\nDATE'] || member['SOBER\nDATE'] || member['SOBER DATE'] || member.sobrietyDate || ''; break;
+                            case 'DAYSOBER': val = member['DAYSOBER'] || ''; break;
+                            case 'RATE': val = member.RATE || member.rate || ''; break;
+                            case 'PHONE': val = member.PHONE || member.phone || ''; break;
+                            case 'EMAIL': val = member.EMAIL || member.email || ''; break;
+                            case 'PIN': val = member.PIN || member.pin || ''; break;
+                            case 'BILL ON DAY': val = member['BILL ON DAY'] || member.billOnDay || ''; break;
+                            case 'KEY': val = member.KEY || member.key || ''; break;
+                            case 'REF': val = member.REF || member.ref || ''; break;
+                            default: val = member[k] !== undefined ? member[k] : ''; break;
+                        }
                         const isId = k.toLowerCase().includes('id') && k.length <= 4;
-                        const val = member[k] !== undefined ? member[k] : '';
                         return `<div style='margin-bottom:10px;'><label style='font-weight:600;'>${k}</label><input name='${k}' value="${val}" ${isId ? 'readonly style="background:#eee;"' : ''} style='width:100%;padding:8px;font-size:1rem;border:1px solid #ccc;border-radius:6px;'></div>`;
                     }).join('');
                     document.getElementById('editMemberFields').innerHTML = fieldsHtml;
