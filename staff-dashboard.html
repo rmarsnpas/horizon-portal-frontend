@@ -985,10 +985,22 @@
                         // Edit mode (existing logic)
                         const idx = window._editMemberIdx;
                         try {
+                            // Build PATCH payload with only editable fields (like members portal)
+                            const payload = {
+                                id: updated.ID || updated.id || '',
+                                firstName: updated.FIRST || updated.firstName || '',
+                                lastName: updated.LAST || updated.lastName || '',
+                                phone: updated.PHONE || updated.phone || '',
+                                email: updated.EMAIL || updated.email || '',
+                                dob: updated.DOB || updated.dob || '',
+                                sobrietyDate: updated['SOBER DATE'] || updated.sobrietyDate || ''
+                            };
+                            // Add PIN if present
+                            if (updated.PIN || updated.pin) payload.pin = updated.PIN || updated.pin;
                             const res = await fetch(`${API_BASE}/api/updateMember`, {
-                                method: 'POST',
+                                method: 'PATCH',
                                 headers: { 'Content-Type': 'application/json' },
-                                body: JSON.stringify(updated)
+                                body: JSON.stringify(payload)
                             });
                             const result = await res.json();
                             if (result.success) {
@@ -1049,16 +1061,23 @@
                     const { allKeys } = window._allMembersTableData || {};
                     if (!allKeys) return;
                     const form = document.getElementById('editMemberForm');
-                    const updated = {};
-                    allKeys.forEach(k => {
-                        updated[k] = form.elements[k] ? form.elements[k].value : '';
-                    });
+                    // Build minimal payload for add (like PATCH)
+                    const payload = {
+                        id: form.elements['ID'] ? form.elements['ID'].value : '',
+                        firstName: form.elements['FIRST'] ? form.elements['FIRST'].value : '',
+                        lastName: form.elements['LAST'] ? form.elements['LAST'].value : '',
+                        phone: form.elements['PHONE'] ? form.elements['PHONE'].value : '',
+                        email: form.elements['EMAIL'] ? form.elements['EMAIL'].value : '',
+                        dob: form.elements['DOB'] ? form.elements['DOB'].value : '',
+                        sobrietyDate: form.elements['SOBER DATE'] ? form.elements['SOBER DATE'].value : ''
+                    };
+                    if (form.elements['PIN'] && form.elements['PIN'].value) payload.pin = form.elements['PIN'].value;
                     document.getElementById('editMemberStatus').textContent = 'Saving...';
                     try {
                         const res = await fetch(`${API_BASE}/api/addMember`, {
                             method: 'POST',
                             headers: { 'Content-Type': 'application/json' },
-                            body: JSON.stringify(updated)
+                            body: JSON.stringify(payload)
                         });
                         const result = await res.json();
                         if (result.success) {
