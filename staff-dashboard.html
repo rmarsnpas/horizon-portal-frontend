@@ -800,68 +800,71 @@
                     document.getElementById('allMembersTableBody').innerHTML = '<tr><td colspan="20" style="text-align:center;color:#999;">No members found</td></tr>';
                     return;
                 }
-                                // Define the new column order and mapping
-                                const columnOrder = [
-                                    '#','YR','ID','STATUS','M/F','FIRST','LAST','ADMIT DATE','DISCHARGE DATE','DAYS HERE','BED','KEY','REF','RATE','NICKNAME','DOB','SOBER DATE','DAYSOBER','PHONE','EMAIL','PIN','BILL ON DAY'
+                                // Use the same rendering logic as the Active Members Board, but include all fields and add Add/Edit buttons
+                                const allFields = [
+                                    '#','YR','ID','STATUS','FIRST','LAST','NICKNAME','M/F','BED','DOB','ADMIT DATE','DISCHARGE DATE','DAYS HERE','SOBER DATE','DAYSOBER','RATE','PHONE','EMAIL','PIN','BILL ON DAY','KEY','REF'
                                 ];
-                                // Compute orderedKeys for search/editing
-                                const orderedKeys = columnOrder.filter(k => k !== '#');
-                                // Build table body with robust field mapping
-                                document.getElementById('allMembersTableBody').innerHTML = members.map((m, idx) => {
-                                    function getVal(key) {
-                                        switch(key) {
-                                            case '#': return idx+1;
-                                            case 'YR': return m["YR"]||m["yr"]||m["Year"]||m["year"]||'';
-                                            case 'ID': return m["ID"]||m["id"]||m["Member ID"]||m["MEMBER ID"]||'';
-                                            case 'STATUS': return m["STATUS"]||m["status"]||m["Status"]||'';
-                                            case 'M/F': return m["M/F"]||m["GENDER"]||m["gender"]||m["Sex"]||m["SEX"]||'';
-                                            case 'FIRST': return m["FIRST"]||m["FIRST NAME"]||m["First Name"]||m["first_name"]||m["first"]||'';
-                                            case 'LAST': return m["LAST"]||m["LAST NAME"]||m["Last Name"]||m["last_name"]||m["last"]||'';
-                                            case 'ADMIT DATE': return formatDate(m["ADMIT DATE"]||m["ADMITDATE"]||m["Admit Date"]||m["admitDate"]||m["admit_date"]||'');
-                                            case 'DISCHARGE DATE': return formatDate(m["DISCHARGE DATE"]||m["DISCHARGEDATE"]||m["Discharge Date"]||m["dischargeDate"]||m["discharge_date"]||'');
-                                            case 'BED': return m["BED"]||m["BED#"]||m["Bed"]||m["bed"]||'';
-                                            case 'KEY': return m["KEY"]||m["key"]||'';
-                                            case 'REF': return m["REF"]||m["ref"]||'';
-                                            case 'RATE': return m["RATE"]||m["rate"]||'';
-                                            case 'NICKNAME': return m["NICKNAME"]||m["NIC NAME"]||m["Nick Name"]||m["nickname"]||m["nick"]||'';
-                                            case 'DOB': return formatDate(m["DOB"]||m["DOBirth"]||m["Date of Birth"]||m["Birth Date"]||m["dob"]||'');
-                                            case 'SOBER DATE': return formatDate(m["SOBER DATE"]||m["SOBERDATE"]||m["Sobriety Date"]||m["sobrietyDate"]||m["sober_date"]||'');
-                                            case 'PHONE': return m["PHONE"]||m["Phone"]||m["phone"]||'';
-                                            case 'EMAIL': return m["EMAIL"]||m["Email"]||m["email"]||'';
-                                            case 'PIN': return m["PIN"]||m["pin"]||'';
-                                            case 'BILL ON DAY': return m["BILL ON DAY"]||m["billOnDay"]||'';
-                                            default: return '';
-                                        }
-                                    }
-                                    function formatDate(val) {
-                                        if (!val) return '';
-                                        let d = val;
-                                        if (typeof d === 'string') {
-                                            if (/^\d{4}-\d{2}-\d{2}$/.test(d)) {
-                                                d = new Date(d + 'T00:00:00');
-                                            } else if (/^\d{1,2}\/\d{1,2}\/\d{4}$/.test(d)) {
-                                                const [m, dd, yyyy] = d.split('/');
-                                                d = new Date(`${yyyy}-${m.padStart(2,'0')}-${dd.padStart(2,'0')}T00:00:00`);
-                                            } else {
-                                                d = new Date(d);
-                                            }
-                                        }
-                                        if (d instanceof Date && !isNaN(d)) {
-                                            const mm = String(d.getMonth()+1).padStart(2,'0');
-                                            const dd = String(d.getDate()).padStart(2,'0');
-                                            const yyyy = d.getFullYear();
-                                            return `${mm}/${dd}/${yyyy}`;
-                                        }
-                                        return val;
-                                    }
-                                    // Only show fields we want in the table
-                                    const visibleCols = columnOrder.filter(col => !["DAYS HERE","DAYSOBER"].includes(col));
-                                    return '<tr>' + visibleCols.map(col => {
-                                        let cls = '';
-                                        if (["#","YR","ID","STATUS","M/F","BED","KEY","REF","RATE","PIN"].includes(col)) cls = 'narrow';
-                                        if (col === 'NICKNAME') cls = 'nickname';
-                                        return `<td class=\"${cls}\" colname=\"${col}\">${getVal(col)}</td>`;
-                                    }).join('') + `<td><button onclick=\"openEditMemberModal(${idx})\" style=\"padding:4px 10px;font-size:12px;background:#667eea;color:white;border:none;border-radius:4px;cursor:pointer;\">Edit</button></td></tr>`;
+                                document.getElementById('allMembersTableBody').innerHTML = members.map((member, idx) => {
+                                    const firstName = member['FIRST\r\nNAME'] || member['FIRST\nNAME'] || member['FIRST NAME'] || member.firstName || member.FIRST || '';
+                                    const lastName  = member['LAST\r\nNAME']  || member['LAST\nNAME']  || member['LAST NAME']  || member.lastName  || member.LAST || '';
+                                    const fullName  = `${firstName} ${lastName}`.trim() || '—';
+                                    const nickname  = member['NIC NAME'] || member.nickname || member.nick || member.NICKNAME || '';
+                                    const gender    = member['M/F'] || member.GENDER || member.gender || '';
+                                    const bed       = member.BED || member['BED#'] || member.bed || '';
+                                    const dob       = (() => {
+                                        const raw = member.DOB || member.dob || '';
+                                        const d = parseDate(raw);
+                                        return d ? d.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) : (raw || '');
+                                    })();
+                                    const admitRaw  = member['ADMIT\r\nDATE'] || member['ADMIT\nDATE'] || member['ADMIT DATE'] || member.admitDate || '';
+                                    const dischargeRaw = member['DISCHARGE DATE'] || member['DISCHARGE\nDATE'] || member.dischargeDate || '';
+                                    const soberRaw  = member['SOBER\r\nDATE'] || member['SOBER\nDATE'] || member['SOBER DATE'] || member.sobrietyDate || '';
+                                    const rate      = member.RATE || member.rate || '';
+                                    const phone     = member.PHONE || member.phone || '';
+                                    const email     = member.EMAIL || member.email || '';
+                                    const pin       = member.PIN || member.pin || '';
+                                    const billOnDay = member['BILL ON DAY'] || member.billOnDay || '';
+                                    const key       = member.KEY || member.key || '';
+                                    const ref       = member.REF || member.ref || '';
+                                    const id        = member.ID || member.id || '';
+                                    const yr        = member.YR || member.yr || '';
+                                    const status    = member.STATUS || member.status || '';
+                                    const admitDate = parseDate(admitRaw);
+                                    const admitText = admitDate ? admitDate.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) : '';
+                                    const dischargeDate = parseDate(dischargeRaw);
+                                    const dischargeText = dischargeDate ? dischargeDate.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) : '';
+                                    const today = new Date(); today.setHours(0, 0, 0, 0);
+                                    const daysHere = admitDate ? Math.floor((today - admitDate) / 86400000) : '';
+                                    const soberDate = parseDate(soberRaw);
+                                    const soberText = soberDate ? soberDate.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) : '';
+                                    const daysSober = soberDate ? Math.floor((today - soberDate) / 86400000) : '';
+                                    const genderTag = gender === 'M' ? '<span class="gender-m">M</span>' : gender === 'F' ? '<span class="gender-f">F</span>' : gender;
+                                    const rateDisplay = rate !== null && rate !== undefined && rate !== '' ? '$' + rate : '';
+                                    return `<tr>
+                                        <td>${idx + 1}</td>
+                                        <td>${yr}</td>
+                                        <td>${id}</td>
+                                        <td>${status}</td>
+                                        <td>${firstName}</td>
+                                        <td>${lastName}</td>
+                                        <td>${nickname}</td>
+                                        <td>${genderTag}</td>
+                                        <td>${bed}</td>
+                                        <td>${dob}</td>
+                                        <td>${admitText}</td>
+                                        <td>${dischargeText}</td>
+                                        <td>${daysHere}</td>
+                                        <td>${soberText}</td>
+                                        <td>${daysSober}</td>
+                                        <td>${rateDisplay}</td>
+                                        <td>${phone}</td>
+                                        <td>${email}</td>
+                                        <td>${pin}</td>
+                                        <td>${billOnDay}</td>
+                                        <td>${key}</td>
+                                        <td>${ref}</td>
+                                        <td><button onclick="openEditMemberModal(${idx})" style="padding:4px 10px;font-size:12px;background:#667eea;color:white;border:none;border-radius:4px;cursor:pointer;">Edit</button></td>
+                                    </tr>`;
                                 }).join('');
                                 // Store for search and editing
                                 window._allMembersTableData = { members, allKeys: orderedKeys };
