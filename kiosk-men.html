@@ -857,14 +857,20 @@
 
         async function loadKioskMessages() {
             try {
-                const res = await fetch(`${API_URL}/api/kioskMessages?target=men`);
+                // Fetch all kiosk messages (no filter)
+                const res = await fetch(`${API_URL}/api/kioskMessages`);
                 const msgs = await res.json();
+                // Only show messages for 'everyone' or 'men'
+                const filtered = msgs.filter(m => m.target === 'everyone' || m.target === 'men');
                 const container = document.getElementById('kioskMessages');
-                if (!msgs.length) { container.innerHTML = ''; return; }
-                container.innerHTML = msgs.map(m => {
+                if (!filtered.length) {
+                    container.innerHTML = '';
+                    return;
+                }
+                container.innerHTML = filtered.map(m => {
                     const icon = m.target === 'everyone' ? '📢' : m.target === 'men' ? '🔵' : '👤';
                     const cls  = m.target === 'everyone' ? 'target-everyone' : m.target === 'men' ? 'target-men' : 'target-individual';
-                    return `<div class="kiosk-msg-banner ${cls}">
+                    return `<div class="kiosk-msg-banner ${cls}" style="box-shadow:0 0 16px 2px #ffe082;">
                         <div class="msg-icon">${icon}</div>
                         <div class="msg-content">
                             ${m.title ? `<div class="msg-title">${m.title}</div>` : ''}
