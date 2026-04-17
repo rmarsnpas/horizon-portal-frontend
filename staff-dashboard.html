@@ -852,7 +852,7 @@
                                 'DOB': ['DOB', 'dob'],
                                 'STATUS': ['STATUS', 'STATU', 'status'],
                                 'ADMIT DATE': ['ADMIT_DATE', 'ADMIT DATE', 'ADMIT\nDATE', 'ADMIT\r\nDATE', 'admitDate'],
-                                'DISCHARGE DATE': ['DISCHARGE_DATE', 'DISCHARGE DATE', 'DISCHARGE\nDATE', 'dischargeDate'],
+                                'DISCHARGE DATE': ['DISCHARGE_DATE', 'DISCHARGE DATE', 'DISCHARGE\nDATE', 'DISCHARGE\r\nDATE', 'DC DATE', 'DC\nDATE', 'DC\r\nDATE', 'dischargeDate'],
                                 'SOBER DATE': ['SOBRIETY_DATE', 'SOBER DATE', 'SOBER\nDATE', 'SOBER\r\nDATE', 'sobrietyDate'],
                                 'BED': ['BED', 'BED#', 'bed'],
                                 'RATE': ['RATE', 'rate'],
@@ -1030,7 +1030,7 @@
                                         return d ? d.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) : (raw || '');
                                     })();
                                     const admitRaw  = member['ADMIT\r\nDATE'] || member['ADMIT\nDATE'] || member['ADMIT DATE'] || member.admitDate || '';
-                                    const dischargeRaw = member['DISCHARGE DATE'] || member['DISCHARGE\nDATE'] || member.dischargeDate || '';
+                                    const dischargeRaw = member['DC DATE'] || member['DC\nDATE'] || member['DC\r\nDATE'] || member['DISCHARGE DATE'] || member['DISCHARGE\nDATE'] || member['DISCHARGE\r\nDATE'] || member.dischargeDate || '';
                                     const soberRaw  = member['SOBER\r\nDATE'] || member['SOBER\nDATE'] || member['SOBER DATE'] || member.sobrietyDate || '';
                                     const rate      = member.RATE || member.rate || '';
                                     const phone     = member.PHONE || member.phone || '';
@@ -1047,7 +1047,7 @@
                                     const dischargeDate = parseDate(dischargeRaw);
                                     const dischargeText = dischargeDate ? dischargeDate.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) : '';
                                     const today = new Date(); today.setHours(0, 0, 0, 0);
-                                    const daysHere = admitDate ? Math.floor((today - admitDate) / 86400000) : '';
+                                    const daysHere = admitDate ? Math.floor(((dischargeDate || today) - admitDate) / 86400000) : '';
                                     const soberDate = parseDate(soberRaw);
                                     const soberText = soberDate ? soberDate.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) : '';
                                     const daysSober = soberDate ? Math.floor((today - soberDate) / 86400000) : '';
@@ -1104,7 +1104,7 @@
                             case 'BED': val = member.BED || member['BED#'] || member.bed || ''; break;
                             case 'DOB': val = member.DOB || member.dob || ''; break;
                             case 'ADMIT DATE': val = member['ADMIT\r\nDATE'] || member['ADMIT\nDATE'] || member['ADMIT DATE'] || member.admitDate || ''; break;
-                            case 'DISCHARGE DATE': val = member['DISCHARGE DATE'] || member['DISCHARGE\nDATE'] || member.dischargeDate || ''; break;
+                            case 'DISCHARGE DATE': val = member['DC DATE'] || member['DC\nDATE'] || member['DC\r\nDATE'] || member['DISCHARGE DATE'] || member['DISCHARGE\nDATE'] || member['DISCHARGE\r\nDATE'] || member.dischargeDate || ''; break;
                             case 'DAYS HERE': val = member['DAYS HERE'] || ''; break;
                             case 'SOBER DATE': val = member['SOBER\r\nDATE'] || member['SOBER\nDATE'] || member['SOBER DATE'] || member.sobrietyDate || ''; break;
                             case 'DAYSOBER': val = member['DAYSOBER'] || ''; break;
@@ -1280,33 +1280,32 @@
                     const { allKeys } = window._allMembersTableData || {};
                     if (!allKeys) return;
                     const form = document.getElementById('editMemberForm');
-                    // Normalize date fields to YYYY-MM-DD
-                    const dateFields = ['DOB', 'ADMIT DATE', 'DISCHARGE DATE', 'SOBER DATE'];
+                    // Helper to normalize dates to YYYY-MM-DD
+                    function normDate(v) {
+                        if (!v) return '';
+                        const d = new Date(v);
+                        return !isNaN(d) ? d.toISOString().slice(0, 10) : v;
+                    }
+                    // Build payload matching backend expected field names
                     const payload = {
                         id: form.elements['ID'] ? form.elements['ID'].value : '',
                         firstName: form.elements['FIRST'] ? form.elements['FIRST'].value : '',
                         lastName: form.elements['LAST'] ? form.elements['LAST'].value : '',
                         phone: form.elements['PHONE'] ? form.elements['PHONE'].value : '',
                         email: form.elements['EMAIL'] ? form.elements['EMAIL'].value : '',
-                        dob: '',
-                        sobrietyDate: ''
+                        dob: normDate(form.elements['DOB'] ? form.elements['DOB'].value : ''),
+                        sobrietyDate: normDate(form.elements['SOBER DATE'] ? form.elements['SOBER DATE'].value : ''),
+                        admitDate: normDate(form.elements['ADMIT DATE'] ? form.elements['ADMIT DATE'].value : ''),
+                        dischargeDate: normDate(form.elements['DISCHARGE DATE'] ? form.elements['DISCHARGE DATE'].value : ''),
+                        nickname: form.elements['NICKNAME'] ? form.elements['NICKNAME'].value : '',
+                        gender: form.elements['M/F'] ? form.elements['M/F'].value : '',
+                        status: form.elements['STATUS'] ? form.elements['STATUS'].value : '',
+                        bed: form.elements['BED'] ? form.elements['BED'].value : '',
+                        rate: form.elements['RATE'] ? form.elements['RATE'].value : '',
+                        key: form.elements['KEY'] ? form.elements['KEY'].value : '',
+                        ref: form.elements['REF'] ? form.elements['REF'].value : '',
+                        billOnDay: form.elements['BILL ON DAY'] ? form.elements['BILL ON DAY'].value : '',
                     };
-                    if (form.elements['DOB'] && form.elements['DOB'].value) {
-                        const d = new Date(form.elements['DOB'].value);
-                        if (!isNaN(d)) {
-                            payload.dob = d.toISOString().slice(0, 10);
-                        } else {
-                            payload.dob = form.elements['DOB'].value;
-                        }
-                    }
-                    if (form.elements['SOBER DATE'] && form.elements['SOBER DATE'].value) {
-                        const d = new Date(form.elements['SOBER DATE'].value);
-                        if (!isNaN(d)) {
-                            payload.sobrietyDate = d.toISOString().slice(0, 10);
-                        } else {
-                            payload.sobrietyDate = form.elements['SOBER DATE'].value;
-                        }
-                    }
                     if (form.elements['PIN'] && form.elements['PIN'].value) payload.pin = form.elements['PIN'].value;
                     document.getElementById('editMemberStatus').textContent = 'Saving...';
                     try {
