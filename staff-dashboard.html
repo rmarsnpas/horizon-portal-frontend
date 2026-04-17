@@ -6,6 +6,13 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Staff Dashboard - Horizon House (Restored)</title>
     <style>
+                                /* Alternating row shading for All Members modal table */
+                                #allMembersTable tbody tr:nth-child(even) {
+                                    background: #f7f7f7;
+                                }
+                                #allMembersTable tbody tr:nth-child(odd) {
+                                    background: #fff;
+                                }
                 /* Sticky header for All Members modal table */
                 #allMembersTable {
                     border-collapse: collapse;
@@ -903,7 +910,13 @@
                         const isId = k.toLowerCase().includes('id') && k.length <= 4;
                         return `<div style='margin-bottom:10px;'><label style='font-weight:600;'>${k}</label><input name='${k}' value="${val}" ${isId ? 'readonly style="background:#eee;"' : ''} style='width:100%;padding:8px;font-size:1rem;border:1px solid #ccc;border-radius:6px;'></div>`;
                     }).join('');
-                    document.getElementById('editMemberFields').innerHTML = fieldsHtml;
+                    document.getElementById('editMemberFields').innerHTML = fieldsHtml + `
+                        <div style='margin-top:18px;display:flex;gap:12px;'>
+                            <button type='submit' style='flex:1;padding:12px;background:#28a745;color:white;border:none;border-radius:6px;font-weight:700;font-size:1.1rem;'>Save</button>
+                            <button type='button' onclick='closeEditMemberModal()' style='flex:1;padding:12px;background:#6c757d;color:white;border:none;border-radius:6px;font-weight:700;font-size:1.1rem;'>Cancel</button>
+                        </div>
+                        <div id='editMemberStatus' style='margin-top:10px;font-weight:600;'></div>
+                    `;
                     document.getElementById('editMemberStatus').textContent = '';
                     document.getElementById('editMemberModal').style.display = 'block';
                     document.body.style.overflow = 'hidden';
