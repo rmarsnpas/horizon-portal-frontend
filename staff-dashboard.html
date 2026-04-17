@@ -806,28 +806,28 @@
                                 ];
                                 // Compute orderedKeys for search/editing
                                 const orderedKeys = columnOrder.filter(k => k !== '#');
-                                // Build table body with new layout
+                                // Build table body with robust field mapping
                                 document.getElementById('allMembersTableBody').innerHTML = members.map((m, idx) => {
                                     function getVal(key) {
                                         switch(key) {
                                             case '#': return idx+1;
-                                            case 'YR': return m["YR"]||m["yr"]||'';
-                                            case 'ID': return m["ID"]||m["id"]||'';
-                                            case 'STATUS': return m["STATUS"]||m["status"]||'';
-                                            case 'M/F': return m["M/F"]||m["GENDER"]||m["gender"]||'';
-                                            case 'FIRST': return m["FIRST"]||m["first"]||'';
-                                            case 'LAST': return m["LAST"]||m["last"]||'';
-                                            case 'ADMIT DATE': return formatDate(m["ADMIT DATE"]||m["admitDate"]||'');
-                                            case 'DISCHARGE DATE': return formatDate(m["DISCHARGE DATE"]||m["dischargeDate"]||'');
-                                            case 'BED': return m["BED"]||m["bed"]||'';
+                                            case 'YR': return m["YR"]||m["yr"]||m["Year"]||m["year"]||'';
+                                            case 'ID': return m["ID"]||m["id"]||m["Member ID"]||m["MEMBER ID"]||'';
+                                            case 'STATUS': return m["STATUS"]||m["status"]||m["Status"]||'';
+                                            case 'M/F': return m["M/F"]||m["GENDER"]||m["gender"]||m["Sex"]||m["SEX"]||'';
+                                            case 'FIRST': return m["FIRST"]||m["FIRST NAME"]||m["First Name"]||m["first_name"]||m["first"]||'';
+                                            case 'LAST': return m["LAST"]||m["LAST NAME"]||m["Last Name"]||m["last_name"]||m["last"]||'';
+                                            case 'ADMIT DATE': return formatDate(m["ADMIT DATE"]||m["ADMITDATE"]||m["Admit Date"]||m["admitDate"]||m["admit_date"]||'');
+                                            case 'DISCHARGE DATE': return formatDate(m["DISCHARGE DATE"]||m["DISCHARGEDATE"]||m["Discharge Date"]||m["dischargeDate"]||m["discharge_date"]||'');
+                                            case 'BED': return m["BED"]||m["BED#"]||m["Bed"]||m["bed"]||'';
                                             case 'KEY': return m["KEY"]||m["key"]||'';
                                             case 'REF': return m["REF"]||m["ref"]||'';
                                             case 'RATE': return m["RATE"]||m["rate"]||'';
-                                            case 'NICKNAME': return m["NICKNAME"]||m["nickname"]||'';
-                                            case 'DOB': return formatDate(m["DOB"]||m["dob"]||'');
-                                            case 'SOBER DATE': return formatDate(m["SOBER DATE"]||m["soberDate"]||'');
-                                            case 'PHONE': return m["PHONE"]||m["phone"]||'';
-                                            case 'EMAIL': return m["EMAIL"]||m["email"]||'';
+                                            case 'NICKNAME': return m["NICKNAME"]||m["NIC NAME"]||m["Nick Name"]||m["nickname"]||m["nick"]||'';
+                                            case 'DOB': return formatDate(m["DOB"]||m["DOBirth"]||m["Date of Birth"]||m["Birth Date"]||m["dob"]||'');
+                                            case 'SOBER DATE': return formatDate(m["SOBER DATE"]||m["SOBERDATE"]||m["Sobriety Date"]||m["sobrietyDate"]||m["sober_date"]||'');
+                                            case 'PHONE': return m["PHONE"]||m["Phone"]||m["phone"]||'';
+                                            case 'EMAIL': return m["EMAIL"]||m["Email"]||m["email"]||'';
                                             case 'PIN': return m["PIN"]||m["pin"]||'';
                                             case 'BILL ON DAY': return m["BILL ON DAY"]||m["billOnDay"]||'';
                                             default: return '';
