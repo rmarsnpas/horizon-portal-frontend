@@ -1004,7 +1004,8 @@
                                     const daysSober = soberDate ? Math.floor((today - soberDate) / 86400000) : '';
                                     const genderTag = gender === 'M' ? '<span class="gender-m">M</span>' : gender === 'F' ? '<span class="gender-f">F</span>' : gender;
                                     const rateDisplay = rate !== null && rate !== undefined && rate !== '' ? '$' + rate : '';
-                                    return `<tr>
+                                    // Make row clickable except for the Edit button
+                                    return `<tr style="cursor:pointer;" onclick="openStaffProfileModalFromTable('${id}')">
                                         <td>${idx + 1}</td>
                                         <td>${yr}</td>
                                         <td>${id}</td>
@@ -1027,9 +1028,14 @@
                                         <td>${billOnDay}</td>
                                         <td>${key}</td>
                                         <td>${ref}</td>
-                                        <td><button onclick="openEditMemberModal(${idx})" style="padding:4px 10px;font-size:12px;background:#667eea;color:white;border:none;border-radius:4px;cursor:pointer;">Edit</button></td>
+                                        <td><button onclick="event.stopPropagation();openEditMemberModal(${idx})" style="padding:4px 10px;font-size:12px;background:#667eea;color:white;border:none;border-radius:4px;cursor:pointer;">Edit</button></td>
                                     </tr>`;
                                 }).join('');
+                                // Add global function to open profile modal from table
+                                window.openStaffProfileModalFromTable = function(id) {
+                                    document.getElementById('staffProfileSearch').value = id;
+                                    openStaffProfileModal();
+                                };
                                 // Store for search and editing
                 function openEditMemberModal(idx) {
                     const { members, allKeys } = window._allMembersTableData;
