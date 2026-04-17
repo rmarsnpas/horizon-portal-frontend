@@ -840,13 +840,41 @@
                             member = { ID: memberId };
                         }
 
-                        // Build fields for all keys in member object
-                        const keys = Object.keys(member);
-                        keys.forEach(key => {
-                            const val = member[key] || '';
-                            const label = key.replace(/_/g, ' ').replace(/\b\w/g, c => c.toUpperCase());
-                            const isId = key.toLowerCase().includes('id') && key.length <= 4;
-                            form.innerHTML += `<div style='margin-bottom:10px;'><label style='font-weight:600;'>${label}</label><input name='${key}' value="${val}" ${isId ? 'readonly style="background:#eee;"' : ''} style='width:100%;padding:8px;font-size:1rem;border:1px solid #ccc;border-radius:6px;'></div>`;
+                        // Build fields for all keys in member object, plus required fields
+                        const fieldDefs = [
+                            { key: 'ID', label: 'Member ID', readonly: true },
+                            { key: 'FIRST', label: 'First Name' },
+                            { key: 'LAST', label: 'Last Name' },
+                            { key: 'NICKNAME', label: 'Nickname' },
+                            { key: 'PHONE', label: 'Phone' },
+                            { key: 'EMAIL', label: 'Email', type: 'email' },
+                            { key: 'DOB', label: 'Date of Birth', type: 'date' },
+                            { key: 'ADMIT DATE', label: 'Admit Date', type: 'date' },
+                            { key: 'DISCHARGE DATE', label: 'Discharge Date', type: 'date' },
+                            { key: 'SOBER DATE', label: 'Sober Date', type: 'date' },
+                            { key: 'BED', label: 'Bed' },
+                            { key: 'RATE', label: 'Rate' },
+                            { key: 'PIN', label: 'PIN' },
+                            { key: 'KEY', label: 'Key' },
+                            { key: 'REF', label: 'Ref' },
+                            { key: 'BILL ON DAY', label: 'Bill On Day' },
+                            { key: 'HIDE_INVOICES', label: 'Hide Invoices', type: 'checkbox' },
+                        ];
+                        fieldDefs.forEach(def => {
+                            let val = member[def.key] || member[def.key.replace(/ /g, '_')] || '';
+                            let inputType = def.type || 'text';
+                            let extra = '';
+                            if (def.readonly) extra = 'readonly style="background:#eee;"';
+                            if (inputType === 'date' && val && val.length > 0 && val.length <= 10) val = val.slice(0, 10);
+                            if (def.key === 'HIDE_INVOICES') {
+                                // Render as Yes/No dropdown
+                                form.innerHTML += `<div style='margin-bottom:10px;'><label style='font-weight:600;'>${def.label}</label><select name='HIDE_INVOICES' style='width:100%;padding:8px;font-size:1rem;border:1px solid #ccc;border-radius:6px;'><option value=''>No</option><option value='1' ${val === true || val === 'true' || val === 'H' || val === '1' ? 'selected' : ''}>Yes</option></select></div>`;
+                            } else if (inputType === 'checkbox') {
+                                const checked = val === true || val === 'true' || val === 'H' || val === '1' ? 'checked' : '';
+                                form.innerHTML += `<div style='margin-bottom:10px;'><label style='font-weight:600;'><input name='${def.key}' type='checkbox' ${checked} style='margin-right:8px;'>${def.label}</label></div>`;
+                            } else {
+                                form.innerHTML += `<div style='margin-bottom:10px;'><label style='font-weight:600;'>${def.label}</label><input name='${def.key}' value="${val}" ${extra} type='${inputType}' style='width:100%;padding:8px;font-size:1rem;border:1px solid #ccc;border-radius:6px;'></div>`;
+                            }
                         });
                         // Add Save button
                         form.innerHTML += `<button type="submit" style="padding:12px;background:#28a745;color:white;border:none;border-radius:6px;font-weight:700;font-size:1.1rem;">Save</button>`;
@@ -857,8 +885,17 @@
                         const form = event.target;
                         const payload = {};
                         for (const el of form.elements) {
-                            if (el.name) payload[el.name] = el.value;
+                            if (!el.name) continue;
+                            if (el.name === 'HIDE_INVOICES') {
+                                payload.HIDE_INVOICES = (el.value === '1' || el.value === 'true' || el.value === 'H') ? true : false;
+                            } else if (el.type === 'checkbox') {
+                                payload[el.name] = el.checked ? true : false;
+                            } else {
+                                payload[el.name] = el.value;
+                            }
                         }
+                        // Always send id as 'id' (string)
+                        payload.id = form.elements['ID'] ? form.elements['ID'].value : (payload.ID || payload.id || '');
                         document.getElementById('staffProfileStatus').textContent = 'Saving...';
                         try {
                             // Try PATCH first (edit), if 404 then POST (add)
