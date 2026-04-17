@@ -739,49 +739,54 @@
             </div>
             <!-- All Members Modal -->
             <div id="allMembersModal" class="modal" style="display:none;">
-                <div class="modal-content" style="max-width:90vw;max-height:90vh;overflow:auto;">
+                <div class="modal-content" style="max-width:95vw;max-height:90vh;overflow:auto;">
                     <div class="modal-header" style="display:flex;justify-content:space-between;align-items:center;">
-                        <h2>👁️ All Members Database</h2>
+                        <h2>👁️ Members Database</h2>
                         <span class="close" onclick="closeAllMembersModal()" style="font-size:2rem;cursor:pointer;">&times;</span>
                     </div>
-                    <div style="margin-bottom:12px;">
-                        <input id="allMembersSearch" type="text" placeholder="Search..." style="width:100%;padding:10px;font-size:1rem;border:1px solid #ccc;border-radius:6px;" oninput="filterAllMembersTable()">
+                    <div style="margin-bottom:12px;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px;">
+                        <input id="allMembersSearch" type="text" placeholder="Search all lists..." style="flex:1;min-width:200px;padding:10px;font-size:1rem;border:1px solid #ccc;border-radius:6px;" oninput="filterAllMembersTable()">
+                        <button onclick="openAddMemberModal()" style="padding:10px 18px;background:#28a745;color:white;border:none;border-radius:6px;font-weight:700;font-size:1rem;">+ Add New Member</button>
+                    </div>
+                    <!-- Tab buttons -->
+                    <div style="display:flex;gap:8px;margin-bottom:16px;flex-wrap:wrap;">
+                        <button class="members-tab-btn active" data-tab="active" onclick="switchMembersTab('active')" style="padding:10px 20px;border:2px solid #28a745;background:#28a745;color:white;border-radius:6px;font-weight:700;cursor:pointer;">Active (1, 2, 3)</button>
+                        <button class="members-tab-btn" data-tab="hold" onclick="switchMembersTab('hold')" style="padding:10px 20px;border:2px solid #f0ad4e;background:white;color:#f0ad4e;border-radius:6px;font-weight:700;cursor:pointer;">Hold</button>
+                        <button class="members-tab-btn" data-tab="waitlist" onclick="switchMembersTab('waitlist')" style="padding:10px 20px;border:2px solid #5bc0de;background:white;color:#5bc0de;border-radius:6px;font-weight:700;cursor:pointer;">Wait List</button>
+                        <button class="members-tab-btn" data-tab="staff" onclick="switchMembersTab('staff')" style="padding:10px 20px;border:2px solid #667eea;background:white;color:#667eea;border-radius:6px;font-weight:700;cursor:pointer;">Staff (4 & 5)</button>
+                        <button class="members-tab-btn" data-tab="all" onclick="switchMembersTab('all')" style="padding:10px 20px;border:2px solid #718096;background:white;color:#718096;border-radius:6px;font-weight:700;cursor:pointer;">All</button>
                     </div>
                     <div style="overflow-x:auto;">
-                                                <div style="margin-bottom:12px;display:flex;justify-content:space-between;align-items:center;">
-                                                    <input id="allMembersSearch" type="text" placeholder="Search..." style="width:60%;padding:10px;font-size:1rem;border:1px solid #ccc;border-radius:6px;" oninput="filterAllMembersTable()">
-                                                    <button onclick="openAddMemberModal()" style="padding:10px 18px;background:#28a745;color:white;border:none;border-radius:6px;font-weight:700;font-size:1rem;">+ Add New Member</button>
-                                                </div>
-                                                <table id="allMembersTable" style="border-collapse: collapse; width: 100%; font-size: 14px;">
-                                                    <thead class="sticky-header" id="allMembersTableHead">
-                                                        <tr>
-                                                            <th class="narrow">#</th>
-                                                            <th class="narrow">YR</th>
-                                                            <th class="narrow">ID</th>
-                                                            <th class="narrow">STATUS</th>
-                                                            <th>FIRST</th>
-                                                            <th>LAST</th>
-                                                            <th>NICKNAME</th>
-                                                            <th class="narrow">M/F</th>
-                                                            <th class="narrow">BED</th>
-                                                            <th>DOB</th>
-                                                            <th>ADMIT DATE</th>
-                                                            <th>DISCHARGE DATE</th>
-                                                            <th>DAYS HERE</th>
-                                                            <th>SOBER DATE</th>
-                                                            <th>DAYSOBER</th>
-                                                            <th>RATE</th>
-                                                            <th>PHONE</th>
-                                                            <th>EMAIL</th>
-                                                            <th>PIN</th>
-                                                            <th>BILL ON DAY</th>
-                                                            <th>KEY</th>
-                                                            <th>REF</th>
-                                                            <th>Edit</th>
-                                                        </tr>
-                                                    </thead>
-                                                    <tbody id="allMembersTableBody"></tbody>
-                                                </table>
+                        <table id="allMembersTable" style="border-collapse: collapse; width: 100%; font-size: 14px;">
+                            <thead class="sticky-header" id="allMembersTableHead">
+                                <tr>
+                                    <th class="narrow">#</th>
+                                    <th class="narrow">YR</th>
+                                    <th class="narrow">ID</th>
+                                    <th class="narrow">STATUS</th>
+                                    <th>FIRST</th>
+                                    <th>LAST</th>
+                                    <th>NICKNAME</th>
+                                    <th class="narrow">M/F</th>
+                                    <th class="narrow">BED</th>
+                                    <th>DOB</th>
+                                    <th>ADMIT DATE</th>
+                                    <th>DISCHARGE DATE</th>
+                                    <th>DAYS HERE</th>
+                                    <th>SOBER DATE</th>
+                                    <th>DAYSOBER</th>
+                                    <th>RATE</th>
+                                    <th>PHONE</th>
+                                    <th>EMAIL</th>
+                                    <th>PIN</th>
+                                    <th>BILL ON DAY</th>
+                                    <th>KEY</th>
+                                    <th>REF</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="allMembersTableBody"></tbody>
+                        </table>
                         <!-- Edit Member Modal -->
                         <div id="editMemberModal" class="modal" style="display:none;">
                             <div class="modal-content" style="max-width:600px; max-height:90vh; overflow-y:auto;">
@@ -1013,12 +1018,51 @@
                 };
 
                 // Shared rendering function for All Members table
+                // Track current tab
+                window._currentMembersTab = 'active';
+
+                function switchMembersTab(tab) {
+                    window._currentMembersTab = tab;
+                    // Update button styles
+                    document.querySelectorAll('.members-tab-btn').forEach(btn => {
+                        if (btn.dataset.tab === tab) {
+                            btn.style.background = btn.style.borderColor;
+                            btn.style.color = 'white';
+                        } else {
+                            btn.style.background = 'white';
+                            btn.style.color = btn.style.borderColor;
+                        }
+                    });
+                    const { members } = window._allMembersTableData || {};
+                    if (members) renderAllMembersTable(members);
+                }
+                window.switchMembersTab = switchMembersTab;
+
+                function filterByTab(membersList) {
+                    const tab = window._currentMembersTab || 'active';
+                    if (tab === 'all') return membersList;
+                    return membersList.filter(member => {
+                        const raw = member.STATUS || member.status || member.STATU || '';
+                        const s = String(raw).toUpperCase().trim();
+                        switch(tab) {
+                            case 'active': return s === '1' || s === '2' || s === '3';
+                            case 'hold': return s === 'H' || s === 'HOLD';
+                            case 'waitlist': return s === 'W' || s === 'WAIT' || s === 'WAITLIST';
+                            case 'staff': return s === '4' || s === '5';
+                            default: return true;
+                        }
+                    });
+                }
+
                 function renderAllMembersTable(membersList) {
                     const search = (document.getElementById('allMembersSearch') ? document.getElementById('allMembersSearch').value : '').toLowerCase();
-                    const filtered = !search ? membersList : membersList.filter(m => {
-                        const vals = Object.values(m).map(v => String(v || '').toLowerCase());
-                        return vals.some(v => v.includes(search));
-                    });
+                    let filtered = filterByTab(membersList);
+                    if (search) {
+                        filtered = filtered.filter(m => {
+                            const vals = Object.values(m).map(v => String(v || '').toLowerCase());
+                            return vals.some(v => v.includes(search));
+                        });
+                    }
                     document.getElementById('allMembersTableBody').innerHTML = filtered.map((member, idx) => {
                         const firstName = member['FIRST\r\nNAME'] || member['FIRST\nNAME'] || member['FIRST NAME'] || member.firstName || member.FIRST || '';
                         const lastName  = member['LAST\r\nNAME']  || member['LAST\nNAME']  || member['LAST NAME']  || member.lastName  || member.LAST || '';
@@ -1077,11 +1121,37 @@
                             <td>${billOnDay}</td>
                             <td>${key}</td>
                             <td>${ref}</td>
-                            <td><button onclick="event.stopPropagation();openEditMemberModal(${idx})" style="padding:4px 10px;font-size:12px;background:#667eea;color:white;border:none;border-radius:4px;cursor:pointer;">Edit</button></td>
+                            <td style="white-space:nowrap;">
+                                <button onclick="event.stopPropagation();openEditMemberModal(${idx})" style="padding:4px 10px;font-size:12px;background:#667eea;color:white;border:none;border-radius:4px;cursor:pointer;margin-right:4px;">Edit</button>
+                                <button onclick="event.stopPropagation();deleteMember('${id}','${firstName} ${lastName}')" style="padding:4px 10px;font-size:12px;background:#dc3545;color:white;border:none;border-radius:4px;cursor:pointer;">Delete</button>
+                            </td>
                         </tr>`;
                     }).join('');
                 }
                 window.renderAllMembersTable = renderAllMembersTable;
+
+                // Delete member function
+                async function deleteMember(id, name) {
+                    if (!confirm(`Are you sure you want to delete member ${id} (${name})? This cannot be undone.`)) return;
+                    try {
+                        const res = await fetch(`${API_BASE}/api/deleteMember`, {
+                            method: 'DELETE',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({ id })
+                        });
+                        const result = await res.json();
+                        if (result.success) {
+                            alert('Member deleted.');
+                            if (window.reloadAllMembersFromBackend) await window.reloadAllMembersFromBackend();
+                        } else {
+                            alert('Error: ' + (result.error || 'Unknown'));
+                        }
+                    } catch (e) {
+                        alert('Network error');
+                    }
+                }
+                window.deleteMember = deleteMember;
+
                                 // Use the same rendering logic as the Active Members Board, but include all fields and add Add/Edit buttons
                                 const allFields = [
                                     '#','YR','ID','STATUS','FIRST','LAST','NICKNAME','M/F','BED','DOB','ADMIT DATE','DISCHARGE DATE','DAYS HERE','SOBER DATE','DAYSOBER','RATE','PHONE','EMAIL','PIN','BILL ON DAY','KEY','REF'
