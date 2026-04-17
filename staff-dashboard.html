@@ -739,24 +739,24 @@
             </div>
             <!-- All Members Modal -->
             <div id="allMembersModal" class="modal" style="display:none;">
-                <div class="modal-content" style="max-width:95vw;max-height:90vh;overflow:auto;">
-                    <div class="modal-header" style="display:flex;justify-content:space-between;align-items:center;">
+                <div class="modal-content" style="max-width:95vw;height:90vh;display:flex;flex-direction:column;overflow:hidden;">
+                    <div class="modal-header" style="display:flex;justify-content:space-between;align-items:center;flex-shrink:0;">
                         <h2>👁️ Members Database</h2>
                         <span class="close" onclick="closeAllMembersModal()" style="font-size:2rem;cursor:pointer;">&times;</span>
                     </div>
-                    <div style="margin-bottom:12px;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px;">
+                    <div style="margin-bottom:12px;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px;flex-shrink:0;">
                         <input id="allMembersSearch" type="text" placeholder="Search all lists..." style="flex:1;min-width:200px;padding:10px;font-size:1rem;border:1px solid #ccc;border-radius:6px;" oninput="filterAllMembersTable()">
                         <button onclick="openAddMemberModal()" style="padding:10px 18px;background:#28a745;color:white;border:none;border-radius:6px;font-weight:700;font-size:1rem;">+ Add New Member</button>
                     </div>
                     <!-- Tab buttons -->
-                    <div style="display:flex;gap:8px;margin-bottom:16px;flex-wrap:wrap;">
+                    <div style="display:flex;gap:8px;margin-bottom:12px;flex-wrap:wrap;flex-shrink:0;">
                         <button class="members-tab-btn active" data-tab="active" onclick="switchMembersTab('active')" style="padding:10px 20px;border:2px solid #28a745;background:#28a745;color:white;border-radius:6px;font-weight:700;cursor:pointer;">Active (1, 2, 3)</button>
                         <button class="members-tab-btn" data-tab="hold" onclick="switchMembersTab('hold')" style="padding:10px 20px;border:2px solid #f0ad4e;background:white;color:#f0ad4e;border-radius:6px;font-weight:700;cursor:pointer;">Hold</button>
                         <button class="members-tab-btn" data-tab="waitlist" onclick="switchMembersTab('waitlist')" style="padding:10px 20px;border:2px solid #5bc0de;background:white;color:#5bc0de;border-radius:6px;font-weight:700;cursor:pointer;">Wait List</button>
                         <button class="members-tab-btn" data-tab="staff" onclick="switchMembersTab('staff')" style="padding:10px 20px;border:2px solid #667eea;background:white;color:#667eea;border-radius:6px;font-weight:700;cursor:pointer;">Staff (4 & 5)</button>
                         <button class="members-tab-btn" data-tab="all" onclick="switchMembersTab('all')" style="padding:10px 20px;border:2px solid #718096;background:white;color:#718096;border-radius:6px;font-weight:700;cursor:pointer;">All</button>
                     </div>
-                    <div style="overflow-x:auto;">
+                    <div style="flex:1;overflow:auto;">
                         <table id="allMembersTable" style="border-collapse: collapse; width: 100%; font-size: 14px;">
                             <thead class="sticky-header" id="allMembersTableHead">
                                 <tr>
