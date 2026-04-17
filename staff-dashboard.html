@@ -1009,77 +1009,86 @@
                         return;
                     }
                     window._allMembersTableData.members = members;
-                    filterAllMembersTable();
+                    renderAllMembersTable(members);
                 };
+
+                // Shared rendering function for All Members table
+                function renderAllMembersTable(membersList) {
+                    const search = (document.getElementById('allMembersSearch') ? document.getElementById('allMembersSearch').value : '').toLowerCase();
+                    const filtered = !search ? membersList : membersList.filter(m => {
+                        const vals = Object.values(m).map(v => String(v || '').toLowerCase());
+                        return vals.some(v => v.includes(search));
+                    });
+                    document.getElementById('allMembersTableBody').innerHTML = filtered.map((member, idx) => {
+                        const firstName = member['FIRST\r\nNAME'] || member['FIRST\nNAME'] || member['FIRST NAME'] || member.firstName || member.FIRST || '';
+                        const lastName  = member['LAST\r\nNAME']  || member['LAST\nNAME']  || member['LAST NAME']  || member.lastName  || member.LAST || '';
+                        const nickname  = member['NIC NAME'] || member.nickname || member.nick || member.NICKNAME || '';
+                        const gender    = member['M/F'] || member.GENDER || member.gender || '';
+                        const bed       = member.BED || member['BED#'] || member.bed || '';
+                        const dob       = (() => {
+                            const raw = member.DOB || member.dob || '';
+                            const d = parseDate(raw);
+                            return d ? d.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) : (raw || '');
+                        })();
+                        const admitRaw  = member['ADMIT\r\nDATE'] || member['ADMIT\nDATE'] || member['ADMIT DATE'] || member.admitDate || '';
+                        const dischargeRaw = member['DC DATE'] || member['DC\nDATE'] || member['DC\r\nDATE'] || member['DISCHARGE DATE'] || member['DISCHARGE\nDATE'] || member['DISCHARGE\r\nDATE'] || member.dischargeDate || '';
+                        const soberRaw  = member['SOBER\r\nDATE'] || member['SOBER\nDATE'] || member['SOBER DATE'] || member.sobrietyDate || '';
+                        const rate      = member.RATE || member.rate || '';
+                        const phone     = member.PHONE || member.phone || '';
+                        const email     = member.EMAIL || member.email || '';
+                        const pin       = member.PIN || member.pin || '';
+                        const billOnDay = member['BILL ON DAY'] || member.billOnDay || '';
+                        const key       = member.KEY || member.key || '';
+                        const ref       = member.REF || member.ref || '';
+                        const id        = member.ID || member.id || '';
+                        const yr        = member.YR || member.yr || '';
+                        const status    = member.STATUS || member.status || '';
+                        const admitDate = parseDate(admitRaw);
+                        const admitText = admitDate ? admitDate.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) : '';
+                        const dischargeDate = parseDate(dischargeRaw);
+                        const dischargeText = dischargeDate ? dischargeDate.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) : '';
+                        const today = new Date(); today.setHours(0, 0, 0, 0);
+                        const daysHere = admitDate ? Math.floor(((dischargeDate || today) - admitDate) / 86400000) : '';
+                        const soberDate = parseDate(soberRaw);
+                        const soberText = soberDate ? soberDate.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) : '';
+                        const daysSober = soberDate ? Math.floor((today - soberDate) / 86400000) : '';
+                        const genderTag = gender === 'M' ? '<span class="gender-m">M</span>' : gender === 'F' ? '<span class="gender-f">F</span>' : gender;
+                        const rateDisplay = rate !== null && rate !== undefined && rate !== '' ? '$' + rate : '';
+                        return `<tr style="cursor:pointer;" onclick="openStaffProfileModalFromTable('${id}')">
+                            <td>${idx + 1}</td>
+                            <td>${yr}</td>
+                            <td>${id}</td>
+                            <td>${status}</td>
+                            <td>${firstName}</td>
+                            <td>${lastName}</td>
+                            <td>${nickname}</td>
+                            <td>${genderTag}</td>
+                            <td>${bed}</td>
+                            <td>${dob}</td>
+                            <td>${admitText}</td>
+                            <td>${dischargeText}</td>
+                            <td>${daysHere}</td>
+                            <td>${soberText}</td>
+                            <td>${daysSober}</td>
+                            <td>${rateDisplay}</td>
+                            <td>${phone}</td>
+                            <td>${email}</td>
+                            <td>${pin}</td>
+                            <td>${billOnDay}</td>
+                            <td>${key}</td>
+                            <td>${ref}</td>
+                            <td><button onclick="event.stopPropagation();openEditMemberModal(${idx})" style="padding:4px 10px;font-size:12px;background:#667eea;color:white;border:none;border-radius:4px;cursor:pointer;">Edit</button></td>
+                        </tr>`;
+                    }).join('');
+                }
+                window.renderAllMembersTable = renderAllMembersTable;
                                 // Use the same rendering logic as the Active Members Board, but include all fields and add Add/Edit buttons
                                 const allFields = [
                                     '#','YR','ID','STATUS','FIRST','LAST','NICKNAME','M/F','BED','DOB','ADMIT DATE','DISCHARGE DATE','DAYS HERE','SOBER DATE','DAYSOBER','RATE','PHONE','EMAIL','PIN','BILL ON DAY','KEY','REF'
                                 ];
                                 // Store for search and editing
                                 window._allMembersTableData = { members, allKeys: allFields };
-                                document.getElementById('allMembersTableBody').innerHTML = members.map((member, idx) => {
-                                    const firstName = member['FIRST\r\nNAME'] || member['FIRST\nNAME'] || member['FIRST NAME'] || member.firstName || member.FIRST || '';
-                                    const lastName  = member['LAST\r\nNAME']  || member['LAST\nNAME']  || member['LAST NAME']  || member.lastName  || member.LAST || '';
-                                    const fullName  = `${firstName} ${lastName}`.trim() || '—';
-                                    const nickname  = member['NIC NAME'] || member.nickname || member.nick || member.NICKNAME || '';
-                                    const gender    = member['M/F'] || member.GENDER || member.gender || '';
-                                    const bed       = member.BED || member['BED#'] || member.bed || '';
-                                    const dob       = (() => {
-                                        const raw = member.DOB || member.dob || '';
-                                        const d = parseDate(raw);
-                                        return d ? d.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) : (raw || '');
-                                    })();
-                                    const admitRaw  = member['ADMIT\r\nDATE'] || member['ADMIT\nDATE'] || member['ADMIT DATE'] || member.admitDate || '';
-                                    const dischargeRaw = member['DC DATE'] || member['DC\nDATE'] || member['DC\r\nDATE'] || member['DISCHARGE DATE'] || member['DISCHARGE\nDATE'] || member['DISCHARGE\r\nDATE'] || member.dischargeDate || '';
-                                    const soberRaw  = member['SOBER\r\nDATE'] || member['SOBER\nDATE'] || member['SOBER DATE'] || member.sobrietyDate || '';
-                                    const rate      = member.RATE || member.rate || '';
-                                    const phone     = member.PHONE || member.phone || '';
-                                    const email     = member.EMAIL || member.email || '';
-                                    const pin       = member.PIN || member.pin || '';
-                                    const billOnDay = member['BILL ON DAY'] || member.billOnDay || '';
-                                    const key       = member.KEY || member.key || '';
-                                    const ref       = member.REF || member.ref || '';
-                                    const id        = member.ID || member.id || '';
-                                    const yr        = member.YR || member.yr || '';
-                                    const status    = member.STATUS || member.status || '';
-                                    const admitDate = parseDate(admitRaw);
-                                    const admitText = admitDate ? admitDate.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) : '';
-                                    const dischargeDate = parseDate(dischargeRaw);
-                                    const dischargeText = dischargeDate ? dischargeDate.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) : '';
-                                    const today = new Date(); today.setHours(0, 0, 0, 0);
-                                    const daysHere = admitDate ? Math.floor(((dischargeDate || today) - admitDate) / 86400000) : '';
-                                    const soberDate = parseDate(soberRaw);
-                                    const soberText = soberDate ? soberDate.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) : '';
-                                    const daysSober = soberDate ? Math.floor((today - soberDate) / 86400000) : '';
-                                    const genderTag = gender === 'M' ? '<span class="gender-m">M</span>' : gender === 'F' ? '<span class="gender-f">F</span>' : gender;
-                                    const rateDisplay = rate !== null && rate !== undefined && rate !== '' ? '$' + rate : '';
-                                    // Make row clickable except for the Edit button
-                                    return `<tr style="cursor:pointer;" onclick="openStaffProfileModalFromTable('${id}')">
-                                        <td>${idx + 1}</td>
-                                        <td>${yr}</td>
-                                        <td>${id}</td>
-                                        <td>${status}</td>
-                                        <td>${firstName}</td>
-                                        <td>${lastName}</td>
-                                        <td>${nickname}</td>
-                                        <td>${genderTag}</td>
-                                        <td>${bed}</td>
-                                        <td>${dob}</td>
-                                        <td>${admitText}</td>
-                                        <td>${dischargeText}</td>
-                                        <td>${daysHere}</td>
-                                        <td>${soberText}</td>
-                                        <td>${daysSober}</td>
-                                        <td>${rateDisplay}</td>
-                                        <td>${phone}</td>
-                                        <td>${email}</td>
-                                        <td>${pin}</td>
-                                        <td>${billOnDay}</td>
-                                        <td>${key}</td>
-                                        <td>${ref}</td>
-                                        <td><button onclick="event.stopPropagation();openEditMemberModal(${idx})" style="padding:4px 10px;font-size:12px;background:#667eea;color:white;border:none;border-radius:4px;cursor:pointer;">Edit</button></td>
-                                    </tr>`;
-                                }).join('');
+                                renderAllMembersTable(members);
                                 // Add global function to open profile modal from table
                                 window.openStaffProfileModalFromTable = function(id) {
                                     document.getElementById('staffProfileSearch').value = id;
@@ -1339,15 +1348,9 @@
             }
 
             function filterAllMembersTable() {
-                const search = document.getElementById('allMembersSearch').value.toLowerCase();
-                const { members, allKeys } = window._allMembersTableData || {};
-                if (!members || !allKeys) return;
-                const filtered = !search ? members : members.filter(m =>
-                    allKeys.some(k => (m[k] !== undefined && String(m[k]).toLowerCase().includes(search)))
-                );
-                document.getElementById('allMembersTableBody').innerHTML = filtered.map(m =>
-                    '<tr>' + allKeys.map(k => `<td>${m[k] !== undefined ? m[k] : ''}</td>`).join('') + '</tr>'
-                ).join('');
+                const { members } = window._allMembersTableData || {};
+                if (!members) return;
+                renderAllMembersTable(members);
             }
             </script>
         <script>
