@@ -1180,9 +1180,15 @@
                     // Available beds
                     const availF = getAvailableBeds('F');
                     const availM = getAvailableBeds('M');
-                    html += badge('🛏 Beds Avail', availF.length + availM.length, '#38a169', '#fff');
-                    html += badge('F', availF.length + ' (' + availF.join(', ') + ')', '#f8d7e8', '#7a1a4a');
-                    html += badge('M', availM.length + ' (' + availM.join(', ') + ')', '#cce5ff', '#1a4a7a');
+                    const totalAvail = availF.length + availM.length;
+                    const availBg = totalAvail === 0 ? '#dc3545' : '#38a169';
+                    const availFBg = availF.length === 0 ? '#dc3545' : '#f8d7e8';
+                    const availFfg = availF.length === 0 ? '#fff' : '#7a1a4a';
+                    const availMBg = availM.length === 0 ? '#dc3545' : '#cce5ff';
+                    const availMfg = availM.length === 0 ? '#fff' : '#1a4a7a';
+                    html += badge('🛏 Beds Avail', totalAvail, availBg, '#fff');
+                    html += badge('F', availF.length + (availF.length ? ' (' + availF.join(', ') + ')' : ''), availFBg, availFfg);
+                    html += badge('M', availM.length + (availM.length ? ' (' + availM.join(', ') + ')' : ''), availMBg, availMfg);
                     html += '</div>';
                     bar.innerHTML = html;
                 }
@@ -1516,6 +1522,13 @@
                     const idEl = document.getElementById('addMemberId');
                     if (!statusEl || !idEl) return;
                     const s = statusEl.value.toUpperCase();
+                    // Block Hold if no beds available for selected gender
+                    if (s === 'H') {
+                        const genderEl = document.getElementById('addMemberGender');
+                        const g = genderEl ? genderEl.value.toUpperCase() : '';
+                        if (!g) { alert('Please select M/F before setting Hold status.'); statusEl.value = '1'; return; }
+                        if (getAvailableBeds(g).length === 0) { alert('No beds available for ' + g + '. Cannot set Hold status.'); statusEl.value = '1'; return; }
+                    }
                     if (s === 'W') {
                         // Wait list: no ID assigned
                         idEl.value = '';
