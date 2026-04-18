@@ -294,6 +294,7 @@
             top: 0;
             width: 100%;
             height: 100%;
+            overflow-y: auto;
             background-color: rgba(0,0,0,0.5);
             animation: fadeIn 0.3s;
         }
@@ -817,8 +818,8 @@
                             <tbody id="allMembersTableBody"></tbody>
                         </table>
                         <!-- Edit Member Modal -->
-                        <div id="editMemberModal" class="modal" style="display:none;">
-                            <div class="modal-content" style="max-width:600px; max-height:90vh; overflow-y:auto;">
+                        <div id="editMemberModal" class="modal" style="display:none;align-items:center;justify-content:center;">
+                            <div class="modal-content" style="max-width:600px; max-height:90vh; overflow-y:auto; margin:2vh auto;">
                                 <div class="modal-header" style="display:flex;justify-content:space-between;align-items:center;">
                                     <h2>✏️ Edit Member</h2>
                                     <span class="close" onclick="closeEditMemberModal()" style="font-size:2rem;cursor:pointer;">&times;</span>
@@ -1529,19 +1530,15 @@
                 }
                 const nextId = String(maxId + 1).padStart(4, '0');
                 // Only show fields we want in the form (skip computed fields)
-                const formKeys = allKeys.filter(k => k !== '#' && k !== 'DAYS HERE' && k !== 'DAYSOBER' && k !== 'YR');
-                // STATUS first so we can react to it for ID logic
+                const formKeys = allKeys.filter(k => k !== '#' && k !== 'DAYS HERE' && k !== 'DAYSOBER' && k !== 'YR' && k !== 'STATUS' && k !== 'ID' && k !== 'M/F' && k !== 'BED');
+                // Order: YR, M/F, BED, STATUS, ID, then remaining fields
                 const fieldsHtml = [
                     `<div style='margin-bottom:10px;'><label style='font-weight:600;'>YR</label><input name='YR' value="26" readonly style='background:#eee;width:100%;padding:8px;font-size:1rem;border:1px solid #ccc;border-radius:6px;'></div>`,
+                    `<div style='margin-bottom:10px;'><label style='font-weight:600;'>M/F</label><select name='M/F' id='addMemberGender' onchange='refreshBedDropdown("addMemberBed", this.value, "")' style='width:100%;padding:8px;font-size:1rem;border:1px solid #ccc;border-radius:6px;'><option value=''>-- Select --</option><option value='F'>F</option><option value='M'>M</option></select></div>`,
+                    `<div style='margin-bottom:10px;'><label style='font-weight:600;'>BED</label>${buildBedDropdown('BED', '', '', 'addMemberBed')}</div>`,
                     `<div style='margin-bottom:10px;'><label style='font-weight:600;'>STATUS</label><select name='STATUS' id='addMemberStatus' onchange='onAddMemberStatusChange()' style='width:100%;padding:8px;font-size:1rem;border:1px solid #ccc;border-radius:6px;'><option value='1'>1 - Active</option><option value='2'>2 - Inactive</option><option value='3'>3 - Discharged</option><option value='H'>H - Hold</option><option value='W'>W - Wait List</option><option value='4'>4 - Staff</option><option value='5'>5 - Staff</option></select></div>`,
                     `<div style='margin-bottom:10px;'><label style='font-weight:600;'>ID</label><input name='ID' id='addMemberId' value="${nextId}" readonly style='background:#eee;width:100%;padding:8px;font-size:1rem;border:1px solid #ccc;border-radius:6px;'></div>`
-                ].concat(formKeys.filter(k => k !== 'STATUS' && k !== 'ID').map(k => {
-                    if (k === 'M/F') {
-                        return `<div style='margin-bottom:10px;'><label style='font-weight:600;'>${k}</label><select name='${k}' id='addMemberGender' onchange='refreshBedDropdown("addMemberBed", this.value, "")' style='width:100%;padding:8px;font-size:1rem;border:1px solid #ccc;border-radius:6px;'><option value=''>-- Select --</option><option value='F'>F</option><option value='M'>M</option></select></div>`;
-                    }
-                    if (k === 'BED') {
-                        return `<div style='margin-bottom:10px;'><label style='font-weight:600;'>${k}</label>${buildBedDropdown('BED', '', '', 'addMemberBed')}</div>`;
-                    }
+                ].concat(formKeys.map(k => {
                     return `<div style='margin-bottom:10px;'><label style='font-weight:600;'>${k}</label><input name='${k}' value="" style='width:100%;padding:8px;font-size:1rem;border:1px solid #ccc;border-radius:6px;'></div>`;
                 })).join('');
                 // Always clear modal content before rendering
@@ -1565,6 +1562,31 @@
                         const g = genderEl ? genderEl.value.toUpperCase() : '';
                         if (!g) { alert('Please select M/F before setting Hold status.'); statusEl.value = '1'; return; }
                         if (getAvailableBeds(g).length === 0) { alert('No beds available for ' + g + '. Cannot set Hold status.'); statusEl.value = '1'; return; }
+                        // Show deposit question
+                        let depositSection = document.getElementById('addMemberDepositSection');
+                        if (!depositSection) {
+                            depositSection = document.createElement('div');
+                            depositSection.id = 'addMemberDepositSection';
+                            depositSection.style.cssText = 'margin-bottom:10px;padding:12px;background:#fff8e1;border:1px solid #ffe082;border-radius:6px;';
+                            depositSection.innerHTML = `
+                                <label style='font-weight:600;'>Deposit Paid?</label>
+                                <select id='addMemberDepositPaid' onchange='document.getElementById("addMemberDepositAmountWrap").style.display = this.value === "Yes" ? "block" : "none"' style='width:100%;padding:8px;font-size:1rem;border:1px solid #ccc;border-radius:6px;margin-bottom:8px;'>
+                                    <option value='No'>No</option>
+                                    <option value='Yes'>Yes</option>
+                                </select>
+                                <div id='addMemberDepositAmountWrap' style='display:none;'>
+                                    <label style='font-weight:600;'>How much?</label>
+                                    <input id='addMemberDepositAmount' name='DEPOSIT' type='number' step='0.01' min='0' placeholder='0.00' style='width:100%;padding:8px;font-size:1rem;border:1px solid #ccc;border-radius:6px;'>
+                                </div>`;
+                            // Insert after STATUS field
+                            const statusDiv = statusEl.closest('div');
+                            statusDiv.parentNode.insertBefore(depositSection, statusDiv.nextSibling);
+                        }
+                        depositSection.style.display = 'block';
+                    } else {
+                        // Hide deposit section for non-Hold statuses
+                        const depositSection = document.getElementById('addMemberDepositSection');
+                        if (depositSection) depositSection.style.display = 'none';
                     }
                     if (s === 'W') {
                         // Wait list: no ID assigned
@@ -1611,6 +1633,15 @@
                         billOnDay: form.elements['BILL ON DAY'] ? form.elements['BILL ON DAY'].value : '',
                     };
                     if (form.elements['PIN'] && form.elements['PIN'].value) payload.pin = form.elements['PIN'].value;
+                    // Include deposit info if Hold status
+                    const depPaidEl = document.getElementById('addMemberDepositPaid');
+                    if (depPaidEl && depPaidEl.closest('div').style.display !== 'none') {
+                        payload.depositPaid = depPaidEl.value;
+                        if (depPaidEl.value === 'Yes') {
+                            const depAmtEl = document.getElementById('addMemberDepositAmount');
+                            payload.depositAmount = depAmtEl ? depAmtEl.value : '';
+                        }
+                    }
                     document.getElementById('editMemberStatus').textContent = 'Saving...';
                     try {
                         const res = await fetch(`${API_BASE}/api/addMember`, {
