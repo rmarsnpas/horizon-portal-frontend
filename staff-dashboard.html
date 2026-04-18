@@ -1064,6 +1064,61 @@
                     });
                 }
 
+                // Bed inventory by gender
+                const BED_INVENTORY = {
+                    F: ['1A','1B','2A','2B','3A','3B','3C','4'],
+                    M: ['1A','1B','2A','2B','2C','3A','3B','4A','4B']
+                };
+
+                function getOccupiedBeds(gender) {
+                    const members = (window._allMembersTableData || {}).members || [];
+                    const occupied = [];
+                    members.forEach(m => {
+                        const s = String(m.STATUS || m.status || m.STATU || '').toUpperCase().trim();
+                        // Only status 1 or H occupy beds
+                        if (s !== '1' && s !== 'H') return;
+                        const g = String(m['M/F'] || m.GENDER || m.gender || '').toUpperCase().trim();
+                        if (g !== gender) return;
+                        const bed = String(m.BED || m['BED#'] || m.bed || '').toUpperCase().trim();
+                        if (bed) occupied.push(bed);
+                    });
+                    return occupied;
+                }
+
+                function getAvailableBeds(gender) {
+                    const all = BED_INVENTORY[gender] || [];
+                    const occupied = getOccupiedBeds(gender);
+                    return all.filter(b => !occupied.includes(b.toUpperCase()));
+                }
+
+                function buildBedDropdown(name, selectedVal, gender, id) {
+                    const idAttr = id ? ` id='${id}'` : '';
+                    if (!gender) {
+                        return `<select name='${name}'${idAttr} disabled style='width:100%;padding:8px;font-size:1rem;border:1px solid #ccc;border-radius:6px;background:#f5f5f5;'><option value=''>Select M/F first</option></select>`;
+                    }
+                    const available = getAvailableBeds(gender);
+                    const allBeds = BED_INVENTORY[gender] || [];
+                    let opts = `<option value=''>-- Select Bed --</option>`;
+                    allBeds.forEach(b => {
+                        const isAvail = available.includes(b);
+                        const isCurrent = b.toUpperCase() === String(selectedVal || '').toUpperCase().trim();
+                        if (isAvail || isCurrent) {
+                            opts += `<option value='${b}'${isCurrent ? ' selected' : ''}>${b}</option>`;
+                        }
+                    });
+                    return `<select name='${name}'${idAttr} style='width:100%;padding:8px;font-size:1rem;border:1px solid #ccc;border-radius:6px;'>${opts}</select>`;
+                }
+
+                function refreshBedDropdown(selectId, gender, currentVal) {
+                    const el = document.getElementById(selectId);
+                    if (!el) return;
+                    const container = el.parentElement;
+                    const label = container.querySelector('label');
+                    container.innerHTML = '';
+                    if (label) container.appendChild(label);
+                    container.insertAdjacentHTML('beforeend', buildBedDropdown('BED', currentVal, gender, selectId));
+                }
+
                 function updateMemberStats(members) {
                     const bar = document.getElementById('memberStatsBar');
                     if (!bar || !members) return;
@@ -1121,6 +1176,13 @@
                     html += badge('Wait', waits.length, '#5bc0de', '#fff');
                     html += badge('F', waitF, '#f8d7e8', '#7a1a4a');
                     html += badge('M', waitM, '#cce5ff', '#1a4a7a');
+                    html += '</div><div>';
+                    // Available beds
+                    const availF = getAvailableBeds('F');
+                    const availM = getAvailableBeds('M');
+                    html += badge('🛏 Beds Avail', availF.length + availM.length, '#38a169', '#fff');
+                    html += badge('F', availF.length + ' (' + availF.join(', ') + ')', '#f8d7e8', '#7a1a4a');
+                    html += badge('M', availM.length + ' (' + availM.join(', ') + ')', '#cce5ff', '#1a4a7a');
                     html += '</div>';
                     bar.innerHTML = html;
                 }
@@ -1274,6 +1336,16 @@
                             default: val = member[k] !== undefined ? member[k] : ''; break;
                         }
                         const isReadonly = readonlyFields.includes(k);
+                        // M/F as dropdown
+                        if (k === 'M/F') {
+                            const gVal = String(val).toUpperCase().trim();
+                            return `<div style='margin-bottom:10px;'><label style='font-weight:600;'>${k}</label><select name='${k}' id='editMemberGender' onchange='refreshBedDropdown("editMemberBed", this.value, "")' style='width:100%;padding:8px;font-size:1rem;border:1px solid #ccc;border-radius:6px;'><option value=''>-- Select --</option><option value='F'${gVal==='F'?' selected':''}>F</option><option value='M'${gVal==='M'?' selected':''}>M</option></select></div>`;
+                        }
+                        // BED as dropdown
+                        if (k === 'BED') {
+                            const gender = String(member['M/F'] || member.GENDER || member.gender || '').toUpperCase().trim();
+                            return `<div style='margin-bottom:10px;'><label style='font-weight:600;'>${k}</label>${buildBedDropdown('BED', val, gender, 'editMemberBed')}</div>`;
+                        }
                         return `<div style='margin-bottom:10px;'><label style='font-weight:600;'>${k}</label><input name='${k}' value="${val}" ${isReadonly ? 'readonly style="background:#eee;"' : ''} style='width:100%;padding:8px;font-size:1rem;border:1px solid #ccc;border-radius:6px;'></div>`;
                     }).join('');
                     document.getElementById('editMemberFields').innerHTML = fieldsHtml + `
@@ -1416,6 +1488,12 @@
                     `<div style='margin-bottom:10px;'><label style='font-weight:600;'>STATUS</label><select name='STATUS' id='addMemberStatus' onchange='onAddMemberStatusChange()' style='width:100%;padding:8px;font-size:1rem;border:1px solid #ccc;border-radius:6px;'><option value='1'>1 - Active</option><option value='2'>2 - Inactive</option><option value='3'>3 - Discharged</option><option value='H'>H - Hold</option><option value='W'>W - Wait List</option><option value='4'>4 - Staff</option><option value='5'>5 - Staff</option></select></div>`,
                     `<div style='margin-bottom:10px;'><label style='font-weight:600;'>ID</label><input name='ID' id='addMemberId' value="${nextId}" readonly style='background:#eee;width:100%;padding:8px;font-size:1rem;border:1px solid #ccc;border-radius:6px;'></div>`
                 ].concat(formKeys.filter(k => k !== 'STATUS' && k !== 'ID').map(k => {
+                    if (k === 'M/F') {
+                        return `<div style='margin-bottom:10px;'><label style='font-weight:600;'>${k}</label><select name='${k}' id='addMemberGender' onchange='refreshBedDropdown("addMemberBed", this.value, "")' style='width:100%;padding:8px;font-size:1rem;border:1px solid #ccc;border-radius:6px;'><option value=''>-- Select --</option><option value='F'>F</option><option value='M'>M</option></select></div>`;
+                    }
+                    if (k === 'BED') {
+                        return `<div style='margin-bottom:10px;'><label style='font-weight:600;'>${k}</label>${buildBedDropdown('BED', '', '', 'addMemberBed')}</div>`;
+                    }
                     return `<div style='margin-bottom:10px;'><label style='font-weight:600;'>${k}</label><input name='${k}' value="" style='width:100%;padding:8px;font-size:1rem;border:1px solid #ccc;border-radius:6px;'></div>`;
                 })).join('');
                 // Add Save and Cancel buttons for Add Member
