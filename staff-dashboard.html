@@ -879,6 +879,7 @@
                         function getMemberVal(m, key) {
                             const aliases = {
                                 'ID': ['ID', 'id'],
+                                'YR': ['YR', 'yr'],
                                 'FIRST': ['FIRST_NAME', 'FIRST', 'firstName', 'FIRST\nNAME', 'FIRST\r\nNAME', 'FIRST NAME'],
                                 'LAST': ['LAST_NAME', 'LAST', 'lastName', 'LAST\nNAME', 'LAST\r\nNAME', 'LAST NAME'],
                                 'NICKNAME': ['NICKNAME', 'NIC NAME', 'nickname', 'nick'],
@@ -905,48 +906,120 @@
                             return '';
                         }
 
-                        // Build fields for all keys in member object, plus required fields
-                        const fieldDefs = [
-                            { key: 'ID', label: 'Member ID', readonly: true },
-                            { key: 'STATUS', label: 'Status' },
-                            { key: 'FIRST', label: 'First Name' },
-                            { key: 'LAST', label: 'Last Name' },
-                            { key: 'NICKNAME', label: 'Nickname' },
-                            { key: 'M/F', label: 'Gender' },
-                            { key: 'PHONE', label: 'Phone' },
-                            { key: 'EMAIL', label: 'Email', type: 'email' },
-                            { key: 'DOB', label: 'Date of Birth' },
-                            { key: 'ADMIT DATE', label: 'Admit Date' },
-                            { key: 'DISCHARGE DATE', label: 'Discharge Date' },
-                            { key: 'SOBER DATE', label: 'Sober Date' },
-                            { key: 'BED', label: 'Bed' },
-                            { key: 'RATE', label: 'Rate' },
-                            { key: 'PIN', label: 'PIN' },
-                            { key: 'KEY', label: 'Key' },
-                            { key: 'REF', label: 'Ref' },
-                            { key: 'BILL ON DAY', label: 'Bill On Day' },
-                            { key: 'HIDE_INVOICES', label: 'Hide Invoices', type: 'select' },
-                        ];
-                        fieldDefs.forEach(def => {
-                            let val = getMemberVal(member, def.key);
-                            let inputType = def.type || 'text';
-                            let extra = '';
-                            if (def.readonly) extra = 'readonly style="background:#eee;"';
-                            // Format date values to mm-dd-yyyy for display
-                            if (['DOB','ADMIT DATE','DISCHARGE DATE','SOBER DATE'].includes(def.key) && val) {
+                        // Build 2-column layout matching edit/add member form
+                        const fieldStyle = "width:100%;padding:8px;font-size:1rem;border:1px solid #ccc;border-radius:6px;";
+                        const rowStyle = "display:flex;gap:12px;margin-bottom:10px;";
+                        const cellStyle = "flex:1;min-width:0;";
+                        const labelStyle = "font-weight:600;display:block;margin-bottom:4px;";
+
+                        function makeRow(left, right) {
+                            return `<div style='${rowStyle}'><div style='${cellStyle}'>${left}</div><div style='${cellStyle}'>${right}</div></div>`;
+                        }
+
+                        // Get and format values
+                        function gv(key) {
+                            let val = getMemberVal(member, key);
+                            if (['DOB','ADMIT DATE','DISCHARGE DATE','SOBER DATE'].includes(key) && val) {
                                 const d = parseDate(val);
                                 if (d) val = fmtDate(d);
                             }
-                            if (def.key === 'HIDE_INVOICES') {
-                                // Render as Yes/No dropdown
-                                const isYes = val === 'true' || val === 'H' || val === '1' || val === 'Yes';
-                                form.innerHTML += `<div style='margin-bottom:10px;'><label style='font-weight:600;'>${def.label}</label><select name='HIDE_INVOICES' style='width:100%;padding:8px;font-size:1rem;border:1px solid #ccc;border-radius:6px;'><option value=''>No</option><option value='1' ${isYes ? 'selected' : ''}>Yes</option></select></div>`;
-                            } else {
-                                form.innerHTML += `<div style='margin-bottom:10px;'><label style='font-weight:600;'>${def.label}</label><input name='${def.key}' value="${val}" ${extra} type='${inputType}' style='width:100%;padding:8px;font-size:1rem;border:1px solid #ccc;border-radius:6px;'></div>`;
+                            return val;
+                        }
+
+                        const genderVal = gv('M/F').toUpperCase().trim();
+                        const bedVal = gv('BED');
+                        const statusVal = gv('STATUS').trim();
+                        const hideVal = gv('HIDE_INVOICES');
+                        const isHideYes = hideVal === 'true' || hideVal === 'H' || hideVal === '1' || hideVal === 'Yes';
+
+                        // Status dropdown options
+                        const statusOptions = [
+                            ['1','1 - Active'],['2','2 - Inactive'],['3','3 - Discharged'],
+                            ['H','H - Hold'],['W','W - Wait List'],['4','4 - Staff'],['5','5 - Staff']
+                        ].map(([v,l]) => `<option value='${v}'${statusVal===v?' selected':''}>${l}</option>`).join('');
+
+                        // Calculate days sober for display
+                        const soberVal = gv('SOBER DATE');
+                        let daysSoberDisplay = '';
+                        if (soberVal) {
+                            const sd = parseDate(soberVal);
+                            if (sd && !isNaN(sd.getTime())) {
+                                const t = new Date(); t.setHours(0,0,0,0);
+                                const ds = Math.floor((t - sd) / 86400000);
+                                if (ds >= 0) daysSoberDisplay = ds + ' days';
                             }
-                        });
-                        // Add Save button
-                        form.innerHTML += `<button type="submit" style="padding:12px;background:#28a745;color:white;border:none;border-radius:6px;font-weight:700;font-size:1.1rem;">Save</button>`;
+                        }
+
+                        form.innerHTML = [
+                            // Row: YR | ID
+                            makeRow(
+                                `<label style='${labelStyle}'>YR</label><input name='YR' value="${gv('YR')}" readonly style='background:#eee;${fieldStyle}'>`,
+                                `<label style='${labelStyle}'>Member ID</label><input name='ID' value="${gv('ID')}" readonly style='background:#eee;${fieldStyle}'>`
+                            ),
+                            // Row: M/F | BED
+                            makeRow(
+                                `<label style='${labelStyle}'>Gender</label><select name='M/F' id='profileGender' onchange='refreshBedDropdown("profileBed", this.value, "")' style='${fieldStyle}'><option value=''>-- Select --</option><option value='F'${genderVal==='F'?' selected':''}>F</option><option value='M'${genderVal==='M'?' selected':''}>M</option></select>`,
+                                `<label style='${labelStyle}'>Bed</label>${buildBedDropdown('BED', bedVal, genderVal, 'profileBed')}`
+                            ),
+                            // Row: STATUS | REF
+                            makeRow(
+                                `<label style='${labelStyle}'>Status</label><select name='STATUS' style='${fieldStyle}'>${statusOptions}</select>`,
+                                `<label style='${labelStyle}'>Ref</label><input name='REF' value="${gv('REF')}" style='${fieldStyle}'>`
+                            ),
+                            // Row: FIRST | LAST
+                            makeRow(
+                                `<label style='${labelStyle}'>First Name</label><input name='FIRST' value="${gv('FIRST')}" style='${fieldStyle}'>`,
+                                `<label style='${labelStyle}'>Last Name</label><input name='LAST' value="${gv('LAST')}" style='${fieldStyle}'>`
+                            ),
+                            // Row: NICKNAME | DOB
+                            makeRow(
+                                `<label style='${labelStyle}'>Nickname</label><input name='NICKNAME' value="${gv('NICKNAME')}" style='${fieldStyle}'>`,
+                                `<label style='${labelStyle}'>Date of Birth</label><input name='DOB' value="${gv('DOB')}" style='${fieldStyle}'>`
+                            ),
+                            // Row: PHONE | EMAIL
+                            makeRow(
+                                `<label style='${labelStyle}'>Phone</label><input name='PHONE' value="${gv('PHONE')}" style='${fieldStyle}'>`,
+                                `<label style='${labelStyle}'>Email</label><input name='EMAIL' value="${gv('EMAIL')}" type='email' style='${fieldStyle}'>`
+                            ),
+                            // Row: ADMIT DATE | DISCHARGE DATE
+                            makeRow(
+                                `<label style='${labelStyle}'>Admit Date</label><input name='ADMIT DATE' value="${gv('ADMIT DATE')}" style='${fieldStyle}'>`,
+                                `<label style='${labelStyle}'>Discharge Date</label><input name='DISCHARGE DATE' value="${gv('DISCHARGE DATE')}" style='${fieldStyle}'>`
+                            ),
+                            // Row: SOBER DATE | DAYS SOBER
+                            makeRow(
+                                `<label style='${labelStyle}'>Sober Date</label><input name='SOBER DATE' id='profileSoberDate' value="${soberVal}" oninput='calcProfileDaysSober()' style='${fieldStyle}'>`,
+                                `<label style='${labelStyle}'>Days Sober</label><input id='profileDaysSober' value="${daysSoberDisplay}" readonly style='background:#eee;font-weight:700;color:#28a745;${fieldStyle}'>`
+                            ),
+                            // Row: RATE | BILL ON DAY
+                            makeRow(
+                                `<label style='${labelStyle}'>Rate</label><input name='RATE' value="${gv('RATE')}" style='${fieldStyle}'>`,
+                                `<label style='${labelStyle}'>Bill On Day</label><input name='BILL ON DAY' value="${gv('BILL ON DAY')}" style='${fieldStyle}'>`
+                            ),
+                            // Row: PIN | KEY
+                            makeRow(
+                                `<label style='${labelStyle}'>PIN</label><input name='PIN' value="${gv('PIN')}" style='${fieldStyle}'>`,
+                                `<label style='${labelStyle}'>Key</label><input name='KEY' value="${gv('KEY')}" style='${fieldStyle}'>`
+                            ),
+                            // Row: HIDE INVOICES (full width)
+                            `<div style='margin-bottom:10px;'><label style='${labelStyle}'>Hide Invoices</label><select name='HIDE_INVOICES' style='${fieldStyle}'><option value=''>No</option><option value='1' ${isHideYes ? 'selected' : ''}>Yes</option></select></div>`,
+                            // Save button
+                            `<button type="submit" style="padding:12px;background:#28a745;color:white;border:none;border-radius:6px;font-weight:700;font-size:1.1rem;">Save</button>`
+                        ].join('');
+
+                        // Days sober calculator for profile form
+                        window.calcProfileDaysSober = function() {
+                            const input = document.getElementById('profileSoberDate');
+                            const display = document.getElementById('profileDaysSober');
+                            if (!input || !display) return;
+                            const val = input.value.trim();
+                            if (!val) { display.value = ''; return; }
+                            const d = parseDate(val);
+                            if (!d || isNaN(d.getTime())) { display.value = ''; return; }
+                            const today = new Date(); today.setHours(0,0,0,0);
+                            const days = Math.floor((today - d) / 86400000);
+                            display.value = days >= 0 ? days + ' days' : '';
+                        };
                     }
 
                     document.getElementById('staffProfileForm').onsubmit = async function(event) {
@@ -966,6 +1039,7 @@
                         // Build payload matching backend PATCH /api/updateMember expected field names
                         const payload = {
                             id: form.elements['ID'] ? form.elements['ID'].value : '',
+                            yr: form.elements['YR'] ? form.elements['YR'].value : '',
                             firstName: form.elements['FIRST'] ? form.elements['FIRST'].value : '',
                             lastName: form.elements['LAST'] ? form.elements['LAST'].value : '',
                             phone: form.elements['PHONE'] ? form.elements['PHONE'].value : '',
