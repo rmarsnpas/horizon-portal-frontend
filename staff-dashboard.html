@@ -1115,6 +1115,7 @@
                     const occupied = getOccupiedBeds(gender);
                     return all.filter(b => !occupied.includes(b.toUpperCase()));
                 }
+                window.getAvailableBeds = getAvailableBeds;
 
                 function buildBedDropdown(name, selectedVal, gender, id) {
                     const idAttr = id ? ` id='${id}'` : '';
@@ -1133,6 +1134,7 @@
                     });
                     return `<select name='${name}'${idAttr} style='width:100%;padding:8px;font-size:1rem;border:1px solid #ccc;border-radius:6px;'>${opts}</select>`;
                 }
+                window.buildBedDropdown = buildBedDropdown;
 
                 function refreshBedDropdown(selectId, gender, currentVal) {
                     const el = document.getElementById(selectId);
@@ -1143,6 +1145,7 @@
                     if (label) container.appendChild(label);
                     container.insertAdjacentHTML('beforeend', buildBedDropdown('BED', currentVal, gender, selectId));
                 }
+                window.refreshBedDropdown = refreshBedDropdown;
 
                 function updateMemberStats(members) {
                     const bar = document.getElementById('memberStatsBar');
@@ -1400,12 +1403,15 @@
                     document.getElementById('editMemberStatus').textContent = '';
                     document.getElementById('editMemberModal').style.display = 'block';
                     document.body.style.overflow = 'hidden';
+                    // Restore the edit handler (may have been overridden by add modal)
+                    document.getElementById('editMemberForm').onsubmit = submitEditMember;
                 }
                 window.openEditMemberModal = openEditMemberModal;
 
                 window.closeEditMemberModal = function closeEditMemberModal() {
                     document.getElementById('editMemberModal').style.display = 'none';
                     document.body.style.overflow = '';
+                    window._addMemberMode = false;
                 }
 
                 async function submitEditMember(event) {
@@ -1538,14 +1544,9 @@
                     }
                     return `<div style='margin-bottom:10px;'><label style='font-weight:600;'>${k}</label><input name='${k}' value="" style='width:100%;padding:8px;font-size:1rem;border:1px solid #ccc;border-radius:6px;'></div>`;
                 })).join('');
-                // Add Save and Cancel buttons for Add Member
-                        const buttonsHtml = `<div style='margin-top:18px;display:flex;gap:12px;'>
-                            <button type='submit' id='addMemberSaveBtn' style='flex:1;padding:12px;background:#28a745;color:white;border:none;border-radius:6px;font-weight:700;font-size:1.1rem;'>Save</button>
-                            <button type='button' id='addMemberCancelBtn' style='flex:1;padding:12px;background:#6c757d;color:white;border:none;border-radius:6px;font-weight:700;font-size:1.1rem;'>Cancel</button>
-                        </div><div id='editMemberStatus' style='margin-top:10px;font-weight:600;'></div>`;
                 // Always clear modal content before rendering
                 document.getElementById('editMemberFields').innerHTML = '';
-                document.getElementById('editMemberFields').innerHTML = fieldsHtml + buttonsHtml;
+                document.getElementById('editMemberFields').innerHTML = fieldsHtml;
                 document.getElementById('editMemberStatus').textContent = '';
                 document.getElementById('editMemberModal').style.display = 'block';
                 document.body.style.overflow = 'hidden';
@@ -1575,17 +1576,6 @@
                         idEl.readOnly = true;
                     }
                 };
-
-                        // Add handler for Save and Cancel buttons
-                        setTimeout(() => {
-                            const cancelBtn = document.getElementById('addMemberCancelBtn');
-                            if (cancelBtn) {
-                                cancelBtn.onclick = function() {
-                                    closeEditMemberModal();
-                                    window._addMemberMode = false;
-                                };
-                            }
-                        }, 0);
 
                 // Add handler for Save (form submit)
                 document.getElementById('editMemberForm').onsubmit = async function(event) {
