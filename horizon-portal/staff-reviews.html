@@ -291,21 +291,27 @@
 
         /* Print styles */
         @media print {
-            body * {
-                visibility: hidden;
+            body {
+                background: white !important;
+                padding: 0 !important;
+                margin: 0 !important;
             }
-            .modal-content, .modal-content * {
-                visibility: visible;
+            .container, .header, .filter-tabs, .loading, .applications-grid, #noResults {
+                display: none !important;
+            }
+            .modal {
+                display: block !important;
+                position: static !important;
+                background: none !important;
             }
             .modal-content {
-                position: absolute;
-                left: 0;
-                top: 0;
-                margin: 0;
-                padding: 20px;
-                width: 100%;
-                max-width: 100%;
-                box-shadow: none;
+                position: static !important;
+                margin: 0 !important;
+                padding: 20px !important;
+                width: 100% !important;
+                max-width: 100% !important;
+                box-shadow: none !important;
+                border-radius: 0 !important;
             }
             .modal-header {
                 border-bottom: 2px solid #000;
@@ -315,9 +321,6 @@
             }
             h3 {
                 page-break-after: avoid;
-            }
-            div {
-                page-break-inside: avoid;
             }
         }
     </style>
