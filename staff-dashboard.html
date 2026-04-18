@@ -1046,10 +1046,12 @@
 
                 function filterByTab(membersList) {
                     const tab = window._currentMembersTab || 'current';
-                    if (tab === 'all') return membersList;
                     return membersList.filter(member => {
                         const raw = member.STATUS || member.status || member.STATU || '';
                         const s = String(raw).toUpperCase().trim();
+                        // Always exclude members with no status
+                        if (!s) return false;
+                        if (tab === 'all') return true;
                         switch(tab) {
                             case 'current': return s === '1';
                             case 'alumni': return s === '2';
