@@ -1618,10 +1618,8 @@
                 }
                 const nextId = String(maxId + 1).padStart(4, '0');
                 const pfGender = pf.gender ? (pf.gender.toLowerCase() === 'male' || pf.gender.toUpperCase() === 'M' ? 'M' : pf.gender.toLowerCase() === 'female' || pf.gender.toUpperCase() === 'F' ? 'F' : pf.gender.charAt(0).toUpperCase()) : '';
-                // Only show fields we want in the form (skip computed fields)
-                const formKeys = allKeys.filter(k => k !== '#' && k !== 'DAYS HERE' && k !== 'DAYSOBER' && k !== 'YR' && k !== 'STATUS' && k !== 'ID' && k !== 'M/F' && k !== 'BED');
 
-                // Map formKeys to prefill values
+                // Map keys to prefill values
                 function toMMDDYYYY(dateStr) {
                     if (!dateStr) return '';
                     // Handle yyyy-mm-dd format
@@ -1644,17 +1642,68 @@
                     }
                 }
 
-                // Order: YR, M/F, BED, STATUS, ID, then remaining fields
+                // Build 2-column paired layout
+                const fieldStyle = "width:100%;padding:8px;font-size:1rem;border:1px solid #ccc;border-radius:6px;";
+                const rowStyle = "display:flex;gap:12px;margin-bottom:10px;";
+                const cellStyle = "flex:1;min-width:0;";
+                const labelStyle = "font-weight:600;display:block;margin-bottom:4px;";
+
+                function makeRow(left, right) {
+                    return `<div style='${rowStyle}'><div style='${cellStyle}'>${left}</div><div style='${cellStyle}'>${right}</div></div>`;
+                }
+
                 const fieldsHtml = [
-                    `<div style='margin-bottom:10px;'><label style='font-weight:600;'>YR</label><input name='YR' value="26" readonly style='background:#eee;width:100%;padding:8px;font-size:1rem;border:1px solid #ccc;border-radius:6px;'></div>`,
-                    `<div style='margin-bottom:10px;'><label style='font-weight:600;'>M/F</label><select name='M/F' id='addMemberGender' onchange='refreshBedDropdown("addMemberBed", this.value, "")' style='width:100%;padding:8px;font-size:1rem;border:1px solid #ccc;border-radius:6px;'><option value=''>-- Select --</option><option value='F'${pfGender==='F'?' selected':''}>F</option><option value='M'${pfGender==='M'?' selected':''}>M</option></select></div>`,
-                    `<div style='margin-bottom:10px;'><label style='font-weight:600;'>BED</label>${buildBedDropdown('BED', '', pfGender, 'addMemberBed')}</div>`,
-                    `<div style='margin-bottom:10px;'><label style='font-weight:600;'>STATUS</label><select name='STATUS' id='addMemberStatus' onchange='onAddMemberStatusChange()' style='width:100%;padding:8px;font-size:1rem;border:1px solid #ccc;border-radius:6px;'><option value='1'>1 - Active</option><option value='2'>2 - Inactive</option><option value='3'>3 - Discharged</option><option value='H'>H - Hold</option><option value='W'>W - Wait List</option><option value='4'>4 - Staff</option><option value='5'>5 - Staff</option></select></div>`,
-                    `<div style='margin-bottom:10px;'><label style='font-weight:600;'>ID</label><input name='ID' id='addMemberId' value="${nextId}" readonly style='background:#eee;width:100%;padding:8px;font-size:1rem;border:1px solid #ccc;border-radius:6px;'></div>`
-                ].concat(formKeys.map(k => {
-                    const val = getPrefillVal(k);
-                    return `<div style='margin-bottom:10px;'><label style='font-weight:600;'>${k}</label><input name='${k}' value="${val}" style='width:100%;padding:8px;font-size:1rem;border:1px solid #ccc;border-radius:6px;'></div>`;
-                })).join('');
+                    // Row: YR | ID
+                    makeRow(
+                        `<label style='${labelStyle}'>YR</label><input name='YR' value="26" readonly style='background:#eee;${fieldStyle}'>`,
+                        `<label style='${labelStyle}'>ID</label><input name='ID' id='addMemberId' value="${nextId}" readonly style='background:#eee;${fieldStyle}'>`
+                    ),
+                    // Row: M/F | BED
+                    makeRow(
+                        `<label style='${labelStyle}'>M/F</label><select name='M/F' id='addMemberGender' onchange='refreshBedDropdown("addMemberBed", this.value, "")' style='${fieldStyle}'><option value=''>-- Select --</option><option value='F'${pfGender==='F'?' selected':''}>F</option><option value='M'${pfGender==='M'?' selected':''}>M</option></select>`,
+                        `<label style='${labelStyle}'>BED</label>${buildBedDropdown('BED', '', pfGender, 'addMemberBed')}`
+                    ),
+                    // Row: STATUS | REF
+                    makeRow(
+                        `<label style='${labelStyle}'>STATUS</label><select name='STATUS' id='addMemberStatus' onchange='onAddMemberStatusChange()' style='${fieldStyle}'><option value='1'>1 - Active</option><option value='2'>2 - Inactive</option><option value='3'>3 - Discharged</option><option value='H'>H - Hold</option><option value='W'>W - Wait List</option><option value='4'>4 - Staff</option><option value='5'>5 - Staff</option></select>`,
+                        `<label style='${labelStyle}'>REF</label><input name='REF' value="${getPrefillVal('REF')}" style='${fieldStyle}'>`
+                    ),
+                    // Row: FIRST | LAST
+                    makeRow(
+                        `<label style='${labelStyle}'>FIRST</label><input name='FIRST' value="${getPrefillVal('FIRST')}" style='${fieldStyle}'>`,
+                        `<label style='${labelStyle}'>LAST</label><input name='LAST' value="${getPrefillVal('LAST')}" style='${fieldStyle}'>`
+                    ),
+                    // Row: NICKNAME | DOB
+                    makeRow(
+                        `<label style='${labelStyle}'>NICKNAME</label><input name='NICKNAME' value="${getPrefillVal('NICKNAME')}" style='${fieldStyle}'>`,
+                        `<label style='${labelStyle}'>DOB</label><input name='DOB' value="${getPrefillVal('DOB')}" style='${fieldStyle}'>`
+                    ),
+                    // Row: PHONE | EMAIL
+                    makeRow(
+                        `<label style='${labelStyle}'>PHONE</label><input name='PHONE' value="${getPrefillVal('PHONE')}" style='${fieldStyle}'>`,
+                        `<label style='${labelStyle}'>EMAIL</label><input name='EMAIL' value="${getPrefillVal('EMAIL')}" style='${fieldStyle}'>`
+                    ),
+                    // Row: ADMIT DATE | DISCHARGE DATE
+                    makeRow(
+                        `<label style='${labelStyle}'>ADMIT DATE</label><input name='ADMIT DATE' value="${getPrefillVal('ADMIT DATE')}" style='${fieldStyle}'>`,
+                        `<label style='${labelStyle}'>DISCHARGE DATE</label><input name='DISCHARGE DATE' value="${getPrefillVal('DISCHARGE DATE')}" style='${fieldStyle}'>`
+                    ),
+                    // Row: SOBER DATE | DAYS SOBER (calculated)
+                    makeRow(
+                        `<label style='${labelStyle}'>SOBER DATE</label><input name='SOBER DATE' id='addMemberSoberDate' value="${getPrefillVal('SOBER DATE')}" oninput='calcDaysSober()' style='${fieldStyle}'>`,
+                        `<label style='${labelStyle}'>DAYS SOBER</label><input id='addMemberDaysSober' value="" readonly style='background:#eee;font-weight:700;color:#28a745;${fieldStyle}'>`
+                    ),
+                    // Row: RATE | BILL ON DAY
+                    makeRow(
+                        `<label style='${labelStyle}'>RATE</label><input name='RATE' value="${getPrefillVal('RATE')}" style='${fieldStyle}'>`,
+                        `<label style='${labelStyle}'>BILL ON DAY</label><input name='BILL ON DAY' value="${getPrefillVal('BILL ON DAY')}" style='${fieldStyle}'>`
+                    ),
+                    // Row: PIN | KEY
+                    makeRow(
+                        `<label style='${labelStyle}'>PIN</label><input name='PIN' value="${getPrefillVal('PIN')}" style='${fieldStyle}'>`,
+                        `<label style='${labelStyle}'>KEY</label><input name='KEY' value="${getPrefillVal('KEY')}" style='${fieldStyle}'>`
+                    ),
+                ].join('');
                 // Always clear modal content before rendering
                 document.getElementById('editMemberFields').innerHTML = '';
                 document.getElementById('editMemberFields').innerHTML = fieldsHtml;
@@ -1664,6 +1713,22 @@
                 document.body.style.overflow = 'hidden';
                 window._addMemberMode = true;
                 window._addMemberNextId = nextId;
+
+                // Calculate and display days sober from sober date
+                window.calcDaysSober = function() {
+                    const input = document.getElementById('addMemberSoberDate');
+                    const display = document.getElementById('addMemberDaysSober');
+                    if (!input || !display) return;
+                    const val = input.value.trim();
+                    if (!val) { display.value = ''; return; }
+                    const d = parseDate(val);
+                    if (!d || isNaN(d.getTime())) { display.value = ''; return; }
+                    const today = new Date(); today.setHours(0,0,0,0);
+                    const days = Math.floor((today - d) / 86400000);
+                    display.value = days >= 0 ? days + ' days' : '';
+                };
+                // Trigger on load if prefill exists
+                calcDaysSober();
 
                 // Handler for status change - clear/set ID based on status
                 window.onAddMemberStatusChange = function() {
