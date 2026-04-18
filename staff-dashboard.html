@@ -1109,14 +1109,16 @@
                     html += badge('Current', curAll, '#2d3748', '#fff');
                     html += badge('F', curF, '#e91e8c', '#fff');
                     html += badge('M', curM, '#667eea', '#fff');
-                    // Hold with gender shading
-                    if (holdM > 0) html += badge('Hold M', holdM, '#cce5ff', '#1a4a7a');
-                    if (holdF > 0) html += badge('Hold F', holdF, '#f8d7e8', '#7a1a4a');
-                    if (!holdM && !holdF) html += badge('Hold', 0, '#f0ad4e', '#fff');
-                    // Wait with gender shading
-                    if (waitM > 0) html += badge('Wait M', waitM, '#cce5ff', '#1a4a7a');
-                    if (waitF > 0) html += badge('Wait F', waitF, '#f8d7e8', '#7a1a4a');
-                    if (!waitM && !waitF) html += badge('Wait', 0, '#5bc0de', '#fff');
+                    html += '</div><div>';
+                    // Hold: total then F/M
+                    html += badge('Hold', holds.length, '#f0ad4e', '#fff');
+                    html += badge('F', holdF, '#f8d7e8', '#7a1a4a');
+                    html += badge('M', holdM, '#cce5ff', '#1a4a7a');
+                    html += '&nbsp;&nbsp;';
+                    // Wait: total then F/M
+                    html += badge('Wait', waits.length, '#5bc0de', '#fff');
+                    html += badge('F', waitF, '#f8d7e8', '#7a1a4a');
+                    html += badge('M', waitM, '#cce5ff', '#1a4a7a');
                     html += '</div>';
                     bar.innerHTML = html;
                 }
