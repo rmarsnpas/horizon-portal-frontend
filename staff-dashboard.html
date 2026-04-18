@@ -1224,6 +1224,39 @@
                     html += badge('F', availF.length + (availF.length ? ' (' + availF.join(', ') + ')' : ''), availFBg, availFfg);
                     html += badge('M', availM.length + (availM.length ? ' (' + availM.join(', ') + ')' : ''), availMBg, availMfg);
                     html += '</div>';
+
+                    // Upcoming availability from future discharge dates
+                    const today = new Date(); today.setHours(0,0,0,0);
+                    const upcoming = [];
+                    members.forEach(m => {
+                        const s = String(m.STATUS || m.status || m.STATU || '').toUpperCase().trim();
+                        if (s !== '1' && s !== 'H') return;
+                        const g = String(m['M/F'] || m.GENDER || m.gender || '').toUpperCase().trim();
+                        const bed = String(m.BED || m['BED#'] || m.bed || '').toUpperCase().trim();
+                        const dcRaw = m['DC DATE'] || m['DC\nDATE'] || m['DC\r\nDATE'] || m['DISCHARGE DATE'] || m['DISCHARGE\nDATE'] || m['DISCHARGE\r\nDATE'] || m.dischargeDate || '';
+                        if (!dcRaw || !bed) return;
+                        const dcDate = parseDate(dcRaw);
+                        if (!dcDate || isNaN(dcDate.getTime())) return;
+                        if (dcDate > today) {
+                            const firstName = m['FIRST\r\nNAME'] || m['FIRST\nNAME'] || m['FIRST NAME'] || m.firstName || m.FIRST || '';
+                            const mm = String(dcDate.getMonth()+1).padStart(2,'0');
+                            const dd = String(dcDate.getDate()).padStart(2,'0');
+                            const diffDays = Math.ceil((dcDate - today) / 86400000);
+                            upcoming.push({ gender: g, bed, date: mm + '-' + dd, days: diffDays, name: firstName });
+                        }
+                    });
+                    if (upcoming.length > 0) {
+                        upcoming.sort((a,b) => a.days - b.days);
+                        html += '<div style="margin-top:2px;">';
+                        html += badge('📅 Upcoming', upcoming.length, '#6f42c1', '#fff');
+                        upcoming.forEach(u => {
+                            const gBg = u.gender === 'F' ? '#f8d7e8' : '#cce5ff';
+                            const gFg = u.gender === 'F' ? '#7a1a4a' : '#1a4a7a';
+                            html += `<span style="display:inline-block;padding:3px 10px;margin:2px 3px;border-radius:12px;background:${gBg};color:${gFg};font-weight:700;font-size:12px;">${u.gender} ${u.bed} · ${u.name} · ${u.date} (${u.days}d)</span>`;
+                        });
+                        html += '</div>';
+                    }
+
                     bar.innerHTML = html;
                 }
 
@@ -1499,10 +1532,7 @@
 
                 async function submitEditMember(event) {
                     event.preventDefault();
-                    const { members, allKeys } = window._allMembersTableData;
                     const form = event.target;
-                    const updated = {};
-                    const dateFields = ['DOB', 'ADMIT DATE', 'DISCHARGE DATE', 'SOBER DATE'];
                     // Convert date string to YYYY-MM-DD without timezone issues
                     function safeDate(v) {
                         if (!v) return '';
@@ -1514,41 +1544,34 @@
                         if (/^\d{4}-\d{2}-\d{2}$/.test(s)) return s;
                         return s;
                     }
-                    allKeys.forEach(k => {
-                        if (form.elements[k]) {
-                            if (dateFields.includes(k)) {
-                                if (form.elements[k].value) {
-                                    updated[k] = safeDate(form.elements[k].value);
-                                } else {
-                                    updated[k] = '';
-                                }
-                            } else {
-                                updated[k] = form.elements[k].value;
-                            }
-                        } else {
-                            updated[k] = '';
-                        }
-                    });
+                    // Read each field directly by name
+                    function getVal(name) { const el = form.elements[name]; return el ? el.value || '' : ''; }
                     document.getElementById('editMemberStatus').textContent = 'Saving...';
                     // If in add mode, POST to /api/addMember, else update existing
                     if (window._addMemberMode) {
+                        const payload = {
+                            ID: getVal('ID'), YR: getVal('YR'), STATUS: getVal('STATUS'),
+                            FIRST: getVal('FIRST'), LAST: getVal('LAST'), NICKNAME: getVal('NICKNAME'),
+                            'M/F': getVal('M/F'), BED: getVal('BED'),
+                            DOB: safeDate(getVal('DOB')),
+                            'ADMIT DATE': safeDate(getVal('ADMIT DATE')),
+                            'DISCHARGE DATE': safeDate(getVal('DISCHARGE DATE')),
+                            'SOBER DATE': safeDate(getVal('SOBER DATE')),
+                            RATE: getVal('RATE'), PHONE: getVal('PHONE'), EMAIL: getVal('EMAIL'),
+                            PIN: getVal('PIN'), 'BILL ON DAY': getVal('BILL ON DAY'),
+                            KEY: getVal('KEY'), REF: getVal('REF'),
+                        };
                         try {
                             const res = await fetch(`${API_BASE}/api/addMember`, {
                                 method: 'POST',
                                 headers: { 'Content-Type': 'application/json' },
-                                body: JSON.stringify(updated)
+                                body: JSON.stringify(payload)
                             });
                             const result = await res.json();
                             if (result.success) {
                                 document.getElementById('editMemberStatus').textContent = '✓ Member added!';
-                                // Re-fetch members from backend for up-to-date data
-                                if (window.reloadAllMembersFromBackend) {
-                                    await window.reloadAllMembersFromBackend();
-                                }
-                                setTimeout(() => {
-                                    closeEditMemberModal();
-                                    window._addMemberMode = false;
-                                }, 900);
+                                if (window.reloadAllMembersFromBackend) await window.reloadAllMembersFromBackend();
+                                setTimeout(() => { closeEditMemberModal(); window._addMemberMode = false; }, 900);
                             } else {
                                 document.getElementById('editMemberStatus').textContent = 'Error: ' + (result.error || 'Unknown');
                             }
@@ -1556,31 +1579,29 @@
                             document.getElementById('editMemberStatus').textContent = 'Network error';
                         }
                     } else {
-                        // Edit mode (existing logic)
-                        const idx = window._editMemberIdx;
+                        // Edit mode - PATCH
                         try {
-                            // Build PATCH payload matching backend expected field names
                             const payload = {
-                                id: updated.ID || updated.id || '',
-                                firstName: updated.FIRST || updated.firstName || '',
-                                lastName: updated.LAST || updated.lastName || '',
-                                phone: updated.PHONE || updated.phone || '',
-                                email: updated.EMAIL || updated.email || '',
-                                dob: updated.DOB || updated.dob || '',
-                                sobrietyDate: updated['SOBER DATE'] || updated.sobrietyDate || '',
-                                admitDate: updated['ADMIT DATE'] || updated.admitDate || '',
-                                dischargeDate: updated['DISCHARGE DATE'] || updated.dischargeDate || '',
-                                nickname: updated.NICKNAME || updated.nickname || '',
-                                gender: updated['M/F'] || updated.gender || '',
-                                status: updated.STATUS || updated.status || '',
-                                bed: updated.BED || updated.bed || '',
-                                rate: updated.RATE || updated.rate || '',
-                                key: updated.KEY || '',
-                                ref: updated.REF || '',
-                                billOnDay: updated['BILL ON DAY'] || updated.billOnDay || '',
+                                id: getVal('ID'),
+                                yr: getVal('YR'),
+                                firstName: getVal('FIRST'),
+                                lastName: getVal('LAST'),
+                                nickname: getVal('NICKNAME'),
+                                gender: getVal('M/F'),
+                                bed: getVal('BED'),
+                                dob: safeDate(getVal('DOB')),
+                                admitDate: safeDate(getVal('ADMIT DATE')),
+                                dischargeDate: safeDate(getVal('DISCHARGE DATE')),
+                                sobrietyDate: safeDate(getVal('SOBER DATE')),
+                                rate: getVal('RATE'),
+                                phone: getVal('PHONE'),
+                                email: getVal('EMAIL'),
+                                pin: getVal('PIN'),
+                                billOnDay: getVal('BILL ON DAY'),
+                                key: getVal('KEY'),
+                                ref: getVal('REF'),
+                                status: getVal('STATUS'),
                             };
-                            // Add PIN if present
-                            if (updated.PIN || updated.pin) payload.pin = updated.PIN || updated.pin;
                             const res = await fetch(`${API_BASE}/api/updateMember`, {
                                 method: 'PATCH',
                                 headers: { 'Content-Type': 'application/json' },
