@@ -429,9 +429,9 @@
             card.className = `application-card ${app.status === 'reviewed' ? 'reviewed' : ''}`;
             
             // Access nested data object
-            const data = app.data || app;
-            const submittedDate = app.timestamp ? (() => {
-                const d = new Date(app.timestamp);
+            const data = app.data || app.formData || app;
+            const submittedDate = (app.timestamp || app.submittedAt) ? (() => {
+                const d = new Date(app.timestamp || app.submittedAt);
                 if (Number.isNaN(d.getTime())) return 'N/A';
                 const mm = String(d.getMonth() + 1).padStart(2, '0');
                 const dd = String(d.getDate()).padStart(2, '0');
@@ -487,8 +487,8 @@
             const app = allApplications.find(a => a.id === id);
             if (!app) return;
 
-            // Access nested data object (some apps have data nested in .data property)
-            const data = app.data || app;
+            // Access nested data object (some apps have data nested in .data or .formData property)
+            const data = app.data || app.formData || app;
 
             // Format date helper
             function formatDate(dateStr) {
