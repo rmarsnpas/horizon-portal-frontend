@@ -27,6 +27,7 @@
             color: #fff;
             padding: 20px;
             position: relative;
+            min-height: 80px;
         }
 
         .container {
@@ -146,11 +147,12 @@
         }
 
         .header-buttons {
-            position: absolute;
-            right: 20px;
-            top: 20px;
+            position: relative;
             display: flex;
+            flex-wrap: wrap;
             gap: 10px;
+            justify-content: center;
+            margin-top: 12px;
         }
 
         .header-btn {
@@ -227,13 +229,13 @@
 <body>
 
 <header>
-    <div id="welcome" style="position: absolute; left: 20px; top: 20px; font-size: 18px; color: #000;">Welcome!</div>
+    <div id="welcome" style="font-size: 18px; color: #000;">Welcome!</div>
     <h1 style="text-align: center; margin: 0;">Horizon House Member Dashboard</h1>
     <div class="header-buttons">
         <a href="/horizon-portal/members/meeting-cards.html" class="header-btn btn-website">🪢 Meeting Cards</a>
         <a href="/horizon-portal/members/schedule.html" class="header-btn btn-website">📅 Schedule</a>
         <a href="/index.html" class="header-btn btn-website">🏠 Return to Website</a>
-        <button onclick="logout()" class="header-btn btn-website">🚪 Log Out</button>
+        <button onclick="logout()" class="header-btn btn-logout">🚪 Log Out</button>
     </div>
 </header>
 
