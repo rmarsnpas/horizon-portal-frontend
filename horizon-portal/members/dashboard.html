@@ -7,9 +7,14 @@
   <title>Member Dashboard – Horizon House</title>
   <style>
     body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: #FFF8F3; margin: 0; min-height: 100vh; }
-    header { background: #F58634; color: #fff; padding: 18px 24px; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 10px; }
-    header h1 { font-size: 20px; }
-    .header-nav a { color: #fff; text-decoration: none; font-size: 14px; padding: 8px 14px; background: rgba(255,255,255,0.2); border-radius: 6px; margin-left: 8px; }
+    header { background: #F58634; color: #fff; padding: 18px 24px; display: flex; flex-direction: column; gap: 8px; }
+    .header-top { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 10px; }
+    header h1 { font-size: 20px; margin: 0; }
+    #welcomeBanner { font-size: 16px; font-weight: 600; color: #fff; }
+    .btn-logout { background: rgba(255,255,255,0.2); color: #fff; border: 1px solid rgba(255,255,255,0.4); padding: 8px 16px; border-radius: 6px; font-size: 14px; font-weight: 600; cursor: pointer; text-decoration: none; }
+    .btn-logout:hover { background: rgba(255,255,255,0.35); }
+    .header-nav { display: flex; flex-wrap: wrap; gap: 6px; }
+    .header-nav a { color: #fff; text-decoration: none; font-size: 14px; padding: 8px 14px; background: rgba(255,255,255,0.2); border-radius: 6px; }
     .header-nav a:hover { background: rgba(255,255,255,0.35); }
     .container { max-width: 900px; margin: 40px auto; padding: 0 20px 60px; }
     .dashboard-cards { display: flex; flex-wrap: wrap; gap: 28px; justify-content: center; margin-top: 40px; }
@@ -21,7 +26,13 @@
 </head>
 <body>
   <header>
-    <h1>Member Dashboard</h1>
+    <div class="header-top">
+      <div>
+        <h1>Member Dashboard</h1>
+        <div id="welcomeBanner">Welcome!</div>
+      </div>
+      <button class="btn-logout" onclick="logout()">🚪 Log Out</button>
+    </div>
     <nav class="header-nav">
       <a href="profile.html">Profile</a>
       <a href="invoices.html">Invoices</a>
@@ -54,5 +65,23 @@
       </a>
     </div>
   </div>
+  <script>
+    const memberId = localStorage.getItem('memberId') || '';
+    const firstName = localStorage.getItem('memberFirstName') || '';
+    const lastName = localStorage.getItem('memberLastName') || '';
+    if (firstName || lastName) {
+      document.getElementById('welcomeBanner').textContent =
+        'Welcome, ' + (firstName + ' ' + lastName).trim() + (memberId ? ' (ID: ' + memberId + ')' : '');
+    }
+    function logout() {
+      localStorage.removeItem('memberId');
+      localStorage.removeItem('memberFirstName');
+      localStorage.removeItem('memberLastName');
+      localStorage.removeItem('memberEmail');
+      sessionStorage.removeItem('memberId');
+      sessionStorage.removeItem('memberName');
+      window.location.href = '../member-login-fixed.html';
+    }
+  </script>
 </body>
 </html>
