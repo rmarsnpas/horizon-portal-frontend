@@ -1069,14 +1069,20 @@
                     // Helpers
                     const getStatus = m => String(m.STATUS || m.status || m.STATU || '').toUpperCase().trim();
                     const getGender = m => String(m['M/F'] || m.GENDER || m.gender || '').toUpperCase().trim();
-                    // TOTALS (all members)
-                    const totalAll = members.length;
-                    let totalM = 0, totalF = 0, totalH = 0, totalS = 0, totalAlumni = 0;
-                    members.forEach(m => {
+                    // TOTALS (status 1, 2, or 3 only)
+                    const members123 = members.filter(m => { const s = getStatus(m); return s === '1' || s === '2' || s === '3'; });
+                    const totalAll = members123.length;
+                    let totalM = 0, totalF = 0, totalAlumni = 0;
+                    members123.forEach(m => {
                         const g = getGender(m), s = getStatus(m);
                         if (g === 'M') totalM++;
                         if (g === 'F') totalF++;
                         if (s === '2') totalAlumni++;
+                    });
+                    // Hold and Staff counts from full list
+                    let totalH = 0, totalS = 0;
+                    members.forEach(m => {
+                        const s = getStatus(m);
                         if (s === 'H') totalH++;
                         if (s === '4' || s === '5') totalS++;
                     });
