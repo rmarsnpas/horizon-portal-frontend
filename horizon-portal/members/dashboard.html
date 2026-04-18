@@ -31,6 +31,22 @@
     .info-list .detail { font-size: 14px; color: #777; }
     .milestone-badge { display: inline-block; background: #F58634; color: #fff; border-radius: 20px; padding: 2px 10px; font-size: 12px; font-weight: 600; margin-left: 8px; }
     .birthday-badge { display: inline-block; background: #E1C462; color: #3a2a00; border-radius: 20px; padding: 2px 10px; font-size: 12px; font-weight: 600; margin-left: 8px; }
+    .pass-form label { display: block; font-weight: 600; margin: 10px 0 4px; color: #2b3440; font-size: 14px; }
+    .pass-form input, .pass-form textarea { width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 6px; font-size: 14px; font-family: inherit; box-sizing: border-box; }
+    .pass-form textarea { resize: vertical; min-height: 60px; }
+    .pass-form .row { display: flex; gap: 12px; }
+    .pass-form .row > div { flex: 1; }
+    .pass-btn { background: #F58634; color: #fff; border: none; padding: 12px 24px; border-radius: 6px; font-size: 15px; font-weight: 600; cursor: pointer; margin-top: 14px; width: 100%; }
+    .pass-btn:hover { background: #c95f00; }
+    .pass-btn:disabled { background: #ccc; cursor: not-allowed; }
+    .pass-status { margin-top: 10px; padding: 10px; border-radius: 6px; text-align: center; font-weight: 600; display: none; }
+    .pass-history { margin-top: 16px; }
+    .pass-history h4 { margin: 0 0 8px; color: #2b3440; font-size: 15px; }
+    .pass-item { padding: 10px; border: 1px solid #f0e8df; border-radius: 8px; margin-bottom: 8px; font-size: 13px; }
+    .pass-item .badge { display: inline-block; padding: 2px 8px; border-radius: 10px; font-size: 11px; font-weight: 700; }
+    .badge-pending { background: #fff3cd; color: #856404; }
+    .badge-approved { background: #d4edda; color: #155724; }
+    .badge-denied { background: #f8d7da; color: #721c24; }
     @media (max-width: 700px) { .dashboard-cards { flex-direction: column; gap: 18px; } .dashboard-card { min-width: 0; max-width: 100%; } }
   </style>
 </head>
@@ -85,6 +101,40 @@
     <div class="info-card" id="celebrationsCard" style="display:none;">
       <h3>🎂 Milestones &amp; Birthdays</h3>
       <ul class="info-list" id="celebrationsList"></ul>
+    </div>
+
+    <!-- Request Overnight Pass -->
+    <div class="info-card" id="overnightPassCard">
+      <h3>🌙 Request Overnight Pass</h3>
+      <form class="pass-form" id="passForm" onsubmit="submitOvernightPass(event)">
+        <label for="passWhere">Where are you going?</label>
+        <input type="text" id="passWhere" required placeholder="Location / Address">
+        <label for="passWhy">Reason for overnight</label>
+        <textarea id="passWhy" required placeholder="Explain the purpose of your trip"></textarea>
+        <div class="row">
+          <div>
+            <label for="passDepartDate">Departure Date</label>
+            <input type="date" id="passDepartDate" required>
+          </div>
+          <div>
+            <label for="passDepartTime">Departure Time</label>
+            <input type="time" id="passDepartTime" required>
+          </div>
+        </div>
+        <div class="row">
+          <div>
+            <label for="passReturnDate">Return Date</label>
+            <input type="date" id="passReturnDate" required>
+          </div>
+          <div>
+            <label for="passReturnTime">Return Time</label>
+            <input type="time" id="passReturnTime" required>
+          </div>
+        </div>
+        <button type="submit" class="pass-btn" id="passSubmitBtn">Submit Request</button>
+        <div class="pass-status" id="passStatus"></div>
+      </form>
+      <div class="pass-history" id="passHistory"></div>
     </div>
   </div>
   <script>
@@ -200,6 +250,68 @@
         }
       } catch (e) { console.error('Error loading dashboard cards:', e); }
     })();
+
+    // --- Overnight Pass ---
+    async function submitOvernightPass(e) {
+      e.preventDefault();
+      const btn = document.getElementById('passSubmitBtn');
+      const statusEl = document.getElementById('passStatus');
+      btn.disabled = true;
+      btn.textContent = 'Submitting...';
+      statusEl.style.display = 'none';
+      try {
+        const body = {
+          memberId: memberId,
+          memberName: (firstName + ' ' + lastName).trim(),
+          where: document.getElementById('passWhere').value.trim(),
+          why: document.getElementById('passWhy').value.trim(),
+          departureDate: document.getElementById('passDepartDate').value,
+          departureTime: document.getElementById('passDepartTime').value,
+          returnDate: document.getElementById('passReturnDate').value,
+          returnTime: document.getElementById('passReturnTime').value
+        };
+        const res = await fetch(API_BASE + '/api/overnight-pass', {
+          method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body)
+        });
+        const data = await res.json();
+        if (data.success) {
+          statusEl.style.display = 'block';
+          statusEl.style.background = '#d4edda'; statusEl.style.color = '#155724';
+          statusEl.textContent = 'Request submitted! Awaiting staff approval.';
+          document.getElementById('passForm').reset();
+          loadPassHistory();
+        } else {
+          throw new Error(data.error || 'Failed');
+        }
+      } catch (err) {
+        statusEl.style.display = 'block';
+        statusEl.style.background = '#f8d7da'; statusEl.style.color = '#721c24';
+        statusEl.textContent = 'Error: ' + err.message;
+      }
+      btn.disabled = false;
+      btn.textContent = 'Submit Request';
+    }
+
+    async function loadPassHistory() {
+      if (!memberId) return;
+      try {
+        const res = await fetch(API_BASE + '/api/overnight-passes?memberId=' + encodeURIComponent(memberId));
+        const passes = await res.json();
+        const container = document.getElementById('passHistory');
+        if (!passes.length) { container.innerHTML = ''; return; }
+        container.innerHTML = '<h4>Your Requests</h4>' + passes.map(p => {
+          const badge = p.status === 'approved' ? 'badge-approved' : p.status === 'denied' ? 'badge-denied' : 'badge-pending';
+          const label = p.status.charAt(0).toUpperCase() + p.status.slice(1);
+          return '<div class="pass-item">' +
+            '<span class="badge ' + badge + '">' + label + '</span> ' +
+            '<strong>' + p.where + '</strong> — ' + p.why + '<br>' +
+            'Depart: ' + p.departureDate + ' ' + p.departureTime +
+            ' &nbsp;|&nbsp; Return: ' + p.returnDate + ' ' + p.returnTime +
+            '</div>';
+        }).join('');
+      } catch (e) { console.error('Error loading pass history:', e); }
+    }
+    loadPassHistory();
   </script>
 </body>
 </html>
