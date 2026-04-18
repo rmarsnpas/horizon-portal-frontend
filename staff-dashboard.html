@@ -952,14 +952,16 @@
                     document.getElementById('staffProfileForm').onsubmit = async function(event) {
                         event.preventDefault();
                         const form = event.target;
-                        // Helper to normalize dates to YYYY-MM-DD
+                        // Helper to normalize dates to YYYY-MM-DD without timezone issues
                         function normDate(v) {
                             if (!v) return '';
-                            // Handle mm-dd-yyyy
-                            const m = String(v).match(/^(\d{2})-(\d{2})-(\d{4})$/);
+                            const s = String(v).trim();
+                            // mm-dd-yyyy
+                            const m = s.match(/^(\d{2})-(\d{2})-(\d{4})$/);
                             if (m) return m[3] + '-' + m[1] + '-' + m[2];
-                            const d = new Date(v);
-                            return !isNaN(d) ? d.toISOString().slice(0, 10) : v;
+                            // yyyy-mm-dd already
+                            if (/^\d{4}-\d{2}-\d{2}$/.test(s)) return s;
+                            return s;
                         }
                         // Build payload matching backend PATCH /api/updateMember expected field names
                         const payload = {
@@ -1357,46 +1359,106 @@
                     const { members, allKeys } = window._allMembersTableData;
                     const member = members[idx];
                     window._editMemberIdx = idx;
-                    // Build form fields for allFields (skip #, DAYS HERE, DAYSOBER - computed fields)
-                    const readonlyFields = ['#', 'ID', 'YR', 'DAYS HERE', 'DAYSOBER'];
-                    const skipFields = ['#', 'DAYS HERE', 'DAYSOBER'];
-                    const fieldsHtml = allKeys.filter(k => !skipFields.includes(k) && k !== 'Edit').map(k => {
-                        let val = '';
+
+                    // Helper to get member value
+                    function getMVal(k) {
                         switch(k) {
-                            case 'YR': val = member.YR || member.yr || ''; break;
-                            case 'ID': val = member.ID || member.id || ''; break;
-                            case 'STATUS': val = member.STATUS || member.status || ''; break;
-                            case 'FIRST': val = member['FIRST\r\nNAME'] || member['FIRST\nNAME'] || member['FIRST NAME'] || member.firstName || member.FIRST || ''; break;
-                            case 'LAST': val = member['LAST\r\nNAME'] || member['LAST\nNAME'] || member['LAST NAME'] || member.lastName || member.LAST || ''; break;
-                            case 'NICKNAME': val = member['NIC NAME'] || member.nickname || member.nick || member.NICKNAME || ''; break;
-                            case 'M/F': val = member['M/F'] || member.GENDER || member.gender || ''; break;
-                            case 'BED': val = member.BED || member['BED#'] || member.bed || ''; break;
-                            case 'DOB': { const r = member.DOB || member.dob || ''; const pd = parseDate(r); val = pd ? fmtDate(pd) : r; break; }
-                            case 'ADMIT DATE': { const r = member['ADMIT\r\nDATE'] || member['ADMIT\nDATE'] || member['ADMIT DATE'] || member.admitDate || ''; const pd = parseDate(r); val = pd ? fmtDate(pd) : r; break; }
-                            case 'DISCHARGE DATE': { const r = member['DC DATE'] || member['DC\nDATE'] || member['DC\r\nDATE'] || member['DISCHARGE DATE'] || member['DISCHARGE\nDATE'] || member['DISCHARGE\r\nDATE'] || member.dischargeDate || ''; const pd = parseDate(r); val = pd ? fmtDate(pd) : r; break; }
-                            case 'SOBER DATE': { const r = member['SOBER\r\nDATE'] || member['SOBER\nDATE'] || member['SOBER DATE'] || member.sobrietyDate || ''; const pd = parseDate(r); val = pd ? fmtDate(pd) : r; break; }
-                            case 'RATE': val = member.RATE || member.rate || ''; break;
-                            case 'PHONE': val = member.PHONE || member.phone || ''; break;
-                            case 'EMAIL': val = member.EMAIL || member.email || ''; break;
-                            case 'PIN': val = member.PIN || member.pin || ''; break;
-                            case 'BILL ON DAY': val = member['BILL ON DAY'] || member.billOnDay || ''; break;
-                            case 'KEY': val = member.KEY || member.key || ''; break;
-                            case 'REF': val = member.REF || member.ref || ''; break;
-                            default: val = member[k] !== undefined ? member[k] : ''; break;
+                            case 'YR': return member.YR || member.yr || '';
+                            case 'ID': return member.ID || member.id || '';
+                            case 'STATUS': return member.STATUS || member.status || '';
+                            case 'FIRST': return member['FIRST\r\nNAME'] || member['FIRST\nNAME'] || member['FIRST NAME'] || member.firstName || member.FIRST || '';
+                            case 'LAST': return member['LAST\r\nNAME'] || member['LAST\nNAME'] || member['LAST NAME'] || member.lastName || member.LAST || '';
+                            case 'NICKNAME': return member['NIC NAME'] || member.nickname || member.nick || member.NICKNAME || '';
+                            case 'M/F': return member['M/F'] || member.GENDER || member.gender || '';
+                            case 'BED': return member.BED || member['BED#'] || member.bed || '';
+                            case 'DOB': { const r = member.DOB || member.dob || ''; const pd = parseDate(r); return pd ? fmtDate(pd) : r; }
+                            case 'ADMIT DATE': { const r = member['ADMIT\r\nDATE'] || member['ADMIT\nDATE'] || member['ADMIT DATE'] || member.admitDate || ''; const pd = parseDate(r); return pd ? fmtDate(pd) : r; }
+                            case 'DISCHARGE DATE': { const r = member['DC DATE'] || member['DC\nDATE'] || member['DC\r\nDATE'] || member['DISCHARGE DATE'] || member['DISCHARGE\nDATE'] || member['DISCHARGE\r\nDATE'] || member.dischargeDate || ''; const pd = parseDate(r); return pd ? fmtDate(pd) : r; }
+                            case 'SOBER DATE': { const r = member['SOBER\r\nDATE'] || member['SOBER\nDATE'] || member['SOBER DATE'] || member.sobrietyDate || ''; const pd = parseDate(r); return pd ? fmtDate(pd) : r; }
+                            case 'RATE': return member.RATE || member.rate || '';
+                            case 'PHONE': return member.PHONE || member.phone || '';
+                            case 'EMAIL': return member.EMAIL || member.email || '';
+                            case 'PIN': return member.PIN || member.pin || '';
+                            case 'BILL ON DAY': return member['BILL ON DAY'] || member.billOnDay || '';
+                            case 'KEY': return member.KEY || member.key || '';
+                            case 'REF': return member.REF || member.ref || '';
+                            default: return member[k] !== undefined ? member[k] : '';
                         }
-                        const isReadonly = readonlyFields.includes(k);
-                        // M/F as dropdown
-                        if (k === 'M/F') {
-                            const gVal = String(val).toUpperCase().trim();
-                            return `<div style='margin-bottom:10px;'><label style='font-weight:600;'>${k}</label><select name='${k}' id='editMemberGender' onchange='refreshBedDropdown("editMemberBed", this.value, "")' style='width:100%;padding:8px;font-size:1rem;border:1px solid #ccc;border-radius:6px;'><option value=''>-- Select --</option><option value='F'${gVal==='F'?' selected':''}>F</option><option value='M'${gVal==='M'?' selected':''}>M</option></select></div>`;
-                        }
-                        // BED as dropdown
-                        if (k === 'BED') {
-                            const gender = String(member['M/F'] || member.GENDER || member.gender || '').toUpperCase().trim();
-                            return `<div style='margin-bottom:10px;'><label style='font-weight:600;'>${k}</label>${buildBedDropdown('BED', val, gender, 'editMemberBed')}</div>`;
-                        }
-                        return `<div style='margin-bottom:10px;'><label style='font-weight:600;'>${k}</label><input name='${k}' value="${val}" ${isReadonly ? 'readonly style="background:#eee;"' : ''} style='width:100%;padding:8px;font-size:1rem;border:1px solid #ccc;border-radius:6px;'></div>`;
-                    }).join('');
+                    }
+
+                    const gender = String(getMVal('M/F')).toUpperCase().trim();
+                    const bedVal = getMVal('BED');
+                    const statusVal = getMVal('STATUS');
+
+                    // 2-column layout matching add member form
+                    const fieldStyle = "width:100%;padding:8px;font-size:1rem;border:1px solid #ccc;border-radius:6px;";
+                    const rowStyle = "display:flex;gap:12px;margin-bottom:10px;";
+                    const cellStyle = "flex:1;min-width:0;";
+                    const labelStyle = "font-weight:600;display:block;margin-bottom:4px;";
+
+                    function makeRow(left, right) {
+                        return `<div style='${rowStyle}'><div style='${cellStyle}'>${left}</div><div style='${cellStyle}'>${right}</div></div>`;
+                    }
+
+                    // Build status dropdown with current value selected
+                    const statusOptions = [
+                        ['1','1 - Active'],['2','2 - Inactive'],['3','3 - Discharged'],
+                        ['H','H - Hold'],['W','W - Wait List'],['4','4 - Staff'],['5','5 - Staff']
+                    ].map(([v,l]) => `<option value='${v}'${String(statusVal).trim()===v?' selected':''}>${l}</option>`).join('');
+
+                    const fieldsHtml = [
+                        // Row: YR | ID
+                        makeRow(
+                            `<label style='${labelStyle}'>YR</label><input name='YR' value="${getMVal('YR')}" readonly style='background:#eee;${fieldStyle}'>`,
+                            `<label style='${labelStyle}'>ID</label><input name='ID' value="${getMVal('ID')}" readonly style='background:#eee;${fieldStyle}'>`
+                        ),
+                        // Row: M/F | BED
+                        makeRow(
+                            `<label style='${labelStyle}'>M/F</label><select name='M/F' id='editMemberGender' onchange='refreshBedDropdown("editMemberBed", this.value, "")' style='${fieldStyle}'><option value=''>-- Select --</option><option value='F'${gender==='F'?' selected':''}>F</option><option value='M'${gender==='M'?' selected':''}>M</option></select>`,
+                            `<label style='${labelStyle}'>BED</label>${buildBedDropdown('BED', bedVal, gender, 'editMemberBed')}`
+                        ),
+                        // Row: STATUS | REF
+                        makeRow(
+                            `<label style='${labelStyle}'>STATUS</label><select name='STATUS' style='${fieldStyle}'>${statusOptions}</select>`,
+                            `<label style='${labelStyle}'>REF</label><input name='REF' value="${getMVal('REF')}" style='${fieldStyle}'>`
+                        ),
+                        // Row: FIRST | LAST
+                        makeRow(
+                            `<label style='${labelStyle}'>FIRST</label><input name='FIRST' value="${getMVal('FIRST')}" style='${fieldStyle}'>`,
+                            `<label style='${labelStyle}'>LAST</label><input name='LAST' value="${getMVal('LAST')}" style='${fieldStyle}'>`
+                        ),
+                        // Row: NICKNAME | DOB
+                        makeRow(
+                            `<label style='${labelStyle}'>NICKNAME</label><input name='NICKNAME' value="${getMVal('NICKNAME')}" style='${fieldStyle}'>`,
+                            `<label style='${labelStyle}'>DOB</label><input name='DOB' value="${getMVal('DOB')}" style='${fieldStyle}'>`
+                        ),
+                        // Row: PHONE | EMAIL
+                        makeRow(
+                            `<label style='${labelStyle}'>PHONE</label><input name='PHONE' value="${getMVal('PHONE')}" style='${fieldStyle}'>`,
+                            `<label style='${labelStyle}'>EMAIL</label><input name='EMAIL' value="${getMVal('EMAIL')}" style='${fieldStyle}'>`
+                        ),
+                        // Row: ADMIT DATE | DISCHARGE DATE
+                        makeRow(
+                            `<label style='${labelStyle}'>ADMIT DATE</label><input name='ADMIT DATE' value="${getMVal('ADMIT DATE')}" style='${fieldStyle}'>`,
+                            `<label style='${labelStyle}'>DISCHARGE DATE</label><input name='DISCHARGE DATE' value="${getMVal('DISCHARGE DATE')}" style='${fieldStyle}'>`
+                        ),
+                        // Row: SOBER DATE | DAYS SOBER (calculated)
+                        makeRow(
+                            `<label style='${labelStyle}'>SOBER DATE</label><input name='SOBER DATE' id='editMemberSoberDate' value="${getMVal('SOBER DATE')}" oninput='calcEditDaysSober()' style='${fieldStyle}'>`,
+                            `<label style='${labelStyle}'>DAYS SOBER</label><input id='editMemberDaysSober' value="" readonly style='background:#eee;font-weight:700;color:#28a745;${fieldStyle}'>`
+                        ),
+                        // Row: RATE | BILL ON DAY
+                        makeRow(
+                            `<label style='${labelStyle}'>RATE</label><input name='RATE' value="${getMVal('RATE')}" style='${fieldStyle}'>`,
+                            `<label style='${labelStyle}'>BILL ON DAY</label><input name='BILL ON DAY' value="${getMVal('BILL ON DAY')}" style='${fieldStyle}'>`
+                        ),
+                        // Row: PIN | KEY
+                        makeRow(
+                            `<label style='${labelStyle}'>PIN</label><input name='PIN' value="${getMVal('PIN')}" style='${fieldStyle}'>`,
+                            `<label style='${labelStyle}'>KEY</label><input name='KEY' value="${getMVal('KEY')}" style='${fieldStyle}'>`
+                        ),
+                    ].join('');
+
                     document.getElementById('editMemberFields').innerHTML = fieldsHtml + `
                         <div style='margin-top:18px;display:flex;gap:12px;'>
                             <button type='submit' style='flex:1;padding:12px;background:#28a745;color:white;border:none;border-radius:6px;font-weight:700;font-size:1.1rem;'>Save</button>
@@ -1404,6 +1466,22 @@
                         </div>
                         <div id='editMemberStatus' style='margin-top:10px;font-weight:600;'></div>
                     `;
+
+                    // Calculate days sober for edit form
+                    window.calcEditDaysSober = function() {
+                        const input = document.getElementById('editMemberSoberDate');
+                        const display = document.getElementById('editMemberDaysSober');
+                        if (!input || !display) return;
+                        const val = input.value.trim();
+                        if (!val) { display.value = ''; return; }
+                        const d = parseDate(val);
+                        if (!d || isNaN(d.getTime())) { display.value = ''; return; }
+                        const today = new Date(); today.setHours(0,0,0,0);
+                        const days = Math.floor((today - d) / 86400000);
+                        display.value = days >= 0 ? days + ' days' : '';
+                    };
+                    calcEditDaysSober();
+
                     document.getElementById('editMemberStatus').textContent = '';
                     document.getElementById('editMemberButtons').style.display = 'flex';
                     document.getElementById('editMemberModal').style.display = 'block';
@@ -1425,16 +1503,22 @@
                     const form = event.target;
                     const updated = {};
                     const dateFields = ['DOB', 'ADMIT DATE', 'DISCHARGE DATE', 'SOBER DATE'];
+                    // Convert date string to YYYY-MM-DD without timezone issues
+                    function safeDate(v) {
+                        if (!v) return '';
+                        const s = String(v).trim();
+                        // mm-dd-yyyy
+                        const m1 = s.match(/^(\d{2})-(\d{2})-(\d{4})$/);
+                        if (m1) return m1[3] + '-' + m1[1] + '-' + m1[2];
+                        // yyyy-mm-dd already
+                        if (/^\d{4}-\d{2}-\d{2}$/.test(s)) return s;
+                        return s;
+                    }
                     allKeys.forEach(k => {
                         if (form.elements[k]) {
                             if (dateFields.includes(k)) {
                                 if (form.elements[k].value) {
-                                    const d = new Date(form.elements[k].value);
-                                    if (!isNaN(d)) {
-                                        updated[k] = d.toISOString().slice(0, 10);
-                                    } else {
-                                        updated[k] = form.elements[k].value;
-                                    }
+                                    updated[k] = safeDate(form.elements[k].value);
                                 } else {
                                     updated[k] = '';
                                 }
@@ -1785,14 +1869,16 @@
                     const { allKeys } = window._allMembersTableData || {};
                     if (!allKeys) return;
                     const form = document.getElementById('editMemberForm');
-                    // Helper to normalize dates to YYYY-MM-DD
+                    // Helper to normalize dates to YYYY-MM-DD without timezone issues
                     function normDate(v) {
                         if (!v) return '';
-                        // Handle mm-dd-yyyy
-                        const m = String(v).match(/^(\d{2})-(\d{2})-(\d{4})$/);
+                        const s = String(v).trim();
+                        // mm-dd-yyyy
+                        const m = s.match(/^(\d{2})-(\d{2})-(\d{4})$/);
                         if (m) return m[3] + '-' + m[1] + '-' + m[2];
-                        const d = new Date(v);
-                        return !isNaN(d) ? d.toISOString().slice(0, 10) : v;
+                        // yyyy-mm-dd already
+                        if (/^\d{4}-\d{2}-\d{2}$/.test(s)) return s;
+                        return s;
                     }
                     // Build payload matching backend expected field names
                     const payload = {
