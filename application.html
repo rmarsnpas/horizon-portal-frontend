@@ -1546,20 +1546,15 @@
         }
 
         // 2. Submit application data as JSON
-        // Collect form data and reference number
-        const formElements = form.elements;
-        const formData = {};
-        let referenceNumber = null;
-        for (let i = 0; i < formElements.length; i++) {
-          const el = formElements[i];
-          if (el.name && el.type !== 'button' && el.type !== 'submit') {
-            formData[el.name] = el.value;
-            if (el.name.toLowerCase().includes('reference')) {
-              referenceNumber = el.value;
-            }
-          }
-        }
+        // Collect form data using the correct radio/checkbox-aware function
+        const formData = collectFormData();
         formData.submittedAt = new Date().toISOString();
+        let referenceNumber = null;
+        Object.keys(formData).forEach(key => {
+          if (key.toLowerCase().includes('reference')) {
+            referenceNumber = formData[key];
+          }
+        });
 
         // Fallback: try to get reference number from UI if not found
         if (!referenceNumber) {
