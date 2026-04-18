@@ -1169,8 +1169,10 @@
                     const { members, allKeys } = window._allMembersTableData;
                     const member = members[idx];
                     window._editMemberIdx = idx;
-                    // Build form fields for allFields (skip # and Edit)
-                    const fieldsHtml = allKeys.filter(k => k !== '#' && k !== 'Edit').map(k => {
+                    // Build form fields for allFields (skip #, DAYS HERE, DAYSOBER - computed fields)
+                    const readonlyFields = ['#', 'ID', 'YR', 'DAYS HERE', 'DAYSOBER'];
+                    const skipFields = ['#', 'DAYS HERE', 'DAYSOBER'];
+                    const fieldsHtml = allKeys.filter(k => !skipFields.includes(k) && k !== 'Edit').map(k => {
                         let val = '';
                         switch(k) {
                             case 'YR': val = member.YR || member.yr || ''; break;
@@ -1184,9 +1186,7 @@
                             case 'DOB': val = member.DOB || member.dob || ''; break;
                             case 'ADMIT DATE': val = member['ADMIT\r\nDATE'] || member['ADMIT\nDATE'] || member['ADMIT DATE'] || member.admitDate || ''; break;
                             case 'DISCHARGE DATE': val = member['DC DATE'] || member['DC\nDATE'] || member['DC\r\nDATE'] || member['DISCHARGE DATE'] || member['DISCHARGE\nDATE'] || member['DISCHARGE\r\nDATE'] || member.dischargeDate || ''; break;
-                            case 'DAYS HERE': val = member['DAYS HERE'] || ''; break;
                             case 'SOBER DATE': val = member['SOBER\r\nDATE'] || member['SOBER\nDATE'] || member['SOBER DATE'] || member.sobrietyDate || ''; break;
-                            case 'DAYSOBER': val = member['DAYSOBER'] || ''; break;
                             case 'RATE': val = member.RATE || member.rate || ''; break;
                             case 'PHONE': val = member.PHONE || member.phone || ''; break;
                             case 'EMAIL': val = member.EMAIL || member.email || ''; break;
@@ -1196,8 +1196,8 @@
                             case 'REF': val = member.REF || member.ref || ''; break;
                             default: val = member[k] !== undefined ? member[k] : ''; break;
                         }
-                        const isId = k.toLowerCase().includes('id') && k.length <= 4;
-                        return `<div style='margin-bottom:10px;'><label style='font-weight:600;'>${k}</label><input name='${k}' value="${val}" ${isId ? 'readonly style="background:#eee;"' : ''} style='width:100%;padding:8px;font-size:1rem;border:1px solid #ccc;border-radius:6px;'></div>`;
+                        const isReadonly = readonlyFields.includes(k);
+                        return `<div style='margin-bottom:10px;'><label style='font-weight:600;'>${k}</label><input name='${k}' value="${val}" ${isReadonly ? 'readonly style="background:#eee;"' : ''} style='width:100%;padding:8px;font-size:1rem;border:1px solid #ccc;border-radius:6px;'></div>`;
                     }).join('');
                     document.getElementById('editMemberFields').innerHTML = fieldsHtml + `
                         <div style='margin-top:18px;display:flex;gap:12px;'>
@@ -1318,17 +1318,28 @@
                 }
             }
 
-            // Add Member Modal (stub)
+            // Add Member Modal
             function openAddMemberModal() {
-                const { allKeys } = window._allMembersTableData || {};
+                const { allKeys, members } = window._allMembersTableData || {};
                 if (!allKeys) return;
-                // Only show fields we want in the form
-                const formKeys = allKeys.filter(k => k !== 'DAYS HERE' && k !== 'DAYSOBER' && k !== 'YR');
+                // Calculate next available ID from existing members
+                let maxId = 0;
+                if (members) {
+                    members.forEach(m => {
+                        const idNum = parseInt(String(m.ID || m.id || '').replace(/\D/g, ''), 10);
+                        if (!isNaN(idNum) && idNum > maxId) maxId = idNum;
+                    });
+                }
+                const nextId = String(maxId + 1).padStart(4, '0');
+                // Only show fields we want in the form (skip computed fields)
+                const formKeys = allKeys.filter(k => k !== '#' && k !== 'DAYS HERE' && k !== 'DAYSOBER' && k !== 'YR');
+                // STATUS first so we can react to it for ID logic
                 const fieldsHtml = [
-                    `<div style='margin-bottom:10px;'><label style='font-weight:600;'>YR</label><input name='YR' value="26" readonly style='background:#eee;width:100%;padding:8px;font-size:1rem;border:1px solid #ccc;border-radius:6px;'></div>`
-                ].concat(formKeys.map(k => {
-                    const isId = k.toLowerCase().includes('id') && k.length <= 4;
-                    return `<div style='margin-bottom:10px;'><label style='font-weight:600;'>${k}</label><input name='${k}' value="" ${isId ? '' : ''} style='width:100%;padding:8px;font-size:1rem;border:1px solid #ccc;border-radius:6px;'></div>`;
+                    `<div style='margin-bottom:10px;'><label style='font-weight:600;'>YR</label><input name='YR' value="26" readonly style='background:#eee;width:100%;padding:8px;font-size:1rem;border:1px solid #ccc;border-radius:6px;'></div>`,
+                    `<div style='margin-bottom:10px;'><label style='font-weight:600;'>STATUS</label><select name='STATUS' id='addMemberStatus' onchange='onAddMemberStatusChange()' style='width:100%;padding:8px;font-size:1rem;border:1px solid #ccc;border-radius:6px;'><option value='1'>1 - Active</option><option value='2'>2 - Inactive</option><option value='3'>3 - Discharged</option><option value='H'>H - Hold</option><option value='W'>W - Wait List</option><option value='4'>4 - Staff</option><option value='5'>5 - Staff</option></select></div>`,
+                    `<div style='margin-bottom:10px;'><label style='font-weight:600;'>ID</label><input name='ID' id='addMemberId' value="${nextId}" readonly style='background:#eee;width:100%;padding:8px;font-size:1rem;border:1px solid #ccc;border-radius:6px;'></div>`
+                ].concat(formKeys.filter(k => k !== 'STATUS' && k !== 'ID').map(k => {
+                    return `<div style='margin-bottom:10px;'><label style='font-weight:600;'>${k}</label><input name='${k}' value="" style='width:100%;padding:8px;font-size:1rem;border:1px solid #ccc;border-radius:6px;'></div>`;
                 })).join('');
                 // Add Save and Cancel buttons for Add Member
                         const buttonsHtml = `<div style='margin-top:18px;display:flex;gap:12px;'>
@@ -1342,6 +1353,25 @@
                 document.getElementById('editMemberModal').style.display = 'block';
                 document.body.style.overflow = 'hidden';
                 window._addMemberMode = true;
+                window._addMemberNextId = nextId;
+
+                // Handler for status change - clear/set ID based on status
+                window.onAddMemberStatusChange = function() {
+                    const statusEl = document.getElementById('addMemberStatus');
+                    const idEl = document.getElementById('addMemberId');
+                    if (!statusEl || !idEl) return;
+                    const s = statusEl.value.toUpperCase();
+                    if (s === 'W') {
+                        // Wait list: no ID assigned
+                        idEl.value = '';
+                        idEl.readOnly = true;
+                    } else {
+                        // All other statuses get an auto-assigned ID
+                        if (!idEl.value) idEl.value = window._addMemberNextId || '';
+                        idEl.readOnly = true;
+                    }
+                };
+
                         // Add handler for Save and Cancel buttons
                         setTimeout(() => {
                             const cancelBtn = document.getElementById('addMemberCancelBtn');
