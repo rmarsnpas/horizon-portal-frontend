@@ -1761,6 +1761,8 @@
                 <span class="member-board-count" id="memberBoardCount">0</span>
                 <span class="member-board-count" id="memberBoardMCount" style="background:#667eea; color:white; margin-left:10px;">M: 0</span>
                 <span class="member-board-count" id="memberBoardFCount" style="background:#e91e8c; color:white; margin-left:10px;">F: 0</span>
+                <span class="member-board-count" id="memberBoardHoldCount" style="background:#ff9800; color:white; margin-left:10px;">Hold: 0</span>
+                <span class="member-board-count" id="memberBoardWaitCount" style="background:#9c27b0; color:white; margin-left:10px;">Wait: 0</span>
             </h2>
             <p style="color: rgba(255,255,255,0.9); margin: 5px 0 0 0;">Current residents with active status</p>
         </div>
@@ -2231,16 +2233,23 @@
                         <td>${email}</td>
                     </tr>`;
                 }).join('');
-                // Count M and F
-                let mCount = 0, fCount = 0;
+                // Count by status and gender (only status 1 for totals)
+                let mCount = 0, fCount = 0, holdCount = 0, waitCount = 0;
                 activeMembers.forEach(member => {
+                    const status = (member.STATUS || member.status || member.STATU || '').toString().toUpperCase().trim();
                     const gender = (member['M/F'] || member.GENDER || member.gender || '').toString().toUpperCase().trim();
+                    if (status === 'H') { holdCount++; return; }
+                    if (status === 'W') { waitCount++; return; }
+                    // Only count status 1 for M/F totals
                     if (gender === 'M') mCount++;
                     else if (gender === 'F') fCount++;
                 });
-                document.getElementById('memberBoardCount').textContent = activeMembers.length;
+                const status1Count = mCount + fCount;
+                document.getElementById('memberBoardCount').textContent = status1Count;
                 document.getElementById('memberBoardMCount').textContent = `M: ${mCount}`;
                 document.getElementById('memberBoardFCount').textContent = `F: ${fCount}`;
+                document.getElementById('memberBoardHoldCount').textContent = `Hold: ${holdCount}`;
+                document.getElementById('memberBoardWaitCount').textContent = `Wait: ${waitCount}`;
                 document.getElementById('memberBoardSection').style.display = 'block';
                 document.getElementById('memberBoardContainer').style.display = 'block';
             } catch (error) {
