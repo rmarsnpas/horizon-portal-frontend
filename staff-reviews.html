@@ -588,6 +588,14 @@
                     </div>
 
                     <div>
+                        <h3 style="color: #2d3748; margin-bottom: 10px;">🏠 House Responsibilities</h3>
+                        <div style="display: grid; gap: 10px;">
+                            <p><strong>Willing to Do Daily Chores:</strong> ${data.chores === 'yes' ? 'Yes' : data.chores === 'no' ? 'No' : 'Not answered'}</p>
+                            <p><strong>Willing to Follow Structured Schedule:</strong> ${data.structured_schedule === 'yes' ? 'Yes' : data.structured_schedule === 'no' ? 'No' : 'Not answered'}</p>
+                        </div>
+                    </div>
+
+                    <div>
                         <h3 style="color: #2d3748; margin-bottom: 10px;">✍️ Signature & Submission</h3>
                         <div style="display: grid; gap: 10px;">
                             ${data.signature ? `
