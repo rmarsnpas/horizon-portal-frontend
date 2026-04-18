@@ -1517,9 +1517,92 @@
             }
 
             // Add Member Modal
-            function openAddMemberModal() {
+            function openAddMemberModal(prefill) {
                 const { allKeys, members } = window._allMembersTableData || {};
                 if (!allKeys) return;
+
+                // If no prefill provided, show application question first
+                if (!prefill) {
+                    document.getElementById('editMemberFields').innerHTML = `
+                        <div style='text-align:center;padding:20px 0;'>
+                            <h3 style='margin-bottom:18px;color:#2d3748;'>New Member Application Completed?</h3>
+                            <div style='display:flex;gap:12px;justify-content:center;'>
+                                <button type='button' id='addMemberAppYes' style='padding:14px 36px;background:#28a745;color:white;border:none;border-radius:8px;font-weight:700;font-size:1.1rem;cursor:pointer;'>Yes</button>
+                                <button type='button' id='addMemberAppNo' style='padding:14px 36px;background:#6c757d;color:white;border:none;border-radius:8px;font-weight:700;font-size:1.1rem;cursor:pointer;'>No</button>
+                            </div>
+                        </div>`;
+                    document.getElementById('editMemberStatus').textContent = '';
+                    document.getElementById('editMemberModal').style.display = 'block';
+                    document.body.style.overflow = 'hidden';
+                    window._addMemberMode = true;
+                    // Prevent form submit on this screen
+                    document.getElementById('editMemberForm').onsubmit = function(e) { e.preventDefault(); };
+
+                    document.getElementById('addMemberAppNo').onclick = function() {
+                        openAddMemberModal({});
+                    };
+                    document.getElementById('addMemberAppYes').onclick = async function() {
+                        document.getElementById('editMemberFields').innerHTML = '<div style="text-align:center;padding:30px;"><p style="font-size:1.1rem;">Loading applications...</p></div>';
+                        try {
+                            const res = await fetch(`${API_BASE}/api/applications`);
+                            const data = await res.json();
+                            const apps = (data.applications || []).filter(a => {
+                                const s = (a.status || '').toLowerCase();
+                                return s === 'approved' || s === 'pending';
+                            });
+                            if (!apps.length) {
+                                document.getElementById('editMemberFields').innerHTML = `
+                                    <div style='text-align:center;padding:20px;'>
+                                        <p style='font-size:1.1rem;color:#e53e3e;margin-bottom:18px;'>No approved or pending applications found.</p>
+                                        <div style='display:flex;gap:12px;justify-content:center;'>
+                                            <button type='button' onclick='openAddMemberModal({})' style='padding:12px 28px;background:#667eea;color:white;border:none;border-radius:6px;font-weight:700;cursor:pointer;'>Continue Manual Entry</button>
+                                            <button type='button' onclick='closeEditMemberModal()' style='padding:12px 28px;background:#6c757d;color:white;border:none;border-radius:6px;font-weight:700;cursor:pointer;'>Cancel</button>
+                                        </div>
+                                    </div>`;
+                                return;
+                            }
+                            let listHtml = '<h3 style="margin-bottom:12px;color:#2d3748;">Select Application</h3>';
+                            listHtml += '<div style="max-height:50vh;overflow-y:auto;border:1px solid #e2e8f0;border-radius:8px;">';
+                            apps.forEach((app, i) => {
+                                const fd = app.formData || {};
+                                const name = ((fd.first_name || '') + ' ' + (fd.last_name || '')).trim() || 'Unknown';
+                                const gender = fd.gender ? (fd.gender === 'male' ? 'M' : fd.gender === 'female' ? 'F' : fd.gender) : '-';
+                                const phone = fd.phone || '-';
+                                const status = app.status || 'pending';
+                                const date = app.submittedAt ? new Date(app.submittedAt).toLocaleDateString() : '-';
+                                const statusColor = status === 'approved' ? '#28a745' : '#f6ad55';
+                                listHtml += `<div style='display:flex;justify-content:space-between;align-items:center;padding:12px 16px;border-bottom:1px solid #e2e8f0;${i % 2 ? "background:#f7fafc;" : ""}'>
+                                    <div>
+                                        <strong>${name}</strong> <span style='color:#718096;font-size:0.9rem;'>(${gender})</span><br>
+                                        <span style='font-size:0.85rem;color:#718096;'>${phone} · ${date} · <span style='color:${statusColor};font-weight:600;'>${status}</span></span>
+                                    </div>
+                                    <button type='button' onclick='selectApplicationForMember(${i})' style='padding:8px 18px;background:#667eea;color:white;border:none;border-radius:6px;font-weight:600;cursor:pointer;white-space:nowrap;'>Select</button>
+                                </div>`;
+                            });
+                            listHtml += '</div>';
+                            listHtml += `<div style='display:flex;gap:12px;justify-content:center;margin-top:16px;'>
+                                <button type='button' onclick='openAddMemberModal({})' style='padding:12px 28px;background:#667eea;color:white;border:none;border-radius:6px;font-weight:700;cursor:pointer;'>Continue Manual Entry</button>
+                                <button type='button' onclick='closeEditMemberModal()' style='padding:12px 28px;background:#6c757d;color:white;border:none;border-radius:6px;font-weight:700;cursor:pointer;'>Cancel</button>
+                            </div>`;
+                            document.getElementById('editMemberFields').innerHTML = listHtml;
+                            // Store apps for selection
+                            window._pendingAppsList = apps;
+                        } catch (e) {
+                            document.getElementById('editMemberFields').innerHTML = `
+                                <div style='text-align:center;padding:20px;'>
+                                    <p style='font-size:1.1rem;color:#e53e3e;margin-bottom:18px;'>Error loading applications.</p>
+                                    <div style='display:flex;gap:12px;justify-content:center;'>
+                                        <button type='button' onclick='openAddMemberModal({})' style='padding:12px 28px;background:#667eea;color:white;border:none;border-radius:6px;font-weight:700;cursor:pointer;'>Continue Manual Entry</button>
+                                        <button type='button' onclick='closeEditMemberModal()' style='padding:12px 28px;background:#6c757d;color:white;border:none;border-radius:6px;font-weight:700;cursor:pointer;'>Cancel</button>
+                                    </div>
+                                </div>`;
+                        }
+                    };
+                    return;
+                }
+
+                // Build form (with optional prefill from application)
+                const pf = prefill || {};
                 // Calculate next available ID from existing members
                 let maxId = 0;
                 if (members) {
@@ -1529,17 +1612,35 @@
                     });
                 }
                 const nextId = String(maxId + 1).padStart(4, '0');
+                const pfGender = pf.gender ? (pf.gender === 'male' ? 'M' : pf.gender === 'female' ? 'F' : pf.gender.charAt(0).toUpperCase()) : '';
                 // Only show fields we want in the form (skip computed fields)
                 const formKeys = allKeys.filter(k => k !== '#' && k !== 'DAYS HERE' && k !== 'DAYSOBER' && k !== 'YR' && k !== 'STATUS' && k !== 'ID' && k !== 'M/F' && k !== 'BED');
+
+                // Map formKeys to prefill values
+                function getPrefillVal(k) {
+                    switch(k) {
+                        case 'FIRST': return pf.first_name || '';
+                        case 'LAST': return pf.last_name || '';
+                        case 'NICKNAME': return pf.nickname || '';
+                        case 'DOB': return pf.dob || '';
+                        case 'PHONE': return pf.phone || '';
+                        case 'EMAIL': return pf.email || '';
+                        case 'SOBER DATE': return pf.sobriety_date || '';
+                        case 'REF': return pf.referred_by || '';
+                        default: return '';
+                    }
+                }
+
                 // Order: YR, M/F, BED, STATUS, ID, then remaining fields
                 const fieldsHtml = [
                     `<div style='margin-bottom:10px;'><label style='font-weight:600;'>YR</label><input name='YR' value="26" readonly style='background:#eee;width:100%;padding:8px;font-size:1rem;border:1px solid #ccc;border-radius:6px;'></div>`,
-                    `<div style='margin-bottom:10px;'><label style='font-weight:600;'>M/F</label><select name='M/F' id='addMemberGender' onchange='refreshBedDropdown("addMemberBed", this.value, "")' style='width:100%;padding:8px;font-size:1rem;border:1px solid #ccc;border-radius:6px;'><option value=''>-- Select --</option><option value='F'>F</option><option value='M'>M</option></select></div>`,
-                    `<div style='margin-bottom:10px;'><label style='font-weight:600;'>BED</label>${buildBedDropdown('BED', '', '', 'addMemberBed')}</div>`,
+                    `<div style='margin-bottom:10px;'><label style='font-weight:600;'>M/F</label><select name='M/F' id='addMemberGender' onchange='refreshBedDropdown("addMemberBed", this.value, "")' style='width:100%;padding:8px;font-size:1rem;border:1px solid #ccc;border-radius:6px;'><option value=''>-- Select --</option><option value='F'${pfGender==='F'?' selected':''}>F</option><option value='M'${pfGender==='M'?' selected':''}>M</option></select></div>`,
+                    `<div style='margin-bottom:10px;'><label style='font-weight:600;'>BED</label>${buildBedDropdown('BED', '', pfGender, 'addMemberBed')}</div>`,
                     `<div style='margin-bottom:10px;'><label style='font-weight:600;'>STATUS</label><select name='STATUS' id='addMemberStatus' onchange='onAddMemberStatusChange()' style='width:100%;padding:8px;font-size:1rem;border:1px solid #ccc;border-radius:6px;'><option value='1'>1 - Active</option><option value='2'>2 - Inactive</option><option value='3'>3 - Discharged</option><option value='H'>H - Hold</option><option value='W'>W - Wait List</option><option value='4'>4 - Staff</option><option value='5'>5 - Staff</option></select></div>`,
                     `<div style='margin-bottom:10px;'><label style='font-weight:600;'>ID</label><input name='ID' id='addMemberId' value="${nextId}" readonly style='background:#eee;width:100%;padding:8px;font-size:1rem;border:1px solid #ccc;border-radius:6px;'></div>`
                 ].concat(formKeys.map(k => {
-                    return `<div style='margin-bottom:10px;'><label style='font-weight:600;'>${k}</label><input name='${k}' value="" style='width:100%;padding:8px;font-size:1rem;border:1px solid #ccc;border-radius:6px;'></div>`;
+                    const val = getPrefillVal(k);
+                    return `<div style='margin-bottom:10px;'><label style='font-weight:600;'>${k}</label><input name='${k}' value="${val}" style='width:100%;padding:8px;font-size:1rem;border:1px solid #ccc;border-radius:6px;'></div>`;
                 })).join('');
                 // Always clear modal content before rendering
                 document.getElementById('editMemberFields').innerHTML = '';
@@ -1668,6 +1769,13 @@
                     }
                 };
             }
+            // Select an application from the list and pre-fill the add member form
+            window.selectApplicationForMember = function(idx) {
+                const apps = window._pendingAppsList || [];
+                const app = apps[idx];
+                if (!app || !app.formData) return;
+                openAddMemberModal(app.formData);
+            };
             function closeAllMembersModal() {
                 document.getElementById('allMembersModal').style.display = 'none';
                 document.body.style.overflow = '';
