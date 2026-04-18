@@ -739,7 +739,7 @@
             </div>
             <!-- All Members Modal -->
             <div id="allMembersModal" class="modal" style="display:none;">
-                <div class="modal-content" style="max-width:95vw;height:90vh;display:flex;flex-direction:column;overflow:hidden;">
+                <div class="modal-content" style="max-width:95vw;height:90vh;margin:2vh auto;padding:20px;display:flex;flex-direction:column;overflow:hidden;">
                     <div class="modal-header" style="display:flex;justify-content:space-between;align-items:center;flex-shrink:0;">
                         <h2>👁️ Members Database</h2>
                         <span class="close" onclick="closeAllMembersModal()" style="font-size:2rem;cursor:pointer;">&times;</span>
@@ -749,13 +749,15 @@
                         <button onclick="openAddMemberModal()" style="padding:10px 18px;background:#28a745;color:white;border:none;border-radius:6px;font-weight:700;font-size:1rem;">+ Add New Member</button>
                     </div>
                     <!-- Tab buttons -->
-                    <div style="display:flex;gap:8px;margin-bottom:12px;flex-wrap:wrap;flex-shrink:0;">
+                    <div style="display:flex;gap:8px;margin-bottom:8px;flex-wrap:wrap;flex-shrink:0;">
                         <button class="members-tab-btn active" data-tab="active" onclick="switchMembersTab('active')" style="padding:10px 20px;border:2px solid #28a745;background:#28a745;color:white;border-radius:6px;font-weight:700;cursor:pointer;">Active (1, 2, 3)</button>
                         <button class="members-tab-btn" data-tab="hold" onclick="switchMembersTab('hold')" style="padding:10px 20px;border:2px solid #f0ad4e;background:white;color:#f0ad4e;border-radius:6px;font-weight:700;cursor:pointer;">Hold</button>
                         <button class="members-tab-btn" data-tab="waitlist" onclick="switchMembersTab('waitlist')" style="padding:10px 20px;border:2px solid #5bc0de;background:white;color:#5bc0de;border-radius:6px;font-weight:700;cursor:pointer;">Wait List</button>
                         <button class="members-tab-btn" data-tab="staff" onclick="switchMembersTab('staff')" style="padding:10px 20px;border:2px solid #667eea;background:white;color:#667eea;border-radius:6px;font-weight:700;cursor:pointer;">Staff (4 & 5)</button>
                         <button class="members-tab-btn" data-tab="all" onclick="switchMembersTab('all')" style="padding:10px 20px;border:2px solid #718096;background:white;color:#718096;border-radius:6px;font-weight:700;cursor:pointer;">All</button>
                     </div>
+                    <!-- Summary Stats -->
+                    <div id="memberStatsBar" style="flex-shrink:0;margin-bottom:10px;font-size:13px;line-height:1.8;"></div>
                     <div style="flex:1;overflow:auto;">
                         <table id="allMembersTable" style="border-collapse: collapse; width: 100%; font-size: 14px;">
                             <thead class="sticky-header" id="allMembersTableHead">
@@ -1015,6 +1017,8 @@
                     }
                     window._allMembersTableData.members = members;
                     renderAllMembersTable(members);
+                    // Also refresh the main dashboard Active Members Board
+                    if (typeof loadMemberBoard === 'function') loadMemberBoard();
                 };
 
                 // Shared rendering function for All Members table
@@ -1054,7 +1058,65 @@
                     });
                 }
 
+                function updateMemberStats(members) {
+                    const bar = document.getElementById('memberStatsBar');
+                    if (!bar || !members) return;
+                    const badge = (label, val, bg, fg) => `<span style="display:inline-block;padding:3px 10px;margin:2px 3px;border-radius:12px;background:${bg};color:${fg};font-weight:700;font-size:12px;">${label}: ${val}</span>`;
+                    // Helpers
+                    const getStatus = m => String(m.STATUS || m.status || m.STATU || '').toUpperCase().trim();
+                    const getGender = m => String(m['M/F'] || m.GENDER || m.gender || '').toUpperCase().trim();
+                    // TOTALS (all members)
+                    const totalAll = members.length;
+                    let totalM = 0, totalF = 0, totalA = 0, totalH = 0, totalS = 0;
+                    members.forEach(m => {
+                        const g = getGender(m), s = getStatus(m);
+                        if (g === 'M') totalM++;
+                        if (g === 'F') totalF++;
+                        if (s === '1' || s === '2' || s === '3') totalA++;
+                        if (s === 'H') totalH++;
+                        if (s === '4' || s === '5') totalS++;
+                    });
+                    // CURRENT (status 1 only)
+                    const current = members.filter(m => getStatus(m) === '1');
+                    const curAll = current.length;
+                    let curM = 0, curF = 0;
+                    current.forEach(m => { const g = getGender(m); if (g === 'M') curM++; if (g === 'F') curF++; });
+                    // Hold breakdown by gender
+                    const holds = members.filter(m => getStatus(m) === 'H');
+                    let holdM = 0, holdF = 0;
+                    holds.forEach(m => { const g = getGender(m); if (g === 'M') holdM++; if (g === 'F') holdF++; });
+                    // Wait breakdown by gender
+                    const waits = members.filter(m => getStatus(m) === 'W' || getStatus(m) === 'WAIT' || getStatus(m) === 'WAITLIST');
+                    let waitM = 0, waitF = 0;
+                    waits.forEach(m => { const g = getGender(m); if (g === 'M') waitM++; if (g === 'F') waitF++; });
+                    // Build HTML
+                    let html = '<div style="margin-bottom:2px;">';
+                    html += badge('Total', totalAll, '#4a5568', '#fff');
+                    html += badge('F', totalF, '#e91e8c', '#fff');
+                    html += badge('M', totalM, '#667eea', '#fff');
+                    html += badge('Active', totalA, '#28a745', '#fff');
+                    html += badge('Hold', totalH, '#f0ad4e', '#fff');
+                    html += badge('Staff', totalS, '#6c757d', '#fff');
+                    html += '</div><div>';
+                    html += badge('Current', curAll, '#2d3748', '#fff');
+                    html += badge('F', curF, '#e91e8c', '#fff');
+                    html += badge('M', curM, '#667eea', '#fff');
+                    // Hold with gender shading
+                    if (holdM > 0) html += badge('Hold M', holdM, '#cce5ff', '#1a4a7a');
+                    if (holdF > 0) html += badge('Hold F', holdF, '#f8d7e8', '#7a1a4a');
+                    if (!holdM && !holdF) html += badge('Hold', 0, '#f0ad4e', '#fff');
+                    // Wait with gender shading
+                    if (waitM > 0) html += badge('Wait M', waitM, '#cce5ff', '#1a4a7a');
+                    if (waitF > 0) html += badge('Wait F', waitF, '#f8d7e8', '#7a1a4a');
+                    if (!waitM && !waitF) html += badge('Wait', 0, '#5bc0de', '#fff');
+                    html += '</div>';
+                    bar.innerHTML = html;
+                }
+
                 function renderAllMembersTable(membersList) {
+                    // --- Compute stats from full unfiltered list ---
+                    updateMemberStats(membersList);
+
                     const search = (document.getElementById('allMembersSearch') ? document.getElementById('allMembersSearch').value : '').toLowerCase();
                     let filtered = filterByTab(membersList);
                     if (search) {
@@ -1401,6 +1463,7 @@
                     // Build payload matching backend expected field names
                     const payload = {
                         id: form.elements['ID'] ? form.elements['ID'].value : '',
+                        yr: form.elements['YR'] ? form.elements['YR'].value : '',
                         firstName: form.elements['FIRST'] ? form.elements['FIRST'].value : '',
                         lastName: form.elements['LAST'] ? form.elements['LAST'].value : '',
                         phone: form.elements['PHONE'] ? form.elements['PHONE'].value : '',
@@ -1588,7 +1651,7 @@
             <p style="color: rgba(255,255,255,0.9); margin: 5px 0 0 0;">Current residents with active status</p>
         </div>
 
-        <div id="memberBoardContainer" style="display: none;">
+        <div id="memberBoardContainer" style="display: none; margin-bottom: 80px;">
             <div class="member-board-wrapper">
                 <table class="member-board-table">
                     <thead>
