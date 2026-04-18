@@ -620,6 +620,13 @@
                 <div class="card-label">Pending Review</div>
             </a>
 
+            <a href="#" onclick="openOvernightPassPanel(); return false;" class="dashboard-card">
+                <div class="card-icon">🌙</div>
+                <div class="card-title">Overnight Passes</div>
+                <div class="card-count" id="overnightCardCount">-</div>
+                <div class="card-label">Pending Requests</div>
+            </a>
+
             <a href="/contact-view.html" class="dashboard-card">
                 <div class="card-icon">📬</div>
                 <div class="card-title">Contact Forms</div>
@@ -1772,10 +1779,11 @@
             </div>
         </div>
 
-        <!-- Overnight Pass Requests -->
-        <div class="overnight-section">
-            <div class="overnight-header">
+        <!-- Overnight Pass Panel (hidden, toggled by card click) -->
+        <div id="overnightPassPanel" style="display:none; margin-top:30px; margin-bottom:20px;">
+            <div class="overnight-header" style="display:flex; justify-content:space-between; align-items:center;">
                 <h2>🌙 Overnight Pass Requests <span id="overnightCount" class="member-board-count" style="background:rgba(255,255,255,0.3);">0</span></h2>
+                <button onclick="document.getElementById('overnightPassPanel').style.display='none'" style="background:rgba(255,255,255,0.25); border:none; color:#fff; font-size:20px; cursor:pointer; border-radius:6px; padding:4px 12px;">&times;</button>
             </div>
             <div class="overnight-body" id="overnightBody">
                 <span style="color:#999;">Loading...</span>
@@ -2291,6 +2299,14 @@
         }
 
         // ── OVERNIGHT PASSES ──────────────────────────────────────
+        function openOvernightPassPanel() {
+            const panel = document.getElementById('overnightPassPanel');
+            panel.style.display = '';
+            panel.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            loadOvernightPasses();
+        }
+        window.openOvernightPassPanel = openOvernightPassPanel;
+
         async function loadOvernightPasses() {
             try {
                 const res = await fetch(`${API_BASE}/api/overnight-passes`);
@@ -2298,6 +2314,8 @@
                 const pending = passes.filter(p => p.status === 'pending');
                 const recent = passes.filter(p => p.status !== 'pending').slice(0, 10);
                 document.getElementById('overnightCount').textContent = pending.length;
+                const cardCount = document.getElementById('overnightCardCount');
+                if (cardCount) cardCount.textContent = pending.length;
                 const body = document.getElementById('overnightBody');
                 if (!pending.length && !recent.length) {
                     body.innerHTML = '<span style="color:#999;">No overnight pass requests.</span>';
