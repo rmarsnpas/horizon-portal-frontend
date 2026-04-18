@@ -390,6 +390,20 @@
         </div>
     </div>
 
+    <!-- Overnight Pass Prompt Overlay -->
+    <div id="overnightOverlay" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.6); z-index:9999; justify-content:center; align-items:center;">
+        <div style="background:#fff; border-radius:16px; padding:32px; max-width:500px; width:90%; text-align:center; box-shadow:0 8px 40px rgba(0,0,0,0.3);">
+            <div style="font-size:48px; margin-bottom:12px;">🌙</div>
+            <h2 style="margin:0 0 8px; color:#6c5ce7;">Approved Overnight Pass</h2>
+            <p id="overnightPromptText" style="font-size:16px; color:#444; margin:10px 0 20px;"></p>
+            <p style="font-size:18px; font-weight:700; color:#222;">Is this the overnight trip you requested?</p>
+            <div style="display:flex; gap:16px; justify-content:center; margin-top:20px;">
+                <button id="overnightYesBtn" style="padding:14px 40px; font-size:18px; font-weight:700; background:#28a745; color:#fff; border:none; border-radius:10px; cursor:pointer;">Yes</button>
+                <button id="overnightNoBtn" style="padding:14px 40px; font-size:18px; font-weight:700; background:#dc3545; color:#fff; border:none; border-radius:10px; cursor:pointer;">No</button>
+            </div>
+        </div>
+    </div>
+
     <script>
         const API_URL = 'https://horizon-portal-backend-production-3532.up.railway.app';
         // Helper utilities to normalize IDs across backend variations
@@ -542,7 +556,7 @@
                     return;
                 }
 
-                await completeSignOut(currentMemberData, destination, returnTime);
+                await checkOvernightAndSignOut(currentMemberData, destination, returnTime);
                 return;
             }
 
@@ -638,7 +652,41 @@
             }
         }
 
-        async function completeSignOut(memberData, destination, returnTime) {
+        async function checkOvernightAndSignOut(memberData, destination, returnTime) {
+            try {
+                const res = await fetch(`${API_URL}/api/overnight-pass/check?memberId=${encodeURIComponent(memberData.id)}`);
+                const data = await res.json();
+                if (data.passes && data.passes.length > 0) {
+                    const pass = data.passes[0];
+                    const promptText = document.getElementById('overnightPromptText');
+                    promptText.innerHTML = '<strong>Destination:</strong> ' + pass.where + '<br>' +
+                        '<strong>Depart:</strong> ' + pass.departureDate + ' ' + pass.departureTime + '<br>' +
+                        '<strong>Return:</strong> ' + pass.returnDate + ' ' + pass.returnTime;
+                    const overlay = document.getElementById('overnightOverlay');
+                    overlay.style.display = 'flex';
+                    // Wait for user choice
+                    await new Promise((resolve) => {
+                        document.getElementById('overnightYesBtn').onclick = function() {
+                            overlay.style.display = 'none';
+                            // Use overnight pass details for the sign-out
+                            completeSignOut(memberData, pass.where, pass.returnTime, pass);
+                            resolve();
+                        };
+                        document.getElementById('overnightNoBtn').onclick = function() {
+                            overlay.style.display = 'none';
+                            // Regular sign-out with user-entered info
+                            completeSignOut(memberData, destination, returnTime, null);
+                            resolve();
+                        };
+                    });
+                    return;
+                }
+            } catch (e) { console.error('Overnight pass check error:', e); }
+            // No approved passes or error — proceed with normal sign-out
+            await completeSignOut(memberData, destination, returnTime, null);
+        }
+
+        async function completeSignOut(memberData, destination, returnTime, overnightPass) {
             showLoading(true);
             
             try {
@@ -655,7 +703,9 @@
                         destination: destination,
                         timeOut: timeOut,
                         estimatedReturn: returnTime,
-                        date: date
+                        date: date,
+                        overnightPassId: overnightPass ? overnightPass.id : undefined,
+                        isOvernightPass: !!overnightPass
                     })
                 });
 
@@ -663,7 +713,8 @@
                 showLoading(false);
 
                 if (result.success) {
-                    showStatus(`✓ ${memberData.name} signed OUT`, 'success');
+                    const label = overnightPass ? '✓ ' + memberData.name + ' signed OUT (Overnight Pass)' : '✓ ' + memberData.name + ' signed OUT';
+                    showStatus(label, 'success');
                     setTimeout(showStatusScreen, 2000); // Return to status after 2 seconds
                 } else {
                     showStatus('Error: ' + (result.message || 'Unknown error'), 'error');

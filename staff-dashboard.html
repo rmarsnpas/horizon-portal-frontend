@@ -444,6 +444,24 @@
         }
 
         /* Active Members Board */
+        .overnight-section { margin-top: 30px; margin-bottom: 20px; }
+        .overnight-header { background: linear-gradient(135deg, #6c5ce7 0%, #a855f7 100%); color: white; padding: 20px; border-radius: 12px; margin-bottom: 0; }
+        .overnight-header h2 { color: white; margin: 0; font-size: 20px; }
+        .overnight-body { background: white; border: 2px solid #6c5ce7; border-top: none; border-radius: 0 0 12px 12px; padding: 16px; }
+        .overnight-card { border: 1px solid #e0e0e0; border-radius: 10px; padding: 14px 16px; margin-bottom: 12px; background: #faf9ff; }
+        .overnight-card .oc-name { font-weight: 700; font-size: 15px; color: #2b3440; }
+        .overnight-card .oc-detail { font-size: 13px; color: #555; margin-top: 4px; }
+        .overnight-card .oc-actions { margin-top: 10px; display: flex; gap: 8px; }
+        .oc-btn { padding: 6px 16px; border: none; border-radius: 6px; font-size: 13px; font-weight: 600; cursor: pointer; }
+        .oc-btn-approve { background: #28a745; color: #fff; }
+        .oc-btn-approve:hover { background: #218838; }
+        .oc-btn-deny { background: #dc3545; color: #fff; }
+        .oc-btn-deny:hover { background: #c82333; }
+        .oc-badge { display: inline-block; padding: 2px 8px; border-radius: 10px; font-size: 11px; font-weight: 700; margin-left: 8px; }
+        .oc-badge-pending { background: #fff3cd; color: #856404; }
+        .oc-badge-approved { background: #d4edda; color: #155724; }
+        .oc-badge-denied { background: #f8d7da; color: #721c24; }
+
         .member-board-wrapper {
             background: white;
             border-radius: 12px;
@@ -1754,6 +1772,16 @@
             </div>
         </div>
 
+        <!-- Overnight Pass Requests -->
+        <div class="overnight-section">
+            <div class="overnight-header">
+                <h2>🌙 Overnight Pass Requests <span id="overnightCount" class="member-board-count" style="background:rgba(255,255,255,0.3);">0</span></h2>
+            </div>
+            <div class="overnight-body" id="overnightBody">
+                <span style="color:#999;">Loading...</span>
+            </div>
+        </div>
+
         <!-- Active Members Board -->
         <div class="section-header" id="memberBoardSection" style="display: none; margin-top: 30px; background: linear-gradient(135deg, #F58634 0%, #c95f00 100%); color: white; padding: 20px; border-radius: 12px; margin-bottom: 20px;">
             <h2 style="color: white; margin: 0;">
@@ -1936,6 +1964,9 @@
 
                 // Load active members board
                 await loadMemberBoard();
+
+                // Load overnight pass requests
+                await loadOvernightPasses();
 
                 // Update UI
                 document.getElementById('appCount').textContent = pendingApps;
@@ -2258,6 +2289,81 @@
                 document.getElementById('memberBoardContainer').style.display = 'none';
             }
         }
+
+        // ── OVERNIGHT PASSES ──────────────────────────────────────
+        async function loadOvernightPasses() {
+            try {
+                const res = await fetch(`${API_BASE}/api/overnight-passes`);
+                const passes = await res.json();
+                const pending = passes.filter(p => p.status === 'pending');
+                const recent = passes.filter(p => p.status !== 'pending').slice(0, 10);
+                document.getElementById('overnightCount').textContent = pending.length;
+                const body = document.getElementById('overnightBody');
+                if (!pending.length && !recent.length) {
+                    body.innerHTML = '<span style="color:#999;">No overnight pass requests.</span>';
+                    return;
+                }
+                let html = '';
+                if (pending.length) {
+                    html += '<h4 style="margin:0 0 10px;color:#6c5ce7;">Pending Approval (' + pending.length + ')</h4>';
+                    html += pending.map(p => renderOvernightCard(p, true)).join('');
+                }
+                if (recent.length) {
+                    html += '<h4 style="margin:16px 0 10px;color:#888;">Recent Decisions</h4>';
+                    html += recent.map(p => renderOvernightCard(p, false)).join('');
+                }
+                body.innerHTML = html;
+            } catch (e) {
+                console.error('Error loading overnight passes:', e);
+                document.getElementById('overnightBody').innerHTML = '<span style="color:red;">Error loading passes.</span>';
+            }
+        }
+
+        function renderOvernightCard(p, showActions) {
+            const badgeClass = p.status === 'approved' ? 'oc-badge-approved' : p.status === 'denied' ? 'oc-badge-denied' : 'oc-badge-pending';
+            const badgeLabel = p.status.charAt(0).toUpperCase() + p.status.slice(1);
+            const submitted = p.submittedAt ? new Date(p.submittedAt).toLocaleString() : '';
+            let actions = '';
+            if (showActions) {
+                actions = '<div class="oc-actions">' +
+                    '<button class="oc-btn oc-btn-approve" onclick="approveOvernightPass(\'' + p.id + '\')">✓ Approve</button>' +
+                    '<button class="oc-btn oc-btn-deny" onclick="denyOvernightPass(\'' + p.id + '\')">✕ Deny</button>' +
+                    '</div>';
+            }
+            return '<div class="overnight-card">' +
+                '<div class="oc-name">' + (p.memberName || 'Unknown') + ' (ID: ' + (p.memberId || '') + ')' +
+                '<span class="oc-badge ' + badgeClass + '">' + badgeLabel + '</span></div>' +
+                '<div class="oc-detail"><strong>Where:</strong> ' + (p.where || '') + '</div>' +
+                '<div class="oc-detail"><strong>Why:</strong> ' + (p.why || '') + '</div>' +
+                '<div class="oc-detail"><strong>Depart:</strong> ' + (p.departureDate || '') + ' ' + (p.departureTime || '') +
+                ' &nbsp;|&nbsp; <strong>Return:</strong> ' + (p.returnDate || '') + ' ' + (p.returnTime || '') + '</div>' +
+                '<div class="oc-detail" style="font-size:11px;color:#999;">Submitted: ' + submitted + '</div>' +
+                actions + '</div>';
+        }
+
+        async function approveOvernightPass(id) {
+            try {
+                await fetch(`${API_BASE}/api/overnight-pass/${id}`, {
+                    method: 'PATCH',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ status: 'approved', reviewedBy: 'Staff' })
+                });
+                await loadOvernightPasses();
+            } catch (e) { console.error('Error approving pass:', e); }
+        }
+
+        async function denyOvernightPass(id) {
+            try {
+                await fetch(`${API_BASE}/api/overnight-pass/${id}`, {
+                    method: 'PATCH',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ status: 'denied', reviewedBy: 'Staff' })
+                });
+                await loadOvernightPasses();
+            } catch (e) { console.error('Error denying pass:', e); }
+        }
+        window.approveOvernightPass = approveOvernightPass;
+        window.denyOvernightPass = denyOvernightPass;
 
         // ── KIOSK MESSAGES ──────────────────────────────────────
         let _allMembersCache = null;
