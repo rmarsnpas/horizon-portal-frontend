@@ -89,6 +89,10 @@
         <span class="icon">📝</span>
         Meeting Cards
       </a>
+      <a class="dashboard-card" href="#" onclick="openPassModal(); return false;">
+        <span class="icon">🌙</span>
+        Overnight Pass
+      </a>
     </div>
 
     <!-- Welcome New Members -->
@@ -103,8 +107,10 @@
       <ul class="info-list" id="celebrationsList"></ul>
     </div>
 
-    <!-- Request Overnight Pass -->
-    <div class="info-card" id="overnightPassCard">
+    <!-- Request Overnight Pass Modal -->
+    <div id="passOverlay" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.5); z-index:9999; justify-content:center; align-items:center;">
+    <div class="info-card" id="overnightPassCard" style="max-width:520px; width:90%; max-height:90vh; overflow-y:auto; margin:0; position:relative;">
+      <button onclick="closePassModal()" style="position:absolute; top:10px; right:14px; background:none; border:none; font-size:22px; cursor:pointer; color:#888;">&times;</button>
       <h3>🌙 Request Overnight Pass</h3>
       <form class="pass-form" id="passForm" onsubmit="submitOvernightPass(event)">
         <label for="passWhere">Where are you going?</label>
@@ -136,8 +142,20 @@
       </form>
       <div class="pass-history" id="passHistory"></div>
     </div>
+    </div>
   </div>
   <script>
+    function openPassModal() {
+      document.getElementById('passOverlay').style.display = 'flex';
+    }
+    function closePassModal() {
+      document.getElementById('passOverlay').style.display = 'none';
+    }
+    // Close on overlay click
+    document.getElementById('passOverlay').addEventListener('click', function(e) {
+      if (e.target === this) closePassModal();
+    });
+
     const API_BASE = 'https://horizon-portal-backend-production-3532.up.railway.app';
     const memberId = localStorage.getItem('memberId') || '';
     const firstName = localStorage.getItem('memberFirstName') || '';
