@@ -915,10 +915,10 @@
                             { key: 'M/F', label: 'Gender' },
                             { key: 'PHONE', label: 'Phone' },
                             { key: 'EMAIL', label: 'Email', type: 'email' },
-                            { key: 'DOB', label: 'Date of Birth', type: 'date' },
-                            { key: 'ADMIT DATE', label: 'Admit Date', type: 'date' },
-                            { key: 'DISCHARGE DATE', label: 'Discharge Date', type: 'date' },
-                            { key: 'SOBER DATE', label: 'Sober Date', type: 'date' },
+                            { key: 'DOB', label: 'Date of Birth' },
+                            { key: 'ADMIT DATE', label: 'Admit Date' },
+                            { key: 'DISCHARGE DATE', label: 'Discharge Date' },
+                            { key: 'SOBER DATE', label: 'Sober Date' },
                             { key: 'BED', label: 'Bed' },
                             { key: 'RATE', label: 'Rate' },
                             { key: 'PIN', label: 'PIN' },
@@ -932,10 +932,10 @@
                             let inputType = def.type || 'text';
                             let extra = '';
                             if (def.readonly) extra = 'readonly style="background:#eee;"';
-                            // Normalize date values to YYYY-MM-DD for date inputs
-                            if (inputType === 'date' && val) {
-                                const d = new Date(val);
-                                if (!isNaN(d)) val = d.toISOString().slice(0, 10);
+                            // Format date values to mm-dd-yyyy for display
+                            if (['DOB','ADMIT DATE','DISCHARGE DATE','SOBER DATE'].includes(def.key) && val) {
+                                const d = parseDate(val);
+                                if (d) val = fmtDate(d);
                             }
                             if (def.key === 'HIDE_INVOICES') {
                                 // Render as Yes/No dropdown
@@ -955,6 +955,9 @@
                         // Helper to normalize dates to YYYY-MM-DD
                         function normDate(v) {
                             if (!v) return '';
+                            // Handle mm-dd-yyyy
+                            const m = String(v).match(/^(\d{2})-(\d{2})-(\d{4})$/);
+                            if (m) return m[3] + '-' + m[1] + '-' + m[2];
                             const d = new Date(v);
                             return !isNaN(d) ? d.toISOString().slice(0, 10) : v;
                         }
@@ -1252,7 +1255,7 @@
                         const dob       = (() => {
                             const raw = member.DOB || member.dob || '';
                             const d = parseDate(raw);
-                            return d ? d.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) : (raw || '');
+                            return d ? fmtDate(d) : (raw || '');
                         })();
                         const admitRaw  = member['ADMIT\r\nDATE'] || member['ADMIT\nDATE'] || member['ADMIT DATE'] || member.admitDate || '';
                         const dischargeRaw = member['DC DATE'] || member['DC\nDATE'] || member['DC\r\nDATE'] || member['DISCHARGE DATE'] || member['DISCHARGE\nDATE'] || member['DISCHARGE\r\nDATE'] || member.dischargeDate || '';
@@ -1268,13 +1271,13 @@
                         const yr        = member.YR || member.yr || '';
                         const status    = member.STATUS || member.status || '';
                         const admitDate = parseDate(admitRaw);
-                        const admitText = admitDate ? admitDate.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) : '';
+                        const admitText = admitDate ? String(admitDate.getMonth()+1).padStart(2,'0') + '-' + String(admitDate.getDate()).padStart(2,'0') + '-' + admitDate.getFullYear() : '';
                         const dischargeDate = parseDate(dischargeRaw);
-                        const dischargeText = dischargeDate ? dischargeDate.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) : '';
+                        const dischargeText = dischargeDate ? String(dischargeDate.getMonth()+1).padStart(2,'0') + '-' + String(dischargeDate.getDate()).padStart(2,'0') + '-' + dischargeDate.getFullYear() : '';
                         const today = new Date(); today.setHours(0, 0, 0, 0);
                         const daysHere = admitDate ? Math.floor(((dischargeDate || today) - admitDate) / 86400000) : '';
                         const soberDate = parseDate(soberRaw);
-                        const soberText = soberDate ? soberDate.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) : '';
+                        const soberText = soberDate ? String(soberDate.getMonth()+1).padStart(2,'0') + '-' + String(soberDate.getDate()).padStart(2,'0') + '-' + soberDate.getFullYear() : '';
                         const daysSober = soberDate ? Math.floor((today - soberDate) / 86400000) : '';
                         const genderTag = gender === 'M' ? '<span class="gender-m">M</span>' : gender === 'F' ? '<span class="gender-f">F</span>' : gender;
                         const rateDisplay = rate !== null && rate !== undefined && rate !== '' ? '$' + rate : '';
@@ -1368,10 +1371,10 @@
                             case 'NICKNAME': val = member['NIC NAME'] || member.nickname || member.nick || member.NICKNAME || ''; break;
                             case 'M/F': val = member['M/F'] || member.GENDER || member.gender || ''; break;
                             case 'BED': val = member.BED || member['BED#'] || member.bed || ''; break;
-                            case 'DOB': val = member.DOB || member.dob || ''; break;
-                            case 'ADMIT DATE': val = member['ADMIT\r\nDATE'] || member['ADMIT\nDATE'] || member['ADMIT DATE'] || member.admitDate || ''; break;
-                            case 'DISCHARGE DATE': val = member['DC DATE'] || member['DC\nDATE'] || member['DC\r\nDATE'] || member['DISCHARGE DATE'] || member['DISCHARGE\nDATE'] || member['DISCHARGE\r\nDATE'] || member.dischargeDate || ''; break;
-                            case 'SOBER DATE': val = member['SOBER\r\nDATE'] || member['SOBER\nDATE'] || member['SOBER DATE'] || member.sobrietyDate || ''; break;
+                            case 'DOB': { const r = member.DOB || member.dob || ''; const pd = parseDate(r); val = pd ? fmtDate(pd) : r; break; }
+                            case 'ADMIT DATE': { const r = member['ADMIT\r\nDATE'] || member['ADMIT\nDATE'] || member['ADMIT DATE'] || member.admitDate || ''; const pd = parseDate(r); val = pd ? fmtDate(pd) : r; break; }
+                            case 'DISCHARGE DATE': { const r = member['DC DATE'] || member['DC\nDATE'] || member['DC\r\nDATE'] || member['DISCHARGE DATE'] || member['DISCHARGE\nDATE'] || member['DISCHARGE\r\nDATE'] || member.dischargeDate || ''; const pd = parseDate(r); val = pd ? fmtDate(pd) : r; break; }
+                            case 'SOBER DATE': { const r = member['SOBER\r\nDATE'] || member['SOBER\nDATE'] || member['SOBER DATE'] || member.sobrietyDate || ''; const pd = parseDate(r); val = pd ? fmtDate(pd) : r; break; }
                             case 'RATE': val = member.RATE || member.rate || ''; break;
                             case 'PHONE': val = member.PHONE || member.phone || ''; break;
                             case 'EMAIL': val = member.EMAIL || member.email || ''; break;
@@ -1548,12 +1551,12 @@
                             const data = await res.json();
                             const apps = (data.applications || []).filter(a => {
                                 const s = (a.status || '').toLowerCase();
-                                return s === 'approved' || s === 'pending';
+                                return s === 'approved';
                             });
                             if (!apps.length) {
                                 document.getElementById('editMemberFields').innerHTML = `
                                     <div style='text-align:center;padding:20px;'>
-                                        <p style='font-size:1.1rem;color:#e53e3e;margin-bottom:18px;'>No approved or pending applications found.</p>
+                                        <p style='font-size:1.1rem;color:#e53e3e;margin-bottom:18px;'>No approved applications found.</p>
                                         <div style='display:flex;gap:12px;justify-content:center;'>
                                             <button type='button' onclick='openAddMemberModal({})' style='padding:12px 28px;background:#667eea;color:white;border:none;border-radius:6px;font-weight:700;cursor:pointer;'>Continue Manual Entry</button>
                                             <button type='button' onclick='closeEditMemberModal()' style='padding:12px 28px;background:#6c757d;color:white;border:none;border-radius:6px;font-weight:700;cursor:pointer;'>Cancel</button>
@@ -1612,20 +1615,28 @@
                     });
                 }
                 const nextId = String(maxId + 1).padStart(4, '0');
-                const pfGender = pf.gender ? (pf.gender === 'male' ? 'M' : pf.gender === 'female' ? 'F' : pf.gender.charAt(0).toUpperCase()) : '';
+                const pfGender = pf.gender ? (pf.gender.toLowerCase() === 'male' || pf.gender.toUpperCase() === 'M' ? 'M' : pf.gender.toLowerCase() === 'female' || pf.gender.toUpperCase() === 'F' ? 'F' : pf.gender.charAt(0).toUpperCase()) : '';
                 // Only show fields we want in the form (skip computed fields)
                 const formKeys = allKeys.filter(k => k !== '#' && k !== 'DAYS HERE' && k !== 'DAYSOBER' && k !== 'YR' && k !== 'STATUS' && k !== 'ID' && k !== 'M/F' && k !== 'BED');
 
                 // Map formKeys to prefill values
+                function toMMDDYYYY(dateStr) {
+                    if (!dateStr) return '';
+                    // Handle yyyy-mm-dd format
+                    const m = String(dateStr).match(/^(\d{4})-(\d{2})-(\d{2})/);
+                    if (m) return m[2] + '-' + m[3] + '-' + m[1];
+                    return dateStr;
+                }
                 function getPrefillVal(k) {
                     switch(k) {
                         case 'FIRST': return pf.first_name || '';
                         case 'LAST': return pf.last_name || '';
                         case 'NICKNAME': return pf.nickname || '';
-                        case 'DOB': return pf.dob || '';
+                        case 'DOB': return toMMDDYYYY(pf.dob || '');
                         case 'PHONE': return pf.phone || '';
                         case 'EMAIL': return pf.email || '';
-                        case 'SOBER DATE': return pf.sobriety_date || '';
+                        case 'ADMIT DATE': return toMMDDYYYY(pf.admit_date || '');
+                        case 'SOBER DATE': return toMMDDYYYY(pf.sobriety_date || '');
                         case 'REF': return pf.referred_by || '';
                         default: return '';
                     }
@@ -1709,6 +1720,9 @@
                     // Helper to normalize dates to YYYY-MM-DD
                     function normDate(v) {
                         if (!v) return '';
+                        // Handle mm-dd-yyyy
+                        const m = String(v).match(/^(\d{2})-(\d{2})-(\d{4})$/);
+                        if (m) return m[3] + '-' + m[1] + '-' + m[2];
                         const d = new Date(v);
                         return !isNaN(d) ? d.toISOString().slice(0, 10) : v;
                     }
@@ -2251,7 +2265,7 @@
                             dayText = `${Math.abs(m.daysUntil)} days ago`;
                         }
                         
-                        const dateText = m.date.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+                        const dateText = fmtDate(m.date);
                         const bgColor = m.type === 'birthday' ? 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)' : 'linear-gradient(135deg, #f093fb 0%, #f5576c 100%)';
                         
                         return `
@@ -2304,7 +2318,7 @@
                     const dob       = (() => {
                         const raw = member.DOB || member.dob || '';
                         const d = parseDate(raw);
-                        return d ? d.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) : (raw || '');
+                        return d ? fmtDate(d) : (raw || '');
                     })();
                     const admitRaw  = member['ADMIT\r\nDATE'] || member['ADMIT\nDATE'] || member['ADMIT DATE'] || member.admitDate || '';
                     const soberRaw  = member['SOBER\r\nDATE'] || member['SOBER\nDATE'] || member['SOBER DATE'] || member.sobrietyDate || '';
@@ -2313,7 +2327,7 @@
                     const email     = member.EMAIL || member.email || '';
                     const admitDate = parseDate(admitRaw);
                     const admitText = admitDate
-                        ? admitDate.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })
+                        ? fmtDate(admitDate)
                         : '';
 				const daysHere = admitDate ? Math.floor((today - admitDate) / 86400000) : '';
 				const soberDate = parseDate(soberRaw);
@@ -2332,8 +2346,16 @@
                 const excelEpoch = new Date(1899, 11, 30);
                 return new Date(excelEpoch.getTime() + val * 86400000);
             }
+            // Handle mm-dd-yyyy format
+            const mmddyyyy = String(val).match(/^(\d{2})-(\d{2})-(\d{4})$/);
+            if (mmddyyyy) return new Date(parseInt(mmddyyyy[3]), parseInt(mmddyyyy[1])-1, parseInt(mmddyyyy[2]));
             const parsed = new Date(val);
             return isNaN(parsed.getTime()) ? null : parsed;
+        }
+        // Format a Date object as mm-dd-yyyy
+        function fmtDate(d) {
+            if (!d) return '';
+            return String(d.getMonth()+1).padStart(2,'0') + '-' + String(d.getDate()).padStart(2,'0') + '-' + d.getFullYear();
         }
         // Restore missing function declaration for loadMemberBoard
         async function loadMemberBoard() {
@@ -2358,7 +2380,7 @@
                     const dob       = (() => {
                         const raw = member.DOB || member.dob || '';
                         const d = parseDate(raw);
-                        return d ? d.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) : (raw || '');
+                        return d ? fmtDate(d) : (raw || '');
                     })();
                     const admitRaw  = member['ADMIT\r\nDATE'] || member['ADMIT\nDATE'] || member['ADMIT DATE'] || member.admitDate || '';
                     const soberRaw  = member['SOBER\r\nDATE'] || member['SOBER\nDATE'] || member['SOBER DATE'] || member.sobrietyDate || '';
@@ -2367,14 +2389,14 @@
                     const email     = member.EMAIL || member.email || '';
                     const admitDate = parseDate(admitRaw);
                     const admitText = admitDate
-                        ? admitDate.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })
+                        ? fmtDate(admitDate)
                         : '';
                     const today = new Date();
                     today.setHours(0, 0, 0, 0);
                     const daysHere = admitDate ? Math.floor((today - admitDate) / 86400000) : '';
                     const soberDate = parseDate(soberRaw);
                     const soberText = soberDate
-                        ? soberDate.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })
+                        ? fmtDate(soberDate)
                         : '';
                     const daysSober = soberDate ? Math.floor((today - soberDate) / 86400000) : '';
                     const genderTag = gender === 'M'
