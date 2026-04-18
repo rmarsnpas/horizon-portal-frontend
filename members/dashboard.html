@@ -229,13 +229,15 @@
 <body>
 
 <header>
-    <div id="welcome" style="font-size: 18px; color: #000;">Welcome!</div>
-    <h1 style="text-align: center; margin: 0;">Horizon House Member Dashboard</h1>
+    <div style="display: flex; justify-content: space-between; align-items: center;">
+        <div id="welcome" style="font-size: 18px; font-weight: 600; color: #fff;">Welcome!</div>
+        <button onclick="logout()" class="header-btn btn-logout">🚪 Log Out</button>
+    </div>
+    <h1 style="text-align: center; margin: 10px 0;">Horizon House Member Dashboard</h1>
     <div class="header-buttons">
         <a href="/horizon-portal/members/meeting-cards.html" class="header-btn btn-website">🪢 Meeting Cards</a>
         <a href="/horizon-portal/members/schedule.html" class="header-btn btn-website">📅 Schedule</a>
         <a href="/index.html" class="header-btn btn-website">🏠 Return to Website</a>
-        <button onclick="logout()" class="header-btn btn-logout">🚪 Log Out</button>
     </div>
 </header>
 
@@ -372,7 +374,7 @@
                     const welcomeEl = document.getElementById('welcome');
                     const firstName = data.FIRST_NAME || data['FIRST NAME'] || data['FIRST\r\nNAME'] || localStorage.getItem('memberFirstName') || '';
                     const lastName = data.LAST_NAME || data['LAST NAME'] || data['LAST\r\nNAME'] || localStorage.getItem('memberLastName') || '';
-                    welcomeEl.textContent = `Welcome, ${firstName} ${lastName}!`;
+                    welcomeEl.textContent = `Welcome, ${firstName} ${lastName} (ID: ${memberId})`;
                     
                     // Store name in sessionStorage for chat
                     sessionStorage.setItem('memberName', `${firstName} ${lastName}`.trim());
@@ -402,7 +404,7 @@
                 const firstName = localStorage.getItem('memberFirstName') || '';
                 const lastName = localStorage.getItem('memberLastName') || '';
                 if (firstName || lastName) {
-                    document.getElementById('welcome').textContent = `Welcome, ${firstName} ${lastName}!`;
+                    document.getElementById('welcome').textContent = `Welcome, ${firstName} ${lastName} (ID: ${memberId || ''})`;
                     sessionStorage.setItem('memberName', `${firstName} ${lastName}`.trim());
                 }
             });
