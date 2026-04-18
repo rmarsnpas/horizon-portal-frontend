@@ -826,7 +826,7 @@
                                 </div>
                                 <form id="editMemberForm" onsubmit="submitEditMember(event)">
                                     <div id="editMemberFields"></div>
-                                    <div style="margin-top:18px;display:flex;gap:12px;">
+                                    <div id="editMemberButtons" style="margin-top:18px;display:flex;gap:12px;">
                                         <button type="submit" style="flex:1;padding:12px;background:#28a745;color:white;border:none;border-radius:6px;font-weight:700;font-size:1.1rem;">Save</button>
                                         <button type="button" onclick="closeEditMemberModal()" style="flex:1;padding:12px;background:#6c757d;color:white;border:none;border-radius:6px;font-weight:700;font-size:1.1rem;">Cancel</button>
                                     </div>
@@ -1405,6 +1405,7 @@
                         <div id='editMemberStatus' style='margin-top:10px;font-weight:600;'></div>
                     `;
                     document.getElementById('editMemberStatus').textContent = '';
+                    document.getElementById('editMemberButtons').style.display = 'flex';
                     document.getElementById('editMemberModal').style.display = 'block';
                     document.body.style.overflow = 'hidden';
                     // Restore the edit handler (may have been overridden by add modal)
@@ -1535,6 +1536,7 @@
                             </div>
                         </div>`;
                     document.getElementById('editMemberStatus').textContent = '';
+                    document.getElementById('editMemberButtons').style.display = 'none';
                     document.getElementById('editMemberModal').style.display = 'block';
                     document.body.style.overflow = 'hidden';
                     window._addMemberMode = true;
@@ -1657,6 +1659,7 @@
                 document.getElementById('editMemberFields').innerHTML = '';
                 document.getElementById('editMemberFields').innerHTML = fieldsHtml;
                 document.getElementById('editMemberStatus').textContent = '';
+                document.getElementById('editMemberButtons').style.display = 'flex';
                 document.getElementById('editMemberModal').style.display = 'block';
                 document.body.style.overflow = 'hidden';
                 window._addMemberMode = true;
