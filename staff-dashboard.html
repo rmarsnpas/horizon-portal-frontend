@@ -1197,33 +1197,36 @@
                 }
                 window.getAvailableBeds = getAvailableBeds;
 
-                function buildBedDropdown(name, selectedVal, gender, id) {
+                function buildBedDropdown(name, selectedVal, gender, id, forceBed) {
                     const idAttr = id ? ` id='${id}'` : '';
                     if (!gender) {
                         return `<select name='${name}'${idAttr} disabled style='width:100%;padding:8px;font-size:1rem;border:1px solid #ccc;border-radius:6px;background:#f5f5f5;'><option value=''>Select M/F first</option></select>`;
                     }
                     const available = getAvailableBeds(gender);
                     const allBeds = BED_INVENTORY[gender] || [];
+                    const forceUpper = forceBed ? forceBed.toUpperCase() : '';
                     let opts = `<option value=''>-- Select Bed --</option>`;
                     allBeds.forEach(b => {
                         const isAvail = available.includes(b);
                         const isCurrent = b.toUpperCase() === String(selectedVal || '').toUpperCase().trim();
-                        if (isAvail || isCurrent) {
-                            opts += `<option value='${b}'${isCurrent ? ' selected' : ''}>${b}</option>`;
+                        const isForced = b.toUpperCase() === forceUpper;
+                        if (isAvail || isCurrent || isForced) {
+                            const label = isForced && !isAvail ? b + ' (reserved)' : b;
+                            opts += `<option value='${b}'${(isCurrent || isForced) ? ' selected' : ''}>${label}</option>`;
                         }
                     });
                     return `<select name='${name}'${idAttr} style='width:100%;padding:8px;font-size:1rem;border:1px solid #ccc;border-radius:6px;'>${opts}</select>`;
                 }
                 window.buildBedDropdown = buildBedDropdown;
 
-                function refreshBedDropdown(selectId, gender, currentVal) {
+                function refreshBedDropdown(selectId, gender, currentVal, forceBed) {
                     const el = document.getElementById(selectId);
                     if (!el) return;
                     const container = el.parentElement;
                     const label = container.querySelector('label');
                     container.innerHTML = '';
                     if (label) container.appendChild(label);
-                    container.insertAdjacentHTML('beforeend', buildBedDropdown('BED', currentVal, gender, selectId));
+                    container.insertAdjacentHTML('beforeend', buildBedDropdown('BED', currentVal, gender, selectId, forceBed));
                 }
                 window.refreshBedDropdown = refreshBedDropdown;
 
@@ -1315,8 +1318,9 @@
                             const firstName = m['FIRST\r\nNAME'] || m['FIRST\nNAME'] || m['FIRST NAME'] || m.firstName || m.FIRST || '';
                             const mm = String(dcDate.getMonth()+1).padStart(2,'0');
                             const dd = String(dcDate.getDate()).padStart(2,'0');
+                            const yr = dcDate.getFullYear();
                             const diffDays = Math.ceil((dcDate - today) / 86400000);
-                            upcoming.push({ gender: g, bed, date: mm + '-' + dd, days: diffDays, name: firstName });
+                            upcoming.push({ gender: g, bed, date: mm + '-' + dd, dateFull: mm + '-' + dd + '-' + yr, days: diffDays, name: firstName });
                         }
                     });
                     if (upcoming.length > 0) {
@@ -1326,13 +1330,26 @@
                         upcoming.forEach(u => {
                             const gBg = u.gender === 'F' ? '#f8d7e8' : '#cce5ff';
                             const gFg = u.gender === 'F' ? '#7a1a4a' : '#1a4a7a';
-                            html += `<span style="display:inline-block;padding:3px 10px;margin:2px 3px;border-radius:12px;background:${gBg};color:${gFg};font-weight:700;font-size:12px;">${u.gender} ${u.bed} · ${u.name} · ${u.date} (${u.days}d)</span>`;
+                            html += `<span onclick="reserveUpcomingBed('${u.gender}','${u.bed}','${u.dateFull}','${u.name}')" style="display:inline-block;padding:3px 10px;margin:2px 3px;border-radius:12px;background:${gBg};color:${gFg};font-weight:700;font-size:12px;cursor:pointer;" title="Click to reserve this bed">${u.gender} ${u.bed} · ${u.name} · ${u.date} (${u.days}d)</span>`;
                         });
                         html += '</div>';
                     }
 
                     bar.innerHTML = html;
                 }
+
+                // Reserve an upcoming bed for a new hold member
+                window.reserveUpcomingBed = function(gender, bed, dischargeDateStr, currentName) {
+                    if (!confirm(`Reserve bed ${gender}-${bed} for a new member?\n\n${currentName} discharges on ${dischargeDateStr}.\nThe new member will be added as HOLD and can admit on or after that date.`)) return;
+                    openAddMemberModal({
+                        _reserve: true,
+                        _reserveGender: gender,
+                        _reserveBed: bed,
+                        _reserveAdmitDate: dischargeDateStr,
+                        _reserveCurrentName: currentName,
+                        _reserveDischargeDate: dischargeDateStr
+                    });
+                };
 
                 function renderAllMembersTable(membersList) {
                     // --- Compute stats from full unfiltered list ---
@@ -1602,6 +1619,7 @@
                     document.getElementById('editMemberModal').style.display = 'none';
                     document.body.style.overflow = '';
                     window._addMemberMode = false;
+                    window._addMemberForceBed = '';
                 }
 
                 async function submitEditMember(event) {
@@ -1787,6 +1805,7 @@
 
                 // Build form (with optional prefill from application)
                 const pf = prefill || {};
+                const isReserve = !!pf._reserve;
                 // Calculate next available ID from existing members
                 let maxId = 0;
                 if (members) {
@@ -1796,7 +1815,7 @@
                     });
                 }
                 const nextId = String(maxId + 1).padStart(4, '0');
-                const pfGender = pf.gender ? (pf.gender.toLowerCase() === 'male' || pf.gender.toUpperCase() === 'M' ? 'M' : pf.gender.toLowerCase() === 'female' || pf.gender.toUpperCase() === 'F' ? 'F' : pf.gender.charAt(0).toUpperCase()) : '';
+                const pfGender = isReserve ? pf._reserveGender : (pf.gender ? (pf.gender.toLowerCase() === 'male' || pf.gender.toUpperCase() === 'M' ? 'M' : pf.gender.toLowerCase() === 'female' || pf.gender.toUpperCase() === 'F' ? 'F' : pf.gender.charAt(0).toUpperCase()) : '');
 
                 // Map keys to prefill values
                 function toMMDDYYYY(dateStr) {
@@ -1814,7 +1833,7 @@
                         case 'DOB': return toMMDDYYYY(pf.dob || '');
                         case 'PHONE': return pf.phone || '';
                         case 'EMAIL': return pf.email || '';
-                        case 'ADMIT DATE': return toMMDDYYYY(pf.admit_date || '');
+                        case 'ADMIT DATE': return isReserve ? pf._reserveAdmitDate : toMMDDYYYY(pf.admit_date || '');
                         case 'SOBER DATE': return toMMDDYYYY(pf.sobriety_date || '');
                         case 'REF': return pf.referred_by || '';
                         default: return '';
@@ -1831,7 +1850,12 @@
                     return `<div style='${rowStyle}'><div style='${cellStyle}'>${left}</div><div style='${cellStyle}'>${right}</div></div>`;
                 }
 
+                const reserveBanner = isReserve ? `<div style='padding:10px 14px;margin-bottom:12px;background:#fff3cd;border:1px solid #ffc107;border-radius:8px;font-size:13px;'><strong>🛏 Reserving Bed ${pfGender}-${pf._reserveBed}</strong><br>${pf._reserveCurrentName} discharges ${pf._reserveDischargeDate}. New member will admit on or after that date.</div>` : '';
+                const reserveBed = isReserve ? pf._reserveBed : '';
+                const defaultStatus = isReserve ? 'H' : '1';
+
                 const fieldsHtml = [
+                    reserveBanner,
                     // Row: YR | ID
                     makeRow(
                         `<label style='${labelStyle}'>YR</label><input name='YR' value="26" readonly style='background:#eee;${fieldStyle}'>`,
@@ -1839,12 +1863,12 @@
                     ),
                     // Row: M/F | BED
                     makeRow(
-                        `<label style='${labelStyle}'>M/F</label><select name='M/F' id='addMemberGender' onchange='refreshBedDropdown("addMemberBed", this.value, "")' style='${fieldStyle}'><option value=''>-- Select --</option><option value='F'${pfGender==='F'?' selected':''}>F</option><option value='M'${pfGender==='M'?' selected':''}>M</option></select>`,
-                        `<label style='${labelStyle}'>BED</label>${buildBedDropdown('BED', '', pfGender, 'addMemberBed')}`
+                        `<label style='${labelStyle}'>M/F</label><select name='M/F' id='addMemberGender' onchange='refreshBedDropdown("addMemberBed", this.value, "", window._addMemberForceBed || "")' style='${fieldStyle}'><option value=''>-- Select --</option><option value='F'${pfGender==='F'?' selected':''}>F</option><option value='M'${pfGender==='M'?' selected':''}>M</option></select>`,
+                        `<label style='${labelStyle}'>BED</label>${buildBedDropdown('BED', reserveBed, pfGender, 'addMemberBed', reserveBed)}`
                     ),
                     // Row: STATUS | REF
                     makeRow(
-                        `<label style='${labelStyle}'>STATUS</label><select name='STATUS' id='addMemberStatus' onchange='onAddMemberStatusChange()' style='${fieldStyle}'><option value='1'>1 - Active</option><option value='2'>2 - Inactive</option><option value='3'>3 - Discharged</option><option value='H'>H - Hold</option><option value='W'>W - Wait List</option><option value='4'>4 - Staff</option><option value='5'>5 - Staff</option></select>`,
+                        `<label style='${labelStyle}'>STATUS</label><select name='STATUS' id='addMemberStatus' onchange='onAddMemberStatusChange()' style='${fieldStyle}'><option value='1'${defaultStatus==='1'?' selected':''}>1 - Active</option><option value='2'>2 - Inactive</option><option value='3'>3 - Discharged</option><option value='H'${defaultStatus==='H'?' selected':''}>H - Hold</option><option value='W'>W - Wait List</option><option value='4'>4 - Staff</option><option value='5'>5 - Staff</option></select>`,
                         `<label style='${labelStyle}'>REF</label><input name='REF' value="${getPrefillVal('REF')}" style='${fieldStyle}'>`
                     ),
                     // Row: FIRST | LAST
@@ -1892,6 +1916,12 @@
                 document.body.style.overflow = 'hidden';
                 window._addMemberMode = true;
                 window._addMemberNextId = nextId;
+                window._addMemberForceBed = reserveBed;
+
+                // If reserve mode, trigger the Hold deposit question
+                if (isReserve) {
+                    setTimeout(() => { if (window.onAddMemberStatusChange) onAddMemberStatusChange(); }, 50);
+                }
 
                 // Calculate and display days sober from sober date
                 window.calcDaysSober = function() {
@@ -1915,12 +1945,12 @@
                     const idEl = document.getElementById('addMemberId');
                     if (!statusEl || !idEl) return;
                     const s = statusEl.value.toUpperCase();
-                    // Block Hold if no beds available for selected gender
+                    // Block Hold if no beds available for selected gender (unless reserving)
                     if (s === 'H') {
                         const genderEl = document.getElementById('addMemberGender');
                         const g = genderEl ? genderEl.value.toUpperCase() : '';
                         if (!g) { alert('Please select M/F before setting Hold status.'); statusEl.value = '1'; return; }
-                        if (getAvailableBeds(g).length === 0) { alert('No beds available for ' + g + '. Cannot set Hold status.'); statusEl.value = '1'; return; }
+                        if (getAvailableBeds(g).length === 0 && !window._addMemberForceBed) { alert('No beds available for ' + g + '. Cannot set Hold status.'); statusEl.value = '1'; return; }
                         // Show deposit question
                         let depositSection = document.getElementById('addMemberDepositSection');
                         if (!depositSection) {
