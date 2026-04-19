@@ -1305,6 +1305,13 @@
                     // Upcoming availability from future discharge dates
                     const today = new Date(); today.setHours(0,0,0,0);
                     const upcoming = [];
+                    // Build set of beds already held (gender+bed)
+                    const heldBeds = new Set();
+                    holds.forEach(m => {
+                        const g = getGender(m);
+                        const bed = String(m.BED || m['BED#'] || m.bed || '').toUpperCase().trim();
+                        if (g && bed) heldBeds.add(g + '-' + bed);
+                    });
                     members.forEach(m => {
                         const s = String(m.STATUS || m.status || m.STATU || '').toUpperCase().trim();
                         if (s !== '1' && s !== 'H') return;
@@ -1328,9 +1335,14 @@
                         html += '<div style="margin-top:2px;">';
                         html += badge('📅 Upcoming', upcoming.length, '#6f42c1', '#fff');
                         upcoming.forEach(u => {
+                            const isReserved = heldBeds.has(u.gender + '-' + u.bed);
                             const gBg = u.gender === 'F' ? '#f8d7e8' : '#cce5ff';
                             const gFg = u.gender === 'F' ? '#7a1a4a' : '#1a4a7a';
-                            html += `<span onclick="reserveUpcomingBed('${u.gender}','${u.bed}','${u.dateFull}','${u.name}')" style="display:inline-block;padding:3px 10px;margin:2px 3px;border-radius:12px;background:${gBg};color:${gFg};font-weight:700;font-size:12px;cursor:pointer;" title="Click to reserve this bed">${u.gender} ${u.bed} · ${u.name} · ${u.date} (${u.days}d)</span>`;
+                            if (isReserved) {
+                                html += `<span style="display:inline-block;padding:3px 10px;margin:2px 3px;border-radius:12px;background:repeating-linear-gradient(135deg,${gBg},${gBg} 4px,rgba(0,0,0,0.08) 4px,rgba(0,0,0,0.08) 8px);color:${gFg};font-weight:700;font-size:12px;opacity:0.7;" title="Reserved — hold already placed">✓ ${u.gender} ${u.bed} · ${u.name} · ${u.date} (${u.days}d) · RESERVED</span>`;
+                            } else {
+                                html += `<span onclick="reserveUpcomingBed('${u.gender}','${u.bed}','${u.dateFull}','${u.name}')" style="display:inline-block;padding:3px 10px;margin:2px 3px;border-radius:12px;background:${gBg};color:${gFg};font-weight:700;font-size:12px;cursor:pointer;" title="Click to reserve this bed">${u.gender} ${u.bed} · ${u.name} · ${u.date} (${u.days}d)</span>`;
+                            }
                         });
                         html += '</div>';
                     }
