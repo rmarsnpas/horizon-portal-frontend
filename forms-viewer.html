@@ -161,6 +161,13 @@
             margin-bottom: 15px;
         }
 
+        .form-member {
+            font-weight: 600;
+            font-size: 15px;
+            margin-bottom: 6px;
+            color: #2d3748;
+        }
+
         .form-actions {
             display: flex;
             gap: 8px;
@@ -446,15 +453,17 @@
 
             const formDate = formatMMDDYYYY(form.submittedDate);
             const formType = form.type === 'discharge' ? 'Discharge Form' : 'Property Storage';
+            const memberLabel = form.memberName ? `<div class="form-member">👤 ${form.memberName}${form.memberId ? ' <span style="color:#aaa;font-size:12px;">(#'+form.memberId+')</span>' : ''}</div>` : '';
 
             card.innerHTML = `
                 <span class="form-type ${form.type}">${formType}</span>
                 <span class="status-badge ${form.status}">${form.status === 'filed' ? '✓ Filed' : '⏳ Pending'}</span>
+                ${memberLabel}
                 <div class="form-date">📅 ${formDate}</div>
                 <div class="form-actions">
                     <button class="btn btn-view" onclick="viewForm('${form.id}')">👁️ View</button>
                     ${form.status !== 'filed' ? `
-                        <button class="btn btn-filed" onclick="markAsFiled('${form.id}')">✓</button>
+                        <button class="btn btn-filed" onclick="markAsFiled('${form.id}')">✓ File</button>
                     ` : ''}
                     <button class="btn btn-delete" onclick="deleteForm('${form.id}')">🗑️</button>
                 </div>
