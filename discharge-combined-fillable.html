@@ -366,9 +366,20 @@
         <span class="label">Referral Source</span>
         <input type="text" name="referral_source" class="text-input">
       </div>
+    </div>
+
+    <div class="row">
       <div class="field">
-        <span class="label">Completed By</span>
-        <input type="text" name="completed_by" id="completed_by" class="text-input">
+        <span class="label">Referral Contact / Case Manager</span>
+        <input type="text" name="referral_contact" id="referral_contact" class="text-input">
+      </div>
+      <div class="field" style="max-width:180px;">
+        <span class="label">Contact Phone</span>
+        <input type="tel" name="referral_phone" class="text-input" placeholder="(   )   -    ">
+      </div>
+      <div class="field" style="max-width:220px;">
+        <span class="label">Contact Email</span>
+        <input type="email" name="referral_email" class="text-input">
       </div>
     </div>
 
@@ -553,13 +564,15 @@
     <h2>Signatures</h2>
 
     <div class="signature-row">
-      <div class="signature-block">
+      <div class="signature-block" style="flex:2;">
         <canvas id="staff_signature_canvas" class="signature-canvas" width="350" height="70"></canvas>
         <div class="signature-label">Staff Signature</div>
         <button type="button" class="clear-sig-btn" onclick="clearSignature('staff_signature_canvas')">Clear</button>
       </div>
       <div class="signature-block">
-        <input type="date" name="staff_signature_date" id="staff_signature_date" class="signature-input">
+        <span class="label" style="display:block;margin-bottom:2px;">Discharge Form Completed By</span>
+        <input type="text" name="form_completed_by" id="form_completed_by" class="text-input">
+        <input type="date" name="staff_signature_date" id="staff_signature_date" class="text-input" style="margin-top:6px;">
         <div class="signature-label">Date</div>
       </div>
     </div>
@@ -593,7 +606,7 @@
   const p = new URLSearchParams(window.location.search);
   if (p.get('memberName')) { const el = document.getElementById('member_name'); if (el) el.value = p.get('memberName'); }
   if (p.get('memberId')) { const el = document.getElementById('member_id'); if (el) el.value = p.get('memberId'); }
-  if (p.get('completedBy')) { const el = document.getElementById('completed_by'); if (el) el.value = p.get('completedBy'); }
+  if (p.get('completedBy')) { const el = document.getElementById('form_completed_by'); if (el) el.value = p.get('completedBy'); }
   if (p.get('dischargeDate')) { const el = document.getElementById('discharge_date'); if (el) el.value = p.get('dischargeDate'); }
 })();
 
@@ -639,7 +652,10 @@ async function saveFormToBackend() {
     dischargeDate: q('discharge_date') ? q('discharge_date').value : '',
     house: qc('house') ? qc('house').value : '',
     referralSource: q('referral_source') ? q('referral_source').value : '',
-    completedBy: q('completed_by') ? q('completed_by').value : '',
+    referralContact: q('referral_contact') ? q('referral_contact').value : '',
+    referralPhone: q('referral_phone') ? q('referral_phone').value : '',
+    referralEmail: q('referral_email') ? q('referral_email').value : '',
+    formCompletedBy: q('form_completed_by') ? q('form_completed_by').value : '',
     reasonHonorary: q('reason_honorary') ? q('reason_honorary').checked : false,
     reasonEndBenefits: q('reason_end_benefits') ? q('reason_end_benefits').checked : false,
     reasonRelapse: q('reason_relapse') ? q('reason_relapse').checked : false,
