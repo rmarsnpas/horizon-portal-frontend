@@ -393,7 +393,7 @@
                     const status = String(m.STATUS || m.STATU || m.status || '').trim();
                     const bed = m.BED || m['BED#'] || m.bed || '';
                     const isResident = (status === '1' || status === '2') && bed;
-                    const isStaffInCensus = (status === '4' || status === '5') && m.inCensus === true && bed;
+                    const isStaffInCensus = status === '4' && m.inCensus === true && bed;
                     return isResident || isStaffInCensus;
                 });
                 

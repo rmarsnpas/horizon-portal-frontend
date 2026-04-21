@@ -776,7 +776,7 @@
                     </div>
                     <!-- Tab buttons -->
                     <div style="display:flex;gap:8px;margin-bottom:8px;flex-wrap:wrap;flex-shrink:0;">
-                        <button class="members-tab-btn active" data-tab="current" onclick="switchMembersTab('current')" style="padding:10px 20px;border:2px solid #28a745;background:#28a745;color:white;border-radius:6px;font-weight:700;cursor:pointer;">Current (1)</button>
+                        <button class="members-tab-btn active" data-tab="current" onclick="switchMembersTab('current')" style="padding:10px 20px;border:2px solid #28a745;background:#28a745;color:white;border-radius:6px;font-weight:700;cursor:pointer;">Current</button>
                         <button class="members-tab-btn" data-tab="alumni" onclick="switchMembersTab('alumni')" style="padding:10px 20px;border:2px solid #17a2b8;background:white;color:#17a2b8;border-radius:6px;font-weight:700;cursor:pointer;">Alumni (2)</button>
                         <button class="members-tab-btn" data-tab="discharged" onclick="switchMembersTab('discharged')" style="padding:10px 20px;border:2px solid #dc3545;background:white;color:#dc3545;border-radius:6px;font-weight:700;cursor:pointer;">Discharged (3)</button>
                         <button class="members-tab-btn" data-tab="hold" onclick="switchMembersTab('hold')" style="padding:10px 20px;border:2px solid #f0ad4e;background:white;color:#f0ad4e;border-radius:6px;font-weight:700;cursor:pointer;">Hold</button>
@@ -1006,8 +1006,8 @@
                             // Census / bedboard inclusion (shown for status 4 and 5)
                             (function() {
                                 const isCensusChecked = member.inCensus === true;
-                                const showCensus = statusVal === '4' || statusVal === '5';
-                                return `<div id="censusSection" style="border:2px solid #38a169;border-radius:8px;padding:14px;margin-bottom:14px;${showCensus?'':'display:none;'}">`+
+                                const showCensus = statusVal === '4';
+                                return `<div id="censusSection" style="border:2px solid #38a169;border-radius:8px;padding:14px;margin-bottom:14px;${statusVal==='4'?'':'display:none;'}">`+
                                     `<label style="display:flex;align-items:center;gap:10px;cursor:pointer;font-size:14px;font-weight:600;color:#276749;">`+
                                     `<input type="checkbox" name="inCensus" ${isCensusChecked?'checked':''} style="width:18px;height:18px;">`+
                                     `<span>🏠 Include in census &amp; bed board</span></label>`+
@@ -1052,7 +1052,7 @@
                             const sec = document.getElementById('permissionsSection');
                             if (sec) sec.style.display = val === '4' ? 'block' : 'none';
                             const cen = document.getElementById('censusSection');
-                            if (cen) cen.style.display = (val === '4' || val === '5') ? 'block' : 'none';
+                            if (cen) cen.style.display = val === '4' ? 'block' : 'none';
                         };
 
                         // Days sober calculator for profile form
@@ -1209,11 +1209,11 @@
                     return membersList.filter(member => {
                         const raw = member.STATUS || member.status || member.STATU || '';
                         const s = String(raw).toUpperCase().trim();
-                        // Always exclude members with no status
                         if (!s) return false;
                         if (tab === 'all') return true;
+                        const isInCensusStaff = (s === '4') && member.inCensus === true;
                         switch(tab) {
-                            case 'current': return s === '1';
+                            case 'current': return s === '1' || isInCensusStaff;
                             case 'alumni': return s === '2';
                             case 'discharged': return s === '3';
                             case 'hold': return s === 'H' || s === 'HOLD';
@@ -1235,8 +1235,9 @@
                     const occupied = [];
                     members.forEach(m => {
                         const s = String(m.STATUS || m.status || m.STATU || '').toUpperCase().trim();
-                        // Only status 1 or H occupy beds
-                        if (s !== '1' && s !== 'H') return;
+                        const isInCensusStaff = (s === '4') && m.inCensus === true;
+                        // Status 1, H, or inCensus staff occupy beds
+                        if (s !== '1' && s !== 'H' && !isInCensusStaff) return;
                         const g = String(m['M/F'] || m.GENDER || m.gender || '').toUpperCase().trim();
                         if (g !== gender) return;
                         const bed = String(m.BED || m['BED#'] || m.bed || '').toUpperCase().trim();
@@ -1292,8 +1293,9 @@
                     // Helpers
                     const getStatus = m => String(m.STATUS || m.status || m.STATU || '').toUpperCase().trim();
                     const getGender = m => String(m['M/F'] || m.GENDER || m.gender || '').toUpperCase().trim();
-                    // TOTALS (status 1, 2, or 3 only)
-                    const members123 = members.filter(m => { const s = getStatus(m); return s === '1' || s === '2' || s === '3'; });
+                    const isInCensusStaff = m => { const s = getStatus(m); return s === '4' && m.inCensus === true; };
+                    // TOTALS (status 1, 2, 3, and inCensus staff)
+                    const members123 = members.filter(m => { const s = getStatus(m); return s === '1' || s === '2' || s === '3' || isInCensusStaff(m); });
                     const totalAll = members123.length;
                     let totalM = 0, totalF = 0, totalAlumni = 0;
                     members123.forEach(m => {
@@ -1309,8 +1311,8 @@
                         if (s === 'H') totalH++;
                         if (s === '4' || s === '5') totalS++;
                     });
-                    // CURRENT (status 1 only)
-                    const current = members.filter(m => getStatus(m) === '1');
+                    // CURRENT (status 1 + inCensus staff)
+                    const current = members.filter(m => getStatus(m) === '1' || isInCensusStaff(m));
                     const curAll = current.length;
                     let curM = 0, curF = 0;
                     current.forEach(m => { const g = getGender(m); if (g === 'M') curM++; if (g === 'F') curF++; });
@@ -1369,7 +1371,7 @@
                     });
                     members.forEach(m => {
                         const s = String(m.STATUS || m.status || m.STATU || '').toUpperCase().trim();
-                        if (s !== '1' && s !== 'H') return;
+                        if (s !== '1' && s !== 'H' && !isInCensusStaff(m)) return;
                         const g = String(m['M/F'] || m.GENDER || m.gender || '').toUpperCase().trim();
                         const bed = String(m.BED || m['BED#'] || m.bed || '').toUpperCase().trim();
                         const dcRaw = m['DC DATE'] || m['DC\nDATE'] || m['DC\r\nDATE'] || m['DISCHARGE DATE'] || m['DISCHARGE\nDATE'] || m['DISCHARGE\r\nDATE'] || m.dischargeDate || '';
