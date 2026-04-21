@@ -2379,20 +2379,15 @@
 
         <!-- Active Members Board -->
         <div class="section-header" id="memberBoardSection" style="display: none; margin-top: 30px; background: linear-gradient(135deg, #F58634 0%, #c95f00 100%); color: white; padding: 20px; border-radius: 12px; margin-bottom: 20px;">
-            <div style="display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;gap:12px;">
-                <div>
-                    <h2 style="color: white; margin: 0;">
-                        👥 Active Members Board
-                        <span class="member-board-count" id="memberBoardCount">0</span>
-                        <span class="member-board-count" id="memberBoardMCount" style="background:#667eea; color:white; margin-left:10px;">M: 0</span>
-                        <span class="member-board-count" id="memberBoardFCount" style="background:#e91e8c; color:white; margin-left:10px;">F: 0</span>
-                        <span class="member-board-count" id="memberBoardHoldCount" style="background:#ff9800; color:white; margin-left:10px;">Hold: 0</span>
-                        <span class="member-board-count" id="memberBoardWaitCount" style="background:#9c27b0; color:white; margin-left:10px;">Wait: 0</span>
-                    </h2>
-                    <p style="color: rgba(255,255,255,0.9); margin: 5px 0 0 0;">Current residents with active status</p>
-                </div>
-                <a href="/horizon-portal/members/sign-inout.html" style="padding:10px 20px;background:rgba(255,255,255,0.2);color:white;border:2px solid rgba(255,255,255,0.6);border-radius:8px;text-decoration:none;font-weight:700;font-size:0.95rem;white-space:nowrap;align-self:center;">✏️ Manual Sign In/Out</a>
-            </div>
+            <h2 style="color: white; margin: 0;">
+                👥 Active Members Board
+                <span class="member-board-count" id="memberBoardCount">0</span>
+                <span class="member-board-count" id="memberBoardMCount" style="background:#667eea; color:white; margin-left:10px;">M: 0</span>
+                <span class="member-board-count" id="memberBoardFCount" style="background:#e91e8c; color:white; margin-left:10px;">F: 0</span>
+                <span class="member-board-count" id="memberBoardHoldCount" style="background:#ff9800; color:white; margin-left:10px;">Hold: 0</span>
+                <span class="member-board-count" id="memberBoardWaitCount" style="background:#9c27b0; color:white; margin-left:10px;">Wait: 0</span>
+            </h2>
+            <p style="color: rgba(255,255,255,0.9); margin: 5px 0 0 0;">Current residents with active status</p>
         </div>
 
         <div id="memberBoardContainer" style="display: none; margin-bottom: 80px;">
@@ -2720,11 +2715,28 @@
                 document.getElementById('contactCount').textContent = unreadContacts;
                 document.getElementById('drugScreenCount').textContent = totalDrugScreens;
                 document.getElementById('signInOutCount').textContent = membersOut;
-                // Pulse the Sign In/Out card only when a member is overdue past curfew
-                const anyOverdue = (signInOut.membersOut || []).some(m => m.isOverdue);
+                // Pulse the Sign In/Out card only when it's past curfew AND members are still out
+                // Curfew: 10 PM (22:00) Sun–Thu, midnight Fri–Sat
+                const anyStillOut = (signInOut.membersOut || []).length > 0;
+                let pastCurfew = false;
+                if (anyStillOut) {
+                    const now = new Date();
+                    // Use Pacific time offset (UTC-7 PDT / UTC-8 PST) — approximate with local time
+                    const day = now.getDay(); // 0=Sun … 6=Sat
+                    const h = now.getHours();
+                    const m = now.getMinutes();
+                    const minutesNow = h * 60 + m;
+                    if (day === 5 || day === 6) {
+                        // Fri/Sat: curfew midnight — only flag if past midnight (i.e. 00:00+)
+                        pastCurfew = false; // midnight = next day 00:00, practically never flash on Fri/Sat evening
+                    } else {
+                        // Sun–Thu: curfew 22:00
+                        pastCurfew = minutesNow >= 22 * 60;
+                    }
+                }
                 const signInOutCard = document.getElementById('signInOutCard');
                 if (signInOutCard) {
-                    if (anyOverdue) {
+                    if (anyStillOut && pastCurfew) {
                         signInOutCard.classList.add('card-pulse-alert');
                     } else {
                         signInOutCard.classList.remove('card-pulse-alert');
