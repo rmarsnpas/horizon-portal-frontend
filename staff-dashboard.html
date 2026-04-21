@@ -563,14 +563,18 @@
     <!-- Login Form -->
     <div class="login-container" id="loginContainer">
         <h1>🔐 Management Login</h1>
-        <p>Enter password to access the Admin Portal</p>
+        <p>Enter your Member ID and password to access the Admin Portal</p>
         <form id="loginForm">
             <div class="form-group">
+                <label for="loginMemberId">Member ID</label>
+                <input type="text" id="loginMemberId" name="memberId" required autofocus autocomplete="username">
+            </div>
+            <div class="form-group">
                 <label for="password">Password</label>
-                <input type="password" id="password" name="password" required autofocus>
+                <input type="password" id="password" name="password" required autocomplete="current-password">
             </div>
             <button type="submit" class="btn-login">Login</button>
-            <div class="error-message" id="errorMessage">Incorrect password. Please try again.</div>
+            <div class="error-message" id="errorMessage">Incorrect ID or password. Please try again.</div>
         </form>
     </div>
 
@@ -2350,7 +2354,6 @@
 
     <script>
         const API_BASE = 'https://horizon-portal-backend-production-3532.up.railway.app';
-        const STAFF_PASSWORD = 'house2026'; // Change this password
         const SESSION_KEY = 'horizonStaffAuth';
 
         // Check if already logged in
@@ -2358,17 +2361,43 @@
             showDashboard();
         }
 
-        document.getElementById('loginForm').addEventListener('submit', (e) => {
+        document.getElementById('loginForm').addEventListener('submit', async (e) => {
             e.preventDefault();
+            const memberId = document.getElementById('loginMemberId').value.trim();
             const password = document.getElementById('password').value;
             const errorMsg = document.getElementById('errorMessage');
+            errorMsg.style.display = 'none';
 
-            if (password === STAFF_PASSWORD) {
+            try {
+                const res = await fetch(`${API_BASE}/api/verifyStaff`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ id: memberId, pw: password })
+                });
+                const data = await res.json();
+
+                if (!res.ok || !data.ok) {
+                    errorMsg.style.display = 'block';
+                    document.getElementById('password').value = '';
+                    return;
+                }
+
+                // Verify it's a status 5 member
+                const memberRes = await fetch(`${API_BASE}/api/getMember?id=${encodeURIComponent(memberId)}`);
+                const member = await memberRes.json();
+                const status = String((member && (member.STATU || member.STATUS || member.status)) || '').trim();
+                if (status !== '5') {
+                    errorMsg.textContent = 'Access denied. Admin Portal requires Status 5.';
+                    errorMsg.style.display = 'block';
+                    document.getElementById('password').value = '';
+                    return;
+                }
+
                 sessionStorage.setItem(SESSION_KEY, 'true');
                 showDashboard();
-            } else {
+            } catch (err) {
+                errorMsg.textContent = 'Network error. Please try again.';
                 errorMsg.style.display = 'block';
-                document.getElementById('password').value = '';
             }
         });
 
@@ -2376,7 +2405,9 @@
             sessionStorage.removeItem(SESSION_KEY);
             document.getElementById('loginContainer').style.display = 'block';
             document.getElementById('dashboardContainer').style.display = 'none';
+            document.getElementById('loginMemberId').value = '';
             document.getElementById('password').value = '';
+            document.getElementById('errorMessage').textContent = 'Incorrect ID or password. Please try again.';
         }
 
         async function showDashboard() {
