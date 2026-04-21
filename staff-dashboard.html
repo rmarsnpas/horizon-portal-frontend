@@ -1003,7 +1003,9 @@
                             ),
                             // Row: HIDE INVOICES (full width)
                             `<div style='margin-bottom:10px;'><label style='${labelStyle}'>Hide Invoices</label><select name='HIDE_INVOICES' style='${fieldStyle}'><option value=''>No</option><option value='1' ${isHideYes ? 'selected' : ''}>Yes</option></select></div>`,
-                            // Census / bedboard inclusion (shown for status 4 and 5)
+                            // Staff password (shown only for status 4)
+                            `<div id="staffPwSection" style="margin-bottom:10px;${statusVal==='4'?'':'display:none;'}"><label style='${labelStyle}'>Staff Password</label><input name='STAFF_PW' type='text' value="${member.staffPw || ''}" placeholder="Set portal login password" style='${fieldStyle}'><div style="font-size:12px;color:#718096;margin-top:4px;">Password this staff member uses to log into the Manager Portal.</div></div>`,
+                            // Census / bedboard inclusion (shown for status 4)
                             (function() {
                                 const isCensusChecked = member.inCensus === true;
                                 const showCensus = statusVal === '4';
@@ -1053,6 +1055,8 @@
                             if (sec) sec.style.display = val === '4' ? 'block' : 'none';
                             const cen = document.getElementById('censusSection');
                             if (cen) cen.style.display = val === '4' ? 'block' : 'none';
+                            const spw = document.getElementById('staffPwSection');
+                            if (spw) spw.style.display = val === '4' ? 'block' : 'none';
                         };
 
                         // Days sober calculator for profile form
@@ -1107,7 +1111,9 @@
                             HIDE_INVOICES: form.elements['HIDE_INVOICES'] ? (form.elements['HIDE_INVOICES'].value === '1') : false,
                         };
                         if (form.elements['PIN'] && form.elements['PIN'].value) payload.pin = form.elements['PIN'].value;
-                        // inCensus flag (status 4 and 5)
+                        // Staff password (status 4)
+                        if (form.elements['STAFF_PW']) payload.staffPw = form.elements['STAFF_PW'].value;
+                        // inCensus flag (status 4)
                         payload.inCensus = !!(form.elements['inCensus'] && form.elements['inCensus'].checked);
                         // Collect permissions if status is 4
                         if (payload.status === '4') {
