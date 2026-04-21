@@ -2056,10 +2056,33 @@
                         // Wait list: no ID assigned
                         idEl.value = '';
                         idEl.readOnly = true;
+                        idEl.style.background = '#eee';
+                        idEl.title = '';
+                    } else if (s === '5') {
+                        // Status 5: allow manual ID override
+                        if (!idEl.value) idEl.value = window._addMemberNextId || '';
+                        idEl.readOnly = false;
+                        idEl.style.background = '#fff9e6';
+                        idEl.style.border = '2px solid #f59e0b';
+                        idEl.title = 'You may override the auto-assigned ID for status 5 members';
+                        // Show hint if not already present
+                        if (!document.getElementById('addMemberIdHint')) {
+                            const hint = document.createElement('div');
+                            hint.id = 'addMemberIdHint';
+                            hint.style.cssText = 'font-size:0.78rem;color:#b45309;margin-top:3px;';
+                            hint.textContent = '⚠ ID editable — override for management accounts';
+                            idEl.parentNode.appendChild(hint);
+                        }
+                        document.getElementById('addMemberIdHint').style.display = '';
                     } else {
                         // All other statuses get an auto-assigned ID
-                        if (!idEl.value) idEl.value = window._addMemberNextId || '';
+                        if (!idEl.value || idEl.value === '') idEl.value = window._addMemberNextId || '';
                         idEl.readOnly = true;
+                        idEl.style.background = '#eee';
+                        idEl.style.border = '';
+                        idEl.title = '';
+                        const hint = document.getElementById('addMemberIdHint');
+                        if (hint) hint.style.display = 'none';
                     }
                 };
 
