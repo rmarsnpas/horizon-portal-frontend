@@ -238,6 +238,14 @@
       .button-row {
         display: none;
       }
+      /* Page 2 compression */
+      .page2-header h2, .page2-header .continued-row { margin-top: 0; }
+      textarea { max-height: 65px !important; min-height: 0 !important; overflow: hidden; }
+      textarea[name="readmit_notes"] { max-height: 38px !important; }
+      .section-label { margin-top: 4px !important; }
+      h2 { margin-top: 6px !important; margin-bottom: 4px !important; }
+      .signature-row { margin-top: 2px !important; gap: 14px !important; }
+      .footer-page { margin-top: 6px !important; }
     }
 
   .footer-page {
@@ -340,9 +348,13 @@
         <span class="label">Member ID</span>
         <input type="text" name="member_id" id="member_id" class="text-input" placeholder="ID">
       </div>
-      <div class="field">
+      <div class="field" style="max-width:200px;">
         <span class="label">Member Name</span>
         <input type="text" name="member_name" id="member_name" class="text-input">
+      </div>
+      <div class="field" style="max-width:140px;">
+        <span class="label">DOB</span>
+        <input type="date" name="member_dob" id="member_dob" class="date-input">
       </div>
       <div class="field" style="max-width:180px;">
         <span class="label">Date of Discharge</span>
@@ -362,9 +374,13 @@
           </label>
         </div>
       </div>
-      <div class="field">
+      <div class="field" style="max-width:200px;">
         <span class="label">Referral Source</span>
         <input type="text" name="referral_source" class="text-input">
+      </div>
+      <div class="field" style="max-width:180px;">
+        <span class="label">Referral Client ID</span>
+        <input type="text" name="referral_client_id" id="referral_client_id" class="text-input">
       </div>
     </div>
 
@@ -508,10 +524,10 @@
     <h2>Incident Details</h2>
 
     <span class="label">Details of Cause for discharge / Staff observations</span>
-    <textarea name="cause_description" style="min-height:90px;margin-top:4px;"></textarea>
+    <textarea name="cause_description" style="min-height:65px;margin-top:4px;"></textarea>
 
-    <span class="label" style="margin-top:10px;">Member Response / Statement</span>
-    <textarea name="member_statement" style="min-height:90px;margin-top:4px;"></textarea>
+    <span class="label" style="margin-top:8px;">Member Response / Statement</span>
+    <textarea name="member_statement" style="min-height:65px;margin-top:4px;"></textarea>
 
     <h2>Safety &amp; Exit Procedures</h2>
 
@@ -577,7 +593,7 @@
       </div>
     </div>
 
-    <div class="signature-row">
+    <div class="signature-row" style="margin-top:2px;">
       <div class="signature-block">
         <canvas id="member_signature_canvas" class="signature-canvas" width="350" height="70"></canvas>
         <div class="signature-label">Member Signature (if cooperative)</div>
@@ -618,9 +634,11 @@
         const setRad = (name, v) => { if (!v) return; const el = document.querySelector('input[name="' + name + '"][value="' + v + '"]'); if (el) el.checked = true; };
         setId('member_id', d.memberId);
         setId('member_name', d.memberName);
+        setId('member_dob', d.memberDob);
         setId('discharge_date', d.dischargeDate);
         setRad('house', d.house);
         setVal('referral_source', d.referralSource);
+        setId('referral_client_id', d.referralClientId);
         setId('referral_contact', d.referralContact);
         setVal('referral_phone', d.referralPhone);
         setVal('referral_email', d.referralEmail);
@@ -693,7 +711,13 @@ document.getElementById('member_id').addEventListener('blur', async function() {
     const response = await fetch('https://horizon-portal-backend-production-3532.up.railway.app/api/members/' + encodeURIComponent(memberId));
     if (response.ok) {
       const data = await response.json();
-      if (data.name) { document.getElementById('member_name').value = data.name; syncPage2Header(); }
+      const firstName = data['First Name'] || '';
+      const lastName  = data['Last Name']  || '';
+      const fullName  = [firstName, lastName].filter(Boolean).join(' ');
+      if (fullName) { document.getElementById('member_name').value = fullName; }
+      const dob = data['Date of Birth'] || '';
+      if (dob) { document.getElementById('member_dob').value = dob; }
+      syncPage2Header();
     }
   } catch (e) {}
 });
@@ -715,9 +739,11 @@ async function saveFormToBackend() {
   const formData = {
     memberId: q('member_id') ? q('member_id').value : '',
     memberName: q('member_name') ? q('member_name').value : '',
+    memberDob: q('member_dob') ? q('member_dob').value : '',
     dischargeDate: q('discharge_date') ? q('discharge_date').value : '',
     house: qc('house') ? qc('house').value : '',
     referralSource: q('referral_source') ? q('referral_source').value : '',
+    referralClientId: q('referral_client_id') ? q('referral_client_id').value : '',
     referralContact: q('referral_contact') ? q('referral_contact').value : '',
     referralPhone: q('referral_phone') ? q('referral_phone').value : '',
     referralEmail: q('referral_email') ? q('referral_email').value : '',

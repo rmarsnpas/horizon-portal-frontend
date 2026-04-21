@@ -2503,9 +2503,9 @@
               <div style="background:#fff3f3;border:1px solid #e74c3c;border-radius:8px;padding:14px 16px;margin-bottom:12px;">
                 <div style="font-weight:700;color:#c0392b;margin-bottom:10px;text-transform:uppercase;font-size:0.82rem;letter-spacing:0.5px;">Member Information</div>
                 <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px 20px;">
-                  ${s('Member Name', d.memberName)} ${s('Member ID', d.memberId)}
+                  ${s('Member Name', d.memberName)} ${s('DOB', d.memberDob)}\n                  ${s('Member ID', d.memberId)}
                   ${s('Date of Discharge', d.dischargeDate)} ${s('House', d.house)}
-                  ${s('Referral Source', d.referralSource)} ${s('Referral Contact / Case Manager', d.referralContact)}
+                  ${s('Referral Source', d.referralSource)} ${s('Referral Client ID', d.referralClientId)}\n                  ${s('Referral Contact / Case Manager', d.referralContact)}
                   ${s('Contact Phone', d.referralPhone)} ${s('Contact Email', d.referralEmail)}
                 </div>
               </div>
