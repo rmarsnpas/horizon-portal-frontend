@@ -420,8 +420,8 @@
         function isActiveMember(obj) {
             if (!obj) return false;
             const status = obj.STATUS ?? obj.status ?? obj.STATU;
-            // Accept status 1 or "Active" or empty/null (default to active)
-            return status === 1 || status === '1' || status === 'Active' || status === 'ACTIVE' || status == null || status === '';
+            // Accept status 1 (active) or 4 (extended stay / transitional) or legacy formats
+            return status === 1 || status === '1' || status === 4 || status === '4' || status === 'Active' || status === 'ACTIVE' || status == null || status === '';
         }
         function displayNameFrom(m) {
             if (!m) return 'Unknown';

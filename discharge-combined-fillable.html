@@ -624,6 +624,7 @@
     </div>
 
     <div class="button-row">
+      <button type="button" onclick="submitForm()" style="padding:12px 28px;font-size:16px;font-weight:700;background:#28a745;color:white;border:none;border-radius:6px;cursor:pointer;">✓ Submit</button>
       <button type="button" onclick="window.print()" class="btn-print">Print</button>
       <button type="button" onclick="saveToPDF()" class="btn-pdf">Save to PDF</button>
     </div>
@@ -749,6 +750,17 @@ function saveToPDF() {
     const memberName = document.getElementById('member_name').value;
     const url = memberName ? 'property-storage-form.html?memberName=' + encodeURIComponent(memberName) : 'property-storage-form.html';
     setTimeout(function() { window.open(url, '_blank'); }, 1000);
+  }
+}
+
+async function submitForm() {
+  const memberName = document.getElementById('member_name') ? document.getElementById('member_name').value.trim() : '';
+  if (!memberName) { alert('Please enter a Member Name before submitting.'); return; }
+  try {
+    await saveFormToBackend();
+    alert('Discharge form submitted successfully.');
+  } catch(e) {
+    alert('Error submitting form. Please try again.');
   }
 }
 
