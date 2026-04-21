@@ -239,14 +239,25 @@
         display: none;
       }
       .clear-sig-btn { display: none; }
+      /* Signature: no border box, just the drawn ink */
+      .signature-canvas {
+        border: none !important;
+        border-bottom: 1px solid #000 !important;
+        height: 40px !important;
+        margin-top: 2px !important;
+        background: transparent !important;
+      }
+      .signature-block { font-size: 0.8rem; }
+      .signature-label { margin-top: 1px !important; }
+      .signature-input { margin-top: 2px !important; }
       /* Page 2 compression */
       .page2-header h2, .page2-header .continued-row { margin-top: 0; }
-      textarea { max-height: 65px !important; min-height: 0 !important; overflow: hidden; }
-      textarea[name="readmit_notes"] { max-height: 38px !important; }
-      .section-label { margin-top: 4px !important; }
-      h2 { margin-top: 6px !important; margin-bottom: 4px !important; }
+      textarea { max-height: 60px !important; min-height: 0 !important; overflow: hidden; }
+      textarea[name="readmit_notes"] { max-height: 32px !important; }
+      .section-label { margin-top: 3px !important; }
+      h2 { margin-top: 4px !important; margin-bottom: 3px !important; }
       .signature-row { margin-top: 2px !important; gap: 14px !important; }
-      .footer-page { margin-top: 6px !important; }
+      .footer-page { margin-top: 4px !important; }
     }
 
   .footer-page {
