@@ -759,6 +759,12 @@ async function submitForm() {
   try {
     await saveFormToBackend();
     alert('Discharge form submitted successfully.');
+    const returnTo = new URLSearchParams(window.location.search).get('returnTo');
+    if (returnTo) {
+      window.location.href = returnTo;
+    } else if (window.opener && !window.opener.closed) {
+      window.close();
+    }
   } catch(e) {
     alert('Error submitting form. Please try again.');
   }

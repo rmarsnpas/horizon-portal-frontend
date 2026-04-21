@@ -706,7 +706,7 @@
                 <div class="card-label" style="color: rgba(255,255,255,0.9);">Manage All 6 Intake Forms</div>
             </a>
 
-            <a href="/discharge-combined-fillable.html" class="dashboard-card">
+            <a href="/discharge-combined-fillable.html?returnTo=%2Fstaff-dashboard.html" class="dashboard-card">
                 <div class="card-icon">📄</div>
                 <div class="card-title">Discharge Form</div>
                 <div class="card-count" style="font-size: 24px; color: #718096;">Create</div>
@@ -1809,7 +1809,8 @@
                                     const params = new URLSearchParams({
                                         memberName: memberName,
                                         memberId: payload.id || '',
-                                        dischargeDate: today
+                                        dischargeDate: today,
+                                        returnTo: '/staff-dashboard.html'
                                     });
                                     setTimeout(() => {
                                         window.open('/discharge-combined-fillable.html?' + params.toString(), '_blank');
@@ -2570,7 +2571,7 @@
             const form = allSubmittedForms.find(f => f.id === id);
             if (!form) return;
             sessionStorage.setItem('dischargeReview_' + id, JSON.stringify(form.data || {}));
-            window.open('/discharge-combined-fillable.html?reviewId=' + encodeURIComponent(id), '_blank');
+            window.open('/discharge-combined-fillable.html?reviewId=' + encodeURIComponent(id) + '&returnTo=/staff-dashboard.html', '_blank');
         }
 
         function openDischargeFormForPrint(id) {
