@@ -604,6 +604,72 @@
 <script>
 (function prefillFromUrl() {
   const p = new URLSearchParams(window.location.search);
+
+  // Load full form data from sessionStorage when opened for review/edit/print from dashboard
+  const reviewId = p.get('reviewId');
+  if (reviewId) {
+    const stored = sessionStorage.getItem('dischargeReview_' + reviewId);
+    if (stored) {
+      try {
+        const d = JSON.parse(stored);
+        const setId  = (id, v) => { const el = document.getElementById(id); if (el && v != null) el.value = v; };
+        const setVal = (name, v) => { const el = document.querySelector('[name="' + name + '"]'); if (el && v != null) el.value = v; };
+        const setChk = (name, v) => { const el = document.querySelector('[name="' + name + '"]'); if (el) el.checked = !!v; };
+        const setRad = (name, v) => { if (!v) return; const el = document.querySelector('input[name="' + name + '"][value="' + v + '"]'); if (el) el.checked = true; };
+        setId('member_id', d.memberId);
+        setId('member_name', d.memberName);
+        setId('discharge_date', d.dischargeDate);
+        setRad('house', d.house);
+        setVal('referral_source', d.referralSource);
+        setId('referral_contact', d.referralContact);
+        setVal('referral_phone', d.referralPhone);
+        setVal('referral_email', d.referralEmail);
+        setId('form_completed_by', d.formCompletedBy);
+        setChk('reason_honorary', d.reasonHonorary);
+        setChk('reason_end_benefits', d.reasonEndBenefits);
+        setChk('reason_relapse', d.reasonRelapse);
+        setChk('reason_behavior', d.reasonBehavior);
+        setChk('reason_threats', d.reasonThreats);
+        setChk('reason_noncompliance', d.reasonNoncompliance);
+        setChk('reason_other', d.reasonOther);
+        setVal('reason_other_text', d.reasonOtherText);
+        setVal('incident_description', d.incidentDescription);
+        setChk('relapse_drugs_found', d.relapseDrugsFound);
+        setChk('relapse_member_admitted', d.relapseMemberAdmitted);
+        setChk('relapse_appeared_under_influence', d.relapseAppearedUnder);
+        setChk('relapse_positive_test', d.relapsePositiveTest);
+        setRad('drug_screen_reason', d.drugScreenReason);
+        setChk('test_type_urine', d.testUrine);
+        setChk('test_type_breathalyzer', d.testBreathalyzer);
+        setVal('bac_percent', d.bacPercent);
+        setChk('test_type_oral', d.testOral);
+        setVal('substances_detected', d.substancesDetected);
+        setVal('test_datetime', d.testDatetime);
+        setVal('cause_description', d.causeDescription);
+        setVal('member_statement', d.memberStatement);
+        setChk('exit_no_incident', d.exitNoIncident);
+        setChk('exit_detox_resources', d.exitDetoxResources);
+        setChk('exit_transport_arranged', d.exitTransportArranged);
+        setChk('exit_cares_line', d.exitCaresLine);
+        setChk('exit_police_ems', d.exitPoliceEms);
+        setChk('notif_case_manager', d.notifCaseManager);
+        setChk('notif_roi_emg', d.notifRoiEmg);
+        setRad('member_property', d.memberProperty);
+        setChk('room_inspected', d.roomInspected);
+        setRad('eligible_readmit', d.eligibleReadmit);
+        setVal('readmit_notes', d.readmitNotes);
+        setId('staff_signature_date', d.staffSignatureDate);
+        setVal('member_signature_date', d.memberSignatureDate);
+        syncPage2Header();
+      } catch(e) { console.error('Error loading review data', e); }
+    }
+    if (p.get('print') === '1') {
+      window.addEventListener('load', function() { setTimeout(function() { window.print(); }, 800); });
+    }
+    return; // skip basic URL param prefill when loading from sessionStorage
+  }
+
+  // Basic URL param prefill (from staff-dashboard status change flow)
   if (p.get('memberName')) { const el = document.getElementById('member_name'); if (el) el.value = p.get('memberName'); }
   if (p.get('memberId')) { const el = document.getElementById('member_id'); if (el) el.value = p.get('memberId'); }
   if (p.get('completedBy')) { const el = document.getElementById('form_completed_by'); if (el) el.value = p.get('completedBy'); }

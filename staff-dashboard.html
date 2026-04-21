@@ -2298,12 +2298,14 @@
 
             <!-- Detail modal -->
             <div id="dischargeModal" style="display:none;position:fixed;z-index:20000;left:0;top:0;width:100vw;height:100vh;background:rgba(0,0,0,0.45);align-items:center;justify-content:center;">
-                <div style="background:white;border-radius:12px;max-width:700px;width:95%;max-height:90vh;overflow-y:auto;padding:30px;position:relative;">
+                <div style="background:white;border-radius:12px;max-width:860px;width:95%;max-height:90vh;overflow-y:auto;padding:30px;position:relative;">
                     <button onclick="document.getElementById('dischargeModal').style.display='none'" style="position:absolute;top:14px;right:18px;background:none;border:none;font-size:1.6rem;cursor:pointer;">&times;</button>
                     <h2 id="dischargeModalTitle" style="margin-top:0;color:#c0392b;"></h2>
                     <div id="dischargeModalBody"></div>
                     <div style="margin-top:20px;display:flex;gap:10px;flex-wrap:wrap;">
                         <button id="dischargeModalFileBtn" onclick="dischargeModalFile()" style="padding:10px 24px;background:#28a745;color:white;border:none;border-radius:6px;font-weight:700;cursor:pointer;">✓ Mark as Filed</button>
+                        <button onclick="openDischargeFormForEdit(dischargeModalCurrentId)" style="padding:10px 24px;background:#2c7be5;color:white;border:none;border-radius:6px;font-weight:700;cursor:pointer;">✏️ Edit Form</button>
+                        <button onclick="openDischargeFormForPrint(dischargeModalCurrentId)" style="padding:10px 24px;background:#6c3483;color:white;border:none;border-radius:6px;font-weight:700;cursor:pointer;">🖨️ Print</button>
                         <button onclick="document.getElementById('dischargeModal').style.display='none'" style="padding:10px 24px;background:#6c757d;color:white;border:none;border-radius:6px;font-weight:700;cursor:pointer;">Close</button>
                     </div>
                 </div>
@@ -2491,31 +2493,91 @@
             const fileBtn = document.getElementById('dischargeModalFileBtn');
             if (fileBtn) fileBtn.style.display = form.status === 'filed' ? 'none' : '';
 
-            const fieldLabels = {
-                memberName: 'Member Name', memberId: 'Member ID', dischargeDate: 'Discharge Date',
-                houseAddress: 'House Address', houseManager: 'House Manager',
-                reasonVoluntary: 'Voluntary Leave', reasonCompletion: 'Program Completion',
-                reasonRelapse: 'Relapse', reasonBehavior: 'Behavioral Issue',
-                reasonNoncompliance: 'Non-compliance', reasonOther: 'Other Reason',
-                reasonOtherDetails: 'Other Details', propertyReturned: 'Property Returned',
-                propertyNotes: 'Property Notes', staffSignatureDate: 'Staff Signature Date',
-                memberSignatureDate: 'Member Signature Date'
-            };
-
-            const rows = Object.entries(form.data || {})
-                .filter(([k]) => k !== 'submittedDate')
-                .map(([k, v]) => {
-                    if (v === '' || v === null || v === undefined) return '';
-                    const label = fieldLabels[k] || k.replace(/([A-Z])/g,' $1').replace(/_/g,' ').trim();
-                    const display = v === true ? '✅ Yes' : v === false ? '❌ No' : v;
-                    return `<div style="display:flex;padding:8px 0;border-bottom:1px solid #f0f0f0;">
-                        <div style="width:200px;font-weight:600;color:#555;flex-shrink:0;">${label}</div>
-                        <div style="color:#2d3748;">${display}</div>
-                    </div>`;
-                }).filter(Boolean).join('');
-
-            document.getElementById('dischargeModalBody').innerHTML = rows || '<p style="color:#aaa;">No data fields found.</p>';
+            const d = form.data || {};
+            const val = (v, fb = '—') => (v !== undefined && v !== null && v !== '') ? v : fb;
+            const sc2 = [d.reasonHonorary ? 'Honorable Discharge' : null, d.reasonEndBenefits ? 'End of Benefits' : null].filter(Boolean);
+            const sc3 = [d.reasonRelapse ? 'Relapse' : null, d.reasonBehavior ? 'Behavioral Violation' : null, d.reasonThreats ? 'Threats or Violence' : null, d.reasonNoncompliance ? 'Non-compliance' : null, d.reasonOther ? ('Other' + (d.reasonOtherText ? ': ' + d.reasonOtherText : '')) : null].filter(Boolean);
+            const testTypes = [d.testUrine ? 'Urine' : null, d.testBreathalyzer ? ('Breathalyzer' + (d.bacPercent ? ' (' + d.bacPercent + '% BAC)' : '')) : null, d.testOral ? 'Oral Swab' : null].filter(Boolean);
+            const s = (lbl, v) => `<div><span style="color:#888;font-size:0.82rem;">${lbl}</span><br><strong>${val(v)}</strong></div>`;
+            const html = `<div style="font-family:Arial,sans-serif;font-size:0.9rem;line-height:1.5;">
+              <div style="background:#fff3f3;border:1px solid #e74c3c;border-radius:8px;padding:14px 16px;margin-bottom:12px;">
+                <div style="font-weight:700;color:#c0392b;margin-bottom:10px;text-transform:uppercase;font-size:0.82rem;letter-spacing:0.5px;">Member Information</div>
+                <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px 20px;">
+                  ${s('Member Name', d.memberName)} ${s('Member ID', d.memberId)}
+                  ${s('Date of Discharge', d.dischargeDate)} ${s('House', d.house)}
+                  ${s('Referral Source', d.referralSource)} ${s('Referral Contact / Case Manager', d.referralContact)}
+                  ${s('Contact Phone', d.referralPhone)} ${s('Contact Email', d.referralEmail)}
+                </div>
+              </div>
+              <div style="background:#fff8f0;border:1px solid #e67e22;border-radius:8px;padding:14px 16px;margin-bottom:12px;">
+                <div style="font-weight:700;color:#d35400;margin-bottom:10px;text-transform:uppercase;font-size:0.82rem;letter-spacing:0.5px;">Reason for Discharge</div>
+                <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px 20px;">
+                  <div><span style="color:#888;font-size:0.82rem;">Status Code 2 (Honorable)</span><br><strong>${sc2.length ? sc2.join(' · ') : '—'}</strong></div>
+                  <div><span style="color:#888;font-size:0.82rem;">Status Code 3</span><br><strong>${sc3.length ? sc3.join(' · ') : '—'}</strong></div>
+                </div>
+                ${d.incidentDescription ? `<div style="margin-top:8px;"><span style="color:#888;font-size:0.82rem;">Description</span><br><div style="background:white;border:1px solid #f0c080;border-radius:4px;padding:8px;margin-top:2px;white-space:pre-wrap;">${d.incidentDescription}</div></div>` : ''}
+              </div>
+              ${(d.relapseDrugsFound || d.relapseMemberAdmitted || d.relapseAppearedUnder || d.relapsePositiveTest) ? `
+              <div style="background:#fff0f0;border:1px solid #e74c3c;border-radius:8px;padding:14px 16px;margin-bottom:12px;">
+                <div style="font-weight:700;color:#c0392b;margin-bottom:10px;text-transform:uppercase;font-size:0.82rem;letter-spacing:0.5px;">Relapse Details</div>
+                <div style="display:flex;flex-wrap:wrap;gap:4px 12px;margin-bottom:8px;">
+                  ${d.relapseDrugsFound ? '<span style="background:#fde8e8;padding:2px 8px;border-radius:12px;font-size:0.82rem;">✅ Drugs/Paraphernalia Found</span>' : ''}
+                  ${d.relapseMemberAdmitted ? '<span style="background:#fde8e8;padding:2px 8px;border-radius:12px;font-size:0.82rem;">✅ Member Admitted to Using</span>' : ''}
+                  ${d.relapseAppearedUnder ? '<span style="background:#fde8e8;padding:2px 8px;border-radius:12px;font-size:0.82rem;">✅ Appeared Under Influence</span>' : ''}
+                  ${d.relapsePositiveTest ? '<span style="background:#fde8e8;padding:2px 8px;border-radius:12px;font-size:0.82rem;">✅ Positive Test</span>' : ''}
+                </div>
+                ${d.relapsePositiveTest ? `<div style="display:grid;grid-template-columns:1fr 1fr;gap:6px 20px;">${s('Test Reason', d.drugScreenReason)}${s('Test Type', testTypes.join(', '))}${s('Substances Detected', d.substancesDetected)}${s('Test Date/Time', d.testDatetime)}</div>` : ''}
+              </div>` : ''}
+              ${(d.causeDescription || d.memberStatement) ? `
+              <div style="background:#f0f4ff;border:1px solid #3498db;border-radius:8px;padding:14px 16px;margin-bottom:12px;">
+                <div style="font-weight:700;color:#2980b9;margin-bottom:10px;text-transform:uppercase;font-size:0.82rem;letter-spacing:0.5px;">Incident Details</div>
+                ${d.causeDescription ? `<div style="margin-bottom:8px;"><span style="color:#888;font-size:0.82rem;">Cause Description</span><br><div style="background:white;border:1px solid #b0c8e8;border-radius:4px;padding:8px;margin-top:2px;white-space:pre-wrap;">${d.causeDescription}</div></div>` : ''}
+                ${d.memberStatement ? `<div><span style="color:#888;font-size:0.82rem;">Member Statement</span><br><div style="background:white;border:1px solid #b0c8e8;border-radius:4px;padding:8px;margin-top:2px;white-space:pre-wrap;">${d.memberStatement}</div></div>` : ''}
+              </div>` : ''}
+              <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:12px;">
+                <div style="background:#f0fff4;border:1px solid #27ae60;border-radius:8px;padding:12px 14px;">
+                  <div style="font-weight:700;color:#27ae60;margin-bottom:6px;text-transform:uppercase;font-size:0.82rem;letter-spacing:0.5px;">Safety &amp; Exit</div>
+                  ${d.exitNoIncident ? '<div style="font-size:0.88rem;">✅ No Incident</div>' : ''}
+                  ${d.exitDetoxResources ? '<div style="font-size:0.88rem;">✅ Detox Resources Provided</div>' : ''}
+                  ${d.exitTransportArranged ? '<div style="font-size:0.88rem;">✅ Transport Arranged</div>' : ''}
+                  ${d.exitCaresLine ? '<div style="font-size:0.88rem;">✅ CARES Line Provided</div>' : ''}
+                  ${d.exitPoliceEms ? '<div style="font-size:0.88rem;">✅ Police/EMS Called</div>' : ''}
+                </div>
+                <div style="background:#f8f0ff;border:1px solid #8e44ad;border-radius:8px;padding:12px 14px;">
+                  <div style="font-weight:700;color:#8e44ad;margin-bottom:6px;text-transform:uppercase;font-size:0.82rem;letter-spacing:0.5px;">Notifications</div>
+                  ${d.notifCaseManager ? '<div style="font-size:0.88rem;">✅ Case Manager Notified</div>' : ''}
+                  ${d.notifRoiEmg ? '<div style="font-size:0.88rem;">✅ ROI/Emergency Contact Notified</div>' : ''}
+                  <div style="font-weight:700;color:#444;margin-top:8px;margin-bottom:4px;text-transform:uppercase;font-size:0.82rem;letter-spacing:0.5px;">Property</div>
+                  <div style="font-size:0.88rem;">${val(d.memberProperty)}</div>
+                  ${d.roomInspected ? '<div style="font-size:0.88rem;margin-top:2px;">✅ Room Inspected</div>' : ''}
+                </div>
+              </div>
+              <div style="background:#fafafa;border:1px solid #ccc;border-radius:8px;padding:12px 14px;margin-bottom:12px;display:grid;grid-template-columns:auto 1fr;gap:8px 20px;align-items:start;">
+                <div><span style="color:#888;font-size:0.82rem;">Eligible for Readmit</span><br><strong style="font-size:1.2rem;">${val(d.eligibleReadmit)}</strong></div>
+                ${d.readmitNotes ? `<div><span style="color:#888;font-size:0.82rem;">Notes</span><br>${d.readmitNotes}</div>` : '<div></div>'}
+              </div>
+              <div style="background:#fafafa;border:1px solid #ccc;border-radius:8px;padding:12px 14px;display:grid;grid-template-columns:1fr 1fr;gap:6px 20px;">
+                ${s('Completed By', d.formCompletedBy)} ${s('Staff Signature Date', d.staffSignatureDate)}
+                ${s('Member Signature Date', d.memberSignatureDate)}
+                <div><span style="color:#888;font-size:0.82rem;">Submitted</span><br><strong>${d.submittedDate ? new Date(d.submittedDate).toLocaleString() : '—'}</strong></div>
+              </div>
+            </div>`;
+            document.getElementById('dischargeModalBody').innerHTML = html;
             document.getElementById('dischargeModal').style.display = 'flex';
+        }
+
+        function openDischargeFormForEdit(id) {
+            const form = allSubmittedForms.find(f => f.id === id);
+            if (!form) return;
+            sessionStorage.setItem('dischargeReview_' + id, JSON.stringify(form.data || {}));
+            window.open('/discharge-combined-fillable.html?reviewId=' + encodeURIComponent(id), '_blank');
+        }
+
+        function openDischargeFormForPrint(id) {
+            const form = allSubmittedForms.find(f => f.id === id);
+            if (!form) return;
+            sessionStorage.setItem('dischargeReview_' + id, JSON.stringify(form.data || {}));
+            window.open('/discharge-combined-fillable.html?reviewId=' + encodeURIComponent(id) + '&print=1', '_blank');
         }
 
         async function dischargeModalFile() {
