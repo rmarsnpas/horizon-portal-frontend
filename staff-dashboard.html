@@ -169,6 +169,20 @@
             font-size: 32px;
         }
 
+        @keyframes pendingPulse {
+            0%   { box-shadow: 0 0 0 0 rgba(192, 57, 43, 0.55); background: linear-gradient(135deg, #c0392b 0%, #e74c3c 100%); }
+            50%  { box-shadow: 0 0 0 12px rgba(192, 57, 43, 0); background: linear-gradient(135deg, #e74c3c 0%, #ff6b6b 100%); }
+            100% { box-shadow: 0 0 0 0 rgba(192, 57, 43, 0); background: linear-gradient(135deg, #c0392b 0%, #e74c3c 100%); }
+        }
+        .card-pulse-alert {
+            animation: pendingPulse 1.8s ease-in-out infinite;
+            color: white !important;
+        }
+        .card-pulse-alert .card-title,
+        .card-pulse-alert .card-label,
+        .card-pulse-alert .card-count,
+        .card-pulse-alert .card-icon { color: white !important; }
+
         .btn-logout {
             padding: 10px 20px;
             background: #718096;
@@ -614,6 +628,13 @@
         </div>
 
         <div class="dashboard-grid" id="dashboardGrid" style="display: none;">
+            <a href="#" onclick="openDischargeFormsSection(); return false;" class="dashboard-card" id="dischargeFormsPendingCard">
+                <div class="card-icon">📄</div>
+                <div class="card-title">Discharge Forms</div>
+                <div class="card-count" id="dischargeFormsPendingCount">-</div>
+                <div class="card-label">Pending Review</div>
+            </a>
+
             <a href="/horizon-portal/staff-reviews.html" class="dashboard-card">
                 <div class="card-icon">📋</div>
                 <div class="card-title">Applications</div>
@@ -642,18 +663,11 @@
                 <div class="card-label">Total Tests</div>
             </a>
 
-            <a href="/horizon-portal/members/member-status.html" class="dashboard-card">
+            <a href="/horizon-portal/members/member-status.html" class="dashboard-card" id="signInOutCard">
                 <div class="card-icon">🚪</div>
                 <div class="card-title">Sign In/Out</div>
                 <div class="card-count" id="signInOutCount">-</div>
                 <div class="card-label">Currently Out</div>
-            </a>
-
-            <a href="/horizon-portal/members/sign-inout.html" class="dashboard-card">
-                <div class="card-icon">✏️</div>
-                <div class="card-title">Manual Sign In/Out</div>
-                <div class="card-count" style="font-size: 24px; color: #718096;">Correct</div>
-                <div class="card-label">Management Corrections</div>
             </a>
 
             <a href="/horizon-portal/members/staff-schedules.html" class="dashboard-card">
@@ -1589,6 +1603,9 @@
                     const bedVal = getMVal('BED');
                     const statusVal = getMVal('STATUS');
 
+                    // Remember original status to detect discharge-triggering change
+                    window._editMemberOriginalStatus = String(statusVal).trim();
+
                     // 2-column layout matching add member form
                     const fieldStyle = "width:100%;padding:8px;font-size:1rem;border:1px solid #ccc;border-radius:6px;";
                     const rowStyle = "display:flex;gap:12px;margin-bottom:10px;";
@@ -1780,6 +1797,23 @@
                                 // Re-fetch members from backend for up-to-date data
                                 if (window.reloadAllMembersFromBackend) {
                                     await window.reloadAllMembersFromBackend();
+                                }
+                                // If status changed from 1 (Active) to 2 or 3, open discharge form
+                                const newStatus = String(payload.status).trim();
+                                const prevStatus = String(window._editMemberOriginalStatus || '').trim();
+                                if (prevStatus === '1' && (newStatus === '2' || newStatus === '3')) {
+                                    const firstName = payload.firstName || '';
+                                    const lastName = payload.lastName || '';
+                                    const memberName = (firstName + ' ' + lastName).trim();
+                                    const today = new Date().toISOString().split('T')[0];
+                                    const params = new URLSearchParams({
+                                        memberName: memberName,
+                                        memberId: payload.id || '',
+                                        dischargeDate: today
+                                    });
+                                    setTimeout(() => {
+                                        window.open('/discharge-combined-fillable.html?' + params.toString(), '_blank');
+                                    }, 950);
                                 }
                                 setTimeout(closeEditMemberModal, 900);
                             } else {
@@ -2345,15 +2379,20 @@
 
         <!-- Active Members Board -->
         <div class="section-header" id="memberBoardSection" style="display: none; margin-top: 30px; background: linear-gradient(135deg, #F58634 0%, #c95f00 100%); color: white; padding: 20px; border-radius: 12px; margin-bottom: 20px;">
-            <h2 style="color: white; margin: 0;">
-                👥 Active Members Board
-                <span class="member-board-count" id="memberBoardCount">0</span>
-                <span class="member-board-count" id="memberBoardMCount" style="background:#667eea; color:white; margin-left:10px;">M: 0</span>
-                <span class="member-board-count" id="memberBoardFCount" style="background:#e91e8c; color:white; margin-left:10px;">F: 0</span>
-                <span class="member-board-count" id="memberBoardHoldCount" style="background:#ff9800; color:white; margin-left:10px;">Hold: 0</span>
-                <span class="member-board-count" id="memberBoardWaitCount" style="background:#9c27b0; color:white; margin-left:10px;">Wait: 0</span>
-            </h2>
-            <p style="color: rgba(255,255,255,0.9); margin: 5px 0 0 0;">Current residents with active status</p>
+            <div style="display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;gap:12px;">
+                <div>
+                    <h2 style="color: white; margin: 0;">
+                        👥 Active Members Board
+                        <span class="member-board-count" id="memberBoardCount">0</span>
+                        <span class="member-board-count" id="memberBoardMCount" style="background:#667eea; color:white; margin-left:10px;">M: 0</span>
+                        <span class="member-board-count" id="memberBoardFCount" style="background:#e91e8c; color:white; margin-left:10px;">F: 0</span>
+                        <span class="member-board-count" id="memberBoardHoldCount" style="background:#ff9800; color:white; margin-left:10px;">Hold: 0</span>
+                        <span class="member-board-count" id="memberBoardWaitCount" style="background:#9c27b0; color:white; margin-left:10px;">Wait: 0</span>
+                    </h2>
+                    <p style="color: rgba(255,255,255,0.9); margin: 5px 0 0 0;">Current residents with active status</p>
+                </div>
+                <a href="/horizon-portal/members/sign-inout.html" style="padding:10px 20px;background:rgba(255,255,255,0.2);color:white;border:2px solid rgba(255,255,255,0.6);border-radius:8px;text-decoration:none;font-weight:700;font-size:0.95rem;white-space:nowrap;align-self:center;">✏️ Manual Sign In/Out</a>
+            </div>
         </div>
 
         <div id="memberBoardContainer" style="display: none; margin-bottom: 80px;">
@@ -2517,6 +2556,14 @@
             const modal = document.getElementById('dischargeModal');
             if (modal && e.target === modal) modal.style.display = 'none';
         });
+        function openDischargeFormsSection() {
+            const section = document.getElementById('dischargeFormsSection');
+            if (section) {
+                section.style.display = 'block';
+                section.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            }
+        }
+
         // ---- End Discharge Forms Review ----
 
         // Check if already logged in
@@ -2673,6 +2720,16 @@
                 document.getElementById('contactCount').textContent = unreadContacts;
                 document.getElementById('drugScreenCount').textContent = totalDrugScreens;
                 document.getElementById('signInOutCount').textContent = membersOut;
+                // Pulse the Sign In/Out card only when a member is overdue past curfew
+                const anyOverdue = (signInOut.membersOut || []).some(m => m.isOverdue);
+                const signInOutCard = document.getElementById('signInOutCard');
+                if (signInOutCard) {
+                    if (anyOverdue) {
+                        signInOutCard.classList.add('card-pulse-alert');
+                    } else {
+                        signInOutCard.classList.remove('card-pulse-alert');
+                    }
+                }
                 if (document.getElementById('schedulesCount')) {
                     document.getElementById('schedulesCount').textContent = totalSchedules;
                 }
@@ -2693,10 +2750,22 @@
                 document.getElementById('formsGrid').style.display = 'grid';
 
                 // Show & render discharge forms section if any exist
+                const dischargePending = allSubmittedForms.filter(f => f.type === 'discharge' && f.status === 'pending');
                 const dischargeExists = allSubmittedForms.some(f => f.type === 'discharge');
                 if (dischargeExists) {
                     document.getElementById('dischargeFormsSection').style.display = 'block';
                     renderDischargeForms();
+                }
+                // Update pending card count and pulse if there are pending discharge forms
+                const dischargePendingCard = document.getElementById('dischargeFormsPendingCard');
+                const dischargePendingCount = document.getElementById('dischargeFormsPendingCount');
+                if (dischargePendingCount) dischargePendingCount.textContent = dischargePending.length;
+                if (dischargePendingCard) {
+                    if (dischargePending.length > 0) {
+                        dischargePendingCard.classList.add('card-pulse-alert');
+                    } else {
+                        dischargePendingCard.classList.remove('card-pulse-alert');
+                    }
                 }
 
                 document.getElementById('kioskMsgSection').style.display = 'block';
