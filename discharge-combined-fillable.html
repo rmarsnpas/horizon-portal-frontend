@@ -136,7 +136,7 @@
     .signature-row {
       display: flex;
       gap: 24px;
-      margin-top: 12px;
+      margin-top: 6px;
     }
 
     .signature-block {
@@ -150,17 +150,17 @@
       padding: 3px 4px;
       font-size: 0.88rem;
       box-sizing: border-box;
-      margin-top: 18px;
+      margin-top: 8px;
     }
 
     .signature-canvas {
       width: 100%;
-      height: 100px;
+      height: 70px;
       border: 2px solid #000;
       background: #fff;
       cursor: crosshair;
       touch-action: none;
-      margin-top: 18px;
+      margin-top: 8px;
       box-sizing: border-box;
     }
 
@@ -554,7 +554,7 @@
 
     <div class="signature-row">
       <div class="signature-block">
-        <canvas id="staff_signature_canvas" class="signature-canvas" width="350" height="100"></canvas>
+        <canvas id="staff_signature_canvas" class="signature-canvas" width="350" height="70"></canvas>
         <div class="signature-label">Staff Signature</div>
         <button type="button" class="clear-sig-btn" onclick="clearSignature('staff_signature_canvas')">Clear</button>
       </div>
@@ -566,7 +566,7 @@
 
     <div class="signature-row">
       <div class="signature-block">
-        <canvas id="member_signature_canvas" class="signature-canvas" width="350" height="100"></canvas>
+        <canvas id="member_signature_canvas" class="signature-canvas" width="350" height="70"></canvas>
         <div class="signature-label">Member Signature (if cooperative)</div>
         <button type="button" class="clear-sig-btn" onclick="clearSignature('member_signature_canvas')">Clear</button>
       </div>
@@ -619,15 +619,16 @@ document.getElementById('member_id').addEventListener('blur', async function() {
   } catch (e) {}
 });
 
-document.getElementById('prop_stored').addEventListener('change', function() {
-  if (this.checked) {
+function saveToPDF() {
+  saveFormToBackend();
+  window.print();
+  // Open property storage form after printing if property was stored by staff
+  if (document.getElementById('prop_stored').checked) {
     const memberName = document.getElementById('member_name').value;
     const url = memberName ? 'property-storage-form.html?memberName=' + encodeURIComponent(memberName) : 'property-storage-form.html';
-    window.open(url, '_blank');
+    setTimeout(function() { window.open(url, '_blank'); }, 1000);
   }
-});
-
-function saveToPDF() { saveFormToBackend(); window.print(); }
+}
 
 async function saveFormToBackend() {
   const q = (n) => document.querySelector('[name="' + n + '"]');
