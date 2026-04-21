@@ -2714,10 +2714,10 @@
                 // Fetch all members
                 const response = await fetch(`${API_BASE}/api/members`);
                 const allMembers = await response.json();
-                // Filter active members (status 1, H, or W)
+                // Filter active members (status 1, H, W, or inCensus status 4)
                 const activeMembers = allMembers.filter(m => {
                     const status = (m.STATUS || m.status || m.STATU || '').toString().toUpperCase().trim();
-                    return status === '1' || status === 'H' || status === 'W';
+                    return status === '1' || status === 'H' || status === 'W' || (status === '4' && m.inCensus === true);
                 });
                 // Render member board table
                 const tbody = document.getElementById('memberBoardBody');
