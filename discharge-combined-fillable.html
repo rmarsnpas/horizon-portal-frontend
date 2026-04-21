@@ -597,7 +597,7 @@
     <h2>Signatures</h2>
 
     <div class="signature-row">
-      <div class="signature-block" style="flex:2;">
+      <div class="signature-block" style="flex:2; display:flex; flex-direction:column; justify-content:flex-end;">
         <canvas id="staff_signature_canvas" class="signature-canvas" width="350" height="70"></canvas>
         <div class="signature-label">Staff Signature</div>
         <button type="button" class="clear-sig-btn" onclick="clearSignature('staff_signature_canvas')">Clear</button>
@@ -611,7 +611,7 @@
     </div>
 
     <div class="signature-row" style="margin-top:2px;">
-      <div class="signature-block" style="flex:2;">
+      <div class="signature-block" style="flex:2; display:flex; flex-direction:column; justify-content:flex-end;">
         <canvas id="member_signature_canvas" class="signature-canvas" width="350" height="70"></canvas>
         <div class="signature-label">Member Signature (if cooperative)</div>
         <button type="button" class="clear-sig-btn" onclick="clearSignature('member_signature_canvas')">Clear</button>
