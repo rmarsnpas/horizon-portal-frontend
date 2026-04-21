@@ -388,11 +388,13 @@
                 allMembers = await response.json();
                 console.log('Loaded members:', allMembers.length);
                 
-                // Filter active members (status 1, 2, or with bed assigned)
+                // Filter active members: status 1/2 with a bed, or staff (4/5) flagged inCensus
                 const activeMembers = allMembers.filter(m => {
-                    const status = m.STATUS || m.STATU || m.status;
-                    const bed = m.BED || m['BED#'] || '';
-                    return (status === 1 || status === 2 || status === '1' || status === '2') && bed;
+                    const status = String(m.STATUS || m.STATU || m.status || '').trim();
+                    const bed = m.BED || m['BED#'] || m.bed || '';
+                    const isResident = (status === '1' || status === '2') && bed;
+                    const isStaffInCensus = (status === '4' || status === '5') && m.inCensus === true && bed;
+                    return isResident || isStaffInCensus;
                 });
                 
                 console.log('Active members with beds:', activeMembers.length);
