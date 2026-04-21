@@ -89,7 +89,7 @@
         <span class="icon">📝</span>
         Meeting Cards
       </a>
-      <a class="dashboard-card" href="#" onclick="openPassModal(); return false;">
+      <a class="dashboard-card" id="overnightPassCard" href="#" onclick="openPassModal(); return false;">
         <span class="icon">🌙</span>
         Overnight Pass
       </a>
@@ -198,6 +198,19 @@
         const res = await fetch(API_BASE + '/api/members');
         const all = await res.json();
         const today = new Date(); today.setHours(0,0,0,0);
+
+        // --- Hide overnight pass button if member has been here < 60 days ---
+        const currentMember = all.find(m => String(getField(m, 'MEMBER ID', 'MEMBER_ID', 'memberId', 'id')).trim() === String(memberId).trim());
+        if (currentMember) {
+          const admitDate = parseDate(getField(currentMember, 'ADMIT\r\nDATE', 'ADMIT\nDATE', 'ADMIT DATE', 'ADMIT_DATE', 'admitDate'));
+          if (admitDate) {
+            const daysIn = Math.floor((today - admitDate) / 86400000);
+            if (daysIn < 60) {
+              const passCard = document.getElementById('overnightPassCard');
+              if (passCard) passCard.style.display = 'none';
+            }
+          }
+        }
 
         // --- New Members (admitted within past 7 days, status 1) ---
         const sevenAgo = new Date(today); sevenAgo.setDate(sevenAgo.getDate() - 7);
