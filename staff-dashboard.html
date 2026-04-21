@@ -562,7 +562,7 @@
             </div>
     <!-- Login Form -->
     <div class="login-container" id="loginContainer">
-        <h1>🔐 Staff Login</h1>
+        <h1>🔐 Management Login</h1>
         <p>Enter password to access the Admin Portal</p>
         <form id="loginForm">
             <div class="form-group">
@@ -610,7 +610,7 @@
 
         <div class="section-header" id="pendingSection" style="display: none;">
             <h2>⏳ Pending Review</h2>
-            <p>Items requiring staff attention</p>
+            <p>Items requiring management attention</p>
         </div>
 
         <div class="dashboard-grid" id="dashboardGrid" style="display: none;">
@@ -653,7 +653,7 @@
                 <div class="card-icon">✏️</div>
                 <div class="card-title">Manual Sign In/Out</div>
                 <div class="card-count" style="font-size: 24px; color: #718096;">Correct</div>
-                <div class="card-label">Staff Corrections</div>
+                <div class="card-label">Management Corrections</div>
             </a>
 
             <a href="/horizon-portal/members/staff-schedules.html" class="dashboard-card">
@@ -781,7 +781,7 @@
                         <button class="members-tab-btn" data-tab="discharged" onclick="switchMembersTab('discharged')" style="padding:10px 20px;border:2px solid #dc3545;background:white;color:#dc3545;border-radius:6px;font-weight:700;cursor:pointer;">Discharged (3)</button>
                         <button class="members-tab-btn" data-tab="hold" onclick="switchMembersTab('hold')" style="padding:10px 20px;border:2px solid #f0ad4e;background:white;color:#f0ad4e;border-radius:6px;font-weight:700;cursor:pointer;">Hold</button>
                         <button class="members-tab-btn" data-tab="waitlist" onclick="switchMembersTab('waitlist')" style="padding:10px 20px;border:2px solid #5bc0de;background:white;color:#5bc0de;border-radius:6px;font-weight:700;cursor:pointer;">Wait List</button>
-                        <button class="members-tab-btn" data-tab="staff" onclick="switchMembersTab('staff')" style="padding:10px 20px;border:2px solid #667eea;background:white;color:#667eea;border-radius:6px;font-weight:700;cursor:pointer;">Staff (4 & 5)</button>
+                        <button class="members-tab-btn" data-tab="staff" onclick="switchMembersTab('staff')" style="padding:10px 20px;border:2px solid #667eea;background:white;color:#667eea;border-radius:6px;font-weight:700;cursor:pointer;">Management (4 & 5)</button>
                         <button class="members-tab-btn" data-tab="all" onclick="switchMembersTab('all')" style="padding:10px 20px;border:2px solid #718096;background:white;color:#718096;border-radius:6px;font-weight:700;cursor:pointer;">All</button>
                     </div>
                     <!-- Summary Stats -->
@@ -935,7 +935,7 @@
                         // Status dropdown options
                         const statusOptions = [
                             ['1','1 - Active'],['2','2 - Inactive'],['3','3 - Discharged'],
-                            ['H','H - Hold'],['W','W - Wait List'],['4','4 - Staff'],['5','5 - Staff']
+                            ['H','H - Hold'],['W','W - Wait List'],['4','4 - Management'],['5','5 - Management']
                         ].map(([v,l]) => `<option value='${v}'${statusVal===v?' selected':''}>${l}</option>`).join('');
 
                         // Calculate days sober for display
@@ -1004,7 +1004,7 @@
                             // Row: HIDE INVOICES (full width)
                             `<div style='margin-bottom:10px;'><label style='${labelStyle}'>Hide Invoices</label><select name='HIDE_INVOICES' style='${fieldStyle}'><option value=''>No</option><option value='1' ${isHideYes ? 'selected' : ''}>Yes</option></select></div>`,
                             // Staff password (shown only for status 4)
-                            `<div id="staffPwSection" style="margin-bottom:10px;${statusVal==='4'?'':'display:none;'}"><label style='${labelStyle}'>Staff Password</label><input name='STAFF_PW' type='text' value="${member.staffPw || ''}" placeholder="Set portal login password" style='${fieldStyle}'><div style="font-size:12px;color:#718096;margin-top:4px;">Password this staff member uses to log into the Manager Portal.</div></div>`,
+                            `<div id="staffPwSection" style="margin-bottom:10px;${statusVal==='4'?'':'display:none;'}"><label style='${labelStyle}'>Management Password</label><input name='STAFF_PW' type='text' value="${member.staffPw || ''}" placeholder="Set portal login password" style='${fieldStyle}'><div style="font-size:12px;color:#718096;margin-top:4px;">Password this manager uses to log into the Management Portal.</div></div>`,
                             // Census / bedboard inclusion (shown for status 4)
                             (function() {
                                 const isCensusChecked = member.inCensus === true;
@@ -1013,7 +1013,7 @@
                                     `<label style="display:flex;align-items:center;gap:10px;cursor:pointer;font-size:14px;font-weight:600;color:#276749;">`+
                                     `<input type="checkbox" name="inCensus" ${isCensusChecked?'checked':''} style="width:18px;height:18px;">`+
                                     `<span>🏠 Include in census &amp; bed board</span></label>`+
-                                    `<div style="font-size:12px;color:#718096;margin-top:6px;">Check if this staff member also occupies a bed and should appear in the census count and bed board.</div>`+
+                                    `<div style="font-size:12px;color:#718096;margin-top:6px;">Check if this manager also occupies a bed and should appear in the census count and bed board.</div>`+
                                     `</div>`;
                             })(),
                             // Permissions section (shown only for status 4)
@@ -1041,8 +1041,8 @@
                                     `<span>${p.label}</span></label>`
                                 ).join('');
                                 return `<div id="permissionsSection" style="border:2px solid #667eea;border-radius:8px;padding:14px;margin-bottom:14px;${statusVal==='4'?'':'display:none;'}">`+
-                                    `<div style="font-weight:700;color:#667eea;margin-bottom:8px;">🔑 Manager Portal Access</div>`+
-                                    `<div style="font-size:12px;color:#718096;margin-bottom:10px;">Select which sections this staff member can access in the Manager Portal. Applies only to Status 4.</div>`+
+                                    `<div style="font-weight:700;color:#667eea;margin-bottom:8px;">🔑 Management Portal Access</div>`+
+                                    `<div style="font-size:12px;color:#718096;margin-bottom:10px;">Select which sections this manager can access in the Management Portal. Applies only to Status 4.</div>`+
                                     boxes+`</div>`;
                             })(),
                             // Save button
@@ -1943,7 +1943,7 @@
                     ),
                     // Row: STATUS | REF
                     makeRow(
-                        `<label style='${labelStyle}'>STATUS</label><select name='STATUS' id='addMemberStatus' onchange='onAddMemberStatusChange()' style='${fieldStyle}'><option value='1'${defaultStatus==='1'?' selected':''}>1 - Active</option><option value='2'>2 - Inactive</option><option value='3'>3 - Discharged</option><option value='H'${defaultStatus==='H'?' selected':''}>H - Hold</option><option value='W'>W - Wait List</option><option value='4'>4 - Staff</option><option value='5'>5 - Staff</option></select>`,
+                        `<label style='${labelStyle}'>STATUS</label><select name='STATUS' id='addMemberStatus' onchange='onAddMemberStatusChange()' style='${fieldStyle}'><option value='1'${defaultStatus==='1'?' selected':''}>1 - Active</option><option value='2'>2 - Inactive</option><option value='3'>3 - Discharged</option><option value='H'${defaultStatus==='H'?' selected':''}>H - Hold</option><option value='W'>W - Wait List</option><option value='4'>4 - Management</option><option value='5'>5 - Management</option></select>`,
                         `<label style='${labelStyle}'>REF</label><input name='REF' value="${getPrefillVal('REF')}" style='${fieldStyle}'>`
                     ),
                     // Row: FIRST | LAST
@@ -2872,7 +2872,7 @@
                 await fetch(`${API_BASE}/api/overnight-pass/${id}`, {
                     method: 'PATCH',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ status: 'approved', reviewedBy: 'Staff' })
+                    body: JSON.stringify({ status: 'approved', reviewedBy: 'Management' })
                 });
                 await loadOvernightPasses();
             } catch (e) { console.error('Error approving pass:', e); }
@@ -2883,7 +2883,7 @@
                 await fetch(`${API_BASE}/api/overnight-pass/${id}`, {
                     method: 'PATCH',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ status: 'denied', reviewedBy: 'Staff' })
+                    body: JSON.stringify({ status: 'denied', reviewedBy: 'Management' })
                 });
                 await loadOvernightPasses();
             } catch (e) { console.error('Error denying pass:', e); }
@@ -2953,7 +2953,7 @@
             const memberNameEl = document.getElementById('kmMemberName');
             const expiresAt = document.getElementById('kmExpires').value;
             const statusEl  = document.getElementById('kmStatus');
-            const staffName = (window.currentStaffName) || 'Staff';
+            const staffName = (window.currentStaffName) || 'Management';
 
             if (!body) { statusEl.textContent = '⚠ Please enter a message.'; statusEl.style.color = '#dc3545'; return; }
             if (target === 'individual' && !memberId) { statusEl.textContent = '⚠ Please enter a Member ID.'; statusEl.style.color = '#dc3545'; return; }
