@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Staff Dashboard - Horizon House (Restored)</title>
+    <title>Admin Portal - Horizon House</title>
     <style>
                                 /* Alternating row shading for All Members modal table */
                                 #allMembersTable tbody tr:nth-child(even) {
@@ -563,7 +563,7 @@
     <!-- Login Form -->
     <div class="login-container" id="loginContainer">
         <h1>🔐 Staff Login</h1>
-        <p>Enter password to access staff dashboard</p>
+        <p>Enter password to access the Admin Portal</p>
         <form id="loginForm">
             <div class="form-group">
                 <label for="password">Password</label>
@@ -580,8 +580,8 @@
             <div class="dashboard-header-content">
                 <img src="/hhlogo.png" alt="Horizon House Logo" class="dashboard-logo">
                 <div>
-                    <h1>📊 Staff Dashboard</h1>
-                    <p style="color: #718096; margin-top: 5px;">Welcome to Horizon House Staff Portal</p>
+                    <h1>📊 Admin Portal</h1>
+                    <p style="color: #718096; margin-top: 5px;">Welcome to Horizon House Admin Portal</p>
                 </div>
             </div>
             <div class="header-buttons">
@@ -963,7 +963,7 @@
                             ),
                             // Row: STATUS | REF
                             makeRow(
-                                `<label style='${labelStyle}'>Status</label><select name='STATUS' style='${fieldStyle}'>${statusOptions}</select>`,
+                                `<label style='${labelStyle}'>Status</label><select name='STATUS' onchange='togglePermissionsSection(this.value)' style='${fieldStyle}'>${statusOptions}</select>`,
                                 `<label style='${labelStyle}'>Ref</label><input name='REF' value="${gv('REF')}" style='${fieldStyle}'>`
                             ),
                             // Row: FIRST | LAST
@@ -1003,9 +1003,44 @@
                             ),
                             // Row: HIDE INVOICES (full width)
                             `<div style='margin-bottom:10px;'><label style='${labelStyle}'>Hide Invoices</label><select name='HIDE_INVOICES' style='${fieldStyle}'><option value=''>No</option><option value='1' ${isHideYes ? 'selected' : ''}>Yes</option></select></div>`,
+                            // Permissions section (shown only for status 4)
+                            (function() {
+                                const ALL_PROFILE_PERMISSIONS = [
+                                    // ── Operational sections ──
+                                    { key: 'overnight_passes',    label: '🌙 Overnight Passes' },
+                                    { key: 'drug_screens',        label: '🧪 Drug Screen History' },
+                                    { key: 'sign_inout',          label: '🚪 Sign In/Out Board' },
+                                    { key: 'member_schedules',    label: '📅 Member Schedules' },
+                                    { key: 'meeting_cards',       label: '🪪 Meeting Cards' },
+                                    // ── Forms ──
+                                    { key: 'discharge_form',      label: '📄 Discharge Form' },
+                                    { key: 'property_storage',    label: '📦 Property Storage Log' },
+                                    { key: 'drug_screen_form',    label: '🧪 Drug Screen Form' },
+                                    { key: 'incident_form',       label: '⚠️ Incident Report' },
+                                    { key: 'maintenance_request', label: '🔧 Maintenance Request (coming soon)' },
+                                    { key: 'contract_form',       label: '📋 Contract Form (coming soon)' },
+                                    // Add new permission keys here to have them appear in this list.
+                                ];
+                                const currentPerms = Array.isArray(member.permissions) ? member.permissions : [];
+                                const boxes = ALL_PROFILE_PERMISSIONS.map(p =>
+                                    `<label style="display:flex;align-items:center;gap:8px;padding:5px 0;cursor:pointer;font-size:14px;">`+
+                                    `<input type="checkbox" name="perm_${p.key}" value="${p.key}" ${currentPerms.includes(p.key)?'checked':''}>`+
+                                    `<span>${p.label}</span></label>`
+                                ).join('');
+                                return `<div id="permissionsSection" style="border:2px solid #667eea;border-radius:8px;padding:14px;margin-bottom:14px;${statusVal==='4'?'':'display:none;'}">`+
+                                    `<div style="font-weight:700;color:#667eea;margin-bottom:8px;">🔑 Manager Portal Access</div>`+
+                                    `<div style="font-size:12px;color:#718096;margin-bottom:10px;">Select which sections this staff member can access in the Manager Portal. Applies only to Status 4.</div>`+
+                                    boxes+`</div>`;
+                            })(),
                             // Save button
                             `<button type="submit" style="padding:12px;background:#28a745;color:white;border:none;border-radius:6px;font-weight:700;font-size:1.1rem;">Save</button>`
                         ].join('');
+
+                        // Toggle permissions section when status dropdown changes
+                        window.togglePermissionsSection = function(val) {
+                            const sec = document.getElementById('permissionsSection');
+                            if (sec) sec.style.display = val === '4' ? 'block' : 'none';
+                        };
 
                         // Days sober calculator for profile form
                         window.calcProfileDaysSober = function() {
@@ -1059,6 +1094,11 @@
                             HIDE_INVOICES: form.elements['HIDE_INVOICES'] ? (form.elements['HIDE_INVOICES'].value === '1') : false,
                         };
                         if (form.elements['PIN'] && form.elements['PIN'].value) payload.pin = form.elements['PIN'].value;
+                        // Collect permissions if status is 4
+                        if (payload.status === '4') {
+                            const checkedBoxes = form.querySelectorAll('[name^="perm_"]:checked');
+                            payload.permissions = Array.from(checkedBoxes).map(cb => cb.value);
+                        }
                         document.getElementById('staffProfileStatus').textContent = 'Saving...';
                         try {
                             // Try PATCH first (edit), if 404 then POST (add)

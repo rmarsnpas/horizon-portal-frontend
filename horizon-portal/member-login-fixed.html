@@ -305,7 +305,9 @@
             localStorage.setItem('memberLastName', userRecord.LAST_NAME || '');
             localStorage.setItem('memberEmail', userRecord.EMAIL || '');
             console.log('AccessCode:', userRecord.AccessCode);
-            if ([1,2,4,5].includes(userRecord.AccessCode)) {
+            if (userRecord.AccessCode === 4) {
+                window.location.href = '/staff-limited-portal.html';
+            } else if ([1,2,5].includes(userRecord.AccessCode)) {
                 window.location.href = 'members/dashboard.html';
             } else {
                 showError('Access denied.');

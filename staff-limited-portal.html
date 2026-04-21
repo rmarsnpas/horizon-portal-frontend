@@ -1,0 +1,355 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Manager Portal – Horizon House</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+        }
+
+        /* ── Login ── */
+        .login-container {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            padding: 20px;
+        }
+        .login-box {
+            background: white;
+            border-radius: 16px;
+            padding: 40px;
+            width: 100%;
+            max-width: 400px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            text-align: center;
+        }
+        .login-box h1 { color: #2d3748; font-size: 24px; margin-bottom: 8px; }
+        .login-box p { color: #718096; font-size: 14px; margin-bottom: 28px; }
+        .form-group { text-align: left; margin-bottom: 18px; }
+        .form-group label { display: block; font-weight: 600; color: #4a5568; margin-bottom: 6px; font-size: 14px; }
+        .form-group input {
+            width: 100%; padding: 12px 14px;
+            border: 2px solid #e2e8f0; border-radius: 8px;
+            font-size: 16px; transition: border-color 0.2s;
+        }
+        .form-group input:focus { outline: none; border-color: #667eea; }
+        .btn-login {
+            width: 100%; padding: 14px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white; border: none; border-radius: 8px;
+            font-size: 16px; font-weight: 700; cursor: pointer;
+            transition: opacity 0.2s;
+        }
+        .btn-login:hover { opacity: 0.9; }
+        .btn-login:disabled { opacity: 0.5; cursor: not-allowed; }
+        .error-message {
+            display: none; color: #e53e3e; font-size: 14px;
+            font-weight: 600; margin-top: 12px; padding: 10px;
+            background: #fff5f5; border-radius: 6px; border: 1px solid #fed7d7;
+        }
+
+        /* ── Portal ── */
+        .portal-container { display: none; padding: 20px; max-width: 1200px; margin: 0 auto; }
+
+        .portal-header {
+            background: white; padding: 20px 28px; border-radius: 12px;
+            margin-bottom: 24px; box-shadow: 0 4px 6px rgba(0,0,0,0.08);
+            display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 12px;
+        }
+        .portal-header-left { display: flex; align-items: center; gap: 16px; }
+        .portal-header-left img { height: 48px; border-radius: 8px; }
+        .portal-header h1 { color: #2d3748; font-size: 22px; }
+        .portal-header p { color: #718096; font-size: 13px; margin-top: 2px; }
+        .header-buttons { display: flex; gap: 10px; flex-wrap: wrap; }
+        .btn-home {
+            padding: 8px 16px; background: #edf2f7; color: #4a5568;
+            text-decoration: none; border-radius: 8px; font-weight: 600; font-size: 14px;
+        }
+        .btn-logout {
+            padding: 8px 16px; background: #e53e3e; color: white;
+            border: none; border-radius: 8px; font-weight: 600; font-size: 14px; cursor: pointer;
+        }
+
+        .section-header {
+            background: white; padding: 16px 22px; border-radius: 12px;
+            margin-bottom: 16px; box-shadow: 0 4px 6px rgba(0,0,0,0.06);
+        }
+        .section-header h2 { color: #2d3748; font-size: 18px; margin-bottom: 4px; }
+        .section-header p { color: #718096; font-size: 13px; }
+
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 16px;
+            margin-bottom: 28px;
+        }
+        .dashboard-card {
+            background: white; border-radius: 12px; padding: 24px 20px;
+            text-align: center; text-decoration: none; color: inherit;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.07); transition: transform 0.2s, box-shadow 0.2s;
+            display: block;
+        }
+        .dashboard-card:hover { transform: translateY(-3px); box-shadow: 0 8px 20px rgba(0,0,0,0.12); }
+        .card-icon { font-size: 36px; margin-bottom: 10px; }
+        .card-title { font-size: 15px; font-weight: 700; color: #2d3748; margin-bottom: 6px; }
+        .card-label { font-size: 12px; color: #718096; }
+        .card-disabled { opacity: 0.55; cursor: not-allowed; }
+        .card-disabled:hover { transform: none; box-shadow: 0 4px 6px rgba(0,0,0,0.07); }
+
+        .empty-state {
+            background: white; border-radius: 12px; padding: 48px 24px;
+            text-align: center; color: #718096; box-shadow: 0 4px 6px rgba(0,0,0,0.06);
+        }
+        .empty-state .icon { font-size: 48px; margin-bottom: 16px; }
+        .empty-state h3 { color: #4a5568; margin-bottom: 8px; }
+
+        @media (max-width: 600px) {
+            .dashboard-grid { grid-template-columns: repeat(2, 1fr); }
+            .portal-header { flex-direction: column; align-items: flex-start; }
+        }
+    </style>
+</head>
+<body>
+
+<!-- ── Login ── -->
+<div class="login-container" id="loginContainer">
+    <div class="login-box">
+        <h1>🔐 Manager Portal</h1>
+        <p>Sign in with your Staff ID and password</p>
+        <form id="loginForm" onsubmit="doLogin(event)">
+            <div class="form-group">
+                <label for="memberId">Staff Member ID</label>
+                <input type="text" id="memberId" autocomplete="username" required autofocus>
+            </div>
+            <div class="form-group">
+                <label for="staffPassword">Staff Password</label>
+                <input type="password" id="staffPassword" autocomplete="current-password" required>
+            </div>
+            <button type="submit" class="btn-login" id="loginBtn">Sign In</button>
+            <div class="error-message" id="errorMsg"></div>
+        </form>
+    </div>
+</div>
+
+<!-- ── Portal ── -->
+<div class="portal-container" id="portalContainer">
+    <div class="portal-header">
+        <div class="portal-header-left">
+            <img src="/hhlogo.png" alt="Horizon House Logo" onerror="this.style.display='none'">
+            <div>
+                <h1>🏠 Horizon House Manager Portal</h1>
+                <p>Welcome, <span id="staffName">Staff Member</span></p>
+            </div>
+        </div>
+        <div class="header-buttons">
+            <a href="/" class="btn-home">🏠 Home</a>
+            <button class="btn-logout" onclick="logout()">Sign Out</button>
+        </div>
+    </div>
+
+    <!-- Pending Review Section -->
+    <div class="section-header" id="pendingSection" style="display:none;">
+        <h2>⏳ Pending Review</h2>
+        <p>Your assigned operational areas</p>
+    </div>
+    <div class="dashboard-grid" id="pendingGrid" style="display:none;"></div>
+
+    <!-- Forms Section -->
+    <div class="section-header" id="formsSection" style="display:none; margin-top: 8px;">
+        <h2>📝 Forms</h2>
+        <p>Create and manage facility forms</p>
+    </div>
+    <div class="dashboard-grid" id="formsGrid" style="display:none;"></div>
+
+    <!-- No access fallback -->
+    <div class="empty-state" id="emptyState" style="display:none;">
+        <div class="icon">🔒</div>
+        <h3>No Sections Assigned</h3>
+        <p>You don't have access to any sections yet.<br>Please contact your administrator to be assigned permissions.</p>
+    </div>
+</div>
+
+<script>
+    const API_BASE = 'https://horizon-portal-backend-production-3532.up.railway.app';
+    const SESSION_KEY = 'horizonLimitedStaffAuth';
+
+    // ── Permission → card config ──────────────────────────────────────────────
+    // Each entry maps a permission key to display info.
+    // group: 'pending' = operational section, 'forms' = forms section
+    //
+    // TO ADD A NEW SECTION OR FORM:
+    //   1. Add an entry here with a unique key.
+    //   2. Add the same key to ALL_PROFILE_PERMISSIONS in staff-dashboard.html.
+    //   Set disabled:true and href:'#' while the page is not yet built.
+    const SECTION_CONFIG = {
+        overnight_passes:   { icon: '🌙', title: 'Overnight Passes',      href: '#',                                                    label: 'Pending Requests',  group: 'pending', onclick: "alert('Overnight pass panel requires staff dashboard access.')" },
+        drug_screens:       { icon: '🧪', title: 'Drug Screen History',    href: '/drug-screen-history.html',                            label: 'View History',      group: 'pending' },
+        sign_inout:         { icon: '🚪', title: 'Sign In/Out Board',      href: '/horizon-portal/members/member-status.html',           label: 'Currently Out',     group: 'pending' },
+        member_schedules:   { icon: '📅', title: 'Member Schedules',       href: '/horizon-portal/members/staff-schedules.html',         label: 'Submitted Entries', group: 'pending' },
+        meeting_cards:      { icon: '🪪', title: 'Meeting Cards',          href: '/horizon-portal/members/staff-meeting-cards.html',     label: 'Pending Review',    group: 'pending' },
+        // ── Forms ──
+        discharge_form:     { icon: '📄', title: 'Discharge Form',         href: '/discharge-combined-fillable.html',                    label: 'Member Discharge',  group: 'forms'   },
+        property_storage:   { icon: '📦', title: 'Property Storage Log',   href: '/property-storage-form.html',                          label: 'Member Property',   group: 'forms'   },
+        drug_screen_form:   { icon: '🧪', title: 'Drug Screen Form',       href: '/drug-screen.html',                                    label: 'Record New Test',   group: 'forms'   },
+        incident_form:      { icon: '⚠️',  title: 'Incident Report',        href: '/incident-form.html',                                  label: 'File Report',       group: 'forms',  disabled: true },
+        maintenance_request:{ icon: '🔧', title: 'Maintenance Request',    href: '#',                                                    label: 'Coming Soon',       group: 'forms',  disabled: true },
+        contract_form:      { icon: '📋', title: 'Contract Form',          href: '#',                                                    label: 'Coming Soon',       group: 'forms',  disabled: true },
+        // Add future forms below this line following the same pattern.
+    };
+
+    // ── Session restore ───────────────────────────────────────────────────────
+    (function () {
+        const saved = sessionStorage.getItem(SESSION_KEY);
+        if (saved) {
+            try {
+                const s = JSON.parse(saved);
+                if (s && s.memberId) { showPortal(s.name, s.permissions); return; }
+            } catch (e) { /* bad data */ }
+            sessionStorage.removeItem(SESSION_KEY);
+        }
+    })();
+
+    // ── Login ─────────────────────────────────────────────────────────────────
+    async function doLogin(e) {
+        e.preventDefault();
+        const memberId = document.getElementById('memberId').value.trim();
+        const password = document.getElementById('staffPassword').value.trim();
+        const btn = document.getElementById('loginBtn');
+        const err = document.getElementById('errorMsg');
+
+        btn.disabled = true;
+        btn.textContent = 'Signing in…';
+        err.style.display = 'none';
+
+        try {
+            // Step 1: verify staff password
+            const authRes = await fetch(`${API_BASE}/api/verifyStaff`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ id: memberId, pw: password })
+            });
+
+            if (!authRes.ok && authRes.status !== 200) throw new Error('Server error');
+            const authData = await authRes.json();
+
+            if (!authData.ok) {
+                showError(authData.reason === 'no_staff_pw'
+                    ? 'No staff password on file for this ID.'
+                    : 'Incorrect ID or password.');
+                return;
+            }
+
+            // Step 2: fetch member record
+            const memberRes = await fetch(`${API_BASE}/api/getMember?id=${encodeURIComponent(memberId)}`);
+            if (!memberRes.ok) throw new Error('Could not load member record.');
+            const member = await memberRes.json();
+            if (!member) throw new Error('Member record not found.');
+
+            // Step 3: must be status 4
+            const status = String(member.STATU || member.STATUS || '').trim();
+            if (status !== '4') {
+                showError(
+                    status === '5'
+                        ? 'Admin staff should use the Admin Portal.'
+                        : 'This portal is for managers (status 4) only.'
+                );
+                return;
+            }
+
+            // Step 4: read permissions
+            const permissions = Array.isArray(member.permissions) ? member.permissions : [];
+            const name = [member.FIRST_NAME, member.LAST_NAME].filter(Boolean).join(' ') || memberId;
+
+            sessionStorage.setItem(SESSION_KEY, JSON.stringify({ memberId, name, permissions }));
+            showPortal(name, permissions);
+
+        } catch (ex) {
+            showError(ex.message || 'Login failed. Please try again.');
+        } finally {
+            btn.disabled = false;
+            btn.textContent = 'Sign In';
+        }
+    }
+
+    function showError(msg) {
+        const err = document.getElementById('errorMsg');
+        err.textContent = msg;
+        err.style.display = 'block';
+    }
+
+    // ── Portal render ─────────────────────────────────────────────────────────
+    function showPortal(name, permissions) {
+        document.getElementById('loginContainer').style.display = 'none';
+        document.getElementById('staffName').textContent = name;
+        buildGrids(permissions);
+        document.getElementById('portalContainer').style.display = 'block';
+    }
+
+    function buildGrids(permissions) {
+        const pendingCards = [];
+        const formCards = [];
+
+        for (const [key, cfg] of Object.entries(SECTION_CONFIG)) {
+            if (!permissions.includes(key)) continue;
+            const html = buildCard(cfg);
+            if (cfg.group === 'pending') pendingCards.push(html);
+            else formCards.push(html);
+        }
+
+        const pendingGrid = document.getElementById('pendingGrid');
+        const formsGrid   = document.getElementById('formsGrid');
+        const emptyState  = document.getElementById('emptyState');
+
+        if (pendingCards.length > 0) {
+            document.getElementById('pendingSection').style.display = 'block';
+            pendingGrid.innerHTML = pendingCards.join('');
+            pendingGrid.style.display = 'grid';
+        }
+        if (formCards.length > 0) {
+            document.getElementById('formsSection').style.display = 'block';
+            formsGrid.innerHTML = formCards.join('');
+            formsGrid.style.display = 'grid';
+        }
+        if (pendingCards.length === 0 && formCards.length === 0) {
+            emptyState.style.display = 'block';
+        }
+    }
+
+    function buildCard(cfg) {
+        if (cfg.disabled) {
+            return `<div class="dashboard-card card-disabled">
+                <div class="card-icon">${cfg.icon}</div>
+                <div class="card-title">${cfg.title}</div>
+                <div class="card-label">${cfg.label}</div>
+            </div>`;
+        }
+        if (cfg.onclick) {
+            return `<a href="#" onclick="${cfg.onclick}; return false;" class="dashboard-card">
+                <div class="card-icon">${cfg.icon}</div>
+                <div class="card-title">${cfg.title}</div>
+                <div class="card-label">${cfg.label}</div>
+            </a>`;
+        }
+        return `<a href="${cfg.href}" class="dashboard-card">
+            <div class="card-icon">${cfg.icon}</div>
+            <div class="card-title">${cfg.title}</div>
+            <div class="card-label">${cfg.label}</div>
+        </a>`;
+    }
+
+    function logout() {
+        sessionStorage.removeItem(SESSION_KEY);
+        document.getElementById('portalContainer').style.display = 'none';
+        document.getElementById('loginContainer').style.display = 'flex';
+        document.getElementById('loginForm').reset();
+        document.getElementById('errorMsg').style.display = 'none';
+    }
+</script>
+</body>
+</html>
