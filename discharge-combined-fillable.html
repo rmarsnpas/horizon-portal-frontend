@@ -611,13 +611,14 @@
     </div>
 
     <div class="signature-row" style="margin-top:2px;">
-      <div class="signature-block">
+      <div class="signature-block" style="flex:2;">
         <canvas id="member_signature_canvas" class="signature-canvas" width="350" height="70"></canvas>
         <div class="signature-label">Member Signature (if cooperative)</div>
         <button type="button" class="clear-sig-btn" onclick="clearSignature('member_signature_canvas')">Clear</button>
       </div>
       <div class="signature-block">
-        <input type="date" name="member_signature_date" id="member_signature_date" class="signature-input">
+        <span class="label" style="display:block;margin-bottom:2px;">Member Signature Date</span>
+        <input type="date" name="member_signature_date" id="member_signature_date" class="text-input">
         <div class="signature-label">Date</div>
       </div>
     </div>
