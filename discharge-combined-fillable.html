@@ -471,20 +471,19 @@
     </label>
 
     <div class="section-label" style="margin-top:8px;">Type of Test</div>
-    <label class="checkbox-group">
-      <input type="checkbox" name="test_type_urine"> Urine
-    </label>
-    <label class="checkbox-group" style="align-items:center;">
-      <input type="checkbox" name="test_type_breathalyzer"> Breathalyzer
-      <input type="text" name="bac_percent" class="text-input" style="width:60px;margin:0 4px 0 8px;">
-      % BAC
-    </label>
-    <label class="checkbox-group">
-      <input type="checkbox" name="test_type_oral"> Oral swab
-    </label>
-    <label class="checkbox-group">
-      <input type="checkbox" name="test_type_other_test"> Other
-    </label>
+    <div style="display:flex; gap:24px; flex-wrap:wrap; align-items:center;">
+      <label class="checkbox-group">
+        <input type="checkbox" name="test_type_urine"> Urine
+      </label>
+      <label class="checkbox-group">
+        <input type="checkbox" name="test_type_oral"> Oral swab
+      </label>
+      <label class="checkbox-group" style="align-items:center;">
+        <input type="checkbox" name="test_type_breathalyzer"> Breathalyzer
+        <input type="text" name="bac_percent" class="text-input" style="width:60px;margin:0 4px 0 8px;">
+        % BAC
+      </label>
+    </div>
 
     <div class="row" style="margin-top:8px;">
       <div class="field">
@@ -531,21 +530,25 @@
 
     <h2>Safety &amp; Exit Procedures</h2>
 
-    <label class="checkbox-group">
-      <input type="checkbox" name="exit_no_incident"> Member left property without incident
-    </label>
-    <label class="checkbox-group">
-      <input type="checkbox" name="exit_detox_resources"> Provided detox/IOP resources
-    </label>
-    <label class="checkbox-group">
-      <input type="checkbox" name="exit_transport_arranged"> Transportation arranged
-    </label>
-    <label class="checkbox-group">
-      <input type="checkbox" name="exit_cares_line"> CARES Line called
-    </label>
-    <label class="checkbox-group">
-      <input type="checkbox" name="exit_police_ems"> Police/EMS involvement (if any)
-    </label>
+    <div style="display:flex; gap:24px; flex-wrap:wrap;">
+      <label class="checkbox-group">
+        <input type="checkbox" name="exit_no_incident"> Member left property without incident
+      </label>
+      <label class="checkbox-group">
+        <input type="checkbox" name="exit_police_ems"> Police/EMS called
+      </label>
+    </div>
+    <div style="display:flex; gap:24px; flex-wrap:wrap;">
+      <label class="checkbox-group">
+        <input type="checkbox" name="exit_detox_resources"> Provided detox/IOP resources
+      </label>
+      <label class="checkbox-group">
+        <input type="checkbox" name="exit_cares_line"> CARES Line called
+      </label>
+      <label class="checkbox-group">
+        <input type="checkbox" name="exit_transport_arranged"> Transportation arranged
+      </label>
+    </div>
 
     <div class="section-label" style="margin-top:8px;">Notifications</div>
     <div style="display:flex; gap:24px; flex-wrap:wrap;">
@@ -558,15 +561,17 @@
     </div>
 
     <div class="section-label" style="margin-top:8px;">Member's Property</div>
-    <label class="checkbox-group">
-      <input type="radio" name="member_property" value="removed" id="prop_removed"> Removed by member
-    </label>
-    <label class="checkbox-group">
-      <input type="radio" name="member_property" value="stored" id="prop_stored"> Stored by staff (see Property Storage Log)
-    </label>
-    <label class="checkbox-group" style="margin-top:4px;">
-      <input type="checkbox" name="room_inspected"> Room inspected (cleared free of contraband, etc)
-    </label>
+    <div style="display:flex; gap:24px; flex-wrap:wrap; align-items:center;">
+      <label class="checkbox-group">
+        <input type="checkbox" name="member_property_removed" id="prop_removed"> Removed by member
+      </label>
+      <label class="checkbox-group">
+        <input type="checkbox" name="member_property_stored" id="prop_stored"> Stored by staff (see Property Storage Log)
+      </label>
+      <label class="checkbox-group">
+        <input type="checkbox" name="room_inspected"> Room inspected (cleared free of contraband, etc)
+      </label>
+    </div>
 
     <div class="section-label" style="margin-top:8px;">Member eligible for readmit?</div>
     <label class="checkbox-group">
@@ -672,7 +677,8 @@
         setChk('exit_police_ems', d.exitPoliceEms);
         setChk('notif_case_manager', d.notifCaseManager);
         setChk('notif_roi_emg', d.notifRoiEmg);
-        setRad('member_property', d.memberProperty);
+        setChk('member_property_removed', d.memberPropertyRemoved);
+        setChk('member_property_stored', d.memberPropertyStored);
         setChk('room_inspected', d.roomInspected);
         setRad('eligible_readmit', d.eligibleReadmit);
         setVal('readmit_notes', d.readmitNotes);
@@ -726,7 +732,7 @@ function saveToPDF() {
   saveFormToBackend();
   window.print();
   // Open property storage form after printing if property was stored by staff
-  if (document.getElementById('prop_stored').checked) {
+  if (document.getElementById('prop_stored') && document.getElementById('prop_stored').checked) {
     const memberName = document.getElementById('member_name').value;
     const url = memberName ? 'property-storage-form.html?memberName=' + encodeURIComponent(memberName) : 'property-storage-form.html';
     setTimeout(function() { window.open(url, '_blank'); }, 1000);
@@ -777,7 +783,8 @@ async function saveFormToBackend() {
     exitPoliceEms: q('exit_police_ems') ? q('exit_police_ems').checked : false,
     notifCaseManager: q('notif_case_manager') ? q('notif_case_manager').checked : false,
     notifRoiEmg: q('notif_roi_emg') ? q('notif_roi_emg').checked : false,
-    memberProperty: qc('member_property') ? qc('member_property').value : '',
+    memberPropertyRemoved: q('member_property_removed') ? q('member_property_removed').checked : false,
+    memberPropertyStored: q('member_property_stored') ? q('member_property_stored').checked : false,,
     roomInspected: q('room_inspected') ? q('room_inspected').checked : false,
     eligibleReadmit: qc('eligible_readmit') ? qc('eligible_readmit').value : '',
     readmitNotes: q('readmit_notes') ? q('readmit_notes').value : '',
