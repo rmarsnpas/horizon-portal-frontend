@@ -1,17 +1,6 @@
 {
-  "generatedAt": "2026-04-22T22:01:43.000Z",
+  "generatedAt": "2026-04-22T22:02:39.000Z",
   "invoices": [
-    {
-      "memberId": "143",
-      "invoiceNumber": "143-20260228",
-      "status": "unpaid",
-      "dueDate": "02-28-2026",
-      "paidDate": "",
-      "amount": "",
-      "pdfPath": "invoices/unpaid/MID143_INV143-20260228_MANUAL_DUE02-28-2026.pdf",
-      "fileName": "MID143_INV143-20260228_MANUAL_DUE02-28-2026.pdf",
-      "parseOk": true
-    },
     {
       "memberId": "142",
       "invoiceNumber": "142-20260320",
@@ -87,6 +76,17 @@
       "amount": "",
       "pdfPath": "invoices/paid/MID144_INV144-20260227_MANUAL_DUE02-27-2026_PAID02-27-2026.pdf",
       "fileName": "MID144_INV144-20260227_MANUAL_DUE02-27-2026_PAID02-27-2026.pdf",
+      "parseOk": true
+    },
+    {
+      "memberId": "143",
+      "invoiceNumber": "143-20260228",
+      "status": "paid",
+      "dueDate": "02-28-2026",
+      "paidDate": "02-28-2026",
+      "amount": "",
+      "pdfPath": "invoices/paid/MID143_INV143-20260228_MANUAL_DUE02-28-2026_PAID02-28-2026.pdf",
+      "fileName": "MID143_INV143-20260228_MANUAL_DUE02-28-2026_PAID02-28-2026.pdf",
       "parseOk": true
     },
     {
