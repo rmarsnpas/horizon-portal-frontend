@@ -1498,6 +1498,7 @@
                         const rateDisplay = rate !== null && rate !== undefined && rate !== '' ? '$' + rate : '';
                         const isStatus5 = String(status).trim() === '5';
                         const displayNum = isStatus5 ? '' : ++rowNum;
+                        const pinDisplay = String(member.PIN ?? member.pin ?? '');
                         return `<tr style="cursor:pointer;" onclick="openStaffProfileModalFromTable('${id}')">
                             <td>${displayNum}</td>
                             <td>${yr}</td>
@@ -1517,12 +1518,12 @@
                             <td>${rateDisplay}</td>
                             <td>${phone}</td>
                             <td>${email}</td>
-                            <td>${pin}</td>
+                            <td>${pinDisplay}</td>
                             <td>${billOnDay}</td>
                             <td>${key}</td>
                             <td>${ref}</td>
                             <td style="white-space:nowrap;">
-                                <button onclick="event.stopPropagation();openEditMemberModal(${idx})" style="padding:4px 10px;font-size:12px;background:#667eea;color:white;border:none;border-radius:4px;cursor:pointer;margin-right:4px;">Edit</button>
+                                <button onclick="event.stopPropagation();openEditMemberModalById('${id}')" style="padding:4px 10px;font-size:12px;background:#667eea;color:white;border:none;border-radius:4px;cursor:pointer;margin-right:4px;">Edit</button>
                                 <button onclick="event.stopPropagation();deleteMember('${id}','${firstName}','${lastName}')" style="padding:4px 10px;font-size:12px;background:#dc3545;color:white;border:none;border-radius:4px;cursor:pointer;">Delete</button>
                             </td>
                         </tr>`;
@@ -1568,6 +1569,14 @@
                                     openStaffProfileModal();
                                 };
                                 // Store for search and editing
+                function openEditMemberModalById(memberId) {
+                    const { members } = window._allMembersTableData;
+                    const idx = members.findIndex(m => String(m.ID || m.id || '') === String(memberId));
+                    if (idx === -1) { alert('Member not found'); return; }
+                    openEditMemberModal(idx);
+                }
+                window.openEditMemberModalById = openEditMemberModalById;
+
                 function openEditMemberModal(idx) {
                     const { members, allKeys } = window._allMembersTableData;
                     const member = members[idx];
@@ -1591,7 +1600,7 @@
                             case 'RATE': return member.RATE || member.rate || '';
                             case 'PHONE': return member.PHONE || member.phone || '';
                             case 'EMAIL': return member.EMAIL || member.email || '';
-                            case 'PIN': return member.PIN || member.pin || '';
+                            case 'PIN': return String(member.PIN ?? member.pin ?? '');
                             case 'BILL ON DAY': return member['BILL ON DAY'] || member.billOnDay || '';
                             case 'KEY': return member.KEY || member.key || '';
                             case 'REF': return member.REF || member.ref || '';
