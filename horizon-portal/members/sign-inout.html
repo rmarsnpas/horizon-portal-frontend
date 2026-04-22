@@ -231,6 +231,42 @@
         }
         #loginError { color: #e53e3e; font-size: 13px; margin-top: 8px; display: none; }
         .name-hint { font-size: 12px; color: #48bb78; margin-top: 3px; min-height: 16px; }
+
+        /* Invoice due notification banner */
+        @keyframes flash-green {
+            0%, 100% { background: #c6f6d5; border-color: #38a169; box-shadow: 0 0 0 0 rgba(56,161,105,0.4); }
+            50% { background: #9ae6b4; border-color: #276749; box-shadow: 0 0 0 8px rgba(56,161,105,0); }
+        }
+        @keyframes flash-yellow {
+            0%, 100% { background: #fefcbf; border-color: #d69e2e; box-shadow: 0 0 0 0 rgba(214,158,46,0.4); }
+            50% { background: #faf089; border-color: #b7791f; box-shadow: 0 0 0 8px rgba(214,158,46,0); }
+        }
+        @keyframes flash-red {
+            0%, 100% { background: #fed7d7; border-color: #e53e3e; box-shadow: 0 0 0 0 rgba(229,62,62,0.5); }
+            50% { background: #fc8181; border-color: #9b2c2c; box-shadow: 0 0 0 10px rgba(229,62,62,0); }
+        }
+        .invoice-alert {
+            display: none;
+            padding: 18px 24px;
+            border-radius: 10px;
+            border: 3px solid;
+            margin-bottom: 20px;
+            font-size: 16px;
+            font-weight: 700;
+            text-align: center;
+            letter-spacing: 0.01em;
+        }
+        .invoice-alert a {
+            font-weight: 700;
+            text-decoration: underline;
+            margin-left: 10px;
+        }
+        .invoice-alert.flash-green { animation: flash-green 1.2s ease-in-out infinite; color: #22543d; }
+        .invoice-alert.flash-green a { color: #22543d; }
+        .invoice-alert.flash-yellow { animation: flash-yellow 0.9s ease-in-out infinite; color: #744210; }
+        .invoice-alert.flash-yellow a { color: #744210; }
+        .invoice-alert.flash-red { animation: flash-red 0.6s ease-in-out infinite; color: #742a2a; }
+        .invoice-alert.flash-red a { color: #742a2a; }
     </style>
 </head>
 <body>
@@ -246,6 +282,9 @@
     </div>
 
     <div class="container" id="mainContent" style="display:none;">
+        <!-- Invoice due notification banner -->
+        <div id="invoiceAlert" class="invoice-alert" role="alert"></div>
+
         <div class="header">
             <h1>🏠 Manual Sign In/Out</h1>
             <p>Staff corrections &amp; manual entries</p>
@@ -366,7 +405,7 @@
             _lookupTimers[idField] = setTimeout(async () => {
                 const id = document.getElementById(idField).value.trim();
                 const hint = document.getElementById(hintField);
-                if (!id) { hint.textContent = ''; return; }
+                if (!id) { hint.textContent = ''; hideInvoiceAlert(); return; }
                 const members = await getMembersCache();
                 const m = members.find(x => String(x.ID).trim() === id);
                 if (m) {
@@ -379,10 +418,84 @@
                     } else {
                         hint.textContent = '';
                     }
+                    checkInvoiceDue(id);
                 } else {
                     hint.textContent = id.length >= 2 ? 'ID not found' : '';
+                    hideInvoiceAlert();
                 }
             }, 400);
+        }
+
+        // ── Invoice due notifications ───────────────────────────────────────
+        let _invoicesCache = null;
+        async function getInvoicesCache() {
+            if (_invoicesCache) return _invoicesCache;
+            try {
+                const res = await fetch('../invoices/invoices.json?t=' + Date.now(), { cache: 'no-store' });
+                const data = await res.json();
+                _invoicesCache = data.invoices || [];
+            } catch (e) { _invoicesCache = []; }
+            return _invoicesCache;
+        }
+
+        function showInvoiceAlert(cls, msg, memberId) {
+            const el = document.getElementById('invoiceAlert');
+            el.className = 'invoice-alert ' + cls;
+            el.innerHTML = '&#x26A0;&#xFE0F; ' + msg +
+                ' <a href="invoices.html?id=' + encodeURIComponent(memberId) + '">View Invoice &rarr;</a>';
+            el.style.display = 'block';
+        }
+
+        function hideInvoiceAlert() {
+            const el = document.getElementById('invoiceAlert');
+            el.style.display = 'none';
+            el.className = 'invoice-alert';
+        }
+
+        async function checkInvoiceDue(memberId) {
+            const invoices = await getInvoicesCache();
+            const today = new Date();
+            today.setHours(0, 0, 0, 0);
+
+            const unpaid = invoices.filter(inv =>
+                String(inv.memberId) === String(memberId) &&
+                inv.status === 'unpaid' &&
+                inv.dueDate
+            );
+
+            if (unpaid.length === 0) { hideInvoiceAlert(); return; }
+
+            // Find the most urgent invoice (smallest days-until-due)
+            let minDays = Infinity;
+            for (const inv of unpaid) {
+                const parts = inv.dueDate.split('-'); // MM-DD-YYYY
+                const due = new Date(parseInt(parts[2]), parseInt(parts[0]) - 1, parseInt(parts[1]));
+                const days = Math.round((due - today) / 86400000);
+                if (days < minDays) minDays = days;
+            }
+
+            if (minDays === 3) {
+                showInvoiceAlert('flash-green',
+                    'You have an invoice due in 3 days \u2014 please review it on your Member Portal.',
+                    memberId);
+            } else if (minDays === 2 || minDays === 1) {
+                showInvoiceAlert('flash-yellow',
+                    'Your invoice is due in ' + minDays + ' day' + (minDays !== 1 ? 's' : '') +
+                    ' \u2014 please review it on your Member Portal.',
+                    memberId);
+            } else if (minDays === 0) {
+                showInvoiceAlert('flash-red',
+                    'Your invoice is DUE TODAY \u2014 please review it on your Member Portal immediately.',
+                    memberId);
+            } else if (minDays < 0) {
+                const over = Math.abs(minDays);
+                showInvoiceAlert('flash-red',
+                    'Your invoice is OVERDUE by ' + over + ' day' + (over !== 1 ? 's' : '') +
+                    ' \u2014 please review it on your Member Portal immediately.',
+                    memberId);
+            } else {
+                hideInvoiceAlert();
+            }
         }
 
         let currentMember = null;
