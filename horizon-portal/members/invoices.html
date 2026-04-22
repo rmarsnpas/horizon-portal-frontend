@@ -405,31 +405,17 @@
       wrap.appendChild(table);
     }
 
-    function renderPaymentHistory(paidInvoices, partialPayments) {
+    function renderPaymentHistory(payments) {
       const wrap = document.getElementById('historyWrap');
 
-      // Build unified list: paid invoices + partial payment records
-      const rows = [];
-
-      paidInvoices.forEach(inv => {
-        rows.push({
-          date: inv.paidDate || '',
-          invoiceNumber: inv.invoiceNumber || inv.fileName || '',
-          amount: inv.amount || '',
-          type: 'paid',
-          note: ''
-        });
-      });
-
-      partialPayments.forEach(p => {
-        rows.push({
-          date: p.Date || p.date || p.PaymentDate || '',
-          invoiceNumber: p.InvoiceNumber || p.invoiceNumber || p.InvoiceID || '',
-          amount: p.Amount || p.amount || '',
-          type: 'partial',
-          note: p.Notes || p.note || p.Method || ''
-        });
-      });
+      // Build rows from receipts data
+      const rows = payments.map(p => ({
+        date: p.date || '',
+        invoiceNumber: p.invoiceId || '',
+        amount: p.amount || '',
+        method: p.paymentMethod || '',
+        note: p.notes || ''
+      }));
 
       if (!rows.length) {
         document.getElementById('historyEmpty').style.display = 'block';
@@ -465,18 +451,14 @@
       const tbody = table.querySelector('tbody');
       rows.forEach(row => {
         const tr = document.createElement('tr');
-        const pillClass = row.type === 'partial' ? 'pill pill-partial' : 'pill pill-paid';
-        const pillLabel = row.type === 'partial' ? 'PARTIAL' : 'PAID';
         const displayDate = normalizeDateDisplay(row.date) || '—';
         const displayAmount = row.amount ? formatMoney(row.amount) : '—';
+        const noteText = [row.method, row.note].filter(Boolean).join(' · ');
         tr.innerHTML = `
           <td>${escapeHtml(displayDate)}</td>
-          <td>
-            <span style="font-weight:700;">${escapeHtml(row.invoiceNumber)}</span>
-            &nbsp;<span class="${pillClass}">${pillLabel}</span>
-          </td>
+          <td><span style="font-weight:700;">${escapeHtml(row.invoiceNumber || '—')}</span></td>
           <td>${escapeHtml(displayAmount)}</td>
-          <td class="muted">${escapeHtml(row.note)}</td>
+          <td class="muted">${escapeHtml(noteText)}</td>
         `;
         tbody.appendChild(tr);
       });
@@ -549,22 +531,28 @@
       renderTable('unpaidWrap', unpaid, 'unpaid');
       renderTable('paidWrap', paid, 'paid');
 
-      // Fetch partial payment records from accounting system
-      let partialPayments = [];
+      // Load payment history from accounting backend API
+      let myPayments = [];
       try {
         const API_BASE = 'https://horizon-portal-backend-production-3532.up.railway.app';
         const pr = await fetch(`${API_BASE}/api/accounting/payments`);
         if (pr.ok) {
           const pd = await pr.json();
           const allPayments = Array.isArray(pd.payments) ? pd.payments : [];
-          partialPayments = allPayments.filter(p => {
+          myPayments = allPayments.filter(p => {
             const pmid = String(p.MemberID || p.memberId || p.member_id || '').trim();
             return pmid === String(memberId).trim();
-          });
+          }).map(p => ({
+            date: p.Date || p.date || p.PaymentDate || '',
+            invoiceNumber: p.InvoiceNumber || p.invoiceNumber || p.InvoiceID || p.invoiceId || '',
+            amount: p.Amount || p.amount || '',
+            method: p.Method || p.method || p.PaymentMethod || '',
+            note: p.Notes || p.note || ''
+          }));
         }
       } catch (e) { /* accounting payments optional */ }
 
-      renderPaymentHistory(paid, partialPayments);
+      renderPaymentHistory(myPayments);
     }
 
     // Logout function
