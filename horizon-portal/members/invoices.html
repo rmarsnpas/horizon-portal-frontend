@@ -169,6 +169,48 @@
       border: 1px solid #94A880;
     }
 
+    .pill-partial {
+      background: #fffbe6;
+      color: #b8860b;
+      border: 1px solid #E1C462;
+    }
+
+    .history-table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 10px;
+      background: #FFF8F3;
+      border: 1px solid #94A880;
+      border-radius: 8px;
+      overflow: hidden;
+    }
+
+    .history-table th {
+      background: #94A880;
+      color: #fff;
+      font-weight: 700;
+      padding: 10px;
+      text-align: left;
+      font-size: 14px;
+    }
+
+    .history-table td {
+      padding: 10px;
+      border-bottom: 1px solid #d9ead3;
+      font-size: 14px;
+      vertical-align: middle;
+    }
+
+    .history-table tr:last-child td {
+      border-bottom: none;
+    }
+
+    .history-empty {
+      color: #555;
+      font-size: 14px;
+      margin-top: 8px;
+    }
+
     .error {
       background: #FFF8F3;
       color: #F58634;
@@ -213,6 +255,12 @@
       <h3 style="margin:0;color:#F58634;">Paid</h3>
       <div id="paidEmpty" class="muted" style="margin-top:8px; display:none;">No paid invoices found.</div>
       <div id="paidWrap"></div>
+    </div>
+    <div class="section card">
+      <h3 style="margin:0;color:#94A880;">📋 Payment History</h3>
+      <p class="muted" style="margin:6px 0 0;">All payments recorded on your account, most recent first.</p>
+      <div id="historyEmpty" class="history-empty" style="margin-top:8px; display:none;">No payment history found.</div>
+      <div id="historyWrap"></div>
     </div>
   </div>
 
@@ -357,6 +405,85 @@
       wrap.appendChild(table);
     }
 
+    function renderPaymentHistory(paidInvoices, partialPayments) {
+      const wrap = document.getElementById('historyWrap');
+
+      // Build unified list: paid invoices + partial payment records
+      const rows = [];
+
+      paidInvoices.forEach(inv => {
+        rows.push({
+          date: inv.paidDate || '',
+          invoiceNumber: inv.invoiceNumber || inv.fileName || '',
+          amount: inv.amount || '',
+          type: 'paid',
+          note: ''
+        });
+      });
+
+      partialPayments.forEach(p => {
+        rows.push({
+          date: p.Date || p.date || p.PaymentDate || '',
+          invoiceNumber: p.InvoiceNumber || p.invoiceNumber || p.InvoiceID || '',
+          amount: p.Amount || p.amount || '',
+          type: 'partial',
+          note: p.Notes || p.note || p.Method || ''
+        });
+      });
+
+      if (!rows.length) {
+        document.getElementById('historyEmpty').style.display = 'block';
+        return;
+      }
+
+      // Sort newest first — parse MM-DD-YYYY or YYYY-MM-DD
+      function parseHistDate(s) {
+        if (!s) return 0;
+        const str = String(s).trim();
+        const m1 = str.match(/^(\d{2})-(\d{2})-(\d{4})$/);
+        if (m1) return new Date(`${m1[3]}-${m1[1]}-${m1[2]}`).getTime();
+        const m2 = str.match(/^\d{4}-\d{2}-\d{2}$/);
+        if (m2) return new Date(str).getTime();
+        return 0;
+      }
+      rows.sort((a, b) => parseHistDate(b.date) - parseHistDate(a.date));
+
+      const table = document.createElement('table');
+      table.className = 'history-table';
+      table.innerHTML = `
+        <thead>
+          <tr>
+            <th style="width:22%">Date Paid</th>
+            <th style="width:32%">Invoice</th>
+            <th style="width:16%">Amount</th>
+            <th>Notes</th>
+          </tr>
+        </thead>
+        <tbody id="historyTbody"></tbody>
+      `;
+
+      const tbody = table.querySelector('tbody');
+      rows.forEach(row => {
+        const tr = document.createElement('tr');
+        const pillClass = row.type === 'partial' ? 'pill pill-partial' : 'pill pill-paid';
+        const pillLabel = row.type === 'partial' ? 'PARTIAL' : 'PAID';
+        const displayDate = normalizeDateDisplay(row.date) || '—';
+        const displayAmount = row.amount ? formatMoney(row.amount) : '—';
+        tr.innerHTML = `
+          <td>${escapeHtml(displayDate)}</td>
+          <td>
+            <span style="font-weight:700;">${escapeHtml(row.invoiceNumber)}</span>
+            &nbsp;<span class="${pillClass}">${pillLabel}</span>
+          </td>
+          <td>${escapeHtml(displayAmount)}</td>
+          <td class="muted">${escapeHtml(row.note)}</td>
+        `;
+        tbody.appendChild(tr);
+      });
+
+      wrap.appendChild(table);
+    }
+
     // Debug: Show current memberId and all loaded invoices
     function debugInfo(memberId, allInvoices) {
       let debugDiv = document.getElementById('debugInfoBanner');
@@ -421,6 +548,23 @@
 
       renderTable('unpaidWrap', unpaid, 'unpaid');
       renderTable('paidWrap', paid, 'paid');
+
+      // Fetch partial payment records from accounting system
+      let partialPayments = [];
+      try {
+        const API_BASE = 'https://horizon-portal-backend-production-3532.up.railway.app';
+        const pr = await fetch(`${API_BASE}/api/accounting/payments`);
+        if (pr.ok) {
+          const pd = await pr.json();
+          const allPayments = Array.isArray(pd.payments) ? pd.payments : [];
+          partialPayments = allPayments.filter(p => {
+            const pmid = String(p.MemberID || p.memberId || p.member_id || '').trim();
+            return pmid === String(memberId).trim();
+          });
+        }
+      } catch (e) { /* accounting payments optional */ }
+
+      renderPaymentHistory(paid, partialPayments);
     }
 
     // Logout function
