@@ -859,8 +859,8 @@
                     }
 
 
-                    async function openStaffProfileModal() {
-                        const memberId = document.getElementById('staffProfileSearch').value.trim();
+                    async function openStaffProfileModal(memberIdArg) {
+                        const memberId = memberIdArg ? String(memberIdArg).trim() : '';
                         if (!memberId) {
                             alert('Please enter a Member ID.');
                             return;
@@ -1012,7 +1012,7 @@
                             ),
                             // Row: PIN | KEY
                             makeRow(
-                                `<label style='${labelStyle}'>PIN</label><input name='PIN' value="${gv('PIN')}" style='${fieldStyle}'>`,
+                                `<label style='${labelStyle}'>PIN</label><input type='text' name='PIN' value="${gv('PIN')}" style='${fieldStyle}'>`,
                                 `<label style='${labelStyle}'>Key</label><input name='KEY' value="${gv('KEY')}" style='${fieldStyle}'>`
                             ),
                             // Row: HIDE INVOICES (full width)
@@ -1565,8 +1565,7 @@
                                 renderAllMembersTable(members);
                                 // Add global function to open profile modal from table
                                 window.openStaffProfileModalFromTable = function(id) {
-                                    document.getElementById('staffProfileSearch').value = id;
-                                    openStaffProfileModal();
+                                    openStaffProfileModal(id);
                                 };
                                 // Store for search and editing
                 function openEditMemberModalById(memberId) {
@@ -1679,18 +1678,13 @@
                         ),
                         // Row: PIN | KEY
                         makeRow(
-                            `<label style='${labelStyle}'>PIN</label><input name='PIN' value="${getMVal('PIN')}" style='${fieldStyle}'>`,
+                            `<label style='${labelStyle}'>PIN</label><input type='text' name='PIN' value="${getMVal('PIN')}" style='${fieldStyle}'>`,
                             `<label style='${labelStyle}'>KEY</label><input name='KEY' value="${getMVal('KEY')}" style='${fieldStyle}'>`
                         ),
                     ].join('');
 
-                    document.getElementById('editMemberFields').innerHTML = fieldsHtml + `
-                        <div style='margin-top:18px;display:flex;gap:12px;'>
-                            <button type='submit' style='flex:1;padding:12px;background:#28a745;color:white;border:none;border-radius:6px;font-weight:700;font-size:1.1rem;'>Save</button>
-                            <button type='button' onclick='closeEditMemberModal()' style='flex:1;padding:12px;background:#6c757d;color:white;border:none;border-radius:6px;font-weight:700;font-size:1.1rem;'>Cancel</button>
-                        </div>
-                        <div id='editMemberStatus' style='margin-top:10px;font-weight:600;'></div>
-                    `;
+                    document.getElementById('editMemberFields').innerHTML = fieldsHtml;
+                    document.getElementById('editMemberStatus').textContent = '';
 
                     // Calculate days sober for edit form
                     window.calcEditDaysSober = function() {
