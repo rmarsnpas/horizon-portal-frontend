@@ -2587,6 +2587,17 @@
             document.getElementById('dischargeModal').style.display = 'none';
         }
 
+        function updateDischargePendingCard() {
+            const pending = allSubmittedForms.filter(f => f.type === 'discharge' && f.status === 'pending');
+            const card = document.getElementById('dischargeFormsPendingCard');
+            const count = document.getElementById('dischargeFormsPendingCount');
+            if (count) count.textContent = pending.length;
+            if (card) {
+                if (pending.length > 0) card.classList.add('card-pulse-alert');
+                else card.classList.remove('card-pulse-alert');
+            }
+        }
+
         async function dischargeMarkFiled(id) {
             if (!confirm('Mark this discharge form as filed?')) return;
             try {
@@ -2597,6 +2608,7 @@
                 const f = allSubmittedForms.find(x => x.id === id);
                 if (f) f.status = 'filed';
                 renderDischargeForms();
+                updateDischargePendingCard();
             } catch(e) { alert('Error updating form status'); }
         }
 
@@ -2606,6 +2618,7 @@
                 await fetch(`${API_BASE}/api/forms/${id}`, {method:'DELETE'});
                 allSubmittedForms = allSubmittedForms.filter(f => f.id !== id);
                 renderDischargeForms();
+                updateDischargePendingCard();
             } catch(e) { alert('Error deleting form'); }
         }
 
