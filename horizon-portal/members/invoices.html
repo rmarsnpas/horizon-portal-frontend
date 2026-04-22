@@ -491,20 +491,26 @@
     async function loadInvoices() {
       hideError();
 
-      // Check if this member should see invoices (REF=H means county-managed, no portal invoices)
+      // Check if this member should see invoices (HIDE_INVOICES flag set by staff)
       try {
         const API_BASE = 'https://horizon-portal-backend-production-3532.up.railway.app';
         const mr = await fetch(`${API_BASE}/api/getMember?id=${encodeURIComponent(memberId)}`);
         const md = await mr.json();
-        if (md && md.HIDE_INVOICES) {
-          document.querySelectorAll('.section.card').forEach(el => el.style.display = 'none');
-          showError('Invoices are managed through your program coordinator. Please contact staff for billing questions.');
+        const hideVal = md && md.HIDE_INVOICES;
+        // Only hide if explicitly true/1/"yes"/"h" — not for empty string or false
+        const shouldHide = hideVal === true || hideVal === 1 || String(hideVal).toLowerCase() === 'yes' || String(hideVal) === '1';
+        if (shouldHide) {
+          showError('Invoices for your account are managed through your program coordinator. Please contact staff for billing questions.');
+          document.getElementById('unpaidEmpty').style.display = 'block';
+          document.getElementById('paidEmpty').style.display = 'block';
+          document.getElementById('historyEmpty').style.display = 'block';
           return;
         }
       } catch(e) { /* continue if check fails */ }
 
-      // Relative URL so it works when the portal is hosted at root or under /horizon-portal/
-      const manifestUrl = `../invoices/invoices.json?t=${Date.now()}`;
+      // Use absolute URL to avoid path resolution issues with cleanUrls
+      const origin = window.location.origin;
+      const manifestUrl = `${origin}/horizon-portal/invoices/invoices.json?t=${Date.now()}`;
 
       let payload;
       try {
@@ -516,6 +522,7 @@
         showError('Unable to load invoices. Please try again later.');
         document.getElementById('unpaidEmpty').style.display = 'block';
         document.getElementById('paidEmpty').style.display = 'block';
+        document.getElementById('historyEmpty').style.display = 'block';
         return;
       }
 
