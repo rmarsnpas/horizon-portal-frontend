@@ -32,6 +32,26 @@
             width: 100%;
             max-width: 420px;
             box-shadow: 0 4px 12px rgba(0, 0, 0, .1);
+            position: relative;
+        }
+
+        .login-close-btn {
+            position: absolute;
+            top: 12px;
+            right: 16px;
+            background: none;
+            border: none;
+            font-size: 1.6rem;
+            line-height: 1;
+            color: #aaa;
+            cursor: pointer;
+            padding: 0;
+            width: auto;
+        }
+
+        .login-close-btn:hover {
+            color: var(--hh-primary);
+            background: none;
         }
 
         h1 {
@@ -104,6 +124,7 @@
 
 <body>
     <div class="login-container">
+        <button class="login-close-btn" onclick="history.back()" title="Cancel">&times;</button>
         <h1>Horizon House</h1>
         <p class="subtitle">Member Portal Login</p>
         <div id="error" class="error-message" role="alert" aria-live="assertive"></div>
