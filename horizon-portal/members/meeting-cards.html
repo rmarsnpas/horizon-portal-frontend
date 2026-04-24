@@ -399,6 +399,26 @@
         el.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
     }
 
+    // Compress an image File to a JPEG Blob at max width and quality
+    function compressImage(file, maxW, quality) {
+        return new Promise((resolve) => {
+            const reader = new FileReader();
+            reader.onload = (ev) => {
+                const img = new Image();
+                img.onload = () => {
+                    const scale = img.width > maxW ? maxW / img.width : 1;
+                    const canvas = document.createElement('canvas');
+                    canvas.width  = Math.round(img.width  * scale);
+                    canvas.height = Math.round(img.height * scale);
+                    canvas.getContext('2d').drawImage(img, 0, 0, canvas.width, canvas.height);
+                    canvas.toBlob((blob) => resolve(blob || file), 'image/jpeg', quality);
+                };
+                img.src = ev.target.result;
+            };
+            reader.readAsDataURL(file);
+        });
+    }
+
     async function submitCard(e) {
         e.preventDefault();
 
@@ -424,8 +444,11 @@
         btn.textContent = 'Uploading...';
 
         try {
+            // Compress to max 1200px wide, JPEG quality 0.75 (typically 50-150 KB)
+            const compressed = await compressImage(file, 1200, 0.75);
+
             const formData = new FormData();
-            formData.append('card', file);
+            formData.append('card', compressed, file.name.replace(/\.[^.]+$/, '.jpg'));
             formData.append('memberId', String(memberId));
             formData.append('memberName', memberName || `Member #${memberId}`);
             formData.append('meetingDate', weekEndingDate);
@@ -487,7 +510,7 @@
             }
 
             list.innerHTML = visibleCards.map(c => {
-                const imgSrc = c.imageUrl && c.imageUrl.startsWith('http') ? c.imageUrl : `${API_BASE}${c.imageUrl}`;
+                const imgSrc = c.imageUrl && (c.imageUrl.startsWith('http') || c.imageUrl.startsWith('data:')) ? c.imageUrl : `${API_BASE}${c.imageUrl}`;
                 const isApproved = c.status === 'approved';
                 return `
                 <div class="submission-item${isApproved ? ' approved-item' : ''}" onclick="openLightbox('${imgSrc}')">

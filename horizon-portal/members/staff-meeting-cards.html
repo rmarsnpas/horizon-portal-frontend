@@ -527,7 +527,7 @@
     }
 
     function buildApprovedRow(c) {
-        const imgSrc = c.imageUrl && c.imageUrl.startsWith('http') ? c.imageUrl : `${API_BASE}${c.imageUrl}`;
+        const imgSrc = c.imageUrl && (c.imageUrl.startsWith('http') || c.imageUrl.startsWith('data:')) ? c.imageUrl : `${API_BASE}${c.imageUrl}`;
         const reviewedText = c.reviewedAt ? `Approved ${fmtDateTime(c.reviewedAt)}` : 'Approved';
         return `
             <div class="approved-list-item" id="card-${c.id}">
@@ -550,7 +550,7 @@
     }
 
     function buildCard(c) {
-        const imgSrc = c.imageUrl && c.imageUrl.startsWith('http') ? c.imageUrl : `${API_BASE}${c.imageUrl}`;
+        const imgSrc = c.imageUrl && (c.imageUrl.startsWith('http') || c.imageUrl.startsWith('data:')) ? c.imageUrl : `${API_BASE}${c.imageUrl}`;
         const statusBadge = c.status === 'approved'
             ? '<span class="status-badge status-approved-badge">✅ Approved</span>'
             : c.status === 'rejected'
