@@ -224,6 +224,87 @@
         font-size: 1.05rem;
       }
     }
+
+    /* Bed Availability Balloons */
+    .bed-balloons {
+      position: fixed;
+      bottom: 32px;
+      left: 32px;
+      z-index: 1003;
+      display: flex;
+      gap: 14px;
+      align-items: flex-end;
+    }
+    .bed-balloon {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+    .balloon-body {
+      width: 76px;
+      height: 88px;
+      border-radius: 50% 50% 50% 50% / 60% 60% 40% 40%;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 4px 18px rgba(0,0,0,.22), inset 0 -4px 10px rgba(0,0,0,.15);
+      position: relative;
+      transition: transform .2s ease;
+      cursor: default;
+    }
+    .balloon-body:hover { transform: translateY(-5px) scale(1.04); }
+    .balloon-body::after {
+      content: '';
+      position: absolute;
+      bottom: -9px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 0;
+      height: 0;
+      border-left: 7px solid transparent;
+      border-right: 7px solid transparent;
+    }
+    .balloon-string {
+      width: 1.5px;
+      height: 22px;
+      background: #9a9a9a;
+    }
+    .balloon-gender {
+      font-size: 1rem;
+      font-weight: 800;
+      color: rgba(255,255,255,.9);
+      line-height: 1;
+      text-shadow: 0 1px 3px rgba(0,0,0,.3);
+    }
+    .balloon-count {
+      font-size: 1.9rem;
+      font-weight: 900;
+      color: #fff;
+      line-height: 1.05;
+      text-shadow: 0 1px 3px rgba(0,0,0,.3);
+    }
+    .balloon-label {
+      font-size: 0.58rem;
+      font-weight: 700;
+      color: rgba(255,255,255,.82);
+      text-transform: uppercase;
+      letter-spacing: .6px;
+      margin-top: 1px;
+    }
+    .balloon-m .balloon-body {
+      background: radial-gradient(ellipse at 38% 28%, #6aaee0 0%, #1e73be 55%, #0d4a8c 100%);
+    }
+    .balloon-m .balloon-body::after { border-top: 10px solid #1558a0; }
+    .balloon-f .balloon-body {
+      background: radial-gradient(ellipse at 38% 28%, #ed9dc8 0%, #d44e8a 55%, #a02f6b 100%);
+    }
+    .balloon-f .balloon-body::after { border-top: 10px solid #b03878; }
+    @media (max-width: 600px) {
+      .bed-balloons { bottom: 90px; left: 12px; gap: 10px; }
+      .balloon-body { width: 60px; height: 70px; }
+      .balloon-count { font-size: 1.5rem; }
+    }
   </style>
   
   <!-- Local Business Schema Markup for SEO -->
@@ -588,6 +669,26 @@
   </p>
 </footer>
 
+<!-- Bed Availability Balloons -->
+<div class="bed-balloons" role="status" aria-label="Available beds">
+  <div class="bed-balloon balloon-m">
+    <div class="balloon-body" title="His House — Men's beds available">
+      <span class="balloon-gender">M</span>
+      <span class="balloon-count" id="availM">-</span>
+      <span class="balloon-label">Available</span>
+    </div>
+    <div class="balloon-string"></div>
+  </div>
+  <div class="bed-balloon balloon-f">
+    <div class="balloon-body" title="Her House — Women's beds available">
+      <span class="balloon-gender">F</span>
+      <span class="balloon-count" id="availF">-</span>
+      <span class="balloon-label">Available</span>
+    </div>
+    <div class="balloon-string"></div>
+  </div>
+</div>
+
 <!-- 3CX Live Chat -->
 <call-us-selector phonesystem-url="https://rs10-2.ca.3cx.us" party="LiveChat100135"></call-us-selector>
 <script defer src="https://downloads-global.3cx.com/downloads/livechatandtalk/v1/callus.js" id="tcx-callus-js" charset="utf-8"></script>
@@ -641,6 +742,44 @@
     var b=document.getElementById('backToTop');
     b.style.display=window.scrollY>300?'flex':'none';
   });
+</script>
+
+<!-- Bed Availability Loader -->
+<script>
+(function(){
+  var M_CAPACITY = 9;
+  var F_CAPACITY = 10;
+  var API = 'https://horizon-portal-backend-production-3532.up.railway.app';
+
+  function setCount(id, val) {
+    var el = document.getElementById(id);
+    if (el) el.textContent = val;
+  }
+
+  fetch(API + '/api/members')
+    .then(function(r){ return r.ok ? r.json() : Promise.reject(r.status); })
+    .then(function(members){
+      var active = members.filter(function(m){
+        var status = String(m.STATUS || m.STATU || m.status || '').trim();
+        var bed = m.BED || m['BED#'] || m.bed || '';
+        return (status === '1' || status === '2') && bed;
+      });
+      var occM = active.filter(function(m){
+        var g = (m['M/F'] || m.GENDER || '').toString().toUpperCase();
+        return g === 'M' || g.startsWith('M');
+      }).length;
+      var occF = active.filter(function(m){
+        var g = (m['M/F'] || m.GENDER || '').toString().toUpperCase();
+        return g === 'F' || g.startsWith('F');
+      }).length;
+      setCount('availM', Math.max(0, M_CAPACITY - occM));
+      setCount('availF', Math.max(0, F_CAPACITY - occF));
+    })
+    .catch(function(){
+      setCount('availM', '?');
+      setCount('availF', '?');
+    });
+})();
 </script>
 </body>
 </html>
