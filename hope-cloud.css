@@ -1,0 +1,34 @@
+/* ===== Hope Cloud ===== */
+.hope-cloud-wrap { position: relative; display: block; line-height: 0; }
+.hope-cloud {
+  position: absolute;
+  right: 5%;
+  top: 8%;
+  z-index: 20;
+  pointer-events: none;
+  opacity: 0;
+  width: 220px;
+}
+.hope-cloud img {
+  width: 100%;
+  height: auto;
+  display: block;
+  filter: drop-shadow(0 6px 18px rgba(0,0,0,.22));
+}
+#hopeCloudRoam {
+  position: fixed;
+  z-index: 9400;
+  pointer-events: none;
+  opacity: 0;
+  width: 200px;
+}
+#hopeCloudRoam img {
+  width: 100%;
+  height: auto;
+  display: block;
+  filter: drop-shadow(0 6px 18px rgba(0,0,0,.22));
+}
+@media (max-width: 600px) {
+  .hope-cloud { right: 2%; top: 5%; width: 140px; }
+  #hopeCloudRoam { width: 140px; }
+}

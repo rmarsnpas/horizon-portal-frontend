@@ -28,6 +28,7 @@
   <link rel="icon" type="image/png" href="HH%20logo%20grntree.png">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@500;700&family=Nunito:wght@400;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="hope-cloud.css">
   <style>
     :root {
       --slate:#2b3440; --amber:#c98a22; --sand:#f5f1ea; --green:#2e6a4f; --red:#9c2f2f;
@@ -360,41 +361,6 @@
       .bed-avail-card { width: 96px; height: 116px; }
       .bed-card-count { font-size: 2rem; }
       .bed-card-action { font-size: 0.54rem; padding: 6px 4px; }
-    }
-
-    /* Hope Cloud Bubble */
-    .hope-cloud-wrap { position: relative; display: block; line-height: 0; }
-    .hope-cloud {
-      position: absolute;
-      right: 5%;
-      top: 8%;
-      z-index: 20;
-      pointer-events: none;
-      opacity: 0;
-      width: 220px;
-    }
-    .hope-cloud img { width: 100%; height: auto; display: block; filter: drop-shadow(0 6px 18px rgba(0,0,0,.22)); }
-    @keyframes hope-drift {
-      0%   { opacity: 0; transform: translateY(18px) scale(.88); }
-      18%  { opacity: 1; transform: translateY(0)   scale(1);   }
-      68%  { opacity: 1; transform: translateY(-10px) scale(1); }
-      100% { opacity: 0; transform: translateY(-24px) scale(.95); }
-    }
-    .hope-cloud-show {
-      animation: hope-drift 5.5s cubic-bezier(.4,0,.2,1) forwards;
-    }
-    /* Roaming cloud — fixed overlay */
-    #hopeCloudRoam {
-      position: fixed;
-      z-index: 9400;
-      pointer-events: none;
-      opacity: 0;
-      width: 200px;
-    }
-    #hopeCloudRoam img { width: 100%; height: auto; display: block; filter: drop-shadow(0 6px 18px rgba(0,0,0,.22)); }
-    @media (max-width: 600px) {
-      .hope-cloud { right: 2%; top: 5%; width: 150px; }
-      #hopeCloudRoam { width: 150px; }
     }
   </style>
   
@@ -801,57 +767,8 @@
   </div>
 </div>
 
-<!-- Hope Cloud Roaming -->
-<div id="hopeCloudRoam" aria-hidden="true">
-  <img src="uploads/hope cloud.png" alt="Hope is on the Horizon!">
-</div>
-
-<script>
-(function(){
-  var hero = document.getElementById('hopeCloudHero');
-  var roam = document.getElementById('hopeCloudRoam');
-
-  function showHero(){
-    if(!hero) return;
-    hero.classList.remove('hope-cloud-show');
-    void hero.offsetWidth; // reflow
-    hero.classList.add('hope-cloud-show');
-    hero.addEventListener('animationend', function(){
-      hero.classList.remove('hope-cloud-show');
-    }, { once: true });
-  }
-
-  function showRoam(){
-    if(!roam) return;
-    // random position: keep 10-80% from left, 10-75% from top
-    var rx = 10 + Math.random() * 60;
-    var ry = 10 + Math.random() * 55;
-    roam.style.left = rx + 'vw';
-    roam.style.top  = ry + 'vh';
-    roam.classList.remove('hope-cloud-show');
-    void roam.offsetWidth;
-    roam.classList.add('hope-cloud-show');
-    roam.addEventListener('animationend', function(){
-      roam.classList.remove('hope-cloud-show');
-    }, { once: true });
-  }
-
-  // Hero cloud: show after 1.8s on load
-  window.addEventListener('load', function(){
-    setTimeout(showHero, 1800);
-  });
-
-  // Roaming cloud: every 25-50 seconds randomly
-  function scheduleRoam(){
-    var delay = 25000 + Math.random() * 25000;
-    setTimeout(function(){
-      showRoam();
-      scheduleRoam();
-    }, delay);
-  }
-  scheduleRoam();
-})();
-</script>
+<!-- Hope Cloud -->
+<script src="hope-cloud.js"></script>
 
 <!-- 3CX Live Chat -->
 <call-us-selector phonesystem-url="https://rs10-2.ca.3cx.us" party="LiveChat100135"></call-us-selector>
