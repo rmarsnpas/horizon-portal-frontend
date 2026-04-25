@@ -556,6 +556,48 @@
             font-weight: 700;
             margin-left: 10px;
         }
+
+        /* Billing urgency — applied to the BILL ON DAY cell */
+        @keyframes pulse-yellow {
+            0%,100% { opacity:1; } 50% { opacity:.55; }
+        }
+        @keyframes pulse-orange {
+            0%,100% { opacity:1; } 50% { opacity:.45; }
+        }
+        @keyframes pulse-red {
+            0%,100% { opacity:1; } 50% { opacity:.35; }
+        }
+        .bill-warn-3 {
+            font-weight:700;
+            color:#1a7a3c !important;
+            background:#d4f7e0 !important;
+            border-radius:6px;
+            padding:2px 6px;
+        }
+        .bill-warn-2 {
+            font-weight:700;
+            color:#7a5a00 !important;
+            background:#fff3cd !important;
+            border-radius:6px;
+            padding:2px 6px;
+            animation:pulse-yellow 2s ease-in-out infinite;
+        }
+        .bill-warn-1 {
+            font-weight:700;
+            color:#7a2000 !important;
+            background:#ffe0cc !important;
+            border-radius:6px;
+            padding:2px 6px;
+            animation:pulse-orange 1.4s ease-in-out infinite;
+        }
+        .bill-warn-due {
+            font-weight:700;
+            color:#fff !important;
+            background:#dc3545 !important;
+            border-radius:6px;
+            padding:2px 6px;
+            animation:pulse-red 0.9s ease-in-out infinite;
+        }
     </style>
 </head>
 <body>
@@ -1499,6 +1541,31 @@
                         const isStatus5 = String(status).trim() === '5';
                         const displayNum = isStatus5 ? '' : ++rowNum;
                         const pinDisplay = String(member.PIN ?? member.pin ?? '');
+
+                        // Billing urgency highlight (skip county REF='H', skip non-active)
+                        const isActive = String(status).trim() === '1' || String(status).trim() === '2';
+                        const isCounty = String(ref).trim().toUpperCase() === 'H';
+                        let billCellClass = '';
+                        let billCellTitle = '';
+                        if (isActive && !isCounty) {
+                            // Determine billing day-of-month
+                            let billingDay = parseInt(billOnDay, 10);
+                            if (!billingDay && admitDate) billingDay = admitDate.getDate();
+                            if (billingDay >= 1 && billingDay <= 31) {
+                                // Find next due date from today
+                                const t = new Date(today);
+                                let due = new Date(t.getFullYear(), t.getMonth(), billingDay);
+                                if (due < t) due = new Date(t.getFullYear(), t.getMonth() + 1, billingDay);
+                                const daysUntil = Math.round((due - t) / 86400000);
+                                const dueFmt = String(due.getMonth()+1).padStart(2,'0') + '/' + String(due.getDate()).padStart(2,'0');
+                                if (daysUntil === 3) { billCellClass = 'bill-warn-3'; billCellTitle = `Due ${dueFmt} (3 days)`; }
+                                else if (daysUntil === 2) { billCellClass = 'bill-warn-2'; billCellTitle = `Due ${dueFmt} (2 days)`; }
+                                else if (daysUntil === 1) { billCellClass = 'bill-warn-1'; billCellTitle = `Due ${dueFmt} (tomorrow)`; }
+                                else if (daysUntil <= 0) { billCellClass = 'bill-warn-due'; billCellTitle = daysUntil === 0 ? `Due TODAY (${dueFmt})` : `OVERDUE — was due ${dueFmt}`; }
+                            }
+                        }
+                        const billCellAttr = billCellClass ? ` class="${billCellClass}" title="${billCellTitle}"` : '';
+
                         return `<tr style="cursor:pointer;" onclick="openStaffProfileModalFromTable('${id}')">
                             <td>${displayNum}</td>
                             <td>${yr}</td>
@@ -1519,7 +1586,7 @@
                             <td>${phone}</td>
                             <td>${email}</td>
                             <td>${pinDisplay}</td>
-                            <td>${billOnDay}</td>
+                            <td><span${billCellAttr}>${billOnDay}</span></td>
                             <td>${key}</td>
                             <td>${ref}</td>
                             <td style="white-space:nowrap;">
