@@ -557,7 +557,7 @@
             margin-left: 10px;
         }
 
-        /* Billing urgency — applied to the BILL ON DAY cell */
+        /* Billing urgency ï¿½ applied to the BILL ON DAY cell */
         @keyframes pulse-yellow {
             0%,100% { opacity:1; } 50% { opacity:.55; }
         }
@@ -990,7 +990,7 @@
 
                         // Status dropdown options
                         const statusOptions = [
-                            ['1','1 - Active'],['2','2 - Inactive'],['3','3 - Discharged'],
+                            ['1','1 - Active'],['2','2 - Alumni'],['3','3 - Discharged'],
                             ['H','H - Hold'],['W','W - Wait List'],['4','4 - Management'],['5','5 - Management']
                         ].map(([v,l]) => `<option value='${v}'${statusVal===v?' selected':''}>${l}</option>`).join('');
 
@@ -1458,9 +1458,9 @@
                             const gBg = u.gender === 'F' ? '#f8d7e8' : '#cce5ff';
                             const gFg = u.gender === 'F' ? '#7a1a4a' : '#1a4a7a';
                             if (isReserved) {
-                                html += `<span style="display:inline-block;padding:3px 10px;margin:2px 3px;border-radius:12px;background:repeating-linear-gradient(135deg,${gBg},${gBg} 4px,rgba(0,0,0,0.08) 4px,rgba(0,0,0,0.08) 8px);color:${gFg};font-weight:700;font-size:12px;opacity:0.7;" title="Reserved — hold already placed">? ${u.gender} ${u.bed} · ${u.name} · ${u.date} (${u.days}d) · RESERVED</span>`;
+                                html += `<span style="display:inline-block;padding:3px 10px;margin:2px 3px;border-radius:12px;background:repeating-linear-gradient(135deg,${gBg},${gBg} 4px,rgba(0,0,0,0.08) 4px,rgba(0,0,0,0.08) 8px);color:${gFg};font-weight:700;font-size:12px;opacity:0.7;" title="Reserved ï¿½ hold already placed">? ${u.gender} ${u.bed} ï¿½ ${u.name} ï¿½ ${u.date} (${u.days}d) ï¿½ RESERVED</span>`;
                             } else {
-                                html += `<span onclick="reserveUpcomingBed('${u.gender}','${u.bed}','${u.dateFull}','${u.name}')" style="display:inline-block;padding:3px 10px;margin:2px 3px;border-radius:12px;background:${gBg};color:${gFg};font-weight:700;font-size:12px;cursor:pointer;" title="Click to reserve this bed">${u.gender} ${u.bed} · ${u.name} · ${u.date} (${u.days}d)</span>`;
+                                html += `<span onclick="reserveUpcomingBed('${u.gender}','${u.bed}','${u.dateFull}','${u.name}')" style="display:inline-block;padding:3px 10px;margin:2px 3px;border-radius:12px;background:${gBg};color:${gFg};font-weight:700;font-size:12px;cursor:pointer;" title="Click to reserve this bed">${u.gender} ${u.bed} ï¿½ ${u.name} ï¿½ ${u.date} (${u.days}d)</span>`;
                             }
                         });
                         html += '</div>';
@@ -1561,7 +1561,7 @@
                                 if (daysUntil === 3) { billCellClass = 'bill-warn-3'; billCellTitle = `Due ${dueFmt} (3 days)`; }
                                 else if (daysUntil === 2) { billCellClass = 'bill-warn-2'; billCellTitle = `Due ${dueFmt} (2 days)`; }
                                 else if (daysUntil === 1) { billCellClass = 'bill-warn-1'; billCellTitle = `Due ${dueFmt} (tomorrow)`; }
-                                else if (daysUntil <= 0) { billCellClass = 'bill-warn-due'; billCellTitle = daysUntil === 0 ? `Due TODAY (${dueFmt})` : `OVERDUE — was due ${dueFmt}`; }
+                                else if (daysUntil <= 0) { billCellClass = 'bill-warn-due'; billCellTitle = daysUntil === 0 ? `Due TODAY (${dueFmt})` : `OVERDUE ï¿½ was due ${dueFmt}`; }
                             }
                         }
                         const billCellAttr = billCellClass ? ` class="${billCellClass}" title="${billCellTitle}"` : '';
@@ -1693,7 +1693,7 @@
 
                     // Build status dropdown with current value selected
                     const statusOptions = [
-                        ['1','1 - Active'],['2','2 - Inactive'],['3','3 - Discharged'],
+                        ['1','1 - Active'],['2','2 - Alumni'],['3','3 - Discharged'],
                         ['H','H - Hold'],['W','W - Wait List'],['4','4 - Staff'],['5','5 - Staff']
                     ].map(([v,l]) => `<option value='${v}'${String(statusVal).trim()===v?' selected':''}>${l}</option>`).join('');
 
@@ -1956,7 +1956,7 @@
                                 listHtml += `<div style='display:flex;justify-content:space-between;align-items:center;padding:12px 16px;border-bottom:1px solid #e2e8f0;${i % 2 ? "background:#f7fafc;" : ""}'>
                                     <div>
                                         <strong>${name}</strong> <span style='color:#718096;font-size:0.9rem;'>(${gender})</span><br>
-                                        <span style='font-size:0.85rem;color:#718096;'>${phone} · ${date} · <span style='color:${statusColor};font-weight:600;'>${status}</span></span>
+                                        <span style='font-size:0.85rem;color:#718096;'>${phone} ï¿½ ${date} ï¿½ <span style='color:${statusColor};font-weight:600;'>${status}</span></span>
                                     </div>
                                     <button type='button' onclick='selectApplicationForMember(${i})' style='padding:8px 18px;background:#667eea;color:white;border:none;border-radius:6px;font-weight:600;cursor:pointer;white-space:nowrap;'>Select</button>
                                 </div>`;
@@ -2048,7 +2048,7 @@
                     ),
                     // Row: STATUS | REF
                     makeRow(
-                        `<label style='${labelStyle}'>STATUS</label><select name='STATUS' id='addMemberStatus' onchange='onAddMemberStatusChange()' style='${fieldStyle}'><option value='1'${defaultStatus==='1'?' selected':''}>1 - Active</option><option value='2'>2 - Inactive</option><option value='3'>3 - Discharged</option><option value='H'${defaultStatus==='H'?' selected':''}>H - Hold</option><option value='W'>W - Wait List</option><option value='4'>4 - Management</option><option value='5'>5 - Management</option></select>`,
+                        `<label style='${labelStyle}'>STATUS</label><select name='STATUS' id='addMemberStatus' onchange='onAddMemberStatusChange()' style='${fieldStyle}'><option value='1'${defaultStatus==='1'?' selected':''}>1 - Active</option><option value='2'>2 - Alumni</option><option value='3'>3 - Discharged</option><option value='H'${defaultStatus==='H'?' selected':''}>H - Hold</option><option value='W'>W - Wait List</option><option value='4'>4 - Management</option><option value='5'>5 - Management</option></select>`,
                         `<label style='${labelStyle}'>REF</label><input name='REF' value="${getPrefillVal('REF')}" style='${fieldStyle}'>`
                     ),
                     // Row: FIRST | LAST
@@ -2175,7 +2175,7 @@
                             const hint = document.createElement('div');
                             hint.id = 'addMemberIdHint';
                             hint.style.cssText = 'font-size:0.78rem;color:#b45309;margin-top:3px;';
-                            hint.textContent = '? ID editable — override for management accounts';
+                            hint.textContent = '? ID editable ï¿½ override for management accounts';
                             idEl.parentNode.appendChild(hint);
                         }
                         document.getElementById('addMemberIdHint').style.display = '';
@@ -2560,12 +2560,12 @@
             const form = allSubmittedForms.find(f => f.id === id);
             if (!form) return;
             dischargeModalCurrentId = id;
-            document.getElementById('dischargeModalTitle').textContent = `${form.memberName || 'Unknown'} — Discharge Form`;
+            document.getElementById('dischargeModalTitle').textContent = `${form.memberName || 'Unknown'} ï¿½ Discharge Form`;
             const fileBtn = document.getElementById('dischargeModalFileBtn');
             if (fileBtn) fileBtn.style.display = form.status === 'filed' ? 'none' : '';
 
             const d = form.data || {};
-            const val = (v, fb = '—') => (v !== undefined && v !== null && v !== '') ? v : fb;
+            const val = (v, fb = 'ï¿½') => (v !== undefined && v !== null && v !== '') ? v : fb;
             const sc2 = [d.reasonHonorary ? 'Honorable Discharge' : null, d.reasonEndBenefits ? 'End of Benefits' : null].filter(Boolean);
             const sc3 = [d.reasonRelapse ? 'Relapse' : null, d.reasonBehavior ? 'Behavioral Violation' : null, d.reasonThreats ? 'Threats or Violence' : null, d.reasonNoncompliance ? 'Non-compliance' : null, d.reasonOther ? ('Other' + (d.reasonOtherText ? ': ' + d.reasonOtherText : '')) : null].filter(Boolean);
             const testTypes = [d.testUrine ? 'Urine' : null, d.testBreathalyzer ? ('Breathalyzer' + (d.bacPercent ? ' (' + d.bacPercent + '% BAC)' : '')) : null, d.testOral ? 'Oral Swab' : null].filter(Boolean);
@@ -2583,8 +2583,8 @@
               <div style="background:#fff8f0;border:1px solid #e67e22;border-radius:8px;padding:14px 16px;margin-bottom:12px;">
                 <div style="font-weight:700;color:#d35400;margin-bottom:10px;text-transform:uppercase;font-size:0.82rem;letter-spacing:0.5px;">Reason for Discharge</div>
                 <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px 20px;">
-                  <div><span style="color:#888;font-size:0.82rem;">Status Code 2 (Honorable)</span><br><strong>${sc2.length ? sc2.join(' · ') : '—'}</strong></div>
-                  <div><span style="color:#888;font-size:0.82rem;">Status Code 3</span><br><strong>${sc3.length ? sc3.join(' · ') : '—'}</strong></div>
+                  <div><span style="color:#888;font-size:0.82rem;">Status Code 2 (Honorable)</span><br><strong>${sc2.length ? sc2.join(' ï¿½ ') : 'ï¿½'}</strong></div>
+                  <div><span style="color:#888;font-size:0.82rem;">Status Code 3</span><br><strong>${sc3.length ? sc3.join(' ï¿½ ') : 'ï¿½'}</strong></div>
                 </div>
                 ${d.incidentDescription ? `<div style="margin-top:8px;"><span style="color:#888;font-size:0.82rem;">Description</span><br><div style="background:white;border:1px solid #f0c080;border-radius:4px;padding:8px;margin-top:2px;white-space:pre-wrap;">${d.incidentDescription}</div></div>` : ''}
               </div>
@@ -2619,7 +2619,7 @@
                   ${d.notifCaseManager ? '<div style="font-size:0.88rem;">? Case Manager Notified</div>' : ''}
                   ${d.notifRoiEmg ? '<div style="font-size:0.88rem;">? ROI/Emergency Contact Notified</div>' : ''}
                   <div style="font-weight:700;color:#444;margin-top:8px;margin-bottom:4px;text-transform:uppercase;font-size:0.82rem;letter-spacing:0.5px;">Property</div>
-                  <div style="font-size:0.88rem;">${[d.memberPropertyRemoved ? '? Removed by member' : '', d.memberPropertyStored ? '? Stored by staff' : ''].filter(Boolean).join(' · ') || '—'}</div>
+                  <div style="font-size:0.88rem;">${[d.memberPropertyRemoved ? '? Removed by member' : '', d.memberPropertyStored ? '? Stored by staff' : ''].filter(Boolean).join(' ï¿½ ') || 'ï¿½'}</div>
                   ${d.roomInspected ? '<div style="font-size:0.88rem;margin-top:2px;">? Room Inspected</div>' : ''}
                 </div>
               </div>
@@ -2630,7 +2630,7 @@
               <div style="background:#fafafa;border:1px solid #ccc;border-radius:8px;padding:12px 14px;display:grid;grid-template-columns:1fr 1fr;gap:6px 20px;">
                 ${s('Completed By', d.formCompletedBy)} ${s('Staff Signature Date', d.staffSignatureDate)}
                 ${s('Member Signature Date', d.memberSignatureDate)}
-                <div><span style="color:#888;font-size:0.82rem;">Submitted</span><br><strong>${d.submittedDate ? new Date(d.submittedDate).toLocaleString() : '—'}</strong></div>
+                <div><span style="color:#888;font-size:0.82rem;">Submitted</span><br><strong>${d.submittedDate ? new Date(d.submittedDate).toLocaleString() : 'ï¿½'}</strong></div>
               </div>
             </div>`;
             document.getElementById('dischargeModalBody').innerHTML = html;
@@ -2862,21 +2862,21 @@
                 document.getElementById('drugScreenCount').textContent = totalDrugScreens;
                 document.getElementById('signInOutCount').textContent = membersOut;
                 // Pulse the Sign In/Out card only when it's past curfew AND members are still out
-                // Curfew: 10 PM (22:00) Sun–Thu, midnight Fri–Sat
+                // Curfew: 10 PM (22:00) Sunï¿½Thu, midnight Friï¿½Sat
                 const anyStillOut = (signInOut.membersOut || []).length > 0;
                 let pastCurfew = false;
                 if (anyStillOut) {
                     const now = new Date();
-                    // Use Pacific time offset (UTC-7 PDT / UTC-8 PST) — approximate with local time
-                    const day = now.getDay(); // 0=Sun … 6=Sat
+                    // Use Pacific time offset (UTC-7 PDT / UTC-8 PST) ï¿½ approximate with local time
+                    const day = now.getDay(); // 0=Sun ï¿½ 6=Sat
                     const h = now.getHours();
                     const m = now.getMinutes();
                     const minutesNow = h * 60 + m;
                     if (day === 5 || day === 6) {
-                        // Fri/Sat: curfew midnight — only flag if past midnight (i.e. 00:00+)
+                        // Fri/Sat: curfew midnight ï¿½ only flag if past midnight (i.e. 00:00+)
                         pastCurfew = false; // midnight = next day 00:00, practically never flash on Fri/Sat evening
                     } else {
-                        // Sun–Thu: curfew 22:00
+                        // Sunï¿½Thu: curfew 22:00
                         pastCurfew = minutesNow >= 22 * 60;
                     }
                 }
@@ -3095,7 +3095,7 @@
                 activeMembers.forEach((member, index) => {
                     const firstName = member['FIRST\r\nNAME'] || member['FIRST\nNAME'] || member['FIRST NAME'] || member.firstName || '';
                     const lastName  = member['LAST\r\nNAME']  || member['LAST\nNAME']  || member['LAST NAME']  || member.lastName  || '';
-                    const fullName  = `${firstName} ${lastName}`.trim() || '—';
+                    const fullName  = `${firstName} ${lastName}`.trim() || 'ï¿½';
                     const nickname  = member['NIC NAME'] || member.nickname || member.nick || '';
                     const gender    = member['M/F'] || member.GENDER || member.gender || '';
                     const bed       = member.BED || member['BED#'] || member.bed || '';
@@ -3160,7 +3160,7 @@
                 tbody.innerHTML = activeMembers.map((member, idx) => {
                     const firstName = member['FIRST\r\nNAME'] || member['FIRST\nNAME'] || member['FIRST NAME'] || member.firstName || '';
                     const lastName  = member['LAST\r\nNAME']  || member['LAST\nNAME']  || member['LAST NAME']  || member.lastName  || '';
-                    const fullName  = `${firstName} ${lastName}`.trim() || '—';
+                    const fullName  = `${firstName} ${lastName}`.trim() || 'ï¿½';
                     const nickname  = member['NIC NAME'] || member.nickname || member.nick || '';
                     const gender    = member['M/F'] || member.GENDER || member.gender || '';
                     const bed       = member.BED || member['BED#'] || member.bed || '';
@@ -3447,13 +3447,13 @@
                         <div style="flex:1;">
                             <div style="font-weight:700; color:#003366; margin-bottom:2px;">
                                 ${targetLabel[m.target] || m.target}
-                                ${m.target === 'individual' ? ` — <em>${m.targetMemberName || m.targetMemberId}</em>` : ''}
-                                ${m.title ? ` · ${m.title}` : ''}
+                                ${m.target === 'individual' ? ` ï¿½ <em>${m.targetMemberName || m.targetMemberId}</em>` : ''}
+                                ${m.title ? ` ï¿½ ${m.title}` : ''}
                             </div>
                             <div style="white-space:pre-wrap; color:#333;">${m.body}</div>
                             <div style="font-size:0.8rem; color:#888; margin-top:4px;">
-                                Posted by ${m.createdBy} · ${new Date(m.createdAt).toLocaleString()}
-                                ${m.expiresAt ? ` · Expires ${new Date(m.expiresAt).toLocaleString()}` : ''}
+                                Posted by ${m.createdBy} ï¿½ ${new Date(m.createdAt).toLocaleString()}
+                                ${m.expiresAt ? ` ï¿½ Expires ${new Date(m.expiresAt).toLocaleString()}` : ''}
                             </div>
                         </div>
                         <button onclick="deleteKioskMessage('${m.id}')" style="padding:6px 12px; background:#dc3545; color:white; border:none; border-radius:6px; cursor:pointer; font-weight:600; white-space:nowrap;">?? Delete</button>

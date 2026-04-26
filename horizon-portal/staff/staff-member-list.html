@@ -230,7 +230,7 @@
                     <label>Status</label>
                     <select id="fStatus" onchange="toggleStaffPw()">
                         <option value="1">Active Resident</option>
-                        <option value="2">Extended Stay</option>
+                        <option value="2">Alumni</option>
                         <option value="hold" style="display:none">Bed Hold</option>
                         <option value="wait" style="display:none">Wait List</option>
                         <option value="4">Staff</option>
@@ -369,7 +369,7 @@
     let editingId  = null;
     let curFilter  = 'active';
 
-    const STATUS_LABEL = { 0:'Inactive', 1:'Active', 2:'Extended', 3:'On Hold', 4:'Staff', 5:'Admin' };
+    const STATUS_LABEL = { 0:'Inactive', 1:'Active', 2:'Alumni', 3:'On Hold', 4:'Staff', 5:'Admin' };
     const STATUS_BADGE = { 0:'badge-0', 1:'badge-1', 2:'badge-2', 3:'badge-3', 4:'badge-4', 5:'badge-5' };
 
     function statusBadge(s) {
