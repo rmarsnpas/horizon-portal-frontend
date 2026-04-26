@@ -407,7 +407,11 @@
                 const hint = document.getElementById(hintField);
                 if (!id) { hint.textContent = ''; hideInvoiceAlert(); return; }
                 const members = await getMembersCache();
-                const m = members.find(x => String(x.ID).trim() === id);
+                const normId = s => String(s).trim().replace(/^0+/, '') || '0';
+                const m = members.find(x => {
+                    const stored = String(x.ID).trim();
+                    return stored === id || normId(stored) === normId(id);
+                });
                 if (m) {
                     const first = (m['FIRST\r\nNAME'] || m['FIRST\nNAME'] || m.FIRST_NAME || '').trim();
                     const last  = (m['LAST\r\nNAME']  || m['LAST\nNAME']  || m.LAST_NAME  || '').trim();

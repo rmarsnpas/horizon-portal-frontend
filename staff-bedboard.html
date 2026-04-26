@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
@@ -266,12 +266,11 @@
             text-align: center;
         }
     </style>
-  <link rel="stylesheet" href="hope-cloud.css">
 </head>
 <body>
     <div class="container">
         <div class="header">
-            <h1>🏠 Horizon House Bedboard</h1>
+            <h1>?? Horizon House Bedboard</h1>
             <p>Current Bed Assignments & Member Information</p>
             <p style="font-size: 14px; color: #999; margin-top: 10px;">
                 Updated: <span id="lastUpdated"></span>
@@ -316,7 +315,7 @@
             <label for="searchInput">Search:</label>
             <input type="text" id="searchInput" placeholder="Name, ID, Bed..." onkeyup="filterBedboard()">
 
-            <button class="print-btn" onclick="window.print()">🖨️ Print Bedboard</button>
+            <button class="print-btn" onclick="window.print()">??? Print Bedboard</button>
         </div>
 
         <div id="loadingMessage" class="loading">Loading bedboard data...</div>
@@ -324,7 +323,7 @@
 
         <div id="mensHouse" class="house-section" style="display: none;">
             <div class="house-header">
-                <h2>👨 Men's House</h2>
+                <h2>?? Men's House</h2>
                 <span class="count" id="mensCount">0 residents</span>
             </div>
             <div id="mensGrid" class="bedboard-grid"></div>
@@ -332,7 +331,7 @@
 
         <div id="womensHouse" class="house-section" style="display: none;">
             <div class="house-header">
-                <h2>👩 Women's House</h2>
+                <h2>?? Women's House</h2>
                 <span class="count" id="womensCount">0 residents</span>
             </div>
             <div id="womensGrid" class="bedboard-grid"></div>
@@ -549,6 +548,5 @@
         // Load on page load
         document.addEventListener('DOMContentLoaded', loadBedboard);
     </script>
-<script src="hope-cloud.js"></script>
 </body>
 </html>

@@ -1,8 +1,8 @@
-﻿<!doctype html>
+<!doctype html>
 <html lang="en">
 <head>
   <meta charset="utf-8">
-  <title>Horizon House — Member Application</title>
+  <title>Horizon House � Member Application</title>
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="description" content="Horizon House Sober Living Member Application">
   <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
@@ -301,7 +301,6 @@
       background: #cbd5e0;
     }
   </style>
-  <link rel="stylesheet" href="hope-cloud.css">
 </head>
 
 <body>
@@ -309,14 +308,14 @@
 <!-- Reference Number Modal -->
 <div id="referenceModal" class="reference-modal">
   <div class="reference-content">
-    <h2>📝 Application Draft</h2>
+    <h2>?? Application Draft</h2>
     <p>Do you have a reference number from a previously saved draft?</p>
     
     <input type="text" id="referenceInput" class="reference-input" placeholder="Enter Reference Number" maxlength="6">
     
     <div class="reference-buttons">
-      <button type="button" class="ref-btn ref-btn-secondary" onclick="startNewApplication()">✨ Start New Application</button>
-      <button type="button" class="ref-btn ref-btn-primary" onclick="loadDraft()">📂 Load Draft</button>
+      <button type="button" class="ref-btn ref-btn-secondary" onclick="startNewApplication()">? Start New Application</button>
+      <button type="button" class="ref-btn ref-btn-primary" onclick="loadDraft()">?? Load Draft</button>
     </div>
     
     <p style="font-size: 14px; color: #718096; margin-top: 20px; text-align: center;">
@@ -327,8 +326,8 @@
 
 <header id="mainHeader" style="display: none;">
   <div class="wrap" style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:.75rem;">
-    <h1 style="margin:0;font-size:1.3rem;">Horizon House Sober Living — Member Application</h1>
-    <a href="index.html" style="background:rgba(255,255,255,0.18);color:#fff;text-decoration:none;padding:.55rem 1.1rem;border-radius:.4rem;font-weight:700;font-size:.9rem;white-space:nowrap;">← Return to Website</a>
+    <h1 style="margin:0;font-size:1.3rem;">Horizon House Sober Living � Member Application</h1>
+    <a href="index.html" style="background:rgba(255,255,255,0.18);color:#fff;text-decoration:none;padding:.55rem 1.1rem;border-radius:.4rem;font-weight:700;font-size:.9rem;white-space:nowrap;">? Return to Website</a>
   </div>
 </header>
 
@@ -336,23 +335,23 @@
 
   <!-- Save as PDF Button -->
   <button type="button" id="savePdfBtn" style="margin-bottom: 20px; background: #667eea; color: white; font-size: 15px; font-weight: 700; padding: 10px 24px; border-radius: 6px; border: none; cursor: pointer; float: right;">
-    📄 Save as PDF
+    ?? Save as PDF
   </button>
 
   <!-- Floating Save Button -->
   <button type="button" id="floatingSaveBtn" onclick="saveDraft()" style="display:none; position: fixed; bottom: 20px; right: 20px; padding: 12px 20px; background: #4299e1; color: white; border: none; border-radius: 50px; cursor: pointer; font-size: 14px; font-weight: 600; box-shadow: 0 4px 12px rgba(66, 153, 225, 0.4); z-index: 999; transition: all 0.3s ease;">
-    💾 Save Draft
+    ?? Save Draft
   </button>
 
   <div id="referenceDisplay" style="display:none; background: #f7fafc; padding: 15px; border-radius: 8px; border: 2px solid #4299e1; margin-bottom: 20px; text-align: center;">
     <p style="margin: 0; color: #2d3748; font-weight: 600;">
-      🔑 Your Reference Number: <strong id="refNumberText" style="font-family: monospace; letter-spacing: 3px; font-size: 18px; color: #2b6cb0;"></strong>
+      ?? Your Reference Number: <strong id="refNumberText" style="font-family: monospace; letter-spacing: 3px; font-size: 18px; color: #2b6cb0;"></strong>
     </p>
     <p style="margin: 5px 0 0 0; font-size: 13px; color: #718096;">
       Save this number to resume your application later
     </p>
     <p id="saveIndicator" style="margin: 8px 0 0 0; font-size: 12px; color: #48bb78; font-weight: 600; display: none;">
-      ✓ Draft saved
+      ? Draft saved
     </p>
   </div>
 
@@ -364,7 +363,7 @@
   <form id="applicationForm">
 
     <div style="background-color: #e8f4f8; padding: 15px; border-left: 4px solid #0066cc; margin-bottom: 20px; border-radius: 4px;">
-      <strong>📋 Please Be Honest</strong>
+      <strong>?? Please Be Honest</strong>
       <p style="margin: 8px 0 0 0; line-height: 1.5;">Your answers help us determine the best path for your successful recovery. This information is used to support you, not to disqualify your acceptance. Honesty allows us to provide the most appropriate care and environment for your journey.</p>
     </div>
 
@@ -619,7 +618,7 @@
     <label>Email</label>
     <input type="email" name="email">
 
-    <label>Desired Move‑In Date</label>
+    <label>Desired Move-In Date</label>
     <input type="date" name="move_in">
 
     <label>Why are you seeking sober living at this time?</label>
@@ -791,13 +790,13 @@
     
     <div class="signature-options">
       <button type="button" class="sig-option-btn active" onclick="selectSignatureMethod('draw')" id="btn-draw">
-        ✍️ Draw
+        ?? Draw
       </button>
       <button type="button" class="sig-option-btn" onclick="selectSignatureMethod('type')" id="btn-type">
-        ⌨️ Type
+        ?? Type
       </button>
       <button type="button" class="sig-option-btn" onclick="selectSignatureMethod('upload')" id="btn-upload">
-        📄 Upload
+        ?? Upload
       </button>
     </div>
 
@@ -806,7 +805,7 @@
       <label>Draw your signature below:</label>
       <canvas id="signatureCanvas" class="signature-canvas"></canvas>
       <div class="sig-controls">
-        <button type="button" onclick="clearSignature()">🗑️ Clear</button>
+        <button type="button" onclick="clearSignature()">??? Clear</button>
       </div>
     </div>
 
@@ -834,7 +833,7 @@
     <input type="date" name="signature_date" required id="signatureDate">
 
     <div style="background-color: #fff3cd; padding: 20px; border-left: 4px solid #ffc107; margin-top: 30px; border-radius: 4px;">
-      <strong style="color: #856404; font-size: 16px;">✓ Before You Submit</strong>
+      <strong style="color: #856404; font-size: 16px;">? Before You Submit</strong>
       <p style="margin: 10px 0 0 0; line-height: 1.6; color: #856404;">Your complete and truthful answers will help us determine the best pathway for your success. Please be sure your contact information is current so we can reach you promptly.</p>
     </div>
 
@@ -847,12 +846,12 @@
 </main>
 
 <footer>
-  © 2026 Horizon House Sober Living
+  � 2026 Horizon House Sober Living
 </footer>
 
 <div id="successModal">
   <div class="success-box">
-    <h2>✓ Thank You for Your Interest in Horizon House!</h2>
+    <h2>? Thank You for Your Interest in Horizon House!</h2>
     <p>Your application has been submitted and will be reviewed by our admissions staff.</p>
     <p>We will be in contact with you shortly.</p>
     <div class="contact-info">
@@ -1040,12 +1039,12 @@
       const indicator = document.getElementById('saveIndicator');
       const floatingBtn = document.getElementById('floatingSaveBtn');
       if (indicator) {
-        indicator.textContent = '💾 Saving...';
+        indicator.textContent = '?? Saving...';
         indicator.style.color = '#4299e1';
         indicator.style.display = 'block';
       }
       if (floatingBtn) {
-        floatingBtn.textContent = '💾 Saving...';
+        floatingBtn.textContent = '?? Saving...';
         floatingBtn.style.opacity = '0.7';
       }
       
@@ -1063,19 +1062,19 @@
       .then(response => response.json())
       .then(result => {
         if (result.success) {
-          console.log('✓ Draft saved to backend successfully');
+          console.log('? Draft saved to backend successfully');
           if (indicator) {
-            indicator.textContent = '✓ Draft saved at ' + new Date().toLocaleTimeString();
+            indicator.textContent = '? Draft saved at ' + new Date().toLocaleTimeString();
             indicator.style.color = '#48bb78';
             setTimeout(() => {
-              indicator.textContent = '✓ Draft saved';
+              indicator.textContent = '? Draft saved';
             }, 3000);
           }
           if (floatingBtn) {
-            floatingBtn.textContent = '✓ Saved!';
+            floatingBtn.textContent = '? Saved!';
             floatingBtn.style.opacity = '1';
             setTimeout(() => {
-              floatingBtn.textContent = '💾 Save Draft';
+              floatingBtn.textContent = '?? Save Draft';
             }, 2000);
           }
         }
@@ -1085,16 +1084,16 @@
         // Fallback to localStorage if backend fails
         const draftKey = `${DRAFT_KEY}_${currentReferenceNumber}`;
         localStorage.setItem(draftKey, JSON.stringify(formData));
-        console.log('✓ Draft saved to localStorage as fallback');
+        console.log('? Draft saved to localStorage as fallback');
         if (indicator) {
-          indicator.textContent = '✓ Draft saved (offline)';
+          indicator.textContent = '? Draft saved (offline)';
           indicator.style.color = '#ed8936';
         }
         if (floatingBtn) {
-          floatingBtn.textContent = '✓ Saved (offline)';
+          floatingBtn.textContent = '? Saved (offline)';
           floatingBtn.style.opacity = '1';
           setTimeout(() => {
-            floatingBtn.textContent = '💾 Save Draft';
+            floatingBtn.textContent = '?? Save Draft';
           }, 2000);
         }
       });
@@ -1600,7 +1599,6 @@
 <call-us-selector phonesystem-url="https://rs10-2.ca.3cx.us" party="LiveChat100135"></call-us-selector>
 <script defer src="https://downloads-global.3cx.com/downloads/livechatandtalk/v1/callus.js" id="tcx-callus-js" charset="utf-8"></script>
 
-<script src="hope-cloud.js"></script>
 </body>
 </html>
 

@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
@@ -232,15 +232,14 @@
             }
         }
     </style>
-  <link rel="stylesheet" href="hope-cloud.css">
 </head>
 <body>
     <div class="container">
         <div class="header">
-            <h1>📬 Contact Form Submissions</h1>
+            <h1>?? Contact Form Submissions</h1>
             <p>Review and manage contact form inquiries</p>
             <div class="nav-links">
-                <a href="/staff-reviews.html">← Back to Applications</a>
+                <a href="/staff-reviews.html">? Back to Applications</a>
                 <a href="/">Home</a>
             </div>
         </div>
@@ -364,7 +363,7 @@
                     <div class="submission-card ${isRead ? 'read' : ''}" data-id="${submission.id}">
                         <div class="submission-header">
                             <div class="submission-info">
-                                <h3>${submission.name} ${isRead ? '✓' : '🔵'}</h3>
+                                <h3>${submission.name} ${isRead ? '?' : '??'}</h3>
                                 <p>Submitted: ${date.toLocaleString()}</p>
                             </div>
                             <div class="submission-actions">
@@ -389,7 +388,7 @@
                             ` : ''}
                             <div class="detail-row">
                                 <div class="detail-label">Status:</div>
-                                <div class="detail-value">${isRead ? '✓ Read' : '🔵 New'}</div>
+                                <div class="detail-value">${isRead ? '? Read' : '?? New'}</div>
                             </div>
                             <div class="detail-row">
                                 <div class="detail-label">Message:</div>
@@ -443,6 +442,5 @@
         // Auto-refresh every 30 seconds
         setInterval(loadSubmissions, 30000);
     </script>
-<script src="hope-cloud.js"></script>
 </body>
 </html>

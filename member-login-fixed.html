@@ -1,4 +1,4 @@
-ï»¿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 
 <head>
@@ -100,7 +100,6 @@
             color: var(--hh-green);
         }
     </style>
-  <link rel="stylesheet" href="hope-cloud.css">
 </head>
 
 <body>
@@ -149,7 +148,7 @@
             err.style.display = 'none';
         }
 
-        // STEP 1 â€” VERIFY MEMBER ID (calls backend)
+        // STEP 1 — VERIFY MEMBER ID (calls backend)
         async function verifyID() {
             clearError();
             const id = document.getElementById('memberID').value.trim();
@@ -196,7 +195,7 @@
             }
         }
 
-        // STEP 2 â€” VERIFY PIN
+        // STEP 2 — VERIFY PIN
         function verifyPin() {
             clearError();
             const pin = document.getElementById('pinInput').value.trim();
@@ -220,7 +219,7 @@
             }
         }
 
-        // STEP 3 â€” STAFF/ADMIN PASSWORD
+        // STEP 3 — STAFF/ADMIN PASSWORD
         async function verifyStaffPassword() {
             clearError();
             const pw = document.getElementById('staffPassword').value;
@@ -270,7 +269,6 @@
             }
         }
     </script>
-<script src="hope-cloud.js"></script>
 </body>
 
 </html>

@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
@@ -312,17 +312,16 @@
             font-size: 15px;
         }
     </style>
-  <link rel="stylesheet" href="hope-cloud.css">
 </head>
 <body>
     <div class="container">
         <div class="header">
-            <h1>📋 Submitted Forms Archive</h1>
-            <a href="/staff-dashboard.html" class="btn-back">← Back to Dashboard</a>
+            <h1>?? Submitted Forms Archive</h1>
+            <a href="/staff-dashboard.html" class="btn-back">? Back to Dashboard</a>
         </div>
 
         <div class="search-box">
-            <input type="text" class="search-input" id="searchInput" placeholder="🔍 Search by member name or ID...">
+            <input type="text" class="search-input" id="searchInput" placeholder="?? Search by member name or ID...">
         </div>
 
         <div id="loading" class="loading">Loading forms...</div>
@@ -330,7 +329,7 @@
         <div id="formsContainer" style="display: none;"></div>
 
         <div id="emptyState" class="empty-state" style="display: none;">
-            <h2>📂 No forms found</h2>
+            <h2>?? No forms found</h2>
             <p>All submitted forms will appear here until they're filed to member folders.</p>
         </div>
     </div>
@@ -364,7 +363,7 @@
                 }
             } catch (error) {
                 console.error('Error loading forms:', error);
-                document.getElementById('loading').textContent = '❌ Error loading forms';
+                document.getElementById('loading').textContent = '? Error loading forms';
             }
         }
 
@@ -454,19 +453,19 @@
 
             const formDate = formatMMDDYYYY(form.submittedDate);
             const formType = form.type === 'discharge' ? 'Discharge Form' : 'Property Storage';
-            const memberLabel = form.memberName ? `<div class="form-member">👤 ${form.memberName}${form.memberId ? ' <span style="color:#aaa;font-size:12px;">(#'+form.memberId+')</span>' : ''}</div>` : '';
+            const memberLabel = form.memberName ? `<div class="form-member">?? ${form.memberName}${form.memberId ? ' <span style="color:#aaa;font-size:12px;">(#'+form.memberId+')</span>' : ''}</div>` : '';
 
             card.innerHTML = `
                 <span class="form-type ${form.type}">${formType}</span>
-                <span class="status-badge ${form.status}">${form.status === 'filed' ? '✓ Filed' : '⏳ Pending'}</span>
+                <span class="status-badge ${form.status}">${form.status === 'filed' ? '? Filed' : '? Pending'}</span>
                 ${memberLabel}
-                <div class="form-date">📅 ${formDate}</div>
+                <div class="form-date">?? ${formDate}</div>
                 <div class="form-actions">
-                    <button class="btn btn-view" onclick="viewForm('${form.id}')">👁️ View</button>
+                    <button class="btn btn-view" onclick="viewForm('${form.id}')">??? View</button>
                     ${form.status !== 'filed' ? `
-                        <button class="btn btn-filed" onclick="markAsFiled('${form.id}')">✓ File</button>
+                        <button class="btn btn-filed" onclick="markAsFiled('${form.id}')">? File</button>
                     ` : ''}
-                    <button class="btn btn-delete" onclick="deleteForm('${form.id}')">🗑️</button>
+                    <button class="btn btn-delete" onclick="deleteForm('${form.id}')">???</button>
                 </div>
             `;
 
@@ -569,6 +568,5 @@
         // Load forms on page load
         loadForms();
     </script>
-<script src="hope-cloud.js"></script>
 </body>
 </html>
