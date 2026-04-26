@@ -912,12 +912,19 @@
                     </select>
 
                     <label style="font-weight:700;display:block;margin-bottom:8px;">Optional Fields to Include</label>
-                    <div style="display:flex;flex-wrap:wrap;gap:10px 24px;margin-bottom:22px;">
+                    <div style="display:flex;flex-wrap:wrap;gap:10px 24px;margin-bottom:16px;">
                         <label style="display:flex;align-items:center;gap:6px;cursor:pointer;"><input type="checkbox" id="cpf-rate"> Rate</label>
                         <label style="display:flex;align-items:center;gap:6px;cursor:pointer;"><input type="checkbox" id="cpf-phone"> Phone</label>
                         <label style="display:flex;align-items:center;gap:6px;cursor:pointer;"><input type="checkbox" id="cpf-email"> Email</label>
                         <label style="display:flex;align-items:center;gap:6px;cursor:pointer;"><input type="checkbox" id="cpf-pin"> PIN</label>
                         <label style="display:flex;align-items:center;gap:6px;cursor:pointer;"><input type="checkbox" id="cpf-billday"> Bill Day</label>
+                    </div>
+
+                    <div style="background:#fffbeb;border:1px solid #f59e0b;border-radius:6px;padding:10px 14px;margin-bottom:18px;">
+                        <label style="display:flex;align-items:center;gap:8px;cursor:pointer;margin:0;">
+                            <input type="checkbox" id="cpf-holdwait">
+                            <span style="font-size:0.92rem;">Include <strong>Hold &amp; Wait</strong> members <span style="color:#999;font-size:0.82rem;">(Status H or W &ndash; shown highlighted)</span></span>
+                        </label>
                     </div>
 
                     <div style="display:flex;gap:12px;">
@@ -950,17 +957,25 @@
                         const inclEmail   = document.getElementById('cpf-email').checked;
                         const inclPin     = document.getElementById('cpf-pin').checked;
                         const inclBillDay = document.getElementById('cpf-billday').checked;
+                        const inclHW      = document.getElementById('cpf-holdwait').checked;
 
                         const allMembers = (window._allMembersTableData || {}).members || [];
                         let members = allMembers.filter(m => {
                             const s = String(m.STATUS || m.status || m.STATU || '').trim().toUpperCase();
                             const r = String(m.REF || m.ref || '').trim().toUpperCase();
-                            if (filterVal === 'current') return s === '1';
-                            if (filterVal === 'ats')     return s === '1' && r === 'A';
-                            if (filterVal === 'rivco')   return s === '1' && r === 'H';
-                            if (filterVal === 'all')     return s !== '5';
-                            return true;
+                            let pass = false;
+                            if (filterVal === 'current')      pass = s === '1';
+                            else if (filterVal === 'ats')     pass = s === '1' && r === 'A';
+                            else if (filterVal === 'rivco')   pass = s === '1' && r === 'H';
+                            else if (filterVal === 'all')     pass = s !== '5';
+                            else                              pass = true;
+                            if (!pass && inclHW) pass = s === 'H' || s === 'W';
+                            return pass;
                         });
+                        const hwCount = inclHW ? members.filter(m => {
+                            const st = String(m.STATUS || m.status || m.STATU || '').trim().toUpperCase();
+                            return st === 'H' || st === 'W';
+                        }).length : 0;
 
                         const today = new Date();
                         today.setHours(0, 0, 0, 0);
@@ -994,6 +1009,8 @@
                         const headerRow = `<tr>${cols.map(c => `<th>${c}</th>`).join('')}</tr>`;
 
                         const rows = members.map(m => {
+                            const st = String(m.STATUS || m.status || m.STATU || '').trim().toUpperCase();
+                            const isHW = st === 'H' || st === 'W';
                             const first    = m['FIRST\r\nNAME'] || m['FIRST\nNAME'] || m['FIRST NAME'] || m.firstName || m.FIRST || '';
                             const last     = m['LAST\r\nNAME']  || m['LAST\nNAME']  || m['LAST NAME']  || m.lastName  || m.LAST || '';
                             const gender   = m['M/F'] || m.GENDER || m.gender || '';
@@ -1003,33 +1020,45 @@
                             const sober    = m['SOBER\r\nDATE'] || m['SOBER\nDATE'] || m['SOBER DATE'] || m.sobrietyDate || '';
                             const daysHere  = daysBetween(admit, dc || null);
                             const daysSober = daysBetween(sober, null);
-                            const cells = [
-                                m.ID || m.id || '', first, last, gender, dob,
-                                fmt(admit), fmt(dc), daysHere, fmt(sober), daysSober
-                            ];
+                            const idVal = (m.ID || m.id || '') + (isHW ? `<span class="hw-badge">${st}</span>` : '');
+                            const cells = [idVal, first, last, gender, dob, fmt(admit), fmt(dc), daysHere, fmt(sober), daysSober];
                             if (inclRate)    cells.push(m.RATE || m.rate ? '$' + (m.RATE || m.rate) : '');
                             if (inclPhone)   cells.push(m.PHONE || m.phone || '');
                             if (inclEmail)   cells.push(m.EMAIL || m.email || '');
                             if (inclPin)     cells.push(m.PIN || m.pin || '');
                             if (inclBillDay) cells.push(m['BILL ON DAY'] || m.billOnDay || '');
-                            return `<tr>${cells.map(c => `<td>${c}</td>`).join('')}</tr>`;
+                            return `<tr${isHW ? ' class="hw-row"' : ''}>${cells.map(v => `<td>${v}</td>`).join('')}</tr>`;
                         }).join('');
 
                         const printDate = today.toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' });
+                        const hwNote = inclHW && hwCount > 0 ? ` &nbsp;&bull;&nbsp; ${hwCount} Hold/Wait` : '';
                         const html = `<!DOCTYPE html><html><head><title>Census Report – ${printDate}</title>
 <style>
-  body { font-family: Arial, sans-serif; font-size: 11px; margin: 16px; }
-  h2 { margin: 0 0 4px; font-size: 15px; }
-  p  { margin: 0 0 10px; color: #555; font-size: 11px; }
-  table { border-collapse: collapse; width: 100%; }
-  th { background: #1a3a5c; color: white; padding: 5px 7px; text-align: left; white-space: nowrap; font-size: 10px; }
-  td { border-bottom: 1px solid #e0e0e0; padding: 4px 7px; white-space: nowrap; }
-  tr:nth-child(even) td { background: #f5f8ff; }
-  @media print { @page { margin: 12mm; size: landscape; } }
+  *{box-sizing:border-box}
+  body{font-family:Arial,sans-serif;font-size:10.5px;margin:0;color:#1a1a2e}
+  .rh{background:#1a3a5c;color:white;padding:13px 18px 11px;display:flex;justify-content:space-between;align-items:flex-end}
+  .rh-org{font-size:19px;font-weight:800;letter-spacing:.4px}
+  .rh-sub{font-size:10px;opacity:.82;font-style:italic;margin-top:2px}
+  .rh-date{text-align:right;font-size:10px;opacity:.9;line-height:1.6}
+  .rm{background:#d6e4f7;border-bottom:2px solid #1a3a5c;padding:5px 18px;font-size:10px;color:#1a3a5c;font-weight:700;display:flex;gap:22px}
+  .rb{padding:10px 18px}
+  table{border-collapse:collapse;width:100%}
+  th{background:#1a3a5c;color:white;padding:6px 8px;text-align:left;white-space:nowrap;font-size:9.5px;font-weight:700;letter-spacing:.3px;border-right:1px solid rgba(255,255,255,.15)}
+  th:last-child{border-right:none}
+  td{border-bottom:1px solid #dde4f0;padding:3.5px 8px;white-space:nowrap;vertical-align:middle}
+  tr:nth-child(even) td{background:#eef2fb}
+  tr:nth-child(odd) td{background:#ffffff}
+  tr.hw-row td{background:#fff3cd!important}
+  tr.hw-row td:first-child{border-left:3px solid #f59e0b}
+  .hw-badge{display:inline-block;background:#f59e0b;color:white;border-radius:3px;font-size:7.5px;padding:1px 4px;margin-left:3px;font-weight:700;vertical-align:middle;line-height:1.5}
+  @media print{@page{margin:10mm;size:landscape}body{-webkit-print-color-adjust:exact;print-color-adjust:exact}}
 </style></head><body>
-<h2>Horizon House – Census Report</h2>
-<p>${filterLabels[filterVal]} &nbsp;|&nbsp; Printed: ${printDate} &nbsp;|&nbsp; ${members.length} record${members.length !== 1 ? 's' : ''}</p>
-<table><thead>${headerRow}</thead><tbody>${rows}</tbody></table>
+<div class="rh">
+  <div><div class="rh-org">Horizon House</div><div class="rh-sub">${filterLabels[filterVal]}${inclHW && hwCount > 0 ? ' + Hold/Wait' : ''}</div></div>
+  <div class="rh-date">Census Report<br>${printDate}</div>
+</div>
+<div class="rm"><span>${members.length} record${members.length !== 1 ? 's' : ''}${hwNote}</span></div>
+<div class="rb"><table><thead>${headerRow}</thead><tbody>${rows}</tbody></table></div>
 </body></html>`;
 
                         const w = window.open('', '_blank');
