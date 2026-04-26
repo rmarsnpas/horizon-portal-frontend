@@ -772,8 +772,8 @@
             <a href="/horizon-portal/staff-emergency-contacts.html" class="dashboard-card">
                 <div class="card-icon">🚨</div>
                 <div class="card-title">Emergency Contacts</div>
-                <div class="card-count" id="ecMissingCount">-</div>
-                <div class="card-label">Members Missing Form</div>
+                <div class="card-count" id="ecSubmittedCount">-</div>
+                <div class="card-label">Forms Submitted &middot; <span id="ecMissingLabel" style="color:#e53e3e;font-weight:700;">0 missing</span></div>
             </a>
 
             <div class="dashboard-card" style="opacity: 0.6; cursor: not-allowed; background: #f0f0f0;">
@@ -3100,10 +3100,14 @@
                 if (document.getElementById('submittedFormsCount')) {
                     document.getElementById('submittedFormsCount').textContent = pendingForms;
                 }
-                if (document.getElementById('ecMissingCount')) {
-                    const el = document.getElementById('ecMissingCount');
-                    el.textContent = ecMissingCount;
-                    if (ecMissingCount > 0) el.style.color = '#e53e3e';
+                if (document.getElementById('ecSubmittedCount')) {
+                    const ecSubmittedCount = currentMembers.length - ecMissingCount;
+                    document.getElementById('ecSubmittedCount').textContent = ecSubmittedCount;
+                    const ecML = document.getElementById('ecMissingLabel');
+                    if (ecML) {
+                        ecML.textContent = ecMissingCount + ' missing';
+                        ecML.style.color = ecMissingCount > 0 ? '#e53e3e' : '#38a169';
+                    }
                 }
 
                 document.getElementById('loading').style.display = 'none';

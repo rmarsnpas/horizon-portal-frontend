@@ -100,6 +100,14 @@
     }
     .search-bar input:focus { outline:none; border-color:#667eea; }
 
+    .btn-print {
+      display:inline-flex; align-items:center; gap:6px;
+      margin-top:16px; padding:9px 20px;
+      background:#1a3a5c; color:#fff; border:none; border-radius:7px;
+      font-size:13px; font-weight:700; cursor:pointer;
+    }
+    .btn-print:hover { background:#0f2740; }
+
     @media(max-width:600px) { .member-header { flex-direction:column; align-items:flex-start; } }
   </style>
 </head>
@@ -135,6 +143,7 @@
   const API = 'https://horizon-portal-backend-production-3532.up.railway.app';
 
   let allRows = []; // { member, submission|null }
+  window._ecData = {};
 
   async function load() {
     const [membersRes, ecRes] = await Promise.all([
@@ -226,6 +235,7 @@
     const rowCls    = hasSub ? 'completed' : 'missing';
     const detailID  = `det-${mid || fn + ln}`.replace(/\s/g,'');
     const chevID    = `chev-${detailID}`;
+    window._ecData[detailID] = sub;
 
     let detail = '';
     if (hasSub) {
@@ -251,7 +261,8 @@
           <span><strong>Signed by:</strong> ${esc(sub.signature || '')}</span>
           <span><strong>Date:</strong> ${esc(dateStr)}</span>
           ${sub.source ? `<span><strong>Source:</strong> ${esc(sub.source)}</span>` : ''}
-        </div>`;
+        </div>
+        <div><button class="btn-print" onclick="printEC('${detailID}')">&#128424;&#65039; Print / View Full Form</button></div>`;
     } else {
       detail = `<p style="color:#e53e3e;font-size:13px;margin-top:10px;">No emergency contact form has been submitted for this member. Please ask them to complete the form in their member portal or during intake.</p>`;
     }
@@ -277,6 +288,71 @@
     const chev = document.getElementById(chevID);
     const open = det.classList.toggle('open');
     if (chev) chev.style.transform = open ? 'rotate(180deg)' : '';
+  }
+
+  function printEC(detailID) {
+    const sub = window._ecData[detailID];
+    if (!sub) return;
+    const fn = sub.memberInfo?.firstName || '';
+    const ln = sub.memberInfo?.lastName  || '';
+    const dateStr = sub.submittedAt
+      ? new Date(sub.submittedAt).toLocaleDateString('en-US', { weekday:'long', year:'numeric', month:'long', day:'numeric' })
+      : (sub.signatureDate || '');
+
+    const contactsHTML = (sub.emergencyContacts || []).map((c, i) => {
+      const rows = [
+        c.primaryPhone   ? `<tr><td>Primary Phone</td><td>${esc(c.primaryPhone)}</td></tr>`   : '',
+        c.alternatePhone ? `<tr><td>Alt Phone</td><td>${esc(c.alternatePhone)}</td></tr>`     : '',
+        c.email          ? `<tr><td>Email</td><td>${esc(c.email)}</td></tr>`                  : '',
+        c.address        ? `<tr><td>Address</td><td>${esc(c.address)}</td></tr>`              : '',
+        `<tr><td>Authorized to Contact</td><td>${c.authorized !== false ? 'Yes' : 'No'}</td></tr>`
+      ].join('');
+      return `<div class="ec-card"><h3>Contact ${i+1}: ${esc(c.name)} <span class="rel">${esc(c.relationship)}</span></h3><table>${rows}</table></div>`;
+    }).join('');
+
+    const medHTML = sub.medicalInfo
+      ? `<div class="info-section"><h3>Medical / Allergies</h3><p>${esc(sub.medicalInfo)}</p></div>` : '';
+    const spHTML  = sub.specialInstructions
+      ? `<div class="info-section blue"><h3>Special Instructions</h3><p>${esc(sub.specialInstructions)}</p></div>` : '';
+
+    const win = window.open('', '_blank', 'width=760,height=950');
+    win.document.write(`<!DOCTYPE html><html><head>
+<meta charset="UTF-8">
+<title>Emergency Contact &ndash; ${esc(fn)} ${esc(ln)}</title>
+<style>
+* { margin:0; padding:0; box-sizing:border-box; }
+body { font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif; padding:32px; color:#222; }
+.org { color:#1a3a5c; font-size:11px; letter-spacing:.1em; text-transform:uppercase; margin-bottom:4px; }
+h1 { font-size:22px; color:#1a3a5c; border-bottom:3px solid #1a3a5c; padding-bottom:8px; margin-bottom:8px; }
+.sub { font-size:13px; color:#718096; margin-bottom:22px; }
+.ec-card { border:1.5px solid #e2e8f0; border-radius:8px; padding:16px; margin-bottom:16px; }
+.ec-card h3 { font-size:15px; color:#1a3a5c; margin-bottom:10px; }
+.rel { font-weight:400; color:#718096; font-size:13px; margin-left:8px; }
+table { width:100%; border-collapse:collapse; font-size:13px; }
+td { padding:6px 8px; border-bottom:1px solid #f0f0f0; vertical-align:top; }
+td:first-child { font-weight:600; color:#4a5568; width:170px; }
+.info-section { background:#fffbeb; border:1px solid #fbd38d; border-radius:8px; padding:14px; margin-bottom:14px; }
+.info-section.blue { background:#ebf8ff; border-color:#90cdf4; }
+.info-section h3 { font-size:12px; font-weight:700; color:#5a3000; margin-bottom:6px; text-transform:uppercase; letter-spacing:.05em; }
+.info-section p { font-size:13px; color:#744210; line-height:1.6; white-space:pre-wrap; }
+.info-section.blue p { color:#2a4365; }
+.sig-section { margin-top:20px; border-top:2px solid #e2e8f0; padding-top:14px; display:flex; gap:40px; font-size:13px; color:#4a5568; flex-wrap:wrap; }
+.sig-section strong { display:block; font-size:11px; text-transform:uppercase; letter-spacing:.06em; color:#718096; margin-bottom:3px; }
+.print-btn { margin-top:22px; padding:10px 24px; background:#1a3a5c; color:#fff; border:none; border-radius:6px; font-size:14px; font-weight:700; cursor:pointer; }
+@media print { .print-btn { display:none; } }
+</style></head><body>
+<div class="org">Horizon House Recovery Center</div>
+<h1>Emergency Contact Information</h1>
+<div class="sub">Member: <strong>${esc(fn)} ${esc(ln)}</strong> &nbsp;&middot;&nbsp; Submitted: ${esc(dateStr)}</div>
+${contactsHTML}
+${medHTML}${spHTML}
+<div class="sig-section">
+  <div><strong>Signed By</strong>${esc(sub.signature || '')}</div>
+  <div><strong>Signature Date</strong>${esc(sub.signatureDate || '')}</div>
+</div>
+<div><button class="print-btn" onclick="window.print()">&#128424;&#65039; Print</button></div>
+</body></html>`);
+    win.document.close();
   }
 
   function esc(v) {
