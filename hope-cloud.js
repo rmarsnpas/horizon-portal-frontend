@@ -1,89 +1,158 @@
-/* ===== Hope Cloud Script ===== */
+/* ===== Hope Scene Script ===== */
 (function () {
   'use strict';
 
-  var IMG_SRC = 'uploads/hope cloud.png';
-  var BASE_WIDTH = 200; // px, desktop default
-
-  /* ── inject roam div if not already in HTML ── */
-  function ensureRoamDiv() {
-    if (document.getElementById('hopeCloudRoam')) return;
-    var d = document.createElement('div');
-    d.id = 'hopeCloudRoam';
-    d.setAttribute('aria-hidden', 'true');
-    var img = document.createElement('img');
-    img.src = IMG_SRC;
-    img.alt = 'Hope is on the Horizon!';
-    d.appendChild(img);
-    document.body.appendChild(d);
-  }
+  var BASE = 'uploads/';
+  var activeAnims    = [];
+  var activeTimeouts = [];
+  var driftAnim      = null;
+  var scrollFading   = false;
 
   function rand(min, max) { return min + Math.random() * (max - min); }
 
-  /* ── build and play a random animation on the element ── */
-  function animateCloud(el) {
-    var rot   = (Math.random() < 0.5 ? -1 : 1) * rand(10, 20); /* 10–20° either way */
-    var scale = rand(0.80, 1.20);       /* ±20% of base   */
-    var dur   = rand(12000, 20000);     /* 12 – 20 s      */
+  function cancelAll() {
+    activeAnims.forEach(function(a) { try { a.cancel(); } catch(e) {} });
+    activeAnims = [];
+    activeTimeouts.forEach(function(t) { clearTimeout(t); });
+    activeTimeouts = [];
+    if (driftAnim) { try { driftAnim.cancel(); } catch(e) {} driftAnim = null; }
+  }
 
-    var s0   = scale * 0.40;            /* start tiny — slow zoom in  */
-    var sPeak = scale * 1.10;           /* overshoot peak             */
-    var r0 = rot;
-    var r1 = rot * 0.4;
+  /* -- Inject scene div once -- */
+  function ensureScene() {
+    if (document.getElementById('hopeScene')) return;
+    var scene = document.createElement('div');
+    scene.id = 'hopeScene';
+    scene.setAttribute('aria-hidden', 'true');
 
-    var keyframes = [
-      /* fade + zoom in */
-      { opacity: 0,   transform: 'scale(' + s0    + ') rotate(' + r0  + 'deg)', offset: 0.00 },
-      { opacity: 1,   transform: 'scale(' + sPeak + ') rotate(' + r0  + 'deg)', offset: 0.30 },
-      /* hold near peak */
-      { opacity: 1,   transform: 'scale(' + scale + ') rotate(' + r1  + 'deg)', offset: 0.55 },
-      /* zoom back out while fading */
-      { opacity: 0.7, transform: 'scale(' + sPeak + ') rotate(' + (r1 * 0.5) + 'deg)', offset: 0.78 },
-      { opacity: 0,   transform: 'scale(' + s0    + ') rotate(0deg)',               offset: 1.00 }
-    ];
+    var sun = new Image();
+    sun.src = BASE + 'sun.png';
+    sun.className = 'hope-sun';
+    sun.alt = '';
 
-    /* Web Animations API — widely supported */
-    var anim = el.animate(keyframes, {
-      duration: dur,
-      easing: 'cubic-bezier(.4,0,.2,1)',
-      fill: 'forwards'
-    });
-    anim.onfinish = function () {
+    var text = new Image();
+    text.src = BASE + 'hope text.png';
+    text.className = 'hope-text';
+    text.alt = 'Hope is on the Horizon!';
+
+    var cloud = new Image();
+    cloud.src = BASE + 'cloud.png';
+    cloud.className = 'hope-cloud-img';
+    cloud.alt = '';
+
+    scene.appendChild(sun);
+    scene.appendChild(text);
+    scene.appendChild(cloud);
+    document.body.appendChild(scene);
+  }
+
+  function showScene() {
+    ensureScene();
+    cancelAll();
+    scrollFading = false;
+
+    var scene = document.getElementById('hopeScene');
+    var sun   = scene.querySelector('.hope-sun');
+    var text  = scene.querySelector('.hope-text');
+    var cloud = scene.querySelector('.hope-cloud-img');
+
+    /* reset */
+    scene.style.opacity = '1';
+    scene.style.transform = '';
+    [sun, text, cloud].forEach(function(el) {
       el.style.opacity = '0';
       el.style.transform = '';
-      anim.cancel();
-    };
+    });
+
+    /* 1 -- Cloud fades + slides in offset 30px right of sun (t=0, 1.5s) */
+    var t1 = setTimeout(function() {
+      var a = cloud.animate([
+        { opacity: 0, transform: 'translate(30px, 40px)' },
+        { opacity: 1, transform: 'translate(30px, 0px)'  }
+      ], { duration: 1500, fill: 'forwards', easing: 'ease-out' });
+      activeAnims.push(a);
+    }, 0);
+    activeTimeouts.push(t1);
+
+    /* 2 -- Sun rises from behind cloud (t=1.2s, 6s) */
+    var t2 = setTimeout(function() {
+      var a = sun.animate([
+        { opacity: 0,   transform: 'translateY(160px)' },
+        { opacity: 0.4, transform: 'translateY(90px)',  offset: 0.40 },
+        { opacity: 1,   transform: 'translateY(0px)'  }
+      ], { duration: 6000, fill: 'forwards', easing: 'cubic-bezier(.1,.9,.25,1)' });
+      activeAnims.push(a);
+    }, 1200);
+    activeTimeouts.push(t2);
+
+    /* 3 -- Text grows from tiny → full as sun rises (t=1.2s, 6s — matches sun) */
+    var t3 = setTimeout(function() {
+      var a = text.animate([
+        { opacity: 0,   transform: 'scale(0.12)' },
+        { opacity: 0.3, transform: 'scale(0.40)', offset: 0.30 },
+        { opacity: 0.7, transform: 'scale(0.72)', offset: 0.65 },
+        { opacity: 1,   transform: 'scale(1)'    }
+      ], { duration: 6000, fill: 'forwards', easing: 'cubic-bezier(.1,.9,.25,1)' });
+      activeAnims.push(a);
+    }, 1200);
+    activeTimeouts.push(t3);
+
+    /* 4 -- Slow leftward drift of the whole scene after 3s, over 60s */
+    var t4 = setTimeout(function() {
+      driftAnim = scene.animate([
+        { transform: 'translateX(0px)'    },
+        { transform: 'translateX(-180px)' }
+      ], { duration: 60000, fill: 'forwards', easing: 'linear' });
+      activeAnims.push(driftAnim);
+    }, 3000);
+    activeTimeouts.push(t4);
+
+    /* 4b -- Cloud drifts an extra 60px left faster (45s) — leads ahead of sun/text */
+    var t4b = setTimeout(function() {
+      var a = cloud.animate([
+        { transform: 'translateX(0px)'   },
+        { transform: 'translateX(-60px)' }
+      ], { duration: 45000, fill: 'forwards', easing: 'linear', composite: 'add' });
+      activeAnims.push(a);
+    }, 3000);
+    activeTimeouts.push(t4b);
   }
 
-  /* ── hero cloud (index.html only) ── */
-  function showHero() {
-    var hero = document.getElementById('hopeCloudHero');
-    if (!hero) return;
-    animateCloud(hero);
-  }
+  /* -- Scroll fade-out -- */
+  var lastScroll = 0;
+  window.addEventListener('scroll', function() {
+    var scrollY = window.scrollY || window.pageYOffset;
+    if (scrollFading) return;
+    if (scrollY > lastScroll && scrollY > 80) {
+      /* user scrolled down — fade scene out slowly */
+      scrollFading = true;
+      var scene = document.getElementById('hopeScene');
+      if (!scene) return;
+      var a = scene.animate([
+        { opacity: 1 },
+        { opacity: 0 }
+      ], { duration: 2500, fill: 'forwards', easing: 'ease-in' });
+      activeAnims.push(a);
+      /* reschedule next appearance after scene fades */
+      setTimeout(function() {
+        scheduleScene();
+      }, 3000);
+    }
+    lastScroll = scrollY;
+  }, { passive: true });
 
-  /* ── roaming cloud ── */
-  function showRoam() {
-    var roam = document.getElementById('hopeCloudRoam');
-    if (!roam) return;
-    roam.style.left = rand(8, 70) + 'vw';
-    roam.style.top  = rand(8, 65) + 'vh';
-    animateCloud(roam);
-  }
-
-  /* ── schedule roam recursively ── */
-  function scheduleRoam() {
+  function scheduleScene() {
     var delay = rand(8000, 14000);
-    setTimeout(function () {
-      showRoam();
-      scheduleRoam();
+    var t = setTimeout(function() {
+      showScene();
     }, delay);
+    activeTimeouts.push(t);
   }
 
-  /* ── init on load ── */
-  window.addEventListener('load', function () {
-    ensureRoamDiv();
-    setTimeout(showHero, 1800);   /* hero fires 1.8 s after load  */
-    scheduleRoam();               /* roam fires 25-50 s intervals */
+  window.addEventListener('load', function() {
+    ensureScene();
+    setTimeout(showScene, 1800);
   });
 })();
+
+
