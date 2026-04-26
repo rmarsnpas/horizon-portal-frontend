@@ -24,18 +24,22 @@
   function animateCloud(el) {
     var rot   = rand(-25, 25);          /* ±25° random    */
     var scale = rand(0.80, 1.20);       /* ±20% of base   */
-    var dur   = rand(5000, 10000);      /* 5 – 10 s     */
+    var dur   = rand(12000, 20000);     /* 12 – 20 s      */
 
-    var s0   = scale * 0.45;            /* start small — slow zoom in */
-    var sMid = scale * 1.08;            /* slightly overshoot at peak */
+    var s0   = scale * 0.40;            /* start tiny — slow zoom in  */
+    var sPeak = scale * 1.10;           /* overshoot peak             */
     var r0 = rot;
-    var r1 = rot * 0.5;                 /* gentle unwind mid-flight */
+    var r1 = rot * 0.4;
 
     var keyframes = [
-      { opacity: 0, transform: 'translateY(20px)  scale(' + s0   + ') rotate(' + r0 + 'deg)' },
-      { opacity: 1, transform: 'translateY(0)     scale(' + sMid + ') rotate(' + r0 + 'deg)', offset: 0.30 },
-      { opacity: 1, transform: 'translateY(-12px) scale(' + scale + ') rotate(' + r1 + 'deg)', offset: 0.73 },
-      { opacity: 0, transform: 'translateY(-28px) scale(' + (scale * 0.93) + ') rotate(0deg)' }
+      /* fade + zoom in */
+      { opacity: 0,   transform: 'scale(' + s0    + ') rotate(' + r0  + 'deg)', offset: 0.00 },
+      { opacity: 1,   transform: 'scale(' + sPeak + ') rotate(' + r0  + 'deg)', offset: 0.30 },
+      /* hold near peak */
+      { opacity: 1,   transform: 'scale(' + scale + ') rotate(' + r1  + 'deg)', offset: 0.55 },
+      /* zoom back out while fading */
+      { opacity: 0.7, transform: 'scale(' + sPeak + ') rotate(' + (r1 * 0.5) + 'deg)', offset: 0.78 },
+      { opacity: 0,   transform: 'scale(' + s0    + ') rotate(0deg)',               offset: 1.00 }
     ];
 
     /* Web Animations API — widely supported */
