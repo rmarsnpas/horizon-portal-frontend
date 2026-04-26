@@ -24,7 +24,7 @@
   function animateCloud(el) {
     var rot   = rand(-45, 0);           /* 0° … -45° CCW  */
     var scale = rand(0.80, 1.20);       /* ±20% of base   */
-    var dur   = rand(8500, 11000);      /* 8.5 – 11 s     */
+    var dur   = rand(5000, 10000);      /* 5 – 10 s     */
 
     var s0 = scale * 0.85;
     var r0 = rot;
@@ -68,7 +68,7 @@
 
   /* ── schedule roam recursively ── */
   function scheduleRoam() {
-    var delay = rand(25000, 50000);
+    var delay = rand(8000, 14000);
     setTimeout(function () {
       showRoam();
       scheduleRoam();
