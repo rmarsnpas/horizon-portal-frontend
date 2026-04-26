@@ -613,7 +613,7 @@
 
     <!-- Login Form -->
     <div class="login-container" id="loginContainer">
-        <h1>?? Management Login</h1>
+        <h1>🔐 Management Login</h1>
         <p>Enter your Member ID and password to access the Admin Portal</p>
         <form id="loginForm">
             <div class="form-group">
@@ -635,14 +635,14 @@
             <div class="dashboard-header-content">
                 <img src="/hhlogo.png" alt="Horizon House Logo" class="dashboard-logo">
                 <div>
-                    <h1>?? Admin Portal</h1>
+                    <h1>📊 Admin Portal</h1>
                     <p style="color: #718096; margin-top: 5px;">Welcome to Horizon House Admin Portal</p>
                 </div>
             </div>
             <div class="header-buttons">
-                <a href="/" class="btn-home">?? Home</a>
+                <a href="/" class="btn-home">🏠 Home</a>
                 <button class="btn-logout" onclick="logout()">Logout</button>
-                <a href="/index.html" style="display:block;margin-top:8px;padding:8px 18px;background:#4a5568;color:white;border-radius:6px;text-decoration:none;font-size:0.9rem;text-align:center;">? Back to Website</a>
+                <a href="/index.html" style="display:block;margin-top:8px;padding:8px 18px;background:#4a5568;color:white;border-radius:6px;text-decoration:none;font-size:0.9rem;text-align:center;">← Back to Website</a>
             </div>
         </div>
 
@@ -650,7 +650,7 @@
 
         <!-- Milestones Alert Section -->
         <div class="section-header" id="milestonesSection" style="display: none; background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%); color: white; padding: 20px; border-radius: 12px; margin-bottom: 20px;">
-            <h2 style="color: white; margin: 0;">?? Birthdays & Milestones</h2>
+            <h2 style="color: white; margin: 0;">🎉 Birthdays & Milestones</h2>
             <p style="color: rgba(255,255,255,0.9); margin: 5px 0 0 0;">Recent & Upcoming (7 days either way)</p>
         </div>
 
@@ -658,76 +658,76 @@
 
         <!-- New Members Alert Section -->
         <div class="section-header" id="newMembersSection" style="display: none; background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%); color: white; padding: 20px; border-radius: 12px; margin-bottom: 20px;">
-            <h2 style="color: white; margin: 0;">?? New Members</h2>
+            <h2 style="color: white; margin: 0;">👋 New Members</h2>
             <p style="color: rgba(255,255,255,0.9); margin: 5px 0 0 0;">Recently arrived (last 3 days)</p>
         </div>
 
         <div id="newMembersGrid" class="dashboard-grid" style="display: none; margin-bottom: 30px;"></div>
 
         <div class="section-header" id="pendingSection" style="display: none;">
-            <h2>? Pending Review</h2>
+            <h2>⏳ Pending Review</h2>
             <p>Items requiring management attention</p>
         </div>
 
         <div class="dashboard-grid" id="dashboardGrid" style="display: none;">
             <a href="#" onclick="openDischargeFormsSection(); return false;" class="dashboard-card" id="dischargeFormsPendingCard">
-                <div class="card-icon">??</div>
+                <div class="card-icon">📄</div>
                 <div class="card-title">Discharge Forms</div>
                 <div class="card-count" id="dischargeFormsPendingCount">-</div>
                 <div class="card-label">Pending Review</div>
             </a>
 
             <a href="/horizon-portal/staff-reviews.html" class="dashboard-card">
-                <div class="card-icon">??</div>
+                <div class="card-icon">📋</div>
                 <div class="card-title">Applications</div>
                 <div class="card-count" id="appCount">-</div>
                 <div class="card-label">Pending Review</div>
             </a>
 
             <a href="#" onclick="openOvernightPassPanel(); return false;" class="dashboard-card">
-                <div class="card-icon">??</div>
+                <div class="card-icon">🌙</div>
                 <div class="card-title">Overnight Passes</div>
                 <div class="card-count" id="overnightCardCount">-</div>
                 <div class="card-label">Pending Requests</div>
             </a>
 
             <a href="/contact-view.html" class="dashboard-card">
-                <div class="card-icon">??</div>
+                <div class="card-icon">📬</div>
                 <div class="card-title">Contact Forms</div>
                 <div class="card-count" id="contactCount">-</div>
                 <div class="card-label">Unread Messages</div>
             </a>
 
             <a href="/drug-screen-history.html" class="dashboard-card">
-                <div class="card-icon">??</div>
+                <div class="card-icon">🧪</div>
                 <div class="card-title">Drug Screens</div>
                 <div class="card-count" id="drugScreenCount">-</div>
                 <div class="card-label">Total Tests</div>
             </a>
 
             <a href="/horizon-portal/members/member-status.html" class="dashboard-card" id="signInOutCard">
-                <div class="card-icon">??</div>
+                <div class="card-icon">🚪</div>
                 <div class="card-title">Sign In/Out</div>
                 <div class="card-count" id="signInOutCount">-</div>
                 <div class="card-label">Currently Out</div>
             </a>
 
             <a href="/horizon-portal/members/staff-schedules.html" class="dashboard-card">
-                <div class="card-icon">??</div>
+                <div class="card-icon">📅</div>
                 <div class="card-title">Member Schedules</div>
                 <div class="card-count" id="schedulesCount">-</div>
                 <div class="card-label">Submitted Entries</div>
             </a>
 
             <a href="/horizon-portal/members/staff-meeting-cards.html" class="dashboard-card">
-                <div class="card-icon">??</div>
+                <div class="card-icon">🪪</div>
                 <div class="card-title">Meeting Cards</div>
                 <div class="card-count" id="meetingCardsCount">-</div>
                 <div class="card-label">Pending Review</div>
             </a>
 
             <a href="/horizon-portal/staff/staff-member-list.html" class="dashboard-card" style="background: linear-gradient(135deg, #F58634 0%, #e07020 100%); color: white;">
-                <div class="card-icon" style="color:white;">??</div>
+                <div class="card-icon" style="color:white;">👥</div>
                 <div class="card-title" style="color:white;">Member Management</div>
                 <div class="card-count" style="font-size:24px;color:rgba(255,255,255,0.9);">Add / Edit</div>
                 <div class="card-label" style="color:rgba(255,255,255,0.85);">Master Member List</div>
@@ -736,48 +736,48 @@
 
         <!-- Forms Section -->
         <div class="section-header" id="formsSection" style="display: none; margin-top: 30px;">
-            <h2>?? Forms & Intake</h2>
+            <h2>📝 Forms & Intake</h2>
             <p>Create, manage, and review facility forms</p>
         </div>
 
         <div class="dashboard-grid" id="formsGrid" style="display: none;">
             <a href="/horizon-portal/staff-intake-portal.html" class="dashboard-card" style="grid-column: span 2; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white;">
-                <div class="card-icon" style="font-size: 48px;">??</div>
+                <div class="card-icon" style="font-size: 48px;">📋</div>
                 <div class="card-title" style="color: white; font-size: 28px;">Intake Forms Portal</div>
                 <div class="card-count" id="totalIntakeForms" style="font-size: 32px; color: white;">-</div>
                 <div class="card-label" style="color: rgba(255,255,255,0.9);">Manage All 6 Intake Forms</div>
             </a>
 
             <a href="/discharge-combined-fillable.html?returnTo=%2Fstaff-dashboard.html" class="dashboard-card">
-                <div class="card-icon">??</div>
+                <div class="card-icon">📄</div>
                 <div class="card-title">Discharge Form</div>
                 <div class="card-count" style="font-size: 24px; color: #718096;">Create</div>
                 <div class="card-label">Member Discharge</div>
             </a>
 
             <a href="/property-storage-form.html" class="dashboard-card">
-                <div class="card-icon">??</div>
+                <div class="card-icon">📦</div>
                 <div class="card-title">Property Storage Log</div>
                 <div class="card-count" style="font-size: 24px; color: #718096;">Create</div>
                 <div class="card-label">Member Property</div>
             </a>
 
             <a href="/horizon-portal/forms-viewer.html" class="dashboard-card" style="background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%); color: white;">
-                <div class="card-icon" style="font-size: 48px; color: white;">??</div>
+                <div class="card-icon" style="font-size: 48px; color: white;">📂</div>
                 <div class="card-title" style="color: white;">Submitted Forms</div>
                 <div class="card-count" id="submittedFormsCount" style="font-size: 32px; color: white;">-</div>
                 <div class="card-label" style="color: rgba(255,255,255,0.9);">Pending Filing</div>
             </a>
 
             <div class="dashboard-card" style="opacity: 0.6; cursor: not-allowed; background: #f0f0f0;">
-                <div class="card-icon">??</div>
+                <div class="card-icon">🔧</div>
                 <div class="card-title">Maintenance Request</div>
                 <div class="card-count" style="font-size: 18px; color: #718096;">Coming Soon</div>
                 <div class="card-label">Facility Repairs</div>
             </div>
 
             <a href="/drug-screen.html" class="dashboard-card">
-                <div class="card-icon">??</div>
+                <div class="card-icon">🧪</div>
                 <div class="card-title">Drug Screen Form</div>
                 <div class="card-count" style="font-size: 24px; color: #718096;">New Test</div>
                 <div class="card-label">Record Test Results</div>
@@ -785,19 +785,19 @@
 
             <div class="dashboard-card" style="display: flex; flex-direction: column;">
                 <a href="/application.html" style="text-decoration: none; color: inherit; flex: 1;">
-                    <div class="card-icon">??</div>
+                    <div class="card-icon">📝</div>
                     <div class="card-title">Application Form</div>
                     <div class="card-count" style="font-size: 24px; color: #718096;">View Form</div>
                     <div class="card-label">Member Application</div>
                 </a>
                 <div style="display: flex; gap: 8px; margin-top: 10px;">
-                    <a href="#" onclick="emailApplicationLink(event)" class="card-email-btn" style="flex: 1;">?? Email Link</a>
-                    <button onclick="copyApplicationLink(event)" class="card-email-btn" style="flex: 1; border: none;">?? Copy Link</button>
+                    <a href="#" onclick="emailApplicationLink(event)" class="card-email-btn" style="flex: 1;">✉️ Email Link</a>
+                    <button onclick="copyApplicationLink(event)" class="card-email-btn" style="flex: 1; border: none;">📋 Copy Link</button>
                 </div>
             </div>
 
             <a href="#" class="dashboard-card" style="opacity: 0.6; cursor: not-allowed;">
-                <div class="card-icon">??</div>
+                <div class="card-icon">📜</div>
                 <div class="card-title">Contract Form</div>
                 <div class="card-count" style="font-size: 24px; color: #718096;">Coming Soon</div>
                 <div class="card-label">Behavioral Contract</div>
@@ -805,17 +805,17 @@
 
             <div class="dashboard-card" style="background: linear-gradient(135deg, #48bb78 0%, #38a169 100%); color: white; display: flex; flex-direction: column; justify-content: space-between;">
                 <div>
-                    <div class="card-icon" style="font-size: 48px;">??</div>
+                    <div class="card-icon" style="font-size: 48px;">📊</div>
                     <div class="card-title" style="color: white;">Members Database</div>
                     <div class="card-count" style="font-size: 18px; color: white;">Edit & Manage</div>
                     <div class="card-label" style="color: rgba(255,255,255,0.9);">members.xlsx</div>
                 </div>
                 <div style="display: flex; flex-direction: column; gap: 8px; margin-top: 15px;">
-                    <button onclick="openAllMembersModal()" style="width: 100%; padding: 12px; background: #003366; color: white; border: none; border-radius: 6px; cursor: pointer; font-weight: 700; font-size: 16px; box-shadow: 0 2px 8px rgba(0,0,0,0.2);">??? View All Members</button>
-                    <button onclick="editMembersDatabase()" style="width: 100%; padding: 12px; background: white; color: #38a169; border: none; border-radius: 6px; cursor: pointer; font-weight: 700; font-size: 16px; box-shadow: 0 2px 8px rgba(0,0,0,0.2);">?? Edit Database</button>
+                    <button onclick="openAllMembersModal()" style="width: 100%; padding: 12px; background: #003366; color: white; border: none; border-radius: 6px; cursor: pointer; font-weight: 700; font-size: 16px; box-shadow: 0 2px 8px rgba(0,0,0,0.2);">👁️ View All Members</button>
+                    <button onclick="editMembersDatabase()" style="width: 100%; padding: 12px; background: white; color: #38a169; border: none; border-radius: 6px; cursor: pointer; font-weight: 700; font-size: 16px; box-shadow: 0 2px 8px rgba(0,0,0,0.2);">✏️ Edit Database</button>
                     <div style="display: flex; gap: 8px;">
-                        <a href="https://horizon-portal-backend-production-3532.up.railway.app/api/downloadMembers" style="flex: 1; padding: 8px; background: rgba(255,255,255,0.2); color: white; text-decoration: none; border-radius: 6px; text-align: center; font-weight: 600; font-size: 13px;" download>?? Download</a>
-                        <button onclick="openUploadModal()" style="flex: 1; padding: 8px; background: rgba(255,255,255,0.2); color: white; border: none; border-radius: 6px; cursor: pointer; font-weight: 600; font-size: 13px;">?? Upload</button>
+                        <a href="https://horizon-portal-backend-production-3532.up.railway.app/api/downloadMembers" style="flex: 1; padding: 8px; background: rgba(255,255,255,0.2); color: white; text-decoration: none; border-radius: 6px; text-align: center; font-weight: 600; font-size: 13px;" download>⬇️ Download</a>
+                        <button onclick="openUploadModal()" style="flex: 1; padding: 8px; background: rgba(255,255,255,0.2); color: white; border: none; border-radius: 6px; cursor: pointer; font-weight: 600; font-size: 13px;">⬆️ Upload</button>
                     </div>
                 </div>
             </div>
@@ -823,7 +823,7 @@
             <div id="allMembersModal" class="modal" style="display:none;">
                 <div class="modal-content" style="max-width:95vw;height:90vh;margin:2vh auto;padding:20px;display:flex;flex-direction:column;overflow:hidden;">
                     <div class="modal-header" style="display:flex;justify-content:space-between;align-items:center;flex-shrink:0;">
-                        <h2>??? Members Database</h2>
+                        <h2>👁️ Members Database</h2>
                         <span class="close" onclick="closeAllMembersModal()" style="font-size:2rem;cursor:pointer;">&times;</span>
                     </div>
                     <div style="margin-bottom:12px;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px;flex-shrink:0;">
@@ -878,7 +878,7 @@
                         <div id="editMemberModal" class="modal" style="display:none;align-items:center;justify-content:center;">
                             <div class="modal-content" style="max-width:600px; max-height:90vh; overflow-y:auto; margin:2vh auto;">
                                 <div class="modal-header" style="display:flex;justify-content:space-between;align-items:center;">
-                                    <h2>?? Edit Member</h2>
+                                    <h2>✏️ Edit Member</h2>
                                     <span class="close" onclick="closeEditMemberModal()" style="font-size:2rem;cursor:pointer;">&times;</span>
                                 </div>
                                 <form id="editMemberForm" onsubmit="submitEditMember(event)">
@@ -1210,7 +1210,7 @@
                                 return `<div id="censusSection" style="border:2px solid #38a169;border-radius:8px;padding:14px;margin-bottom:14px;${statusVal==='4'?'':'display:none;'}">`+
                                     `<label style="display:flex;align-items:center;gap:10px;cursor:pointer;font-size:14px;font-weight:600;color:#276749;">`+
                                     `<input type="checkbox" name="inCensus" ${isCensusChecked?'checked':''} style="width:18px;height:18px;">`+
-                                    `<span>?? Include in census &amp; bed board</span></label>`+
+                                    `<span>🏠 Include in census &amp; bed board</span></label>`+
                                     `<div style="font-size:12px;color:#718096;margin-top:6px;">Check if this manager also occupies a bed and should appear in the census count and bed board.</div>`+
                                     `</div>`;
                             })(),
@@ -1218,18 +1218,18 @@
                             (function() {
                                 const ALL_PROFILE_PERMISSIONS = [
                                     // -- Operational sections --
-                                    { key: 'overnight_passes',    label: '?? Overnight Passes' },
-                                    { key: 'drug_screens',        label: '?? Drug Screen History' },
-                                    { key: 'sign_inout',          label: '?? Sign In/Out Board' },
-                                    { key: 'member_schedules',    label: '?? Member Schedules' },
-                                    { key: 'meeting_cards',       label: '?? Meeting Cards' },
+                                    { key: 'overnight_passes',    label: '🌙 Overnight Passes' },
+                                    { key: 'drug_screens',        label: '🧪 Drug Screen History' },
+                                    { key: 'sign_inout',          label: '🚪 Sign In/Out Board' },
+                                    { key: 'member_schedules',    label: '📅 Member Schedules' },
+                                    { key: 'meeting_cards',       label: '🪪 Meeting Cards' },
                                     // -- Forms --
-                                    { key: 'discharge_form',      label: '?? Discharge Form' },
-                                    { key: 'property_storage',    label: '?? Property Storage Log' },
-                                    { key: 'drug_screen_form',    label: '?? Drug Screen Form' },
-                                    { key: 'incident_form',       label: '?? Incident Report' },
-                                    { key: 'maintenance_request', label: '?? Maintenance Request (coming soon)' },
-                                    { key: 'contract_form',       label: '?? Contract Form (coming soon)' },
+                                    { key: 'discharge_form',      label: '📄 Discharge Form' },
+                                    { key: 'property_storage',    label: '📦 Property Storage Log' },
+                                    { key: 'drug_screen_form',    label: '🧪 Drug Screen Form' },
+                                    { key: 'incident_form',       label: '⚠️ Incident Report' },
+                                    { key: 'maintenance_request', label: '🔧 Maintenance Request (coming soon)' },
+                                    { key: 'contract_form',       label: '📋 Contract Form (coming soon)' },
                                     // Add new permission keys here to have them appear in this list.
                                 ];
                                 const currentPerms = Array.isArray(member.permissions) ? member.permissions : [];
@@ -1239,7 +1239,7 @@
                                     `<span>${p.label}</span></label>`
                                 ).join('');
                                 return `<div id="permissionsSection" style="border:2px solid #667eea;border-radius:8px;padding:14px;margin-bottom:14px;${statusVal==='4'?'':'display:none;'}">`+
-                                    `<div style="font-weight:700;color:#667eea;margin-bottom:8px;">?? Management Portal Access</div>`+
+                                    `<div style="font-weight:700;color:#667eea;margin-bottom:8px;">🔑 Management Portal Access</div>`+
                                     `<div style="font-size:12px;color:#718096;margin-bottom:10px;">Select which sections this manager can access in the Management Portal. Applies only to Status 4.</div>`+
                                     boxes+`</div>`;
                             })(),
@@ -1558,7 +1558,7 @@
                     const availFfg = availF.length === 0 ? '#fff' : '#7a1a4a';
                     const availMBg = availM.length === 0 ? '#dc3545' : '#cce5ff';
                     const availMfg = availM.length === 0 ? '#fff' : '#1a4a7a';
-                    html += badge('?? Beds Avail', totalAvail, availBg, '#fff');
+                    html += badge('🛏 Beds Avail', totalAvail, availBg, '#fff');
                     html += badge('F', availF.length + (availF.length ? ' (' + availF.join(', ') + ')' : ''), availFBg, availFfg);
                     html += badge('M', availM.length + (availM.length ? ' (' + availM.join(', ') + ')' : ''), availMBg, availMfg);
                     html += '</div>';
@@ -1594,7 +1594,7 @@
                     if (upcoming.length > 0) {
                         upcoming.sort((a,b) => a.days - b.days);
                         html += '<div style="margin-top:2px;">';
-                        html += badge('?? Upcoming', upcoming.length, '#6f42c1', '#fff');
+                        html += badge('📅 Upcoming', upcoming.length, '#6f42c1', '#fff');
                         upcoming.forEach(u => {
                             const isReserved = heldBeds.has(u.gender + '-' + u.bed);
                             const gBg = u.gender === 'F' ? '#f8d7e8' : '#cce5ff';
@@ -2172,7 +2172,7 @@
                     return `<div style='${rowStyle}'><div style='${cellStyle}'>${left}</div><div style='${cellStyle}'>${right}</div></div>`;
                 }
 
-                const reserveBanner = isReserve ? `<div style='padding:10px 14px;margin-bottom:12px;background:#fff3cd;border:1px solid #ffc107;border-radius:8px;font-size:13px;'><strong>?? Reserving Bed ${pfGender}-${pf._reserveBed}</strong><br>${pf._reserveCurrentName} discharges ${pf._reserveDischargeDate}. New member will admit on or after that date.</div>` : '';
+                const reserveBanner = isReserve ? `<div style='padding:10px 14px;margin-bottom:12px;background:#fff3cd;border:1px solid #ffc107;border-radius:8px;font-size:13px;'><strong>🛏 Reserving Bed ${pfGender}-${pf._reserveBed}</strong><br>${pf._reserveCurrentName} discharges ${pf._reserveDischargeDate}. New member will admit on or after that date.</div>` : '';
                 const reserveBed = isReserve ? pf._reserveBed : '';
                 const defaultStatus = isReserve ? 'H' : '1';
 
@@ -2495,7 +2495,7 @@
         <div id="dischargeFormsSection" style="display:none; margin-top:30px; margin-bottom:20px;">
             <div style="background:linear-gradient(135deg,#c0392b 0%,#e74c3c 100%);color:white;padding:20px;border-radius:12px 12px 0 0;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px;">
                 <div>
-                    <h2 style="color:white;margin:0;">?? Discharge Forms</h2>
+                    <h2 style="color:white;margin:0;">📄 Discharge Forms</h2>
                     <p style="color:rgba(255,255,255,0.85);margin:4px 0 0 0;font-size:0.95rem;">Submitted discharge forms awaiting review</p>
                 </div>
                 <div style="display:flex;gap:10px;align-items:center;">
@@ -2504,7 +2504,7 @@
                         <option value="filed">Filed</option>
                         <option value="all">All</option>
                     </select>
-                    <button onclick="renderDischargeForms()" style="padding:8px 16px;background:white;color:#c0392b;border:none;border-radius:6px;font-weight:700;cursor:pointer;">? Refresh</button>
+                    <button onclick="renderDischargeForms()" style="padding:8px 16px;background:white;color:#c0392b;border:none;border-radius:6px;font-weight:700;cursor:pointer;">🔄 Refresh</button>
                 </div>
             </div>
             <div id="dischargeFormsList" style="background:white;border:2px solid #e74c3c;border-top:none;border-radius:0 0 12px 12px;padding:16px;min-height:60px;"></div>
@@ -2516,9 +2516,9 @@
                     <h2 id="dischargeModalTitle" style="margin-top:0;color:#c0392b;"></h2>
                     <div id="dischargeModalBody"></div>
                     <div style="margin-top:20px;display:flex;gap:10px;flex-wrap:wrap;">
-                        <button id="dischargeModalFileBtn" onclick="dischargeModalFile()" style="padding:10px 24px;background:#28a745;color:white;border:none;border-radius:6px;font-weight:700;cursor:pointer;">? Mark as Filed</button>
-                        <button onclick="openDischargeFormForEdit(dischargeModalCurrentId)" style="padding:10px 24px;background:#2c7be5;color:white;border:none;border-radius:6px;font-weight:700;cursor:pointer;">?? Edit Form</button>
-                        <button onclick="openDischargeFormForPrint(dischargeModalCurrentId)" style="padding:10px 24px;background:#6c3483;color:white;border:none;border-radius:6px;font-weight:700;cursor:pointer;">??? Print</button>
+                        <button id="dischargeModalFileBtn" onclick="dischargeModalFile()" style="padding:10px 24px;background:#28a745;color:white;border:none;border-radius:6px;font-weight:700;cursor:pointer;">✅ Mark as Filed</button>
+                        <button onclick="openDischargeFormForEdit(dischargeModalCurrentId)" style="padding:10px 24px;background:#2c7be5;color:white;border:none;border-radius:6px;font-weight:700;cursor:pointer;">✏️ Edit Form</button>
+                        <button onclick="openDischargeFormForPrint(dischargeModalCurrentId)" style="padding:10px 24px;background:#6c3483;color:white;border:none;border-radius:6px;font-weight:700;cursor:pointer;">🖨️ Print</button>
                         <button onclick="document.getElementById('dischargeModal').style.display='none'" style="padding:10px 24px;background:#6c757d;color:white;border:none;border-radius:6px;font-weight:700;cursor:pointer;">Close</button>
                     </div>
                 </div>
@@ -2529,7 +2529,7 @@
         <div id="kioskMsgSection" style="display: none; margin-top: 30px; margin-bottom: 20px;">
             <div style="background: linear-gradient(135deg, #003366 0%, #0066cc 100%); color: white; padding: 20px; border-radius: 12px 12px 0 0; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px;">
                 <div>
-                    <h2 style="color: white; margin: 0;">?? Kiosk Messages</h2>
+                    <h2 style="color: white; margin: 0;">📢 Kiosk Messages</h2>
                     <p style="color: rgba(255,255,255,0.85); margin: 4px 0 0 0; font-size: 0.95rem;">Post messages to sign-in/out kiosks</p>
                 </div>
                 <button onclick="toggleNewMsgForm()" id="toggleMsgBtn" style="padding: 10px 20px; background: white; color: #003366; border: none; border-radius: 8px; font-weight: 700; cursor: pointer; font-size: 0.95rem;">+ New Message</button>
@@ -2584,7 +2584,7 @@
         <!-- Overnight Pass Panel (hidden, toggled by card click) -->
         <div id="overnightPassPanel" style="display:none; margin-top:30px; margin-bottom:20px;">
             <div class="overnight-header" style="display:flex; justify-content:space-between; align-items:center;">
-                <h2>?? Overnight Pass Requests <span id="overnightCount" class="member-board-count" style="background:rgba(255,255,255,0.3);">0</span></h2>
+                <h2>🌙 Overnight Pass Requests <span id="overnightCount" class="member-board-count" style="background:rgba(255,255,255,0.3);">0</span></h2>
                 <button onclick="document.getElementById('overnightPassPanel').style.display='none'" style="background:rgba(255,255,255,0.25); border:none; color:#fff; font-size:20px; cursor:pointer; border-radius:6px; padding:4px 12px;">&times;</button>
             </div>
             <div class="overnight-body" id="overnightBody">
@@ -2595,7 +2595,7 @@
         <!-- Active Members Board -->
         <div class="section-header" id="memberBoardSection" style="display: none; margin-top: 30px; background: linear-gradient(135deg, #F58634 0%, #c95f00 100%); color: white; padding: 20px; border-radius: 12px; margin-bottom: 20px;">
             <h2 style="color: white; margin: 0;">
-                ?? Active Members Board
+                👥 Active Members Board
                 <span class="member-board-count" id="memberBoardCount">0</span>
                 <span class="member-board-count" id="memberBoardMCount" style="background:#667eea; color:white; margin-left:10px;">M: 0</span>
                 <span class="member-board-count" id="memberBoardFCount" style="background:#e91e8c; color:white; margin-left:10px;">F: 0</span>
@@ -2638,11 +2638,11 @@
     <div id="uploadModal" class="modal">
         <div class="modal-content">
             <div class="modal-header">
-                <h2>?? Upload members.xlsx</h2>
+                <h2>📤 Upload members.xlsx</h2>
                 <span class="close" onclick="closeUploadModal()">&times;</span>
             </div>
             <div class="upload-area" id="uploadArea" onclick="document.getElementById('fileInput').click()">
-                <div class="upload-icon">??</div>
+                <div class="upload-icon">📂</div>
                 <p style="color: #4a5568; font-size: 18px; margin: 0;"><strong>Click to select file</strong> or drag and drop</p>
                 <p style="color: #718096; font-size: 14px; margin-top: 8px;">Only .xlsx files accepted</p>
                 <p id="selectedFileName" style="color: #667eea; font-weight: 600; margin-top: 12px; display: none;"></p>
@@ -2679,19 +2679,19 @@
                 const d = new Date(f.submittedDate);
                 const dateStr = isNaN(d) ? f.submittedDate : `${String(d.getMonth()+1).padStart(2,'0')}/${String(d.getDate()).padStart(2,'0')}/${d.getFullYear()}`;
                 const statusColor = f.status === 'filed' ? '#28a745' : '#f59e0b';
-                const statusLabel = f.status === 'filed' ? '? Filed' : '? Pending';
+                const statusLabel = f.status === 'filed' ? '✓ Filed' : '⏳ Pending';
                 return `
                 <div style="display:flex;align-items:center;justify-content:space-between;padding:12px 14px;border-bottom:1px solid #eee;flex-wrap:wrap;gap:8px;">
                     <div>
                         <strong style="font-size:1rem;">${f.memberName || 'Unknown'}</strong>
                         ${f.memberId ? `<span style="color:#718096;font-size:0.85rem;margin-left:8px;">#${f.memberId}</span>` : ''}
-                        <div style="color:#718096;font-size:0.82rem;margin-top:2px;">?? ${dateStr}</div>
+                        <div style="color:#718096;font-size:0.82rem;margin-top:2px;">📅 ${dateStr}</div>
                     </div>
                     <div style="display:flex;align-items:center;gap:8px;">
                         <span style="background:${statusColor};color:white;padding:4px 10px;border-radius:20px;font-size:0.8rem;font-weight:600;">${statusLabel}</span>
-                        <button onclick="openDischargeModal('${f.id}')" style="padding:6px 14px;background:#c0392b;color:white;border:none;border-radius:6px;cursor:pointer;font-size:0.85rem;">??? View</button>
-                        ${f.status !== 'filed' ? `<button onclick="dischargeMarkFiled('${f.id}')" style="padding:6px 14px;background:#28a745;color:white;border:none;border-radius:6px;cursor:pointer;font-size:0.85rem;">? File</button>` : ''}
-                        <button onclick="dischargeDelete('${f.id}')" style="padding:6px 14px;background:#6c757d;color:white;border:none;border-radius:6px;cursor:pointer;font-size:0.85rem;">???</button>
+                        <button onclick="openDischargeModal('${f.id}')" style="padding:6px 14px;background:#c0392b;color:white;border:none;border-radius:6px;cursor:pointer;font-size:0.85rem;">👁️ View</button>
+                        ${f.status !== 'filed' ? `<button onclick="dischargeMarkFiled('${f.id}')" style="padding:6px 14px;background:#28a745;color:white;border:none;border-radius:6px;cursor:pointer;font-size:0.85rem;">✓ File</button>` : ''}
+                        <button onclick="dischargeDelete('${f.id}')" style="padding:6px 14px;background:#6c757d;color:white;border:none;border-radius:6px;cursor:pointer;font-size:0.85rem;">🗑️</button>
                     </div>
                 </div>`;
             }).join('');
@@ -3125,7 +3125,7 @@
                                         detail: daysDiff >= 0 ? `Turning ${age}` : `Turned ${age}`,
                                         date: birthday,
                                         daysUntil: daysDiff,
-                                        icon: '??'
+                                        icon: '🎂'
                                     });
                                 }
                             });
@@ -3163,7 +3163,7 @@
                                         detail: `${label} sober`,
                                         date: milestoneDate,
                                         daysUntil: daysUntilMilestone,
-                                        icon: '???'
+                                        icon: '🎖️'
                                     });
                                 }
                             });
@@ -3200,7 +3200,7 @@
                                 <div class="card-title" style="color: white;">${m.name}</div>
                                 <div class="card-count" style="color: white; font-size: 24px; font-weight: 700;">${dayText}</div>
                                 <div class="card-label" style="color: rgba(255,255,255,0.9);">${m.detail}</div>
-                                <div class="card-label" style="color: rgba(255,255,255,0.8); font-size: 13px; margin-top: 5px;">?? ${dateText}</div>
+                                <div class="card-label" style="color: rgba(255,255,255,0.8); font-size: 13px; margin-top: 5px;">📅 ${dateText}</div>
                             </div>
                         `;
                     }).join('');
@@ -3583,7 +3583,7 @@
                     list.innerHTML = '<span style="color:#999; font-style:italic;">No active messages.</span>';
                     return;
                 }
-                const targetLabel = { everyone: '?? Everyone', men: '?? Men only', women: '?? Women only', individual: '?? Individual' };
+                const targetLabel = { everyone: '📢 Everyone', men: '🔵 Men only', women: '🌸 Women only', individual: '👤 Individual' };
                 list.innerHTML = msgs.map(m => `
                     <div style="display:flex; align-items:flex-start; justify-content:space-between; gap:12px; padding:12px; border:1px solid #ddd; border-radius:8px; margin-bottom:8px; background:#fafafa;">
                         <div style="flex:1;">
@@ -3598,7 +3598,7 @@
                                 ${m.expiresAt ? ` � Expires ${new Date(m.expiresAt).toLocaleString()}` : ''}
                             </div>
                         </div>
-                        <button onclick="deleteKioskMessage('${m.id}')" style="padding:6px 12px; background:#dc3545; color:white; border:none; border-radius:6px; cursor:pointer; font-weight:600; white-space:nowrap;">?? Delete</button>
+                        <button onclick="deleteKioskMessage('${m.id}')" style="padding:6px 12px; background:#dc3545; color:white; border:none; border-radius:6px; cursor:pointer; font-weight:600; white-space:nowrap;">🗑 Delete</button>
                     </div>
                 `).join('');
             } catch {
@@ -3609,7 +3609,7 @@
         // Streamlined edit workflow
         async function editMembersDatabase() {
             const confirmed = confirm(
-                '?? Edit Members Database\n\n' +
+                '📝 Edit Members Database\n\n' +
                 'This will:\n' +
                 '1. Download the current members.xlsx file\n' +
                 '2. Open it in Excel for editing\n' +
@@ -3623,7 +3623,7 @@
                 
                 // Show upload modal after a brief delay
                 setTimeout(() => {
-                    alert('? File downloaded!\n\n?? Open it in Excel, make your changes, save the file, then click "Upload" below.');
+                    alert('✅ File downloaded!\n\n📝 Open it in Excel, make your changes, save the file, then click "Upload" below.');
                     openUploadModal();
                 }, 1500);
             }
