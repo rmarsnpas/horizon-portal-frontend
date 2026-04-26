@@ -3,22 +3,287 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Emergency Contacts Submissions - Horizon House</title>
-  <link rel="stylesheet" href="staff-intake-agreements.css">
+  <title>Emergency Contacts – Horizon House Staff</title>
+  <style>
+    * { margin:0; padding:0; box-sizing:border-box; }
+    body { font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif; background:#f0f4f8; min-height:100vh; }
+
+    header {
+      background: linear-gradient(135deg,#667eea 0%,#764ba2 100%);
+      color:#fff; padding:18px 28px;
+      display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:10px;
+    }
+    header h1 { font-size:20px; }
+    .header-nav a {
+      color:#fff; text-decoration:none; font-size:13px;
+      padding:7px 14px; background:rgba(255,255,255,0.2); border-radius:6px; margin-left:8px;
+    }
+    .header-nav a:hover { background:rgba(255,255,255,0.35); }
+
+    .container { max-width:960px; margin:30px auto; padding:0 20px 60px; }
+
+    .stats-bar {
+      display:flex; gap:14px; flex-wrap:wrap; margin-bottom:24px;
+    }
+    .stat-pill {
+      background:#fff; border-radius:10px; padding:14px 22px;
+      box-shadow:0 2px 8px rgba(0,0,0,0.07); text-align:center; flex:1; min-width:130px;
+    }
+    .stat-pill .num { font-size:28px; font-weight:800; }
+    .stat-pill .lbl { font-size:12px; color:#718096; margin-top:2px; }
+    .stat-pill.miss .num { color:#e53e3e; }
+    .stat-pill.done .num { color:#38a169; }
+    .stat-pill.total .num { color:#2b6cb0; }
+
+    .section-title {
+      font-size:15px; font-weight:700; color:#4a5568;
+      text-transform:uppercase; letter-spacing:.05em;
+      margin:28px 0 12px; padding-left:4px;
+      border-left:4px solid #e53e3e;
+      padding-left:10px;
+    }
+    .section-title.done-title { border-left-color:#38a169; }
+
+    .member-row {
+      background:#fff; border-radius:10px; margin-bottom:10px;
+      box-shadow:0 1px 6px rgba(0,0,0,0.07);
+      border-left:5px solid #e2e8f0;
+      overflow:hidden;
+    }
+    .member-row.missing { border-left-color:#e53e3e; }
+    .member-row.completed { border-left-color:#38a169; }
+
+    .member-header {
+      display:flex; align-items:center; justify-content:space-between;
+      padding:14px 18px; cursor:pointer; gap:10px; flex-wrap:wrap;
+    }
+    .member-name { font-size:16px; font-weight:700; color:#2d3748; }
+    .member-meta { font-size:12px; color:#718096; margin-top:2px; }
+    .badge {
+      display:inline-block; padding:4px 12px; border-radius:20px;
+      font-size:12px; font-weight:700; flex-shrink:0;
+    }
+    .badge.miss  { background:#fed7d7; color:#c53030; }
+    .badge.done  { background:#c6f6d5; color:#276749; }
+    .chevron { font-size:14px; color:#a0aec0; transition:transform .2s; }
+
+    .member-detail {
+      display:none; padding:0 18px 18px;
+      border-top:1px solid #f0f0f0;
+    }
+    .member-detail.open { display:block; }
+
+    .contact-grid {
+      display:grid; grid-template-columns:repeat(auto-fill,minmax(280px,1fr)); gap:14px;
+      margin-top:14px;
+    }
+    .contact-card {
+      background:#f7fafc; border:1.5px solid #e2e8f0; border-radius:8px; padding:14px;
+    }
+    .contact-card h4 { font-size:14px; font-weight:700; color:#2b6cb0; margin-bottom:8px; }
+    .contact-card p { font-size:13px; color:#4a5568; line-height:1.7; }
+    .contact-card p strong { color:#2d3748; }
+
+    .info-block { margin-top:14px; background:#fffbeb; border:1px solid #fbd38d; border-radius:8px; padding:12px 14px; font-size:13px; color:#744210; line-height:1.6; }
+    .info-block strong { display:block; margin-bottom:4px; color:#5a3000; }
+
+    .sig-row { margin-top:14px; font-size:12px; color:#718096; display:flex; gap:24px; flex-wrap:wrap; }
+    .sig-row span strong { color:#4a5568; }
+
+    .no-data { text-align:center; padding:40px; color:#a0aec0; font-size:15px; }
+
+    .search-bar { margin-bottom:18px; }
+    .search-bar input {
+      width:100%; padding:11px 16px; font-size:14px;
+      border:1.5px solid #e2e8f0; border-radius:8px;
+      font-family:inherit; color:#2d3748;
+    }
+    .search-bar input:focus { outline:none; border-color:#667eea; }
+
+    @media(max-width:600px) { .member-header { flex-direction:column; align-items:flex-start; } }
+  </style>
 </head>
 <body>
-  <div class="container">
-    <h1>Emergency Contacts Submissions</h1>
-    <div id="submissions"></div>
+
+<header>
+  <h1>🚨 Emergency Contacts</h1>
+  <nav class="header-nav">
+    <a href="/staff-dashboard.html">← Admin Portal</a>
+    <a href="/horizon-portal/staff-intake-portal.html">Intake Portal</a>
+  </nav>
+</header>
+
+<div class="container">
+
+  <div class="stats-bar">
+    <div class="stat-pill total"><div class="num" id="statTotal">–</div><div class="lbl">Current Members</div></div>
+    <div class="stat-pill done"><div class="num" id="statDone">–</div><div class="lbl">Form Completed</div></div>
+    <div class="stat-pill miss"><div class="num" id="statMiss">–</div><div class="lbl">Missing Form</div></div>
   </div>
-  <script>
-    const API_URL = 'https://horizon-portal-backend-production-3532.up.railway.app';
-    async function loadSubmissions() {
-      const res = await fetch(`${API_URL}/api/intake/emergency-contact`);
-      const data = await res.json();
-      document.getElementById('submissions').innerHTML = data.length ? data.map(a => `<div class='submission'>${a.memberInfo?.firstName || ''} ${a.memberInfo?.lastName || ''} - ${a.signatureDate || ''}</div>`).join('') : '<p>No submissions yet.</p>';
+
+  <div class="search-bar">
+    <input type="text" id="searchInput" placeholder="Search by member name…" oninput="applySearch()">
+  </div>
+
+  <div id="missingSection"></div>
+  <div id="completedSection"></div>
+  <div id="noDataMsg" class="no-data" style="display:none;">No current members found.</div>
+
+</div>
+
+<script>
+  const API = 'https://horizon-portal-backend-production-3532.up.railway.app';
+
+  let allRows = []; // { member, submission|null }
+
+  async function load() {
+    const [membersRes, ecRes] = await Promise.all([
+      fetch(`${API}/api/members`),
+      fetch(`${API}/api/intake/emergency-contact`)
+    ]);
+
+    const members   = await membersRes.json();
+    const ecRecords = await ecRes.json();
+
+    // Build lookup: most recent submission per member (by name)
+    const latest = {};
+    (Array.isArray(ecRecords) ? ecRecords : []).forEach(r => {
+      const fn  = (r.memberInfo?.firstName || '').trim().toLowerCase();
+      const ln  = (r.memberInfo?.lastName  || '').trim().toLowerCase();
+      const mid = (r.memberId || '').trim().toLowerCase();
+      const key = `${fn} ${ln}`;
+      if (!latest[key] || r.submittedAt > latest[key].submittedAt) latest[key] = r;
+      if (mid) {
+        if (!latest[mid] || r.submittedAt > latest[mid].submittedAt) latest[mid] = r;
+      }
+    });
+
+    // Current members = Status 1 only
+    const current = (Array.isArray(members) ? members : []).filter(m => {
+      const s = String(m.STATUS || m.status || m.STATU || '').trim();
+      return s === '1';
+    });
+
+    allRows = current.map(m => {
+      const fn  = (m['FIRST NAME'] || m.firstName || m.FIRST_NAME || '').trim();
+      const ln  = (m['LAST NAME']  || m.lastName  || m.LAST_NAME  || '').trim();
+      const mid = (m['MEMBER ID']  || m.memberId  || m.ID         || '').trim().toLowerCase();
+      const key = `${fn.toLowerCase()} ${ln.toLowerCase()}`;
+      const sub = latest[mid] || latest[key] || null;
+      return { member: m, fn, ln, mid, sub };
+    }).sort((a, b) => {
+      // Missing first, then alphabetical
+      if (!a.sub && b.sub) return -1;
+      if (a.sub && !b.sub) return 1;
+      return a.ln.localeCompare(b.ln) || a.fn.localeCompare(b.fn);
+    });
+
+    updateStats();
+    render(allRows);
+  }
+
+  function updateStats(rows) {
+    const r = rows || allRows;
+    const miss = r.filter(x => !x.sub).length;
+    document.getElementById('statTotal').textContent = r.length;
+    document.getElementById('statDone').textContent  = r.length - miss;
+    document.getElementById('statMiss').textContent  = miss;
+  }
+
+  function applySearch() {
+    const q = document.getElementById('searchInput').value.trim().toLowerCase();
+    const filtered = q
+      ? allRows.filter(r => (r.fn + ' ' + r.ln).toLowerCase().includes(q))
+      : allRows;
+    updateStats(filtered);
+    render(filtered);
+  }
+
+  function render(rows) {
+    const missing   = rows.filter(r => !r.sub);
+    const completed = rows.filter(r =>  r.sub);
+
+    document.getElementById('noDataMsg').style.display = rows.length === 0 ? 'block' : 'none';
+
+    document.getElementById('missingSection').innerHTML = missing.length === 0 ? '' :
+      `<div class="section-title">⚠️ Missing Form (${missing.length})</div>` +
+      missing.map(rowHTML).join('');
+
+    document.getElementById('completedSection').innerHTML = completed.length === 0 ? '' :
+      `<div class="section-title done-title">✅ Form Completed (${completed.length})</div>` +
+      completed.map(rowHTML).join('');
+  }
+
+  function rowHTML({ fn, ln, mid, sub, member }) {
+    const gf = member['M/F'] || member.GENDER || member.gender || '';
+    const bed = member['BED'] || member.BED || member.bed || '';
+    const metaParts = [gf && `Gender: ${gf}`, bed && `Bed: ${bed}`, mid && `ID: ${mid}`].filter(Boolean);
+    const metaStr = metaParts.join(' · ');
+
+    const hasSub    = !!sub;
+    const badgeCls  = hasSub ? 'done' : 'miss';
+    const badgeTxt  = hasSub ? '✅ Completed' : '⚠️ Missing';
+    const rowCls    = hasSub ? 'completed' : 'missing';
+    const detailID  = `det-${mid || fn + ln}`.replace(/\s/g,'');
+    const chevID    = `chev-${detailID}`;
+
+    let detail = '';
+    if (hasSub) {
+      const contacts = (sub.emergencyContacts || []).map(c => `
+        <div class="contact-card">
+          <h4>${esc(c.name)} <span style="font-weight:400;color:#718096;font-size:12px;">${esc(c.relationship)}</span></h4>
+          <p>${c.primaryPhone   ? `<strong>📞</strong> ${esc(c.primaryPhone)}<br>` : ''}
+             ${c.alternatePhone ? `<strong>📱</strong> ${esc(c.alternatePhone)}<br>` : ''}
+             ${c.email          ? `<strong>✉️</strong> ${esc(c.email)}<br>` : ''}
+             ${c.address        ? `<strong>🏠</strong> ${esc(c.address)}` : ''}
+          </p>
+        </div>`).join('');
+
+      const medical = sub.medicalInfo ? `<div class="info-block"><strong>Medical / Allergies</strong>${esc(sub.medicalInfo)}</div>` : '';
+      const special = sub.specialInstructions ? `<div class="info-block" style="background:#ebf8ff;border-color:#90cdf4;color:#2a4365;"><strong>Special Instructions</strong>${esc(sub.specialInstructions)}</div>` : '';
+
+      const dateStr = sub.submittedAt ? new Date(sub.submittedAt).toLocaleDateString('en-US', { year:'numeric', month:'short', day:'numeric' }) : (sub.signatureDate || '');
+
+      detail = `
+        <div class="contact-grid">${contacts || '<p style="color:#a0aec0;font-size:13px;">No contacts listed.</p>'}</div>
+        ${medical}${special}
+        <div class="sig-row">
+          <span><strong>Signed by:</strong> ${esc(sub.signature || '')}</span>
+          <span><strong>Date:</strong> ${esc(dateStr)}</span>
+          ${sub.source ? `<span><strong>Source:</strong> ${esc(sub.source)}</span>` : ''}
+        </div>`;
+    } else {
+      detail = `<p style="color:#e53e3e;font-size:13px;margin-top:10px;">No emergency contact form has been submitted for this member. Please ask them to complete the form in their member portal or during intake.</p>`;
     }
-    loadSubmissions();
-  </script>
+
+    return `
+      <div class="member-row ${rowCls}" id="row-${detailID}">
+        <div class="member-header" onclick="toggleDetail('${detailID}','${chevID}')">
+          <div>
+            <div class="member-name">${esc(fn)} ${esc(ln)}</div>
+            ${metaStr ? `<div class="member-meta">${metaStr}</div>` : ''}
+          </div>
+          <div style="display:flex;align-items:center;gap:10px;">
+            <span class="badge ${badgeCls}">${badgeTxt}</span>
+            <span class="chevron" id="${chevID}">▼</span>
+          </div>
+        </div>
+        <div class="member-detail" id="${detailID}">${detail}</div>
+      </div>`;
+  }
+
+  function toggleDetail(detID, chevID) {
+    const det  = document.getElementById(detID);
+    const chev = document.getElementById(chevID);
+    const open = det.classList.toggle('open');
+    if (chev) chev.style.transform = open ? 'rotate(180deg)' : '';
+  }
+
+  function esc(v) {
+    return v ? String(v).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;') : '';
+  }
+
+  load();
+</script>
 </body>
 </html>

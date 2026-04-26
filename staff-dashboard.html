@@ -769,6 +769,13 @@
                 <div class="card-label" style="color: rgba(255,255,255,0.9);">Pending Filing</div>
             </a>
 
+            <a href="/horizon-portal/staff-emergency-contacts.html" class="dashboard-card">
+                <div class="card-icon">🚨</div>
+                <div class="card-title">Emergency Contacts</div>
+                <div class="card-count" id="ecMissingCount">-</div>
+                <div class="card-label">Members Missing Form</div>
+            </a>
+
             <div class="dashboard-card" style="opacity: 0.6; cursor: not-allowed; background: #f0f0f0;">
                 <div class="card-icon">🔧</div>
                 <div class="card-title">Maintenance Request</div>
@@ -963,10 +970,13 @@
                         let members = allMembers.filter(m => {
                             const s = String(m.STATUS || m.status || m.STATU || '').trim().toUpperCase();
                             const r = String(m.REF || m.ref || '').trim().toUpperCase();
+                            // Status 4 with inCensus flag counts as Status 1 for all census filters
+                            const isS4Census = s === '4' && m.inCensus === true;
+                            const s1 = s === '1' || isS4Census;
                             let pass = false;
-                            if (filterVal === 'current')      pass = s === '1';
-                            else if (filterVal === 'ats')     pass = s === '1' && r === 'A';
-                            else if (filterVal === 'rivco')   pass = s === '1' && r === 'H';
+                            if (filterVal === 'current')      pass = s1;
+                            else if (filterVal === 'ats')     pass = s1 && r === 'A';
+                            else if (filterVal === 'rivco')   pass = s1 && r === 'H';
                             else if (filterVal === 'all')     pass = s !== '5';
                             else                              pass = true;
                             if (!pass && inclHW) pass = s === 'H' || s === 'W';
@@ -2955,7 +2965,8 @@
                     emergencyRes,
                     liabilityRes,
                     propertyRes,
-                    submittedFormsRes
+                    submittedFormsRes,
+                    membersForECRes
                 ] = await Promise.all([
                     fetch(`${API_BASE}/api/pendingApplications`),
                     fetch(`${API_BASE}/api/contactSubmissions`),
@@ -2969,7 +2980,8 @@
                     fetch(`${API_BASE}/api/intake/emergency-contact`),
                     fetch(`${API_BASE}/api/intake/release-of-liability`),
                     fetch(`${API_BASE}/api/intake/personal-property-release`),
-                    fetch(`${API_BASE}/api/forms`)
+                    fetch(`${API_BASE}/api/forms`),
+                    fetch(`${API_BASE}/api/members`)
                 ]);
 
                 const applications = await applicationsRes.json();
@@ -2986,6 +2998,7 @@
                 const property = await propertyRes.json();
                 const submittedForms = await submittedFormsRes.json();
                 allSubmittedForms = Array.isArray(submittedForms) ? submittedForms : [];
+                const membersForEC = await membersForECRes.json();
 
                 // Count pending applications (already filtered on backend)
                 const pendingApps = applications.length;
@@ -3004,6 +3017,22 @@
 
                 // Meeting cards pending review
                 const pendingMeetingCards = (meetingCardsData.cards || []).filter(c => c.status === 'pending').length;
+
+                // Emergency contacts: count current members (Status 1) missing a submission
+                const ecSubmitted = new Set(
+                    (Array.isArray(emergency) ? emergency : []).map(r =>
+                        ((r.memberInfo?.firstName || '') + ' ' + (r.memberInfo?.lastName || '')).trim().toLowerCase()
+                    )
+                );
+                const currentMembers = (Array.isArray(membersForEC) ? membersForEC : []).filter(m => {
+                    const s = String(m.STATUS || m.status || m.STATU || '').trim();
+                    return s === '1';
+                });
+                const ecMissingCount = currentMembers.filter(m => {
+                    const key = ((m['FIRST NAME'] || m.firstName || m.FIRST_NAME || '') + ' ' +
+                                 (m['LAST NAME']  || m.lastName  || m.LAST_NAME  || '')).trim().toLowerCase();
+                    return key && !ecSubmitted.has(key);
+                }).length;
 
                 // Total intake agreements
                 const totalAgreements = agreements.length;
@@ -3070,6 +3099,11 @@
                 }
                 if (document.getElementById('submittedFormsCount')) {
                     document.getElementById('submittedFormsCount').textContent = pendingForms;
+                }
+                if (document.getElementById('ecMissingCount')) {
+                    const el = document.getElementById('ecMissingCount');
+                    el.textContent = ecMissingCount;
+                    if (ecMissingCount > 0) el.style.color = '#e53e3e';
                 }
 
                 document.getElementById('loading').style.display = 'none';

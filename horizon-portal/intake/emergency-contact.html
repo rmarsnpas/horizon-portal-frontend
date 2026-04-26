@@ -502,6 +502,7 @@
 
             // Prepare form data
             const formData = {
+                memberId: localStorage.getItem('memberId') || sessionStorage.getItem('memberId') || '',
                 memberInfo: {
                     firstName: document.getElementById('memberFirstName').value,
                     lastName: document.getElementById('memberLastName').value
@@ -512,6 +513,7 @@
                 signature: document.getElementById('signature').value,
                 signatureDate: document.getElementById('signatureDate').value,
                 submittedAt: new Date().toISOString(),
+                source: 'intake',
                 ipAddress: await fetch('https://api.ipify.org?format=json')
                     .then(r => r.json())
                     .then(d => d.ip)
