@@ -828,6 +828,7 @@
                     </div>
                     <div style="margin-bottom:12px;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px;flex-shrink:0;">
                         <input id="allMembersSearch" type="text" placeholder="Search all lists..." style="flex:1;min-width:200px;padding:10px;font-size:1rem;border:1px solid #ccc;border-radius:6px;" oninput="filterAllMembersTable()">
+                        <button onclick="openCensusPrintDialog()" style="padding:10px 18px;background:#6c63ff;color:white;border:none;border-radius:6px;font-weight:700;font-size:1rem;">🖨️ Print Census</button>
                         <button onclick="openAddMemberModal()" style="padding:10px 18px;background:#28a745;color:white;border:none;border-radius:6px;font-weight:700;font-size:1rem;">+ Add New Member</button>
                     </div>
                     <!-- Tab buttons -->
@@ -893,12 +894,153 @@
                     </div>
                 </div>
             </div>
-            <script>
+
+            <!-- Census Print Dialog -->
+            <div id="censusPrintDialog" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.55);z-index:99999;align-items:center;justify-content:center;">
+                <div style="background:white;border-radius:12px;padding:28px 32px;max-width:520px;width:95%;box-shadow:0 8px 40px rgba(0,0,0,0.25);">
+                    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:18px;">
+                        <h2 style="margin:0;font-size:1.3rem;">🖨️ Print Census Report</h2>
+                        <span onclick="closeCensusPrintDialog()" style="font-size:1.8rem;cursor:pointer;line-height:1;">&times;</span>
+                    </div>
+
+                    <label style="font-weight:700;display:block;margin-bottom:6px;">Report Type</label>
+                    <select id="censusPrintFilter" style="width:100%;padding:10px;font-size:1rem;border:1px solid #ccc;border-radius:6px;margin-bottom:18px;">
+                        <option value="current">1 – All Current (Status 1)</option>
+                        <option value="ats">2 – ATS (Status 1 &amp; REF = A)</option>
+                        <option value="rivco">3 – RIVco (Status 1 &amp; REF = H)</option>
+                        <option value="all">4 – Entire List (all except Status 5)</option>
+                    </select>
+
+                    <label style="font-weight:700;display:block;margin-bottom:8px;">Optional Fields to Include</label>
+                    <div style="display:flex;flex-wrap:wrap;gap:10px 24px;margin-bottom:22px;">
+                        <label style="display:flex;align-items:center;gap:6px;cursor:pointer;"><input type="checkbox" id="cpf-rate"> Rate</label>
+                        <label style="display:flex;align-items:center;gap:6px;cursor:pointer;"><input type="checkbox" id="cpf-phone"> Phone</label>
+                        <label style="display:flex;align-items:center;gap:6px;cursor:pointer;"><input type="checkbox" id="cpf-email"> Email</label>
+                        <label style="display:flex;align-items:center;gap:6px;cursor:pointer;"><input type="checkbox" id="cpf-pin"> PIN</label>
+                        <label style="display:flex;align-items:center;gap:6px;cursor:pointer;"><input type="checkbox" id="cpf-billday"> Bill Day</label>
+                    </div>
+
+                    <div style="display:flex;gap:12px;">
+                        <button onclick="printCensus()" style="flex:1;padding:12px;background:#6c63ff;color:white;border:none;border-radius:6px;font-weight:700;font-size:1rem;">Print</button>
+                        <button onclick="closeCensusPrintDialog()" style="flex:1;padding:12px;background:#6c757d;color:white;border:none;border-radius:6px;font-weight:700;font-size:1rem;">Cancel</button>
+                    </div>
+                </div>
+            </div>
+
                     // Staff Profile Modal Logic
 
                     function closeStaffProfileModal() {
                         document.getElementById('staffProfileModal').style.display = 'none';
                     }
+
+                    // ── Census Print ─────────────────────────────────────────────────────────
+                    function openCensusPrintDialog() {
+                        document.getElementById('censusPrintDialog').style.display = 'flex';
+                    }
+                    function closeCensusPrintDialog() {
+                        document.getElementById('censusPrintDialog').style.display = 'none';
+                    }
+                    window.openCensusPrintDialog = openCensusPrintDialog;
+                    window.closeCensusPrintDialog = closeCensusPrintDialog;
+
+                    function printCensus() {
+                        const filterVal = document.getElementById('censusPrintFilter').value;
+                        const inclRate    = document.getElementById('cpf-rate').checked;
+                        const inclPhone   = document.getElementById('cpf-phone').checked;
+                        const inclEmail   = document.getElementById('cpf-email').checked;
+                        const inclPin     = document.getElementById('cpf-pin').checked;
+                        const inclBillDay = document.getElementById('cpf-billday').checked;
+
+                        const allMembers = (window._allMembersTableData || {}).members || [];
+                        let members = allMembers.filter(m => {
+                            const s = String(m.STATUS || m.status || m.STATU || '').trim().toUpperCase();
+                            const r = String(m.REF || m.ref || '').trim().toUpperCase();
+                            if (filterVal === 'current') return s === '1';
+                            if (filterVal === 'ats')     return s === '1' && r === 'A';
+                            if (filterVal === 'rivco')   return s === '1' && r === 'H';
+                            if (filterVal === 'all')     return s !== '5';
+                            return true;
+                        });
+
+                        const today = new Date();
+                        today.setHours(0, 0, 0, 0);
+
+                        const filterLabels = {
+                            current: 'All Current (Status 1)',
+                            ats:     'ATS – Status 1 & REF = A',
+                            rivco:   'RIVco – Status 1 & REF = H',
+                            all:     'Entire List (all except Status 5)'
+                        };
+
+                        const fmt = d => {
+                            if (!d) return '';
+                            const pd = parseDate(d);
+                            if (!pd) return String(d);
+                            return String(pd.getMonth()+1).padStart(2,'0') + '-' + String(pd.getDate()).padStart(2,'0') + '-' + pd.getFullYear();
+                        };
+
+                        const daysBetween = (rawA, rawB) => {
+                            const a = parseDate(rawA), b = rawB ? parseDate(rawB) : today;
+                            return (a && b) ? Math.floor((b - a) / 86400000) : '';
+                        };
+
+                        let cols = ['ID','First Name','Last Name','Gender','DOB','Admit Date','Discharge Date','Days Here','Sober Date','Sober Days'];
+                        if (inclRate)    cols.push('Rate');
+                        if (inclPhone)   cols.push('Phone');
+                        if (inclEmail)   cols.push('Email');
+                        if (inclPin)     cols.push('PIN');
+                        if (inclBillDay) cols.push('Bill Day');
+
+                        const headerRow = `<tr>${cols.map(c => `<th>${c}</th>`).join('')}</tr>`;
+
+                        const rows = members.map(m => {
+                            const first    = m['FIRST\r\nNAME'] || m['FIRST\nNAME'] || m['FIRST NAME'] || m.firstName || m.FIRST || '';
+                            const last     = m['LAST\r\nNAME']  || m['LAST\nNAME']  || m['LAST NAME']  || m.lastName  || m.LAST || '';
+                            const gender   = m['M/F'] || m.GENDER || m.gender || '';
+                            const dob      = fmt(m.DOB || m.dob || '');
+                            const admit    = m['ADMIT\r\nDATE'] || m['ADMIT\nDATE'] || m['ADMIT DATE'] || m.admitDate || '';
+                            const dc       = m['DC DATE'] || m['DC\nDATE'] || m['DC\r\nDATE'] || m['DISCHARGE DATE'] || m['DISCHARGE\nDATE'] || m['DISCHARGE\r\nDATE'] || m.dischargeDate || '';
+                            const sober    = m['SOBER\r\nDATE'] || m['SOBER\nDATE'] || m['SOBER DATE'] || m.sobrietyDate || '';
+                            const daysHere  = daysBetween(admit, dc || null);
+                            const daysSober = daysBetween(sober, null);
+                            const cells = [
+                                m.ID || m.id || '', first, last, gender, dob,
+                                fmt(admit), fmt(dc), daysHere, fmt(sober), daysSober
+                            ];
+                            if (inclRate)    cells.push(m.RATE || m.rate ? '$' + (m.RATE || m.rate) : '');
+                            if (inclPhone)   cells.push(m.PHONE || m.phone || '');
+                            if (inclEmail)   cells.push(m.EMAIL || m.email || '');
+                            if (inclPin)     cells.push(m.PIN || m.pin || '');
+                            if (inclBillDay) cells.push(m['BILL ON DAY'] || m.billOnDay || '');
+                            return `<tr>${cells.map(c => `<td>${c}</td>`).join('')}</tr>`;
+                        }).join('');
+
+                        const printDate = today.toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' });
+                        const html = `<!DOCTYPE html><html><head><title>Census Report – ${printDate}</title>
+<style>
+  body { font-family: Arial, sans-serif; font-size: 11px; margin: 16px; }
+  h2 { margin: 0 0 4px; font-size: 15px; }
+  p  { margin: 0 0 10px; color: #555; font-size: 11px; }
+  table { border-collapse: collapse; width: 100%; }
+  th { background: #1a3a5c; color: white; padding: 5px 7px; text-align: left; white-space: nowrap; font-size: 10px; }
+  td { border-bottom: 1px solid #e0e0e0; padding: 4px 7px; white-space: nowrap; }
+  tr:nth-child(even) td { background: #f5f8ff; }
+  @media print { @page { margin: 12mm; size: landscape; } }
+</style></head><body>
+<h2>Horizon House – Census Report</h2>
+<p>${filterLabels[filterVal]} &nbsp;|&nbsp; Printed: ${printDate} &nbsp;|&nbsp; ${members.length} record${members.length !== 1 ? 's' : ''}</p>
+<table><thead>${headerRow}</thead><tbody>${rows}</tbody></table>
+</body></html>`;
+
+                        const w = window.open('', '_blank');
+                        w.document.write(html);
+                        w.document.close();
+                        w.focus();
+                        w.print();
+                        closeCensusPrintDialog();
+                    }
+                    window.printCensus = printCensus;
+                    // ─────────────────────────────────────────────────────────────────────────
 
 
                     async function openStaffProfileModal(memberIdArg) {
