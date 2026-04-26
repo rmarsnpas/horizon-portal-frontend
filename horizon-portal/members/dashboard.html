@@ -383,6 +383,12 @@
     (async function checkInvoiceDue() {
       if (!memberId) return;
       try {
+        // Skip for members with REF = H
+        const mRes = await fetch(`${API_BASE}/api/getMember?id=${encodeURIComponent(memberId)}`);
+        if (mRes.ok) {
+          const mData = await mRes.json();
+          if (mData && String(mData.REF || '').trim().toUpperCase() === 'H') return;
+        }
         const res = await fetch('../invoices/invoices.json?t=' + Date.now(), { cache: 'no-store' });
         const data = await res.json();
         const invoices = data.invoices || [];

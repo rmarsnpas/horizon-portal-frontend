@@ -418,7 +418,9 @@
                     } else {
                         hint.textContent = '';
                     }
-                    checkInvoiceDue(id);
+                    const memberRef = String(m.REF || m.ref || '').trim().toUpperCase();
+                    if (memberRef !== 'H') checkInvoiceDue(id);
+                    else hideInvoiceAlert();
                 } else {
                     hint.textContent = id.length >= 2 ? 'ID not found' : '';
                     hideInvoiceAlert();
