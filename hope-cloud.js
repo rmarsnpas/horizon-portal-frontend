@@ -22,7 +22,7 @@
 
   /* ── build and play a random animation on the element ── */
   function animateCloud(el) {
-    var rot   = rand(-25, 25);          /* ±25° random    */
+    var rot   = (Math.random() < 0.5 ? -1 : 1) * rand(10, 20); /* 10–20° either way */
     var scale = rand(0.80, 1.20);       /* ±20% of base   */
     var dur   = rand(12000, 20000);     /* 12 – 20 s      */
 
