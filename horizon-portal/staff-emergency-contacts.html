@@ -161,10 +161,10 @@
       if (mid && (!latest[mid] || r.submittedAt > latest[mid].submittedAt)) latest[mid] = r;
     });
 
-    // Current members = Status 1 only
+    // Current members = Status 1, plus Status 4 with inCensus=true (same as bed board)
     const current = (Array.isArray(members) ? members : []).filter(m => {
       const s = String(m.STATUS || m.status || m.STATU || '').trim().toUpperCase();
-      return s === '1';
+      return s === '1' || (s === '4' && m.inCensus === true);
     });
 
     // Field helpers — Excel headers may have embedded \r\n
