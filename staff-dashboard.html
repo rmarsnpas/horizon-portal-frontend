@@ -3025,13 +3025,15 @@
                     )
                 );
                 const currentMembers = (Array.isArray(membersForEC) ? membersForEC : []).filter(m => {
-                    const s = String(m.STATUS || m.status || m.STATU || '').trim();
+                    const s = String(m.STATUS || m.status || m.STATU || '').trim().toUpperCase();
                     return s === '1';
                 });
                 const ecMissingCount = currentMembers.filter(m => {
-                    const key = ((m['FIRST NAME'] || m.firstName || m.FIRST_NAME || '') + ' ' +
-                                 (m['LAST NAME']  || m.lastName  || m.LAST_NAME  || '')).trim().toLowerCase();
-                    return key && !ecSubmitted.has(key);
+                    const fn = (m['FIRST\r\nNAME'] || m['FIRST\nNAME'] || m['FIRST NAME'] || m.firstName || '').trim();
+                    const ln = (m['LAST\r\nNAME']  || m['LAST\nNAME']  || m['LAST NAME']  || m.lastName  || '').trim();
+                    const mid = String(m.ID || m.id || '').trim().toLowerCase();
+                    const key = (fn + ' ' + ln).trim().toLowerCase();
+                    return key && !ecSubmitted.has(key) && !ecSubmitted.has(mid);
                 }).length;
 
                 // Total intake agreements

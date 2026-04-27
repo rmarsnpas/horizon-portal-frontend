@@ -169,14 +169,19 @@
 
     // Current members = Status 1 only
     const current = (Array.isArray(members) ? members : []).filter(m => {
-      const s = String(m.STATUS || m.status || m.STATU || '').trim();
+      const s = String(m.STATUS || m.status || m.STATU || '').trim().toUpperCase();
       return s === '1';
     });
 
+    // Helper to pull name fields that may have embedded \r\n from Excel
+    const getFN  = m => (m['FIRST\r\nNAME'] || m['FIRST\nNAME'] || m['FIRST NAME'] || m.firstName || m.FIRST || '').trim();
+    const getLN  = m => (m['LAST\r\nNAME']  || m['LAST\nNAME']  || m['LAST NAME']  || m.lastName  || m.LAST  || '').trim();
+    const getMID = m => String(m.ID || m.id || m['MEMBER ID'] || '').trim().toLowerCase();
+
     allRows = current.map(m => {
-      const fn  = (m['FIRST NAME'] || m.firstName || m.FIRST_NAME || '').trim();
-      const ln  = (m['LAST NAME']  || m.lastName  || m.LAST_NAME  || '').trim();
-      const mid = (m['MEMBER ID']  || m.memberId  || m.ID         || '').trim().toLowerCase();
+      const fn  = getFN(m);
+      const ln  = getLN(m);
+      const mid = getMID(m);
       const key = `${fn.toLowerCase()} ${ln.toLowerCase()}`;
       const sub = latest[mid] || latest[key] || null;
       return { member: m, fn, ln, mid, sub };
