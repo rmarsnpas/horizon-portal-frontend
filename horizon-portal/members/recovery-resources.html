@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Recovery Resources – Horizon House</title>
+  <style>
+    :root { --hh-primary: #F58634; --hh-bg: #FFF8F3; }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: var(--hh-bg); min-height: 100vh; }
+    header { background: var(--hh-primary); color: #fff; padding: 18px 24px; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 10px; }
+    header h1 { font-size: 20px; }
+    .btn-back { background: rgba(255,255,255,0.2); color: #fff; border: 1px solid rgba(255,255,255,0.4); padding: 8px 16px; border-radius: 6px; font-size: 14px; font-weight: 600; cursor: pointer; text-decoration: none; }
+    .btn-back:hover { background: rgba(255,255,255,0.35); }
+    .container { max-width: 860px; margin: 0 auto; padding: 36px 20px 60px; }
+    .page-intro { text-align: center; margin-bottom: 36px; }
+    .page-intro h2 { font-size: 24px; color: #2b3440; margin-bottom: 8px; }
+    .page-intro p { color: #718096; font-size: 15px; }
+    .section-title { font-size: 16px; font-weight: 700; color: #F58634; text-transform: uppercase; letter-spacing: 0.05em; margin: 32px 0 14px; }
+    .resource-grid { display: flex; flex-wrap: wrap; gap: 18px; }
+    .resource-card {
+      background: #fff;
+      border-radius: 14px;
+      box-shadow: 0 3px 12px rgba(0,0,0,0.08);
+      padding: 28px 24px;
+      flex: 1 1 220px;
+      max-width: 260px;
+      text-align: center;
+      text-decoration: none;
+      color: #2b3440;
+      border: 1px solid #f0e8df;
+      transition: box-shadow 0.2s, border 0.2s, transform 0.15s;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 12px;
+    }
+    .resource-card:hover { box-shadow: 0 6px 24px rgba(245,134,52,0.15); border: 1.5px solid #F58634; transform: translateY(-2px); }
+    .resource-card .icon { font-size: 36px; }
+    .resource-card .label { font-size: 16px; font-weight: 700; color: #2b3440; }
+    .resource-card .desc { font-size: 13px; color: #718096; line-height: 1.5; }
+    .resource-card.featured { background: linear-gradient(135deg, #e8f4fd, #dbeafe); border-color: #93c5fd; }
+    .resource-card.featured .label { color: #1e40af; }
+    @media (max-width: 600px) { .resource-card { max-width: 100%; flex-basis: 100%; } }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>💙 Recovery Resources</h1>
+    <a href="dashboard.html" class="btn-back">← Back to Dashboard</a>
+  </header>
+
+  <div class="container">
+    <div class="page-intro">
+      <h2>Tools for Your Recovery Journey</h2>
+      <p>Links to meetings, readings, hotlines, and support communities to help you every day.</p>
+    </div>
+
+    <!-- Daily Reading -->
+    <div class="section-title">📖 Daily Reading</div>
+    <div class="resource-grid">
+      <a class="resource-card featured" href="https://www.aa.org/daily-reflections" target="_blank" rel="noopener noreferrer">
+        <span class="icon">📘</span>
+        <span class="label">AA Daily Reflections</span>
+        <span class="desc">Today's reflection from Alcoholics Anonymous — a daily meditation to start your day grounded.</span>
+      </a>
+      <a class="resource-card featured" href="https://www.alcoholicsanonymous.ie/wp-content/uploads/2022/07/SP7-just_for_today.pdf" target="_blank" rel="noopener noreferrer">
+        <span class="icon">🌅</span>
+        <span class="label">Just For Today</span>
+        <span class="desc">The "Just For Today" card from AA — a simple daily commitment to stay sober one day at a time.</span>
+      </a>
+    </div>
+
+    <!-- Meetings -->
+    <div class="section-title">🤝 Find Meetings</div>
+    <div class="resource-grid">
+      <a class="resource-card" href="https://www.aa.org/find-aa" target="_blank" rel="noopener noreferrer">
+        <span class="icon">🔵</span>
+        <span class="label">Find an AA Meeting</span>
+        <span class="desc">Search for in-person and online AA meetings near you.</span>
+      </a>
+      <a class="resource-card" href="https://www.na.org/meetingsearch/" target="_blank" rel="noopener noreferrer">
+        <span class="icon">🟢</span>
+        <span class="label">Find an NA Meeting</span>
+        <span class="desc">Narcotics Anonymous meeting finder — search by location or online.</span>
+      </a>
+      <a class="resource-card" href="https://www.smartrecovery.org/community/calendar.php" target="_blank" rel="noopener noreferrer">
+        <span class="icon">🧠</span>
+        <span class="label">SMART Recovery</span>
+        <span class="desc">Science-based meetings focused on self-empowerment and coping skills.</span>
+      </a>
+    </div>
+
+    <!-- Crisis & Hotlines -->
+    <div class="section-title">🆘 Crisis &amp; Hotlines</div>
+    <div class="resource-grid">
+      <a class="resource-card" href="tel:18006624357">
+        <span class="icon">📞</span>
+        <span class="label">SAMHSA Helpline</span>
+        <span class="desc">1-800-662-4357 — Free, confidential, 24/7 treatment referral and information.</span>
+      </a>
+      <a class="resource-card" href="tel:988">
+        <span class="icon">🆘</span>
+        <span class="label">988 Suicide &amp; Crisis Lifeline</span>
+        <span class="desc">Call or text 988 any time — mental health crisis support available 24/7.</span>
+      </a>
+    </div>
+
+    <!-- Online Support -->
+    <div class="section-title">🌐 Online Support</div>
+    <div class="resource-grid">
+      <a class="resource-card" href="https://www.intherooms.com" target="_blank" rel="noopener noreferrer">
+        <span class="icon">💬</span>
+        <span class="label">In The Rooms</span>
+        <span class="desc">Free online recovery meetings and community — AA, NA, Al-Anon, and more.</span>
+      </a>
+      <a class="resource-card" href="https://www.reddit.com/r/stopdrinking/" target="_blank" rel="noopener noreferrer">
+        <span class="icon">🙌</span>
+        <span class="label">r/stopdrinking</span>
+        <span class="desc">Supportive online community with daily check-ins and encouragement. No judgement.</span>
+      </a>
+    </div>
+  </div>
+</body>
+</html>
