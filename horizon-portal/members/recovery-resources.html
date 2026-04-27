@@ -84,13 +84,25 @@
         <span class="label">Living Life Fully – Daily Meditation</span>
         <span class="desc">Today's meditation from Living Life Fully — reflections on living with purpose and peace.</span>
       </a>
+      <a class="resource-card featured" href="https://www.todays-hope.com/todays-sharing.html" target="_blank" rel="noopener noreferrer">
+        <span class="icon">💜</span>
+        <span class="label">Al-Anon Daily Reading</span>
+        <span class="desc">Today's sharing from Al-Anon — hope and strength for families affected by alcoholism.</span>
+      </a>
+      <a class="resource-card featured" id="emmetFoxLink" href="#" target="_blank" rel="noopener noreferrer">
+        <span class="icon">✨</span>
+        <span class="label">Emmet Fox – Daily Readings</span>
+        <span class="desc">Spiritual daily readings from Emmet Fox — timeless wisdom for inner growth and recovery.</span>
+      </a>
     </div>
     <script>
       (function() {
         var months = ['jan','feb','mar','apr','may','jun','jul','aug','sep','oct','nov','dec'];
+        var fullMonths = ['january','february','march','april','may','june','july','august','september','october','november','december'];
         var d = new Date();
         var slug = 'med' + months[d.getMonth()] + d.getDate();
         document.getElementById('livingLifeLink').href = 'https://www.livinglifefully.com/meditations/' + slug + '.htm';
+        document.getElementById('emmetFoxLink').href = 'https://www.emmetfox.org/daily-readings/' + fullMonths[d.getMonth()];
       })();
     </script>
 

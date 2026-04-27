@@ -627,13 +627,23 @@
           <strong>🌿 Living Life Fully – Daily Meditation</strong>
           <div class="hover-text" style="font-size:0.9rem;color:#555;">Today's meditation from Living Life Fully — reflections on living with purpose and peace.</div>
         </a>
+        <a href="https://www.todays-hope.com/todays-sharing.html" target="_blank" rel="noopener noreferrer" class="card hover-box" style="text-decoration:none;color:inherit;">
+          <strong>💜 Al-Anon Daily Reading</strong>
+          <div class="hover-text" style="font-size:0.9rem;color:#555;">Today's sharing from Al-Anon — hope and strength for families affected by alcoholism.</div>
+        </a>
+        <a id="emmetFoxLinkPub" href="#" target="_blank" rel="noopener noreferrer" class="card hover-box" style="text-decoration:none;color:inherit;">
+          <strong>✨ Emmet Fox – Daily Readings</strong>
+          <div class="hover-text" style="font-size:0.9rem;color:#555;">Spiritual daily readings from Emmet Fox — timeless wisdom for inner growth and recovery.</div>
+        </a>
       </div>
       <script>
         (function() {
           var months = ['jan','feb','mar','apr','may','jun','jul','aug','sep','oct','nov','dec'];
+          var fullMonths = ['january','february','march','april','may','june','july','august','september','october','november','december'];
           var d = new Date();
           var slug = 'med' + months[d.getMonth()] + d.getDate();
           document.getElementById('livingLifeLinkPub').href = 'https://www.livinglifefully.com/meditations/' + slug + '.htm';
+          document.getElementById('emmetFoxLinkPub').href = 'https://www.emmetfox.org/daily-readings/' + fullMonths[d.getMonth()];
         })();
       </script>
 
