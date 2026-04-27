@@ -942,8 +942,8 @@
 <!-- Bed Availability Loader -->
 <script>
 (function(){
-  var M_CAPACITY = 9;
-  var F_CAPACITY = 10;
+  var M_BEDS = ['1A','1B','2A','2B','2C','3A','3B','4A','4B']; // 9 beds
+  var F_BEDS = ['1A','1B','2A','2B','3A','3B','3C','4'];        // 8 beds
   var API = 'https://horizon-portal-backend-production-3532.up.railway.app';
 
   function setCount(id, val) {
@@ -960,21 +960,21 @@
   fetch(API + '/api/members')
     .then(function(r){ return r.ok ? r.json() : Promise.reject(r.status); })
     .then(function(members){
+      // Count members who occupy a bed: status 1 (current) or H (hold)
       var active = members.filter(function(m){
-        var status = String(m.STATUS || m.STATU || m.status || '').trim();
-        var bed = m.BED || m['BED#'] || m.bed || '';
-        return (status === '1' || status === '2') && bed;
+        var status = String(m.STATUS || m.STATU || m.status || '').trim().toUpperCase();
+        return status === '1' || status === 'H';
       });
       var occM = active.filter(function(m){
-        var g = (m['M/F'] || m.GENDER || '').toString().toUpperCase();
-        return g === 'M' || g.startsWith('M');
+        var g = String(m['M/F'] || m.GENDER || m.gender || '').toUpperCase().trim();
+        return g === 'M';
       }).length;
       var occF = active.filter(function(m){
-        var g = (m['M/F'] || m.GENDER || '').toString().toUpperCase();
-        return g === 'F' || g.startsWith('F');
+        var g = String(m['M/F'] || m.GENDER || m.gender || '').toUpperCase().trim();
+        return g === 'F';
       }).length;
-      setCount('availM', Math.max(0, M_CAPACITY - occM));
-      setCount('availF', Math.max(0, F_CAPACITY - occF));
+      setCount('availM', Math.max(0, M_BEDS.length - occM));
+      setCount('availF', Math.max(0, F_BEDS.length - occF));
     })
     .catch(function(){
       setCount('availM', '?');

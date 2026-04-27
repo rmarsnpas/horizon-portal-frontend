@@ -1042,6 +1042,11 @@
 
                         const printDate = today.toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' });
                         const hwNote = inclHW && hwCount > 0 ? ` &nbsp;&bull;&nbsp; ${hwCount} Hold/Wait` : '';
+                        const availF = getAvailableBeds('F');
+                        const availM = getAvailableBeds('M');
+                        const bedNote = `&nbsp;&bull;&nbsp; 🛏 Beds Available: F&nbsp;${availF.length} / M&nbsp;${availM.length}` +
+                            (availF.length ? ` (F: ${availF.join(', ')})` : '') +
+                            (availM.length ? ` (M: ${availM.join(', ')})` : '');
                         const html = `<!DOCTYPE html><html><head><title>Census Report – ${printDate}</title>
 <style>
   *{box-sizing:border-box}
@@ -1067,7 +1072,7 @@
   <div><div class="rh-org">Horizon House</div><div class="rh-sub">${filterLabels[filterVal]}${inclHW && hwCount > 0 ? ' + Hold/Wait' : ''}</div></div>
   <div class="rh-date">Census Report<br>${printDate}</div>
 </div>
-<div class="rm"><span>${members.length} record${members.length !== 1 ? 's' : ''}${hwNote}</span></div>
+<div class="rm"><span>${members.length} record${members.length !== 1 ? 's' : ''}${hwNote}${bedNote}</span></div>
 <div class="rb"><table><thead>${headerRow}</thead><tbody>${rows}</tbody></table></div>
 </body></html>`;
 
