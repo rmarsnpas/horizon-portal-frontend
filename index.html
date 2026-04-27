@@ -960,10 +960,10 @@
   fetch(API + '/api/members')
     .then(function(r){ return r.ok ? r.json() : Promise.reject(r.status); })
     .then(function(members){
-      // Count members who occupy a bed: status 1 (current) or H (hold)
+      // Count members who occupy a bed: status 1 (current), H (hold), or status 4 with inCensus flag
       var active = members.filter(function(m){
         var status = String(m.STATUS || m.STATU || m.status || '').trim().toUpperCase();
-        return status === '1' || status === 'H';
+        return status === '1' || status === 'H' || (status === '4' && m.inCensus === true);
       });
       var occM = active.filter(function(m){
         var g = String(m['M/F'] || m.GENDER || m.gender || '').toUpperCase().trim();
