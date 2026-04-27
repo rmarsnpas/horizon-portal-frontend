@@ -623,7 +623,19 @@
           <strong>🕊️ Just for Today (NA)</strong>
           <div class="hover-text" style="font-size:0.9rem;color:#555;">Daily meditation from Narcotics Anonymous — a thought for each day to support your recovery.</div>
         </a>
+        <a id="livingLifeLinkPub" href="#" target="_blank" rel="noopener noreferrer" class="card hover-box" style="text-decoration:none;color:inherit;">
+          <strong>🌿 Living Life Fully – Daily Meditation</strong>
+          <div class="hover-text" style="font-size:0.9rem;color:#555;">Today's meditation from Living Life Fully — reflections on living with purpose and peace.</div>
+        </a>
       </div>
+      <script>
+        (function() {
+          var months = ['jan','feb','mar','apr','may','jun','jul','aug','sep','oct','nov','dec'];
+          var d = new Date();
+          var slug = 'med' + months[d.getMonth()] + d.getDate();
+          document.getElementById('livingLifeLinkPub').href = 'https://www.livinglifefully.com/meditations/' + slug + '.htm';
+        })();
+      </script>
 
       <h3 style="font-family:Inter,system-ui;font-size:1.1rem;color:var(--amber);margin:1.5rem 0 0.5rem;">🤝 Find Meetings</h3>
       <div class="cards">
