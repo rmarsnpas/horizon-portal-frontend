@@ -132,6 +132,10 @@
         <span class="icon">🚨</span>
         Emergency Contact
       </a>
+      <a class="dashboard-card" id="staffPortalCard" href="/staff-limited-portal.html" style="display:none;background:linear-gradient(135deg,#667eea,#764ba2);color:#fff;">
+        <span class="icon">🔑</span>
+        <span style="color:#fff;">Staff Portal</span>
+      </a>
     </div>
 
     <!-- Welcome New Members -->
@@ -199,9 +203,15 @@
     const memberId = localStorage.getItem('memberId') || '';
     const firstName = localStorage.getItem('memberFirstName') || '';
     const lastName = localStorage.getItem('memberLastName') || '';
+    const accessCode = parseInt(localStorage.getItem('memberAccessCode') || '0', 10);
     if (firstName || lastName) {
       document.getElementById('welcomeBanner').textContent =
         'Welcome, ' + (firstName + ' ' + lastName).trim() + (memberId ? ' (ID: ' + memberId + ')' : '');
+    }
+    // Show Staff Portal card for Status 4 members
+    if (accessCode === 4) {
+      const sp = document.getElementById('staffPortalCard');
+      if (sp) sp.style.display = '';
     }
 
     function logout() {
@@ -209,6 +219,7 @@
       localStorage.removeItem('memberFirstName');
       localStorage.removeItem('memberLastName');
       localStorage.removeItem('memberEmail');
+      localStorage.removeItem('memberAccessCode');
       sessionStorage.removeItem('memberId');
       sessionStorage.removeItem('memberName');
       window.location.href = '../member-login-fixed.html';
