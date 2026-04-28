@@ -784,6 +784,47 @@
                 showStatus(`Sign-out failed: ${error.message || 'Connection error'}`, 'error');
             }
         }
+
+        // ── Screen Wake Lock ─────────────────────────────────────────────────────
+        let wakeLock = null;
+        async function requestWakeLock() {
+            try {
+                if ('wakeLock' in navigator) {
+                    wakeLock = await navigator.wakeLock.request('screen');
+                    wakeLock.addEventListener('release', () => { wakeLock = null; });
+                }
+            } catch (e) { /* not supported or denied — silent */ }
+        }
+        requestWakeLock();
+        document.addEventListener('visibilitychange', () => {
+            if (document.visibilityState === 'visible') requestWakeLock();
+        });
+
+        // ── Screensaver ───────────────────────────────────────────────────────────
+        const SCREENSAVER_DELAY = 60000; // 60 seconds of inactivity
+        let ssTimer = null;
+
+        function showScreensaver() {
+            document.getElementById('hhScreensaver').style.display = 'flex';
+        }
+        function hideScreensaver() {
+            document.getElementById('hhScreensaver').style.display = 'none';
+            resetSsTimer();
+        }
+        function resetSsTimer() {
+            clearTimeout(ssTimer);
+            ssTimer = setTimeout(showScreensaver, SCREENSAVER_DELAY);
+        }
+        ['touchstart','touchend','mousedown','mousemove','keydown','scroll'].forEach(evt => {
+            document.addEventListener(evt, hideScreensaver, { passive: true });
+        });
+        resetSsTimer();
     </script>
+
+    <!-- Screensaver overlay -->
+    <div id="hhScreensaver" onclick="hideScreensaver()" style="position:fixed;inset:0;z-index:99999;background:#003366;display:none;align-items:center;justify-content:center;flex-direction:column;gap:24px;cursor:pointer;">
+        <img src="../HH logo grntree.png" alt="Horizon House" style="max-width:280px;width:60vw;opacity:0.95;">
+        <p style="color:rgba(255,255,255,0.7);font-size:1.1rem;font-family:Arial,sans-serif;margin:0;">Touch to continue</p>
+    </div>
 </body>
 </html>
