@@ -977,6 +977,10 @@
                         <input id="memoFrom" type="text" placeholder="Horizon House Management" maxlength="100" style="width:100%;padding:9px 10px;border:1px solid #ccc;border-radius:6px;font-size:14px;font-family:inherit;box-sizing:border-box;margin-bottom:10px;">
                         <label style="display:block;font-weight:600;font-size:13px;margin-bottom:4px;color:#444;">Body</label>
                         <textarea id="memoBody" placeholder="Write the memorandum here…" rows="7" style="width:100%;padding:9px 10px;border:1px solid #ccc;border-radius:6px;font-size:14px;font-family:inherit;box-sizing:border-box;resize:vertical;"></textarea>
+                        <label style="display:flex;align-items:center;gap:8px;margin-top:12px;cursor:pointer;">
+                            <input type="checkbox" id="memoRequireAck" style="width:16px;height:16px;accent-color:#1a1a2e;cursor:pointer;">
+                            <span style="font-weight:600;font-size:13px;color:#444;">Require member acknowledgment <span style="font-weight:400;color:#888;">(members must confirm they have read and understood this memo)</span></span>
+                        </label>
                         <button onclick="postMemorandum()" id="memoPostBtn" style="margin-top:12px;background:#1a1a2e;color:white;border:none;padding:11px 24px;border-radius:6px;font-size:14px;font-weight:700;cursor:pointer;">Post Memorandum</button>
                         <span id="memoPostStatus" style="margin-left:12px;font-size:13px;font-weight:600;"></span>
                     </div>
@@ -1183,18 +1187,64 @@
                                 el.innerHTML = '<div style="color:#aaa;text-align:center;padding:24px;font-size:14px;">No memorandums posted yet.</div>';
                                 return;
                             }
-                            el.innerHTML = memos.map(m => `
+                            el.innerHTML = memos.map(m => {
+                                const acks = m.acknowledgments || [];
+                                const isAckReq = m.requireAck === true;
+
+                                // Build read-receipt section for ack-required memos
+                                let ackHtml = '';
+                                if (isAckReq) {
+                                    const allMems = ((window._allMembersTableData || {}).members || []).filter(mem => {
+                                        const s = String(mem.STATUS || mem.status || mem.STATU || '').trim().toUpperCase();
+                                        return s === '1';
+                                    });
+                                    const readIds = new Set(acks.map(a => String(a.memberId)));
+                                    const notRead = allMems.filter(mem => {
+                                        const id = String(mem['MEMBER ID'] || mem['MEMBER_ID'] || mem.ID || mem.id || '').trim();
+                                        return id && !readIds.has(id);
+                                    });
+
+                                    const readPills = acks.length
+                                        ? acks.map(a => `<span style="display:inline-block;background:#d4edda;color:#155724;border-radius:4px;padding:2px 7px;font-size:11px;margin:2px 2px 2px 0;">&#10003; ${escMemo(a.memberName)}</span>`).join('')
+                                        : '<span style="color:#aaa;font-size:12px;">None yet</span>';
+
+                                    const notReadPills = notRead.length
+                                        ? notRead.map(mem => {
+                                            const fn = mem['FIRST\r\nNAME'] || mem['FIRST\nNAME'] || mem['FIRST NAME'] || mem.firstName || '';
+                                            const ln = mem['LAST\r\nNAME'] || mem['LAST\nNAME'] || mem['LAST NAME'] || mem.lastName || '';
+                                            const nm = (fn + ' ' + ln).trim() || ('ID ' + (mem.ID || mem.id || ''));
+                                            return `<span style="display:inline-block;background:#f8d7da;color:#721c24;border-radius:4px;padding:2px 7px;font-size:11px;margin:2px 2px 2px 0;">&#10007; ${escMemo(nm)}</span>`;
+                                        }).join('')
+                                        : '<span style="color:#28a745;font-size:12px;">All active members have acknowledged &#10003;</span>';
+
+                                    ackHtml = `
+                                        <div style="margin-top:10px;border-top:1px solid #e0e6ed;padding-top:10px;">
+                                            <button onclick="this.nextElementSibling.style.display=this.nextElementSibling.style.display==='none'?'block':'none'" style="background:none;border:1px solid #1a1a2e;border-radius:5px;padding:4px 12px;font-size:12px;font-weight:700;cursor:pointer;color:#1a1a2e;">
+                                                &#128203; Read Receipts (${acks.length}&#47;${acks.length + notRead.length})
+                                            </button>
+                                            <div style="display:none;margin-top:10px;">
+                                                <div style="margin-bottom:8px;"><strong style="font-size:12px;color:#28a745;">&#10003; Have Read (${acks.length}):</strong><div style="margin-top:4px;">${readPills}</div></div>
+                                                <div><strong style="font-size:12px;color:#dc3545;">&#10007; Have Not Read (${notRead.length}):</strong><div style="margin-top:4px;">${notReadPills}</div></div>
+                                            </div>
+                                        </div>`;
+                                }
+
+                                return `
                                 <div style="border:1px solid #e0e6ed;border-radius:8px;padding:14px 16px;margin-bottom:12px;background:#fafbfd;">
                                     <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:10px;">
-                                        <div>
-                                            <div style="font-weight:700;color:#1a1a2e;font-size:0.95rem;margin-bottom:3px;">${escMemo(m.title)}</div>
+                                        <div style="flex:1;">
+                                            <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:3px;">
+                                                <div style="font-weight:700;color:#1a1a2e;font-size:0.95rem;">${escMemo(m.title)}</div>
+                                                ${isAckReq ? '<span style="background:#1a1a2e;color:#F58634;font-size:10px;font-weight:700;padding:2px 7px;border-radius:4px;letter-spacing:0.5px;">ACK REQUIRED</span>' : ''}
+                                            </div>
                                             <div style="font-size:12px;color:#888;margin-bottom:8px;">📅 ${fmtMemoDate(m.timestamp)} &nbsp;·&nbsp; ✍️ ${escMemo(m.from)}</div>
                                             <div style="font-size:13px;color:#444;white-space:pre-wrap;max-height:120px;overflow-y:auto;">${escMemo(m.body)}</div>
+                                            ${ackHtml}
                                         </div>
                                         <button onclick="deleteMemo('${m.id}')" title="Delete" style="flex-shrink:0;background:#dc3545;color:white;border:none;border-radius:6px;padding:6px 10px;font-size:13px;cursor:pointer;">🗑️</button>
                                     </div>
-                                </div>
-                            `).join('');
+                                </div>`;
+                            }).join('');
                         } catch(e) {
                             el.innerHTML = '<div style="color:#e53e3e;text-align:center;padding:24px;font-size:14px;">Error loading memorandums.</div>';
                         }
@@ -1204,6 +1254,7 @@
                         const title = document.getElementById('memoTitle').value.trim();
                         const from  = document.getElementById('memoFrom').value.trim() || 'Horizon House Management';
                         const body  = document.getElementById('memoBody').value.trim();
+                        const requireAck = document.getElementById('memoRequireAck').checked;
                         const status = document.getElementById('memoPostStatus');
                         if (!title || !body) { status.style.color='#e53e3e'; status.textContent='Title and body are required.'; return; }
                         const btn = document.getElementById('memoPostBtn');
@@ -1213,13 +1264,14 @@
                             const res = await fetch(MEMO_API, {
                                 method: 'POST',
                                 headers: { 'Content-Type': 'application/json' },
-                                body: JSON.stringify({ title, from, body })
+                                body: JSON.stringify({ title, from, body, requireAck })
                             });
                             const data = await res.json();
                             if (data.success) {
                                 document.getElementById('memoTitle').value = '';
                                 document.getElementById('memoFrom').value = '';
                                 document.getElementById('memoBody').value = '';
+                                document.getElementById('memoRequireAck').checked = false;
                                 status.style.color = '#28a745'; status.textContent = '✓ Posted!';
                                 loadMemoList();
                             } else {

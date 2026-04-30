@@ -88,6 +88,29 @@
     .invoice-alert.flash-yellow a { color: #744210; }
     .invoice-alert.flash-red { animation: flash-red 0.6s ease-in-out infinite; color: #742a2a; }
     .invoice-alert.flash-red a { color: #742a2a; }
+
+    /* Memo card new/ack-required flash */
+    @keyframes memo-flash {
+      0%, 100% { box-shadow: 0 3px 12px rgba(26,26,46,0.12); border-color: #1a1a2e; background: #fff; }
+      50% { box-shadow: 0 0 0 5px rgba(26,26,46,0.18), 0 6px 24px rgba(26,26,46,0.28); background: #eeeeff; border-color: #1a1a2e; }
+    }
+    .memo-card-flash {
+      animation: memo-flash 1.1s ease-in-out infinite !important;
+      border-color: #1a1a2e !important;
+    }
+    .memo-unread-badge {
+      position: absolute;
+      top: -9px; right: -9px;
+      background: #dc3545;
+      color: #fff;
+      border-radius: 50%;
+      min-width: 22px; height: 22px;
+      font-size: 12px; font-weight: 700;
+      display: flex; align-items: center; justify-content: center;
+      z-index: 10;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.25);
+      padding: 0 4px;
+    }
   </style>
 </head>
 <body>
@@ -140,7 +163,7 @@
         <span class="icon">📢</span>
         Announcements
       </a>
-      <a class="dashboard-card" href="memorandums.html" style="border-color:#1a1a2e;">
+      <a class="dashboard-card" id="memoCard" href="memorandums.html" style="border-color:#1a1a2e;position:relative;">
         <span class="icon">📋</span>
         Memorandums
       </a>
@@ -474,6 +497,36 @@
           el.style.display = 'block';
         }
       } catch (e) { console.error('Invoice check failed:', e); }
+    })();
+
+    // ── Memorandums new/ack notification ───────────────────────────────────
+    (async function checkMemos() {
+      if (!memberId) return;
+      try {
+        const res = await fetch(API_BASE + '/api/memorandums');
+        const memos = await res.json();
+        if (!Array.isArray(memos) || !memos.length) return;
+        const lastVisit = parseInt(localStorage.getItem('memoLastVisit') || '0', 10);
+        const hasNew = memos.some(m => new Date(m.timestamp).getTime() > lastVisit);
+        const pendingAck = memos.filter(m =>
+          m.requireAck &&
+          !(m.acknowledgments || []).some(a => String(a.memberId) === String(memberId))
+        );
+        if (!hasNew && !pendingAck.length) return;
+        const card = document.getElementById('memoCard');
+        if (!card) return;
+        card.classList.add('memo-card-flash');
+        const badge = document.createElement('span');
+        badge.className = 'memo-unread-badge';
+        badge.textContent = pendingAck.length > 0 ? pendingAck.length : '!';
+        card.appendChild(badge);
+        if (pendingAck.length > 0) {
+          const note = document.createElement('div');
+          note.style.cssText = 'font-size:11px;color:#dc3545;font-weight:700;margin-top:6px;line-height:1.3;';
+          note.textContent = pendingAck.length === 1 ? '1 memo needs your signature' : pendingAck.length + ' memos need your signature';
+          card.appendChild(note);
+        }
+      } catch (e) { /* non-critical */ }
     })();
   </script>
 </body>
