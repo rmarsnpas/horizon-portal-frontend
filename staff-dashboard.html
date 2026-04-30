@@ -950,6 +950,16 @@
 
             <!-- Relapse Question Dialog -->
             <div id="relapseDialog" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.55);z-index:200000;align-items:center;justify-content:center;">
+                <div style="background:white;border-radius:12px;padding:28px 32px;max-width:420px;width:95%;box-shadow:0 8px 40px rgba(0,0,0,0.25);text-align:center;">
+                    <div style="font-size:2rem;margin-bottom:10px;">⚠️</div>
+                    <h3 style="margin:0 0 10px;font-size:1.15rem;color:#1a1a2e;">Did the member relapse?</h3>
+                    <p style="margin:0 0 22px;color:#555;font-size:0.95rem;">If yes, the sober date will be cleared and their Days Sober will show as <strong>RELAPSED</strong>.</p>
+                    <div style="display:flex;gap:12px;justify-content:center;">
+                        <button id="relapseYesBtn" style="flex:1;padding:11px;background:#dc3545;color:white;border:none;border-radius:6px;font-weight:700;font-size:1rem;cursor:pointer;">Yes – Relapsed</button>
+                        <button id="relapseNoBtn" style="flex:1;padding:11px;background:#6c757d;color:white;border:none;border-radius:6px;font-weight:700;font-size:1rem;cursor:pointer;">No – Keep Sober Date</button>
+                    </div>
+                </div>
+            </div>
 
             <!-- Memorandums Panel -->
             <div id="memorandumPanel" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.55);z-index:100000;align-items:flex-start;justify-content:center;overflow-y:auto;padding:30px 10px;">
@@ -973,16 +983,6 @@
                     <!-- Existing memos list -->
                     <div style="font-weight:700;font-size:0.9rem;color:#555;margin-bottom:10px;">Posted Memorandums</div>
                     <div id="memoList"><div style="color:#aaa;font-size:14px;text-align:center;padding:24px;">Loading…</div></div>
-                </div>
-            </div>
-                <div style="background:white;border-radius:12px;padding:28px 32px;max-width:420px;width:95%;box-shadow:0 8px 40px rgba(0,0,0,0.25);text-align:center;">
-                    <div style="font-size:2rem;margin-bottom:10px;">⚠️</div>
-                    <h3 style="margin:0 0 10px;font-size:1.15rem;color:#1a1a2e;">Did the member relapse?</h3>
-                    <p style="margin:0 0 22px;color:#555;font-size:0.95rem;">If yes, the sober date will be cleared and their Days Sober will show as <strong>RELAPSED</strong>.</p>
-                    <div style="display:flex;gap:12px;justify-content:center;">
-                        <button id="relapseYesBtn" style="flex:1;padding:11px;background:#dc3545;color:white;border:none;border-radius:6px;font-weight:700;font-size:1rem;cursor:pointer;">Yes – Relapsed</button>
-                        <button id="relapseNoBtn" style="flex:1;padding:11px;background:#6c757d;color:white;border:none;border-radius:6px;font-weight:700;font-size:1rem;cursor:pointer;">No – Keep Sober Date</button>
-                    </div>
                 </div>
             </div>
 
