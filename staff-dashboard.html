@@ -705,6 +705,13 @@
                 <div class="card-label">Total Tests</div>
             </a>
 
+            <a href="#" onclick="openMemorandumPanel(); return false;" class="dashboard-card">
+                <div class="card-icon">📋</div>
+                <div class="card-title">Memorandums</div>
+                <div class="card-count" id="memoCount">-</div>
+                <div class="card-label">Post &amp; Manage</div>
+            </a>
+
             <a href="/horizon-portal/members/member-status.html" class="dashboard-card" id="signInOutCard">
                 <div class="card-icon">🚪</div>
                 <div class="card-title">Sign In/Out</div>
@@ -943,6 +950,31 @@
 
             <!-- Relapse Question Dialog -->
             <div id="relapseDialog" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.55);z-index:200000;align-items:center;justify-content:center;">
+
+            <!-- Memorandums Panel -->
+            <div id="memorandumPanel" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.55);z-index:100000;align-items:flex-start;justify-content:center;overflow-y:auto;padding:30px 10px;">
+                <div style="background:white;border-radius:14px;padding:30px 28px;max-width:640px;width:100%;box-shadow:0 8px 40px rgba(0,0,0,0.22);position:relative;margin:auto;">
+                    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:20px;">
+                        <h2 style="margin:0;font-size:1.3rem;color:#1a1a2e;">📋 Memorandums</h2>
+                        <span onclick="closeMemorandumPanel()" style="font-size:1.8rem;cursor:pointer;line-height:1;color:#aaa;">&times;</span>
+                    </div>
+                    <!-- Compose form -->
+                    <div style="background:#f7f9fc;border:1px solid #e0e6ed;border-radius:10px;padding:18px 20px;margin-bottom:24px;">
+                        <div style="font-weight:700;font-size:0.95rem;color:#1a1a2e;margin-bottom:12px;">✏️ Post New Memorandum</div>
+                        <label style="display:block;font-weight:600;font-size:13px;margin-bottom:4px;color:#444;">Subject / Title</label>
+                        <input id="memoTitle" type="text" placeholder="e.g. Updated House Rules – Effective May 1" maxlength="200" style="width:100%;padding:9px 10px;border:1px solid #ccc;border-radius:6px;font-size:14px;font-family:inherit;box-sizing:border-box;margin-bottom:10px;">
+                        <label style="display:block;font-weight:600;font-size:13px;margin-bottom:4px;color:#444;">From (Signed by)</label>
+                        <input id="memoFrom" type="text" placeholder="Horizon House Management" maxlength="100" style="width:100%;padding:9px 10px;border:1px solid #ccc;border-radius:6px;font-size:14px;font-family:inherit;box-sizing:border-box;margin-bottom:10px;">
+                        <label style="display:block;font-weight:600;font-size:13px;margin-bottom:4px;color:#444;">Body</label>
+                        <textarea id="memoBody" placeholder="Write the memorandum here…" rows="7" style="width:100%;padding:9px 10px;border:1px solid #ccc;border-radius:6px;font-size:14px;font-family:inherit;box-sizing:border-box;resize:vertical;"></textarea>
+                        <button onclick="postMemorandum()" id="memoPostBtn" style="margin-top:12px;background:#1a1a2e;color:white;border:none;padding:11px 24px;border-radius:6px;font-size:14px;font-weight:700;cursor:pointer;">Post Memorandum</button>
+                        <span id="memoPostStatus" style="margin-left:12px;font-size:13px;font-weight:600;"></span>
+                    </div>
+                    <!-- Existing memos list -->
+                    <div style="font-weight:700;font-size:0.9rem;color:#555;margin-bottom:10px;">Posted Memorandums</div>
+                    <div id="memoList"><div style="color:#aaa;font-size:14px;text-align:center;padding:24px;">Loading…</div></div>
+                </div>
+            </div>
                 <div style="background:white;border-radius:12px;padding:28px 32px;max-width:420px;width:95%;box-shadow:0 8px 40px rgba(0,0,0,0.25);text-align:center;">
                     <div style="font-size:2rem;margin-bottom:10px;">⚠️</div>
                     <h3 style="margin:0 0 10px;font-size:1.15rem;color:#1a1a2e;">Did the member relapse?</h3>
@@ -1113,6 +1145,111 @@
                         closeCensusPrintDialog();
                     }
                     window.printCensus = printCensus;
+                    // ─────────────────────────────────────────────────────────────────────────
+
+                    // ── Memorandums Panel ─────────────────────────────────────────────────────
+                    const MEMO_API = API_BASE + '/api/memorandums';
+
+                    function openMemorandumPanel() {
+                        document.getElementById('memorandumPanel').style.display = 'flex';
+                        loadMemoList();
+                    }
+                    function closeMemorandumPanel() {
+                        document.getElementById('memorandumPanel').style.display = 'none';
+                    }
+                    document.getElementById('memorandumPanel').addEventListener('click', function(e) {
+                        if (e.target === this) closeMemorandumPanel();
+                    });
+                    window.openMemorandumPanel = openMemorandumPanel;
+                    window.closeMemorandumPanel = closeMemorandumPanel;
+
+                    function escMemo(s) {
+                        return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+                    }
+                    function fmtMemoDate(iso) {
+                        return new Date(iso).toLocaleDateString('en-US',{year:'numeric',month:'long',day:'numeric'});
+                    }
+
+                    async function loadMemoList() {
+                        const el = document.getElementById('memoList');
+                        el.innerHTML = '<div style="color:#aaa;text-align:center;padding:24px;font-size:14px;">Loading…</div>';
+                        try {
+                            const res = await fetch(MEMO_API);
+                            const memos = await res.json();
+                            // Update dashboard card count
+                            const cnt = document.getElementById('memoCount');
+                            if (cnt) cnt.textContent = memos.length;
+                            if (!memos.length) {
+                                el.innerHTML = '<div style="color:#aaa;text-align:center;padding:24px;font-size:14px;">No memorandums posted yet.</div>';
+                                return;
+                            }
+                            el.innerHTML = memos.map(m => `
+                                <div style="border:1px solid #e0e6ed;border-radius:8px;padding:14px 16px;margin-bottom:12px;background:#fafbfd;">
+                                    <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:10px;">
+                                        <div>
+                                            <div style="font-weight:700;color:#1a1a2e;font-size:0.95rem;margin-bottom:3px;">${escMemo(m.title)}</div>
+                                            <div style="font-size:12px;color:#888;margin-bottom:8px;">📅 ${fmtMemoDate(m.timestamp)} &nbsp;·&nbsp; ✍️ ${escMemo(m.from)}</div>
+                                            <div style="font-size:13px;color:#444;white-space:pre-wrap;max-height:120px;overflow-y:auto;">${escMemo(m.body)}</div>
+                                        </div>
+                                        <button onclick="deleteMemo('${m.id}')" title="Delete" style="flex-shrink:0;background:#dc3545;color:white;border:none;border-radius:6px;padding:6px 10px;font-size:13px;cursor:pointer;">🗑️</button>
+                                    </div>
+                                </div>
+                            `).join('');
+                        } catch(e) {
+                            el.innerHTML = '<div style="color:#e53e3e;text-align:center;padding:24px;font-size:14px;">Error loading memorandums.</div>';
+                        }
+                    }
+
+                    async function postMemorandum() {
+                        const title = document.getElementById('memoTitle').value.trim();
+                        const from  = document.getElementById('memoFrom').value.trim() || 'Horizon House Management';
+                        const body  = document.getElementById('memoBody').value.trim();
+                        const status = document.getElementById('memoPostStatus');
+                        if (!title || !body) { status.style.color='#e53e3e'; status.textContent='Title and body are required.'; return; }
+                        const btn = document.getElementById('memoPostBtn');
+                        btn.disabled = true; btn.textContent = 'Posting…';
+                        status.textContent = '';
+                        try {
+                            const res = await fetch(MEMO_API, {
+                                method: 'POST',
+                                headers: { 'Content-Type': 'application/json' },
+                                body: JSON.stringify({ title, from, body })
+                            });
+                            const data = await res.json();
+                            if (data.success) {
+                                document.getElementById('memoTitle').value = '';
+                                document.getElementById('memoFrom').value = '';
+                                document.getElementById('memoBody').value = '';
+                                status.style.color = '#28a745'; status.textContent = '✓ Posted!';
+                                loadMemoList();
+                            } else {
+                                status.style.color = '#e53e3e'; status.textContent = data.error || 'Failed.';
+                            }
+                        } catch(e) {
+                            status.style.color = '#e53e3e'; status.textContent = 'Network error.';
+                        }
+                        btn.disabled = false; btn.textContent = 'Post Memorandum';
+                    }
+                    window.postMemorandum = postMemorandum;
+
+                    async function deleteMemo(id) {
+                        if (!confirm('Delete this memorandum? This cannot be undone.')) return;
+                        try {
+                            await fetch(MEMO_API + '/' + id, { method: 'DELETE' });
+                            loadMemoList();
+                        } catch(e) { alert('Delete failed.'); }
+                    }
+                    window.deleteMemo = deleteMemo;
+
+                    // Load memo count on dashboard load
+                    (async function() {
+                        try {
+                            const res = await fetch(MEMO_API);
+                            const memos = await res.json();
+                            const cnt = document.getElementById('memoCount');
+                            if (cnt) cnt.textContent = memos.length;
+                        } catch(e) {}
+                    })();
                     // ─────────────────────────────────────────────────────────────────────────
 
                     // ── Relapse question helper ───────────────────────────────────────────────
