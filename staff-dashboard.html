@@ -1036,7 +1036,7 @@
                             if (inclPhone)   cells.push(m.PHONE || m.phone || '');
                             if (inclEmail)   cells.push(m.EMAIL || m.email || '');
                             if (inclPin)     cells.push(m.PIN || m.pin || '');
-                            if (inclBillDay) cells.push(m['BILL ON DAY'] || m.billOnDay || '');
+                            if (inclBillDay) cells.push(m['BILL ON DAY'] || m['BILL ON \nDAY'] || m['BILL ON\r\nDAY'] || m.billOnDay || '');
                             return `<tr${isHW ? ' class="hw-row"' : ''}>${cells.map(v => `<td>${v}</td>`).join('')}</tr>`;
                         }).join('');
 
@@ -1124,7 +1124,7 @@
                                 'YR': ['YR', 'yr'],
                                 'FIRST': ['FIRST_NAME', 'FIRST', 'firstName', 'FIRST\nNAME', 'FIRST\r\nNAME', 'FIRST NAME'],
                                 'LAST': ['LAST_NAME', 'LAST', 'lastName', 'LAST\nNAME', 'LAST\r\nNAME', 'LAST NAME'],
-                                'NICKNAME': ['NICKNAME', 'NIC NAME', 'nickname', 'nick'],
+                                'NICKNAME': ['NICKNAME', 'NIC NAME', 'NIC \nNAME', 'NIC \r\nNAME', 'NIC\nNAME', 'NIC\r\nNAME', 'nickname', 'nick'],
                                 'PHONE': ['PHONE', 'phone'],
                                 'EMAIL': ['EMAIL', 'email'],
                                 'DOB': ['DOB', 'dob'],
@@ -1137,7 +1137,7 @@
                                 'PIN': ['PIN', 'pin'],
                                 'KEY': ['KEY', 'key'],
                                 'REF': ['REF', 'ref'],
-                                'BILL ON DAY': ['BILL ON DAY', 'BILL_ON_DAY', 'billOnDay'],
+                                'BILL ON DAY': ['BILL ON DAY', 'BILL ON \nDAY', 'BILL ON\r\nDAY', 'BILL_ON_DAY', 'billOnDay'],
                                 'HIDE_INVOICES': ['HIDE_INVOICES', 'hideInvoices'],
                                 'M/F': ['M/F', 'GENDER', 'gender'],
                             };
@@ -1692,7 +1692,7 @@
                     document.getElementById('allMembersTableBody').innerHTML = filtered.map((member, idx) => {
                         const firstName = member['FIRST\r\nNAME'] || member['FIRST\nNAME'] || member['FIRST NAME'] || member.firstName || member.FIRST || '';
                         const lastName  = member['LAST\r\nNAME']  || member['LAST\nNAME']  || member['LAST NAME']  || member.lastName  || member.LAST || '';
-                        const nickname  = member['NIC NAME'] || member.nickname || member.nick || member.NICKNAME || '';
+                        const nickname  = member['NIC NAME'] || member['NIC \nNAME'] || member['NIC \r\nNAME'] || member['NIC\nNAME'] || member['NIC\r\nNAME'] || member.nickname || member.nick || member.NICKNAME || '';
                         const gender    = member['M/F'] || member.GENDER || member.gender || '';
                         const bed       = member.BED || member['BED#'] || member.bed || '';
                         const dob       = (() => {
@@ -1707,7 +1707,7 @@
                         const phone     = member.PHONE || member.phone || '';
                         const email     = member.EMAIL || member.email || '';
                         const pin       = member.PIN || member.pin || '';
-                        const billOnDay = member['BILL ON DAY'] || member.billOnDay || '';
+                        const billOnDay = member['BILL ON DAY'] || member['BILL ON \nDAY'] || member['BILL ON\r\nDAY'] || member.billOnDay || '';
                         const key       = member.KEY || member.key || '';
                         const ref       = member.REF || member.ref || '';
                         const id        = member.ID || member.id || '';
@@ -1728,15 +1728,24 @@
                         const displayNum = isStatus5 ? '' : ++rowNum;
                         const pinDisplay = String(member.PIN ?? member.pin ?? '');
 
+                        // Effective billing day: explicit billOnDay, else fall back to admit date's day
+                        const parsedBillDay = parseInt(billOnDay, 10);
+                        const effectiveBillDay = (parsedBillDay >= 1 && parsedBillDay <= 31)
+                            ? parsedBillDay
+                            : (admitDate ? admitDate.getDate() : 0);
+                        // Display: show explicit value, or admit-day fallback in muted style
+                        const billOnDayDisplay = billOnDay
+                            ? billOnDay
+                            : (admitDate ? `<span style="color:#aaa;font-style:italic;">${effectiveBillDay}</span>` : '');
+
                         // Billing urgency highlight (skip county REF='H', skip non-active)
                         const isActive = String(status).trim() === '1' || String(status).trim() === '2';
                         const isCounty = String(ref).trim().toUpperCase() === 'H';
                         let billCellClass = '';
                         let billCellTitle = '';
                         if (isActive && !isCounty) {
-                            // Determine billing day-of-month
-                            let billingDay = parseInt(billOnDay, 10);
-                            if (!billingDay && admitDate) billingDay = admitDate.getDate();
+                            // Determine billing day-of-month (already resolved via effectiveBillDay)
+                            const billingDay = effectiveBillDay;
                             if (billingDay >= 1 && billingDay <= 31) {
                                 // Find next due date from today
                                 const t = new Date(today);
@@ -1772,7 +1781,7 @@
                             <td>${phone}</td>
                             <td>${email}</td>
                             <td>${pinDisplay}</td>
-                            <td><span${billCellAttr}>${billOnDay}</span></td>
+                            <td><span${billCellAttr}>${billOnDayDisplay}</span></td>
                             <td>${key}</td>
                             <td>${ref}</td>
                             <td style="white-space:nowrap;">
@@ -1842,7 +1851,7 @@
                             case 'STATUS': return member.STATUS || member.status || '';
                             case 'FIRST': return member['FIRST\r\nNAME'] || member['FIRST\nNAME'] || member['FIRST NAME'] || member.firstName || member.FIRST || '';
                             case 'LAST': return member['LAST\r\nNAME'] || member['LAST\nNAME'] || member['LAST NAME'] || member.lastName || member.LAST || '';
-                            case 'NICKNAME': return member['NIC NAME'] || member.nickname || member.nick || member.NICKNAME || '';
+                            case 'NICKNAME': return member['NIC NAME'] || member['NIC \nNAME'] || member['NIC \r\nNAME'] || member['NIC\nNAME'] || member['NIC\r\nNAME'] || member.nickname || member.nick || member.NICKNAME || '';
                             case 'M/F': return member['M/F'] || member.GENDER || member.gender || '';
                             case 'BED': return member.BED || member['BED#'] || member.bed || '';
                             case 'DOB': { const r = member.DOB || member.dob || ''; const pd = parseDate(r); return pd ? fmtDate(pd) : r; }
@@ -1853,7 +1862,7 @@
                             case 'PHONE': return member.PHONE || member.phone || '';
                             case 'EMAIL': return member.EMAIL || member.email || '';
                             case 'PIN': return String(member.PIN ?? member.pin ?? '');
-                            case 'BILL ON DAY': return member['BILL ON DAY'] || member.billOnDay || '';
+                            case 'BILL ON DAY': return member['BILL ON DAY'] || member['BILL ON \nDAY'] || member['BILL ON\r\nDAY'] || member.billOnDay || '';
                             case 'KEY': return member.KEY || member.key || '';
                             case 'REF': return member.REF || member.ref || '';
                             default: return member[k] !== undefined ? member[k] : '';
