@@ -940,6 +940,20 @@
                     </div>
                 </div>
             </div>
+
+            <!-- Relapse Question Dialog -->
+            <div id="relapseDialog" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.55);z-index:200000;align-items:center;justify-content:center;">
+                <div style="background:white;border-radius:12px;padding:28px 32px;max-width:420px;width:95%;box-shadow:0 8px 40px rgba(0,0,0,0.25);text-align:center;">
+                    <div style="font-size:2rem;margin-bottom:10px;">⚠️</div>
+                    <h3 style="margin:0 0 10px;font-size:1.15rem;color:#1a1a2e;">Did the member relapse?</h3>
+                    <p style="margin:0 0 22px;color:#555;font-size:0.95rem;">If yes, the sober date will be cleared and their Days Sober will show as <strong>RELAPSED</strong>.</p>
+                    <div style="display:flex;gap:12px;justify-content:center;">
+                        <button id="relapseYesBtn" style="flex:1;padding:11px;background:#dc3545;color:white;border:none;border-radius:6px;font-weight:700;font-size:1rem;cursor:pointer;">Yes – Relapsed</button>
+                        <button id="relapseNoBtn" style="flex:1;padding:11px;background:#6c757d;color:white;border:none;border-radius:6px;font-weight:700;font-size:1rem;cursor:pointer;">No – Keep Sober Date</button>
+                    </div>
+                </div>
+            </div>
+
             <script>
                     // Staff Profile Modal Logic
 
@@ -1101,6 +1115,30 @@
                     window.printCensus = printCensus;
                     // ─────────────────────────────────────────────────────────────────────────
 
+                    // ── Relapse question helper ───────────────────────────────────────────────
+                    // Returns a Promise<boolean>: true = relapsed, false = no relapse.
+                    // Only prompts if newStatus is 2 or 3 and prevStatus was 1.
+                    function askRelapseQuestion(prevStatus, newStatus) {
+                        const prev = String(prevStatus).trim();
+                        const next = String(newStatus).trim();
+                        if (prev !== '1' || (next !== '2' && next !== '3')) return Promise.resolve(false);
+                        return new Promise(resolve => {
+                            const dlg = document.getElementById('relapseDialog');
+                            dlg.style.display = 'flex';
+                            function cleanup(result) {
+                                dlg.style.display = 'none';
+                                document.getElementById('relapseYesBtn').removeEventListener('click', onYes);
+                                document.getElementById('relapseNoBtn').removeEventListener('click', onNo);
+                                resolve(result);
+                            }
+                            function onYes() { cleanup(true); }
+                            function onNo()  { cleanup(false); }
+                            document.getElementById('relapseYesBtn').addEventListener('click', onYes);
+                            document.getElementById('relapseNoBtn').addEventListener('click', onNo);
+                        });
+                    }
+                    // ─────────────────────────────────────────────────────────────────────────
+
 
                     async function openStaffProfileModal(memberIdArg) {
                         const memberId = memberIdArg ? String(memberIdArg).trim() : '';
@@ -1186,6 +1224,7 @@
                         const genderVal = gv('M/F').toUpperCase().trim();
                         const bedVal = gv('BED');
                         const statusVal = gv('STATUS').trim();
+                        window._profileOriginalStatus = statusVal;  // track for relapse check on save
                         const hideVal = gv('HIDE_INVOICES');
                         const isHideYes = hideVal === 'true' || hideVal === 'H' || hideVal === '1' || hideVal === 'Yes';
 
@@ -1197,8 +1236,11 @@
 
                         // Calculate days sober for display
                         const soberVal = gv('SOBER DATE');
+                        const _memberRelapsed = member.relapsed === true || member.relapsed === 'true';
                         let daysSoberDisplay = '';
-                        if (soberVal) {
+                        if (_memberRelapsed) {
+                            daysSoberDisplay = 'RELAPSED';
+                        } else if (soberVal) {
                             const sd = parseDate(soberVal);
                             if (sd && !isNaN(sd.getTime())) {
                                 const t = new Date(); t.setHours(0,0,0,0);
@@ -1246,7 +1288,7 @@
                             // Row: SOBER DATE | DAYS SOBER
                             makeRow(
                                 `<label style='${labelStyle}'>Sober Date</label><input name='SOBER DATE' id='profileSoberDate' value="${soberVal}" oninput='calcProfileDaysSober()' style='${fieldStyle}'>`,
-                                `<label style='${labelStyle}'>Days Sober</label><input id='profileDaysSober' value="${daysSoberDisplay}" readonly style='background:#eee;font-weight:700;color:#28a745;${fieldStyle}'>`
+                                `<label style='${labelStyle}'>Days Sober</label><input id='profileDaysSober' value="${daysSoberDisplay}" readonly style='background:#eee;font-weight:700;color:${_memberRelapsed ? '#dc3545' : '#28a745'};${fieldStyle}'>`
                             ),
                             // Row: RATE | BILL ON DAY
                             makeRow(
@@ -1376,6 +1418,12 @@
                         if (payload.status === '4') {
                             const checkedBoxes = form.querySelectorAll('[name^="perm_"]:checked');
                             payload.permissions = Array.from(checkedBoxes).map(cb => cb.value);
+                        }
+                        // Ask relapse question if status changing from 1 → 2 or 3
+                        const _relapsed = await askRelapseQuestion(window._profileOriginalStatus || '', payload.status);
+                        if (_relapsed) {
+                            payload.sobrietyDate = '';
+                            payload.relapsed = true;
                         }
                         document.getElementById('staffProfileStatus').textContent = 'Saving...';
                         try {
@@ -1736,7 +1784,10 @@
                         const daysHere = admitDate ? Math.floor(((dischargeDate || today) - admitDate) / 86400000) : '';
                         const soberDate = parseDate(soberRaw);
                         const soberText = soberDate ? String(soberDate.getMonth()+1).padStart(2,'0') + '-' + String(soberDate.getDate()).padStart(2,'0') + '-' + soberDate.getFullYear() : '';
-                        const daysSober = soberDate ? Math.floor((today - soberDate) / 86400000) : '';
+                        const _relapsedFlag = member.relapsed === true || member.relapsed === 'true';
+                        const daysSober = _relapsedFlag
+                            ? '<span style="color:#dc3545;font-weight:700;">RELAPSED</span>'
+                            : (soberDate ? Math.floor((today - soberDate) / 86400000) : '');
                         const genderTag = gender === 'M' ? '<span class="gender-m">M</span>' : gender === 'F' ? '<span class="gender-f">F</span>' : gender;
                         const rateDisplay = rate !== null && rate !== undefined && rate !== '' ? '$' + rate : '';
                         const isStatus5 = String(status).trim() === '5';
@@ -2066,6 +2117,12 @@
                                 ref: getVal('REF'),
                                 status: getVal('STATUS'),
                             };
+                            // Ask relapse question if status changing from 1 → 2 or 3
+                            const _relapsedEdit = await askRelapseQuestion(window._editMemberOriginalStatus || '', payload.status);
+                            if (_relapsedEdit) {
+                                payload.sobrietyDate = '';
+                                payload.relapsed = true;
+                            }
                             const res = await fetch(`${API_BASE}/api/updateMember`, {
                                 method: 'PATCH',
                                 headers: { 'Content-Type': 'application/json' },
