@@ -1012,7 +1012,15 @@
                     </div>
                     <!-- Existing memos list -->
                     <div style="font-weight:700;font-size:0.9rem;color:#555;margin-bottom:10px;">Posted Memorandums</div>
-                    <div id="memoList"><div style="color:#aaa;font-size:14px;text-align:center;padding:24px;">Loading…</div></div>
+                    <div id="memoList"><div style="color:#aaa;font-size:14px;text-align:center;padding:24px;">Loading&#8230;</div></div>
+                    <!-- Archived memos -->
+                    <div style="margin-top:16px;border-top:1px solid #eee;padding-top:14px;">
+                        <button id="archivedToggleBtn" onclick="toggleArchivedSection()" style="background:none;border:1px solid #aaa;border-radius:6px;padding:6px 14px;font-size:12px;font-weight:600;cursor:pointer;color:#777;">&#128190; View Archived Memos</button>
+                        <div id="archivedSection" style="display:none;margin-top:12px;">
+                            <div style="font-weight:700;font-size:0.8rem;color:#aaa;letter-spacing:0.7px;margin-bottom:8px;">ARCHIVED MEMORANDUMS (hidden from members, kept for records)</div>
+                            <div id="archivedList"><div style="color:#aaa;font-size:13px;text-align:center;padding:16px;">Loading&#8230;</div></div>
+                        </div>
+                    </div>
                 </div>
             </div>
 
@@ -1402,6 +1410,11 @@
                                     : recip.type === 'individual' ? `&#128100; ${(recip.memberIds||[]).length} individual(s)`
                                     : '&#128226; All Members';
 
+                                // Action buttons — ack-required memos with acknowledgments can only be archived (legal)
+                                const hasLegalAcks = isAckReq && acks.length > 0;
+                                const archiveBtn = `<button onclick="archiveMemo('${m.id}')" title="Archive (hides from members, keeps records)" style="background:#6c757d;color:white;border:none;border-radius:6px;padding:5px 9px;font-size:11px;cursor:pointer;white-space:nowrap;">&#128190; Archive</button>`;
+                                const deleteBtn  = hasLegalAcks ? `<button title="Cannot delete — has acknowledgments on record. Archive instead." style="background:#aaa;color:#ddd;border:none;border-radius:6px;padding:5px 9px;font-size:11px;cursor:not-allowed;white-space:nowrap;" disabled>&#128465; Protected</button>` : `<button onclick="deleteMemo('${m.id}')" title="Permanently delete" style="background:#dc3545;color:white;border:none;border-radius:6px;padding:5px 9px;font-size:11px;cursor:pointer;white-space:nowrap;">&#128465; Delete</button>`;
+
                                 return `
                                 <div style="border:1px solid #e0e6ed;border-radius:8px;padding:14px 16px;margin-bottom:12px;background:#fafbfd;">
                                     <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:10px;">
@@ -1415,7 +1428,10 @@
                                             <div style="font-size:13px;color:#444;white-space:pre-wrap;max-height:120px;overflow-y:auto;">${escMemo(m.body)}</div>
                                             ${ackHtml}
                                         </div>
-                                        <button onclick="deleteMemo('${m.id}')" title="Delete" style="flex-shrink:0;background:#dc3545;color:white;border:none;border-radius:6px;padding:6px 10px;font-size:13px;cursor:pointer;">&#128465;</button>
+                                        <div style="display:flex;flex-direction:column;gap:5px;flex-shrink:0;">
+                                            ${archiveBtn}
+                                            ${deleteBtn}
+                                        </div>
                                     </div>
                                 </div>`;
                             }).join('');
@@ -1473,14 +1489,92 @@
                     }
                     window.postMemorandum = postMemorandum;
 
-                    async function deleteMemo(id) {
-                        if (!confirm('Delete this memorandum? This cannot be undone.')) return;
+                    async function archiveMemo(id) {
+                        if (!confirm('Archive this memorandum?\n\nIt will be hidden from members but all records (including acknowledgments) are saved permanently.')) return;
                         try {
-                            await fetch(MEMO_API + '/' + id, { method: 'DELETE' });
+                            const res = await fetch(MEMO_API + '/' + id + '/archive', { method: 'POST' });
+                            const data = await res.json();
+                            if (data.success) { loadMemoList(); }
+                            else { alert(data.error || 'Archive failed.'); }
+                        } catch(e) { alert('Network error.'); }
+                    }
+                    window.archiveMemo = archiveMemo;
+
+                    async function deleteMemo(id) {
+                        if (!confirm('Permanently delete this memorandum? This cannot be undone.')) return;
+                        try {
+                            const res = await fetch(MEMO_API + '/' + id, { method: 'DELETE' });
+                            const data = await res.json();
+                            if (!res.ok) { alert(data.error || 'Delete failed.'); return; }
                             loadMemoList();
                         } catch(e) { alert('Delete failed.'); }
                     }
                     window.deleteMemo = deleteMemo;
+
+                    async function permanentDeleteMemo(id) {
+                        if (!confirm('PERMANENTLY DELETE this archived memorandum?\n\nAll acknowledgment records will be lost. This cannot be undone.')) return;
+                        try {
+                            const res = await fetch(MEMO_API + '/' + id + '?force=true', { method: 'DELETE' });
+                            const data = await res.json();
+                            if (data.success) { loadArchivedSection(); }
+                            else { alert(data.error || 'Delete failed.'); }
+                        } catch(e) { alert('Delete failed.'); }
+                    }
+                    window.permanentDeleteMemo = permanentDeleteMemo;
+
+                    async function toggleArchivedSection() {
+                        const section = document.getElementById('archivedSection');
+                        const btn    = document.getElementById('archivedToggleBtn');
+                        if (section.style.display === 'none') {
+                            section.style.display = 'block';
+                            btn.textContent = '\u2715 Hide Archived Memos';
+                            await loadArchivedSection();
+                        } else {
+                            section.style.display = 'none';
+                            btn.innerHTML = '&#128190; View Archived Memos';
+                        }
+                    }
+                    window.toggleArchivedSection = toggleArchivedSection;
+
+                    async function loadArchivedSection() {
+                        const list = document.getElementById('archivedList');
+                        if (!list) return;
+                        list.innerHTML = '<div style="color:#aaa;font-size:13px;text-align:center;padding:16px;">Loading\u2026</div>';
+                        try {
+                            const res = await fetch(MEMO_API + '?all=true');
+                            const all = await res.json();
+                            const archived = Array.isArray(all) ? all.filter(m => m.archived) : [];
+                            if (!archived.length) {
+                                list.innerHTML = '<div style="color:#aaa;font-size:13px;text-align:center;padding:16px;">No archived memorandums.</div>';
+                                return;
+                            }
+                            list.innerHTML = archived.map(m => {
+                                const acks = m.acknowledgments || [];
+                                const isAckReq = m.requireAck === true;
+                                const ackInfo = isAckReq
+                                    ? `<span style="font-size:11px;color:#6c757d;">&#128203; ${acks.length} acknowledgment(s) on record</span>`
+                                    : '';
+                                return `
+                                <div style="border:1px solid #ddd;border-radius:8px;padding:12px 14px;margin-bottom:8px;background:#f5f5f5;">
+                                    <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:10px;">
+                                        <div style="flex:1;">
+                                            <div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap;margin-bottom:3px;">
+                                                <span style="background:#6c757d;color:#fff;font-size:10px;font-weight:700;padding:2px 6px;border-radius:4px;">ARCHIVED</span>
+                                                <span style="font-weight:700;color:#555;font-size:0.9rem;">${escMemo(m.title)}</span>
+                                                ${isAckReq ? '<span style="background:#1a1a2e;color:#F58634;font-size:10px;font-weight:700;padding:2px 6px;border-radius:4px;">ACK REQUIRED</span>' : ''}
+                                            </div>
+                                            <div style="font-size:11px;color:#aaa;margin-bottom:4px;">&#128197; ${fmtMemoDate(m.timestamp)} &nbsp;&middot;&nbsp; &#9999; ${escMemo(m.from)} &nbsp;&middot;&nbsp; Archived: ${fmtMemoDate(m.archivedAt || m.timestamp)}</div>
+                                            ${ackInfo}
+                                        </div>
+                                        <button onclick="permanentDeleteMemo('${m.id}')" title="Permanently delete (irreversible)" style="flex-shrink:0;background:#dc3545;color:white;border:none;border-radius:6px;padding:5px 9px;font-size:11px;cursor:pointer;">&#128465; Delete</button>
+                                    </div>
+                                </div>`;
+                            }).join('');
+                        } catch(e) {
+                            list.innerHTML = '<div style="color:#e53e3e;font-size:13px;text-align:center;padding:16px;">Error loading archived memos.</div>';
+                        }
+                    }
+                    window.loadArchivedSection = loadArchivedSection;
 
                     // Load memo count on dashboard load
                     (async function() {
