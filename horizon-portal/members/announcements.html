@@ -344,12 +344,14 @@
     let currentMemberId = null;
     let currentMemberName = null;
 
-    // Get member ID and name from sessionStorage
+    // Get member ID and name from localStorage (set by dashboard login)
     function initMember() {
-        currentMemberId = sessionStorage.getItem('memberId');
-        currentMemberName = sessionStorage.getItem('memberName');
-        
-        if (!currentMemberId || !currentMemberName) {
+        currentMemberId = localStorage.getItem('memberId');
+        const firstName = localStorage.getItem('memberFirstName') || '';
+        const lastName  = localStorage.getItem('memberLastName')  || '';
+        currentMemberName = (firstName + ' ' + lastName).trim() || localStorage.getItem('memberName') || '';
+
+        if (!currentMemberId) {
             alert('Please log in first');
             window.location.href = '/members/login.html';
             return false;
