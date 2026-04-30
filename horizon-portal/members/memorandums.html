@@ -1,9 +1,9 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Memorandums – Horizon House</title>
+    <title>Memorandums â€“ Horizon House</title>
     <style>
         body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: #FFF8F3; margin: 0; min-height: 100vh; }
         header { background: #F58634; color: #fff; padding: 18px 24px; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 10px; }
@@ -14,7 +14,7 @@
         .page-title { font-size: 1.4rem; font-weight: 700; color: #2b3440; margin-bottom: 6px; }
         .page-sub { color: #888; font-size: 0.93rem; margin-bottom: 28px; }
 
-        /* ── Memo card ── */
+        /* â”€â”€ Memo card â”€â”€ */
         .memo-card {
             background: #fff;
             border-radius: 12px;
@@ -53,7 +53,7 @@
             text-align: right;
         }
 
-        /* ── Acknowledgment section ── */
+        /* â”€â”€ Acknowledgment section â”€â”€ */
         .ack-section {
             padding: 16px 22px;
             border-top: 2px solid #1a1a2e;
@@ -110,14 +110,14 @@
 <body>
 
 <header>
-    <h1>📋 Management Memorandums</h1>
-    <a class="btn-back" href="dashboard.html">← Dashboard</a>
+    <h1>ðŸ“‹ Management Memorandums</h1>
+    <a class="btn-back" href="dashboard.html">â† Dashboard</a>
 </header>
 
 <div class="container">
     <div class="page-title">Memorandums from Management</div>
     <div class="page-sub">Official communications posted by Horizon House management.</div>
-    <div id="memoContainer"><div class="loading">Loading…</div></div>
+    <div id="memoContainer"><div class="loading">Loadingâ€¦</div></div>
 </div>
 
 <script>
@@ -148,7 +148,7 @@
             const res = await fetch(`${API}/api/memorandums`);
             const memos = await res.json();
             if (!Array.isArray(memos) || memos.length === 0) {
-                container.innerHTML = `<div class="empty-state"><div class="icon">📭</div><p>No memorandums have been posted yet.</p></div>`;
+                container.innerHTML = `<div class="empty-state"><div class="icon">ðŸ“­</div><p>No memorandums have been posted yet.</p></div>`;
                 return;
             }
             container.innerHTML = memos.map(m => {
@@ -159,7 +159,7 @@
                         ackSection = `
                             <div class="ack-section">
                                 <div class="ack-done-box">
-                                    <span class="ack-icon">✅</span>
+                                    <span class="ack-icon">âœ…</span>
                                     <span>You have acknowledged this memorandum.</span>
                                 </div>
                             </div>`;
@@ -167,9 +167,9 @@
                         ackSection = `
                             <div class="ack-section">
                                 <div class="ack-needed-box">
-                                    <div class="ack-notice">⚠️ This memorandum requires your acknowledgment.</div>
+                                    <div class="ack-notice">âš ï¸ This memorandum requires your acknowledgment.</div>
                                     <button class="btn-ack" id="ack-${escHtml(m.id)}" onclick="acknowledgeMemo('${escHtml(m.id)}')">
-                                        ✅&nbsp; I Have Read and Understand This Memorandum
+                                        âœ…&nbsp; I Have Read and Understand This Memorandum
                                     </button>
                                 </div>
                             </div>`;
@@ -178,11 +178,11 @@
                 return `
                 <div class="memo-card" id="memo-${escHtml(m.id)}">
                     <div class="memo-header">
-                        <div class="memo-label">Memorandum${m.requireAck ? ' &nbsp;·&nbsp; Acknowledgment Required' : ''}</div>
+                        <div class="memo-label">Memorandum${m.requireAck ? ' &nbsp;Â·&nbsp; Acknowledgment Required' : ''}</div>
                         <div class="memo-title">${escHtml(m.title)}</div>
                         <div class="memo-meta">
-                            <span>📅 ${fmtDate(m.timestamp)}</span>
-                            <span>✍️ ${escHtml(m.from)}</span>
+                            <span>ðŸ“… ${fmtDate(m.timestamp)}</span>
+                            <span>âœï¸ ${escHtml(m.from)}</span>
                         </div>
                     </div>
                     <div class="memo-body">${escHtml(m.body)}</div>
@@ -191,13 +191,13 @@
                 </div>`;
             }).join('');
         } catch (e) {
-            container.innerHTML = `<div class="empty-state"><div class="icon">⚠️</div><p>Could not load memorandums. Please try again later.</p></div>`;
+            container.innerHTML = `<div class="empty-state"><div class="icon">âš ï¸</div><p>Could not load memorandums. Please try again later.</p></div>`;
         }
     }
 
     async function acknowledgeMemo(memoId) {
         const btn = document.getElementById('ack-' + memoId);
-        if (btn) { btn.disabled = true; btn.textContent = 'Submitting…'; }
+        if (btn) { btn.disabled = true; btn.textContent = 'Submittingâ€¦'; }
         try {
             const res = await fetch(`${API}/api/memorandums/${memoId}/acknowledge`, {
                 method: 'POST',
@@ -211,126 +211,19 @@
                 if (ackNeedBox) {
                     ackNeedBox.innerHTML = `
                         <div class="ack-done-box">
-                            <span class="ack-icon">✅</span>
+                            <span class="ack-icon">âœ…</span>
                             <span>You have acknowledged this memorandum.</span>
                         </div>`;
                 }
             } else {
-                if (btn) { btn.disabled = false; btn.textContent = '✅\u00A0 I Have Read and Understand This Memorandum'; }
+                if (btn) { btn.disabled = false; btn.textContent = 'âœ…\u00A0 I Have Read and Understand This Memorandum'; }
             }
         } catch (e) {
-            if (btn) { btn.disabled = false; btn.textContent = '✅\u00A0 I Have Read and Understand This Memorandum'; }
+            if (btn) { btn.disabled = false; btn.textContent = 'âœ…\u00A0 I Have Read and Understand This Memorandum'; }
             alert('Network error. Please try again.');
         }
     }
     window.acknowledgeMemo = acknowledgeMemo;
-
-    loadMemos();
-</script>
-</body>
-</html>
-
-        /* ── Memo card ── */
-        .memo-card {
-            background: #fff;
-            border-radius: 12px;
-            box-shadow: 0 2px 12px rgba(0,0,0,0.07);
-            border: 1px solid #ede0d4;
-            margin-bottom: 24px;
-            overflow: hidden;
-        }
-        .memo-header {
-            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
-            color: #fff;
-            padding: 16px 22px 12px;
-        }
-        .memo-label {
-            font-size: 10px;
-            font-weight: 700;
-            letter-spacing: 2px;
-            text-transform: uppercase;
-            color: #F58634;
-            margin-bottom: 6px;
-        }
-        .memo-title { font-size: 1.15rem; font-weight: 700; margin: 0 0 8px; }
-        .memo-meta { font-size: 12px; color: rgba(255,255,255,0.65); display: flex; gap: 18px; flex-wrap: wrap; }
-        .memo-body {
-            padding: 20px 22px 22px;
-            font-size: 0.95rem;
-            color: #2b3440;
-            line-height: 1.7;
-            white-space: pre-wrap;
-        }
-        .memo-footer {
-            padding: 10px 22px 14px;
-            border-top: 1px solid #f0e8df;
-            font-size: 12px;
-            color: #999;
-            text-align: right;
-        }
-
-        .empty-state { text-align: center; padding: 60px 20px; color: #bbb; }
-        .empty-state .icon { font-size: 3rem; margin-bottom: 12px; }
-        .loading { text-align: center; padding: 60px 20px; color: #aaa; }
-    </style>
-</head>
-<body>
-
-<header>
-    <h1>📋 Management Memorandums</h1>
-    <a class="btn-back" href="dashboard.html">← Dashboard</a>
-</header>
-
-<div class="container">
-    <div class="page-title">Memorandums from Management</div>
-    <div class="page-sub">Official communications posted by Horizon House management.</div>
-    <div id="memoContainer"><div class="loading">Loading…</div></div>
-</div>
-
-<script>
-    const API = 'https://horizon-portal-backend-production-3532.up.railway.app';
-
-    // Redirect to login if not signed in
-    if (!localStorage.getItem('memberId')) {
-        window.location.href = 'dashboard.html';
-    }
-
-    function fmtDate(iso) {
-        const d = new Date(iso);
-        return d.toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' });
-    }
-
-    async function loadMemos() {
-        const container = document.getElementById('memoContainer');
-        try {
-            const res = await fetch(`${API}/api/memorandums`);
-            const memos = await res.json();
-            if (!Array.isArray(memos) || memos.length === 0) {
-                container.innerHTML = `<div class="empty-state"><div class="icon">📭</div><p>No memorandums have been posted yet.</p></div>`;
-                return;
-            }
-            container.innerHTML = memos.map(m => `
-                <div class="memo-card">
-                    <div class="memo-header">
-                        <div class="memo-label">Memorandum</div>
-                        <div class="memo-title">${escHtml(m.title)}</div>
-                        <div class="memo-meta">
-                            <span>📅 ${fmtDate(m.timestamp)}</span>
-                            <span>✍️ ${escHtml(m.from)}</span>
-                        </div>
-                    </div>
-                    <div class="memo-body">${escHtml(m.body)}</div>
-                    <div class="memo-footer">Posted ${fmtDate(m.timestamp)}</div>
-                </div>
-            `).join('');
-        } catch (e) {
-            container.innerHTML = `<div class="empty-state"><div class="icon">⚠️</div><p>Could not load memorandums. Please try again later.</p></div>`;
-        }
-    }
-
-    function escHtml(s) {
-        return String(s || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
-    }
 
     loadMemos();
 </script>
