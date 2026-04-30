@@ -1410,10 +1410,12 @@
                                     : recip.type === 'individual' ? `&#128100; ${(recip.memberIds||[]).length} individual(s)`
                                     : '&#128226; All Members';
 
-                                // Action buttons — ack-required memos with acknowledgments can only be archived (legal)
+                                // Action buttons
                                 const hasLegalAcks = isAckReq && acks.length > 0;
                                 const archiveBtn = `<button onclick="archiveMemo('${m.id}')" title="Archive (hides from members, keeps records)" style="background:#6c757d;color:white;border:none;border-radius:6px;padding:5px 9px;font-size:11px;cursor:pointer;white-space:nowrap;">&#128190; Archive</button>`;
-                                const deleteBtn  = hasLegalAcks ? `<button title="Cannot delete — has acknowledgments on record. Archive instead." style="background:#aaa;color:#ddd;border:none;border-radius:6px;padding:5px 9px;font-size:11px;cursor:not-allowed;white-space:nowrap;" disabled>&#128465; Protected</button>` : `<button onclick="deleteMemo('${m.id}')" title="Permanently delete" style="background:#dc3545;color:white;border:none;border-radius:6px;padding:5px 9px;font-size:11px;cursor:pointer;white-space:nowrap;">&#128465; Delete</button>`;
+                                const deleteBtn  = hasLegalAcks
+                                    ? `<button onclick="deleteMemo('${m.id}', true)" title="Force delete — will erase acknowledgment records" style="background:#dc3545;color:white;border:none;border-radius:6px;padding:5px 9px;font-size:11px;cursor:pointer;white-space:nowrap;">&#128465; Delete</button>`
+                                    : `<button onclick="deleteMemo('${m.id}', false)" title="Permanently delete" style="background:#dc3545;color:white;border:none;border-radius:6px;padding:5px 9px;font-size:11px;cursor:pointer;white-space:nowrap;">&#128465; Delete</button>`;
 
                                 return `
                                 <div style="border:1px solid #e0e6ed;border-radius:8px;padding:14px 16px;margin-bottom:12px;background:#fafbfd;">
@@ -1500,10 +1502,15 @@
                     }
                     window.archiveMemo = archiveMemo;
 
-                    async function deleteMemo(id) {
-                        if (!confirm('Permanently delete this memorandum? This cannot be undone.')) return;
+                    async function deleteMemo(id, force) {
+                        if (force) {
+                            if (!confirm('WARNING: This memo has acknowledgment records on file.\n\nDeleting it will permanently erase those records. This cannot be undone.\n\nAre you sure you want to delete it?')) return;
+                        } else {
+                            if (!confirm('Permanently delete this memorandum? This cannot be undone.')) return;
+                        }
                         try {
-                            const res = await fetch(MEMO_API + '/' + id, { method: 'DELETE' });
+                            const url = MEMO_API + '/' + id + (force ? '?force=true' : '');
+                            const res = await fetch(url, { method: 'DELETE' });
                             const data = await res.json();
                             if (!res.ok) { alert(data.error || 'Delete failed.'); return; }
                             loadMemoList();
