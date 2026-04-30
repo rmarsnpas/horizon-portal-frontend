@@ -419,9 +419,12 @@
         }
         function isActiveMember(obj) {
             if (!obj) return false;
-            const status = obj.STATUS ?? obj.status ?? obj.STATU;
-            // Accept status 1 (active) or 4 (extended stay / transitional) or legacy formats
-            return status === 1 || status === '1' || status === 4 || status === '4' || status === 'Active' || status === 'ACTIVE' || status == null || status === '';
+            const status = String(obj.STATUS ?? obj.status ?? obj.STATU ?? '').trim();
+            // Status 1 = active resident (always include)
+            if (status === '1') return true;
+            // Status 4 = extended stay — only include if flagged inCensus (in bedboard)
+            if (status === '4') return obj.inCensus === true;
+            return false;
         }
         function displayNameFrom(m) {
             if (!m) return 'Unknown';

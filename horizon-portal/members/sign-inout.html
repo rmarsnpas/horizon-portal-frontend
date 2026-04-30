@@ -407,13 +407,14 @@
                 const hint = document.getElementById(hintField);
                 if (!id) { hint.textContent = ''; hideInvoiceAlert(); return; }
                 const members = await getMembersCache();
-                const activeStatuses = new Set(['1','2','3','4','H','W','h','w']);
                 const normId = s => String(s).trim().replace(/^0+/, '') || '0';
                 const m = members.find(x => {
                     const stored = String(x.ID).trim();
-                    if (stored === id) return true;
+                    if (stored !== id && normId(stored) !== normId(id)) return false;
                     const status = String(x.STATU || x.STATUS || x.status || '').trim();
-                    return activeStatuses.has(status) && normId(stored) === normId(id);
+                    if (status === '1') return true;
+                    if (status === '4') return x.inCensus === true;
+                    return false;
                 });
                 if (m) {
                     const first = (m['FIRST\r\nNAME'] || m['FIRST\nNAME'] || m.FIRST_NAME || '').trim();
