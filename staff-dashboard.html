@@ -1200,12 +1200,8 @@
                         picker.style.display = 'block';
                         list.innerHTML = '<span style="color:#aaa;">Loading…</span>';
                         const all = await getMemoMemberCache();
-                        const fn = m => m['FIRST
-NAME'] || m['FIRST
-NAME'] || m['FIRST NAME'] || m.firstName || '';
-                        const ln = m => m['LAST
-NAME']  || m['LAST
-NAME']  || m['LAST NAME']  || m.lastName  || '';
+                        const fn = m => m['FIRST\nNAME'] || m['FIRST\r\nNAME'] || m['FIRST NAME'] || m.firstName || '';
+                        const ln = m => m['LAST\nNAME']  || m['LAST\r\nNAME']  || m['LAST NAME']  || m.lastName  || '';
                         const nm = m => ((fn(m) + ' ' + ln(m)).trim()) || ('ID ' + (m.ID || m.id || ''));
                         const s1 = all.filter(m => String(m.STATUS||m.status||'').trim() === '1');
                         const s2 = all.filter(m => String(m.STATUS||m.status||'').trim() === '2');
