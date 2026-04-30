@@ -981,7 +981,33 @@
                             <input type="checkbox" id="memoRequireAck" style="width:16px;height:16px;accent-color:#1a1a2e;cursor:pointer;">
                             <span style="font-weight:600;font-size:13px;color:#444;">Require member acknowledgment <span style="font-weight:400;color:#888;">(members must confirm they have read and understood this memo)</span></span>
                         </label>
-                        <button onclick="postMemorandum()" id="memoPostBtn" style="margin-top:12px;background:#1a1a2e;color:white;border:none;padding:11px 24px;border-radius:6px;font-size:14px;font-weight:700;cursor:pointer;">Post Memorandum</button>
+                        <!-- Recipients -->
+                        <div style="margin-top:14px;">
+                            <label style="display:block;font-weight:600;font-size:13px;margin-bottom:8px;color:#444;">📣 Send To</label>
+                            <div style="display:flex;flex-direction:column;gap:6px;">
+                                <label style="display:flex;align-items:center;gap:8px;cursor:pointer;font-size:13px;color:#333;">
+                                    <input type="radio" name="memoRecipients" value="all" checked style="accent-color:#1a1a2e;width:15px;height:15px;">
+                                    All Members <span style="color:#888;font-size:12px;">(Status 1 &amp; 2)</span>
+                                </label>
+                                <label style="display:flex;align-items:center;gap:8px;cursor:pointer;font-size:13px;color:#333;">
+                                    <input type="radio" name="memoRecipients" value="status1" style="accent-color:#1a1a2e;width:15px;height:15px;">
+                                    Current Residents Only <span style="color:#888;font-size:12px;">(Status 1)</span>
+                                </label>
+                                <label style="display:flex;align-items:center;gap:8px;cursor:pointer;font-size:13px;color:#333;">
+                                    <input type="radio" name="memoRecipients" value="status2" style="accent-color:#1a1a2e;width:15px;height:15px;">
+                                    Alumni Only <span style="color:#888;font-size:12px;">(Status 2)</span>
+                                </label>
+                                <label style="display:flex;align-items:center;gap:8px;cursor:pointer;font-size:13px;color:#333;">
+                                    <input type="radio" name="memoRecipients" value="individual" style="accent-color:#1a1a2e;width:15px;height:15px;" onchange="showMemoMemberPicker(true)">
+                                    Select Individual Members…
+                                </label>
+                            </div>
+                            <!-- Individual member picker (hidden until selected) -->
+                            <div id="memoMemberPicker" style="display:none;margin-top:10px;border:1px solid #cdd5e0;border-radius:8px;background:#fff;max-height:220px;overflow-y:auto;padding:8px 12px;">
+                                <div id="memoMemberPickerList" style="font-size:13px;color:#aaa;">Loading members…</div>
+                            </div>
+                        </div>
+                        <button onclick="postMemorandum()" id="memoPostBtn" style="margin-top:14px;background:#1a1a2e;color:white;border:none;padding:11px 24px;border-radius:6px;font-size:14px;font-weight:700;cursor:pointer;">Post Memorandum</button>
                         <span id="memoPostStatus" style="margin-left:12px;font-size:13px;font-weight:600;"></span>
                     </div>
                     <!-- Existing memos list -->
@@ -1154,8 +1180,70 @@
                     // ── Memorandums Panel ─────────────────────────────────────────────────────
                     const MEMO_API = 'https://horizon-portal-backend-production-3532.up.railway.app/api/memorandums';
 
+                    // Cache members for recipient picker
+                    let _memoMemberCache = null;
+
+                    async function getMemoMemberCache() {
+                        if (_memoMemberCache) return _memoMemberCache;
+                        try {
+                            const res = await fetch('https://horizon-portal-backend-production-3532.up.railway.app/api/members');
+                            const all = await res.json();
+                            _memoMemberCache = Array.isArray(all) ? all : [];
+                        } catch(e) { _memoMemberCache = []; }
+                        return _memoMemberCache;
+                    }
+
+                    async function showMemoMemberPicker(show) {
+                        const picker = document.getElementById('memoMemberPicker');
+                        const list   = document.getElementById('memoMemberPickerList');
+                        if (!show) { picker.style.display = 'none'; return; }
+                        picker.style.display = 'block';
+                        list.innerHTML = '<span style="color:#aaa;">Loading…</span>';
+                        const all = await getMemoMemberCache();
+                        const fn = m => m['FIRST
+NAME'] || m['FIRST
+NAME'] || m['FIRST NAME'] || m.firstName || '';
+                        const ln = m => m['LAST
+NAME']  || m['LAST
+NAME']  || m['LAST NAME']  || m.lastName  || '';
+                        const nm = m => ((fn(m) + ' ' + ln(m)).trim()) || ('ID ' + (m.ID || m.id || ''));
+                        const s1 = all.filter(m => String(m.STATUS||m.status||'').trim() === '1');
+                        const s2 = all.filter(m => String(m.STATUS||m.status||'').trim() === '2');
+                        if (!s1.length && !s2.length) { list.innerHTML = '<span style="color:#aaa;font-size:12px;">No members found.</span>'; return; }
+                        let html = '';
+                        if (s1.length) {
+                            html += '<div style="font-size:11px;font-weight:700;color:#1a1a2e;letter-spacing:0.5px;margin:4px 0 6px;">— STATUS 1 – CURRENT RESIDENTS —</div>';
+                            html += s1.map(m => {
+                                const id = m.ID || m.id || '';
+                                return `<label style="display:flex;align-items:center;gap:8px;padding:4px 0;cursor:pointer;font-size:13px;"><input type="checkbox" class="memo-member-chk" value="${escMemo(id)}" data-name="${escMemo(nm(m))}" style="accent-color:#1a1a2e;"> ${escMemo(nm(m))} <span style="color:#aaa;font-size:11px;">#${escMemo(id)}</span></label>`;
+                            }).join('');
+                        }
+                        if (s2.length) {
+                            html += '<div style="font-size:11px;font-weight:700;color:#555;letter-spacing:0.5px;margin:10px 0 6px;">— STATUS 2 – ALUMNI —</div>';
+                            html += s2.map(m => {
+                                const id = m.ID || m.id || '';
+                                return `<label style="display:flex;align-items:center;gap:8px;padding:4px 0;cursor:pointer;font-size:13px;"><input type="checkbox" class="memo-member-chk" value="${escMemo(id)}" data-name="${escMemo(nm(m))}" style="accent-color:#1a1a2e;"> ${escMemo(nm(m))} <span style="color:#aaa;font-size:11px;">#${escMemo(id)}</span></label>`;
+                            }).join('');
+                        }
+                        list.innerHTML = html;
+                    }
+                    window.showMemoMemberPicker = showMemoMemberPicker;
+
                     function openMemorandumPanel() {
                         document.getElementById('memorandumPanel').style.display = 'flex';
+                        // Reset recipient picker state
+                        const allRadio = document.querySelector('input[name="memoRecipients"][value="all"]');
+                        if (allRadio) allRadio.checked = true;
+                        const picker = document.getElementById('memoMemberPicker');
+                        if (picker) picker.style.display = 'none';
+                        // Attach change listeners to radio buttons (idempotent)
+                        document.querySelectorAll('input[name="memoRecipients"]').forEach(r => {
+                            r.onchange = function() {
+                                showMemoMemberPicker(this.value === 'individual');
+                            };
+                        });
+                        // Pre-warm the member cache
+                        getMemoMemberCache();
                         loadMemoList();
                     }
                     function closeMemorandumPanel() {
@@ -1176,21 +1264,42 @@
 
                     async function loadMemoList() {
                         const el = document.getElementById('memoList');
-                        el.innerHTML = '<div style="color:#aaa;text-align:center;padding:24px;font-size:14px;">Loading…</div>';
+                        el.innerHTML = '<div style="color:#aaa;text-align:center;padding:24px;font-size:14px;">Loading\u2026</div>';
                         try {
-                            // Fetch memos and active members in parallel
+                            // Fetch memos and all members (s1+s2) in parallel
                             const [memosRes, membersRes] = await Promise.all([
                                 fetch(MEMO_API),
                                 fetch('https://horizon-portal-backend-production-3532.up.railway.app/api/members')
                             ]);
                             const memos = await memosRes.json();
                             const allMembersRaw = await membersRes.json();
+                            const allMems = Array.isArray(allMembersRaw) ? allMembersRaw : [];
 
-                            // Active members only (status 1), with correct field names
-                            const activeMems = Array.isArray(allMembersRaw) ? allMembersRaw.filter(mem => {
-                                const s = String(mem.STATUS || mem.status || mem.STATU || '').trim().toUpperCase();
-                                return s === '1';
-                            }) : [];
+                            // Helper: get the name from a member object
+                            const memName = m => {
+                                const fn = m['FIRST\nNAME'] || m['FIRST\r\nNAME'] || m['FIRST NAME'] || m.firstName || '';
+                                const ln = m['LAST\nNAME']  || m['LAST\r\nNAME']  || m['LAST NAME']  || m.lastName  || '';
+                                return (fn + ' ' + ln).trim() || ('ID ' + (m.ID || m.id || ''));
+                            };
+
+                            // Helper: filter the relevant member pool for a given memo's recipients
+                            function relevantMembers(m) {
+                                const r = m.recipients || { type: 'all' };
+                                if (r.type === 'status1') {
+                                    return allMems.filter(mem => String(mem.STATUS||mem.status||'').trim() === '1');
+                                } else if (r.type === 'status2') {
+                                    return allMems.filter(mem => String(mem.STATUS||mem.status||'').trim() === '2');
+                                } else if (r.type === 'individual' && Array.isArray(r.memberIds) && r.memberIds.length) {
+                                    const ids = new Set(r.memberIds.map(String));
+                                    return allMems.filter(mem => ids.has(String(mem.ID || mem.id || '').trim()));
+                                } else {
+                                    // 'all' — status 1 and 2
+                                    return allMems.filter(mem => {
+                                        const s = String(mem.STATUS||mem.status||'').trim();
+                                        return s === '1' || s === '2';
+                                    });
+                                }
+                            }
 
                             // Update dashboard card count
                             const cnt = document.getElementById('memoCount');
@@ -1199,45 +1308,103 @@
                                 el.innerHTML = '<div style="color:#aaa;text-align:center;padding:24px;font-size:14px;">No memorandums posted yet.</div>';
                                 return;
                             }
+
+                            const pill = (bg, fg, icon, text) =>
+                                `<span style="display:inline-block;background:${bg};color:${fg};border-radius:4px;padding:2px 7px;font-size:11px;margin:2px 2px 2px 0;">${icon} ${escMemo(text)}</span>`;
+
                             el.innerHTML = memos.map(m => {
-                                const acks = m.acknowledgments || [];
+                                const acks    = m.acknowledgments || [];
+                                const views   = m.views || [];
                                 const isAckReq = m.requireAck === true;
 
-                                // Build read-receipt section for ack-required memos
-                                let ackHtml = '';
+                                const pool      = relevantMembers(m);
+                                const viewedIds = new Set(views.map(v => String(v.memberId)));
+                                const ackedIds  = new Set(acks.map(a => String(a.memberId)));
+
+                                // Categorise every relevant member
+                                const ackedList         = [];
+                                const openedNotAckedList = [];
+                                const neverOpenedList    = [];
+
+                                pool.forEach(mem => {
+                                    const id = String(mem.ID || mem.id || '').trim();
+                                    if (!id) return;
+                                    const nm = memName(mem);
+                                    if (ackedIds.has(id)) {
+                                        ackedList.push(nm);
+                                    } else if (viewedIds.has(id)) {
+                                        openedNotAckedList.push(nm);
+                                    } else {
+                                        neverOpenedList.push(nm);
+                                    }
+                                });
+                                // Also include anyone who acked/viewed but isn't in the pool snapshot
+                                acks.forEach(a => {
+                                    if (!pool.find(mem => String(mem.ID||mem.id||'').trim() === String(a.memberId)))
+                                        ackedList.push(a.memberName);
+                                });
+                                views.forEach(v => {
+                                    if (!ackedIds.has(String(v.memberId)) && !pool.find(mem => String(mem.ID||mem.id||'').trim() === String(v.memberId)))
+                                        openedNotAckedList.push(v.memberName);
+                                });
+
+                                const total  = pool.length || 1;
+                                const opened = viewedIds.size;
+                                const acked  = ackedIds.size;
+
+                                let receiptLabel;
                                 if (isAckReq) {
-                                    const readIds = new Set(acks.map(a => String(a.memberId)));
-                                    const notRead = activeMems.filter(mem => {
-                                        // ID field is 'ID' from the API
-                                        const id = String(mem.ID || mem.id || mem['MEMBER ID'] || '').trim();
-                                        return id && !readIds.has(id);
-                                    });
-
-                                    const readPills = acks.length
-                                        ? acks.map(a => `<span style="display:inline-block;background:#d4edda;color:#155724;border-radius:4px;padding:2px 7px;font-size:11px;margin:2px 2px 2px 0;">&#10003; ${escMemo(a.memberName)}</span>`).join('')
-                                        : '<span style="color:#aaa;font-size:12px;">None yet</span>';
-
-                                    const notReadPills = notRead.length
-                                        ? notRead.map(mem => {
-                                            // Field names from dbRowToExcelRow: 'FIRST\nNAME', 'LAST\nNAME'
-                                            const fn = mem['FIRST\nNAME'] || mem['FIRST\r\nNAME'] || mem['FIRST NAME'] || mem.firstName || '';
-                                            const ln = mem['LAST\nNAME']  || mem['LAST\r\nNAME']  || mem['LAST NAME']  || mem.lastName  || '';
-                                            const nm = (fn + ' ' + ln).trim() || ('ID ' + (mem.ID || mem.id || ''));
-                                            return `<span style="display:inline-block;background:#f8d7da;color:#721c24;border-radius:4px;padding:2px 7px;font-size:11px;margin:2px 2px 2px 0;">&#10007; ${escMemo(nm)}</span>`;
-                                        }).join('')
-                                        : '<span style="color:#28a745;font-size:12px;">All active members have acknowledged &#10003;</span>';
-
-                                    ackHtml = `
-                                        <div style="margin-top:10px;border-top:1px solid #e0e6ed;padding-top:10px;">
-                                            <button onclick="this.nextElementSibling.style.display=this.nextElementSibling.style.display==='none'?'block':'none'" style="background:none;border:1px solid #1a1a2e;border-radius:5px;padding:4px 12px;font-size:12px;font-weight:700;cursor:pointer;color:#1a1a2e;">
-                                                &#128203; Read Receipts (${acks.length}&#47;${acks.length + notRead.length})
-                                            </button>
-                                            <div style="display:none;margin-top:10px;">
-                                                <div style="margin-bottom:8px;"><strong style="font-size:12px;color:#28a745;">&#10003; Have Read (${acks.length}):</strong><div style="margin-top:4px;">${readPills}</div></div>
-                                                <div><strong style="font-size:12px;color:#dc3545;">&#10007; Have Not Read (${notRead.length}):</strong><div style="margin-top:4px;">${notReadPills}</div></div>
-                                            </div>
-                                        </div>`;
+                                    receiptLabel = `&#128203; Read Receipts &mdash; ${opened} opened &nbsp;/&nbsp; ${acked} acknowledged`;
+                                } else {
+                                    receiptLabel = `&#128203; Read Receipts &mdash; ${opened}&nbsp;/&nbsp;${total} opened`;
                                 }
+
+                                let receiptBody = '';
+                                if (isAckReq) {
+                                    receiptBody += `<div style="margin-bottom:8px;">
+                                        <strong style="font-size:12px;color:#28a745;">&#10003; Acknowledged (${ackedList.length}):</strong>
+                                        <div style="margin-top:4px;">${ackedList.length ? ackedList.map(n => pill('#d4edda','#155724','&#10003;',n)).join('') : '<span style="color:#aaa;font-size:12px;">None yet</span>'}</div>
+                                    </div>`;
+                                    receiptBody += `<div style="margin-bottom:8px;">
+                                        <strong style="font-size:12px;color:#856404;">&#128065; Opened, Not Acknowledged (${openedNotAckedList.length}):</strong>
+                                        <div style="margin-top:4px;">${openedNotAckedList.length ? openedNotAckedList.map(n => pill('#fff3cd','#856404','&#128065;',n)).join('') : '<span style="color:#aaa;font-size:12px;">None</span>'}</div>
+                                    </div>`;
+                                    receiptBody += `<div>
+                                        <strong style="font-size:12px;color:#dc3545;">&#10007; Never Opened (${neverOpenedList.length}):</strong>
+                                        <div style="margin-top:4px;">${neverOpenedList.length ? neverOpenedList.map(n => pill('#f8d7da','#721c24','&#10007;',n)).join('') : '<span style="color:#28a745;font-size:12px;">Everyone has opened this &#10003;</span>'}</div>
+                                    </div>`;
+                                } else {
+                                    const openedNames = [...ackedIds, ...viewedIds].reduce((acc, id) => {
+                                        // use viewedIds for the opened list regardless of ack
+                                        return acc;
+                                    }, null);
+                                    // For non-ack memos show opened (in views) vs never opened
+                                    const openedPeople = pool.filter(mem => viewedIds.has(String(mem.ID||mem.id||'').trim()));
+                                    const notOpenedPeople = pool.filter(mem => !viewedIds.has(String(mem.ID||mem.id||'').trim()));
+                                    receiptBody += `<div style="margin-bottom:8px;">
+                                        <strong style="font-size:12px;color:#28a745;">&#128065; Opened (${openedPeople.length}):</strong>
+                                        <div style="margin-top:4px;">${openedPeople.length ? openedPeople.map(mem => pill('#d4edda','#155724','&#128065;',memName(mem))).join('') : '<span style="color:#aaa;font-size:12px;">None yet</span>'}</div>
+                                    </div>`;
+                                    receiptBody += `<div>
+                                        <strong style="font-size:12px;color:#dc3545;">&#10007; Not Opened (${notOpenedPeople.length}):</strong>
+                                        <div style="margin-top:4px;">${notOpenedPeople.length ? notOpenedPeople.map(mem => pill('#f8d7da','#721c24','&#10007;',memName(mem))).join('') : '<span style="color:#28a745;font-size:12px;">Everyone has opened this &#10003;</span>'}</div>
+                                    </div>`;
+                                }
+
+                                const ackHtml = `
+                                    <div style="margin-top:10px;border-top:1px solid #e0e6ed;padding-top:10px;">
+                                        <button onclick="this.nextElementSibling.style.display=this.nextElementSibling.style.display==='none'?'block':'none'" style="background:none;border:1px solid #1a1a2e;border-radius:5px;padding:4px 12px;font-size:12px;font-weight:700;cursor:pointer;color:#1a1a2e;">
+                                            ${receiptLabel}
+                                        </button>
+                                        <div style="display:none;margin-top:10px;">${receiptBody}</div>
+                                    </div>`;
+
+                                // Recipient tag
+                                const recip = m.recipients || { type: 'all' };
+                                const recipLabel = recip.type === 'status1' ? '&#127968; Current Residents'
+                                    : recip.type === 'status2' ? '&#127891; Alumni'
+                                    : recip.type === 'individual' ? `&#128100; ${(recip.memberIds||[]).length} individual(s)`
+                                    : '&#128226; All Members';
 
                                 return `
                                 <div style="border:1px solid #e0e6ed;border-radius:8px;padding:14px 16px;margin-bottom:12px;background:#fafbfd;">
@@ -1246,12 +1413,13 @@
                                             <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:3px;">
                                                 <div style="font-weight:700;color:#1a1a2e;font-size:0.95rem;">${escMemo(m.title)}</div>
                                                 ${isAckReq ? '<span style="background:#1a1a2e;color:#F58634;font-size:10px;font-weight:700;padding:2px 7px;border-radius:4px;letter-spacing:0.5px;">ACK REQUIRED</span>' : ''}
+                                                <span style="background:#eef2ff;color:#3730a3;font-size:10px;font-weight:600;padding:2px 7px;border-radius:4px;">${recipLabel}</span>
                                             </div>
-                                            <div style="font-size:12px;color:#888;margin-bottom:8px;">📅 ${fmtMemoDate(m.timestamp)} &nbsp;·&nbsp; ✍️ ${escMemo(m.from)}</div>
+                                            <div style="font-size:12px;color:#888;margin-bottom:8px;">&#128197; ${fmtMemoDate(m.timestamp)} &nbsp;&middot;&nbsp; &#9999; ${escMemo(m.from)}</div>
                                             <div style="font-size:13px;color:#444;white-space:pre-wrap;max-height:120px;overflow-y:auto;">${escMemo(m.body)}</div>
                                             ${ackHtml}
                                         </div>
-                                        <button onclick="deleteMemo('${m.id}')" title="Delete" style="flex-shrink:0;background:#dc3545;color:white;border:none;border-radius:6px;padding:6px 10px;font-size:13px;cursor:pointer;">🗑️</button>
+                                        <button onclick="deleteMemo('${m.id}')" title="Delete" style="flex-shrink:0;background:#dc3545;color:white;border:none;border-radius:6px;padding:6px 10px;font-size:13px;cursor:pointer;">&#128465;</button>
                                     </div>
                                 </div>`;
                             }).join('');
@@ -1266,6 +1434,18 @@
                         const body  = document.getElementById('memoBody').value.trim();
                         const requireAck = document.getElementById('memoRequireAck').checked;
                         const status = document.getElementById('memoPostStatus');
+
+                        // Build recipients object
+                        const recipType = (document.querySelector('input[name="memoRecipients"]:checked') || {}).value || 'all';
+                        let recipients;
+                        if (recipType === 'individual') {
+                            const checked = Array.from(document.querySelectorAll('.memo-member-chk:checked'));
+                            if (!checked.length) { status.style.color='#e53e3e'; status.textContent='Select at least one member.'; return; }
+                            recipients = { type: 'individual', memberIds: checked.map(c => c.value) };
+                        } else {
+                            recipients = { type: recipType, memberIds: [] };
+                        }
+
                         if (!title || !body) { status.style.color='#e53e3e'; status.textContent='Title and body are required.'; return; }
                         const btn = document.getElementById('memoPostBtn');
                         btn.disabled = true; btn.textContent = 'Posting…';
@@ -1274,7 +1454,7 @@
                             const res = await fetch(MEMO_API, {
                                 method: 'POST',
                                 headers: { 'Content-Type': 'application/json' },
-                                body: JSON.stringify({ title, from, body, requireAck })
+                                body: JSON.stringify({ title, from, body, requireAck, recipients })
                             });
                             const data = await res.json();
                             if (data.success) {
@@ -1282,6 +1462,9 @@
                                 document.getElementById('memoFrom').value = '';
                                 document.getElementById('memoBody').value = '';
                                 document.getElementById('memoRequireAck').checked = false;
+                                const allRadio = document.querySelector('input[name="memoRecipients"][value="all"]');
+                                if (allRadio) allRadio.checked = true;
+                                showMemoMemberPicker(false);
                                 status.style.color = '#28a745'; status.textContent = '✓ Posted!';
                                 loadMemoList();
                             } else {

@@ -151,7 +151,22 @@
                 container.innerHTML = `<div class="empty-state"><div class="icon">ðŸ“­</div><p>No memorandums have been posted yet.</p></div>`;
                 return;
             }
-            container.innerHTML = memos.map(m => {
+            // Filter memos addressed to this member
+            const memberStatus = String(localStorage.getItem('memberAccessCode') || '1');
+            function memoIsForMe(m) {
+                const r = m.recipients;
+                if (!r || r.type === 'all') return true;
+                if (r.type === 'status1') return memberStatus === '1';
+                if (r.type === 'status2') return memberStatus === '2';
+                if (r.type === 'individual') return (r.memberIds || []).map(String).includes(String(memberId));
+                return true;
+            }
+            const visibleMemos = memos.filter(memoIsForMe);
+            if (!visibleMemos.length) {
+                container.innerHTML = `<div class="empty-state"><div class="icon">&#128269;</div><p>No memorandums addressed to you at this time.</p></div>`;
+                return;
+            }
+            container.innerHTML = visibleMemos.map(m => {
                 const alreadyAcked = (m.acknowledgments || []).some(a => String(a.memberId) === String(memberId));
                 let ackSection = '';
                 if (m.requireAck) {
@@ -190,6 +205,14 @@
                     <div class="memo-footer">Posted ${fmtDate(m.timestamp)}</div>
                 </div>`;
             }).join('');
+            // Fire view-tracking for each visible memo (fire-and-forget, won't block UI)
+            visibleMemos.forEach(m => {
+                fetch(`${API}/api/memorandums/${m.id}/view`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ memberId, memberName })
+                }).catch(() => {});
+            });
         } catch (e) {
             container.innerHTML = `<div class="empty-state"><div class="icon">âš ï¸</div><p>Could not load memorandums. Please try again later.</p></div>`;
         }
