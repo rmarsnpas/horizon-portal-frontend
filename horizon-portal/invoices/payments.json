@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-04-28T15:36:29.000Z",
+  "generatedAt": "2026-04-30T07:48:44.000Z",
   "payments": [
     {
       "memberId": "152",
@@ -252,6 +252,15 @@
       "paymentMethod": "Cash",
       "invoiceId": "144_202604",
       "notes": "PAID IN FULL"
+    },
+    {
+      "memberId": "148",
+      "memberName": "Barbara Bruner-Price",
+      "date": "04-26-2026",
+      "amount": 400.0,
+      "paymentMethod": "Transfer",
+      "invoiceId": "148_202604",
+      "notes": ""
     }
   ]
 }
