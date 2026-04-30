@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-04-30T07:48:44.000Z",
+  "generatedAt": "2026-04-30T07:50:45.000Z",
   "payments": [
     {
       "memberId": "152",
@@ -261,6 +261,15 @@
       "paymentMethod": "Transfer",
       "invoiceId": "148_202604",
       "notes": ""
+    },
+    {
+      "memberId": "0161",
+      "memberName": "Jared Unfug",
+      "date": "04-30-2026",
+      "amount": 600.0,
+      "paymentMethod": "Other",
+      "invoiceId": "0161_MANUAL_20260423_003255",
+      "notes": "cash app | PAID IN FULL"
     }
   ]
 }
