@@ -1178,8 +1178,20 @@
                         const el = document.getElementById('memoList');
                         el.innerHTML = '<div style="color:#aaa;text-align:center;padding:24px;font-size:14px;">Loading…</div>';
                         try {
-                            const res = await fetch(MEMO_API);
-                            const memos = await res.json();
+                            // Fetch memos and active members in parallel
+                            const [memosRes, membersRes] = await Promise.all([
+                                fetch(MEMO_API),
+                                fetch('https://horizon-portal-backend-production-3532.up.railway.app/api/members')
+                            ]);
+                            const memos = await memosRes.json();
+                            const allMembersRaw = await membersRes.json();
+
+                            // Active members only (status 1), with correct field names
+                            const activeMems = Array.isArray(allMembersRaw) ? allMembersRaw.filter(mem => {
+                                const s = String(mem.STATUS || mem.status || mem.STATU || '').trim().toUpperCase();
+                                return s === '1';
+                            }) : [];
+
                             // Update dashboard card count
                             const cnt = document.getElementById('memoCount');
                             if (cnt) cnt.textContent = memos.length;
@@ -1194,13 +1206,10 @@
                                 // Build read-receipt section for ack-required memos
                                 let ackHtml = '';
                                 if (isAckReq) {
-                                    const allMems = ((window._allMembersTableData || {}).members || []).filter(mem => {
-                                        const s = String(mem.STATUS || mem.status || mem.STATU || '').trim().toUpperCase();
-                                        return s === '1';
-                                    });
                                     const readIds = new Set(acks.map(a => String(a.memberId)));
-                                    const notRead = allMems.filter(mem => {
-                                        const id = String(mem['MEMBER ID'] || mem['MEMBER_ID'] || mem.ID || mem.id || '').trim();
+                                    const notRead = activeMems.filter(mem => {
+                                        // ID field is 'ID' from the API
+                                        const id = String(mem.ID || mem.id || mem['MEMBER ID'] || '').trim();
                                         return id && !readIds.has(id);
                                     });
 
@@ -1210,8 +1219,9 @@
 
                                     const notReadPills = notRead.length
                                         ? notRead.map(mem => {
-                                            const fn = mem['FIRST\r\nNAME'] || mem['FIRST\nNAME'] || mem['FIRST NAME'] || mem.firstName || '';
-                                            const ln = mem['LAST\r\nNAME'] || mem['LAST\nNAME'] || mem['LAST NAME'] || mem.lastName || '';
+                                            // Field names from dbRowToExcelRow: 'FIRST\nNAME', 'LAST\nNAME'
+                                            const fn = mem['FIRST\nNAME'] || mem['FIRST\r\nNAME'] || mem['FIRST NAME'] || mem.firstName || '';
+                                            const ln = mem['LAST\nNAME']  || mem['LAST\r\nNAME']  || mem['LAST NAME']  || mem.lastName  || '';
                                             const nm = (fn + ' ' + ln).trim() || ('ID ' + (mem.ID || mem.id || ''));
                                             return `<span style="display:inline-block;background:#f8d7da;color:#721c24;border-radius:4px;padding:2px 7px;font-size:11px;margin:2px 2px 2px 0;">&#10007; ${escMemo(nm)}</span>`;
                                         }).join('')
