@@ -967,6 +967,15 @@
                         const inclHW      = document.getElementById('cpf-holdwait').checked;
 
                         const allMembers = (window._allMembersTableData || {}).members || [];
+                        // Helper: is this member a bed-hold inclusion for this report type?
+                        const isBedHoldMember = m => {
+                            const st = String(m.STATUS || m.status || m.STATU || '').trim().toUpperCase();
+                            const rv = String(m.REF || m.ref || '').trim().toUpperCase();
+                            return st === 'H' && (
+                                (filterVal === 'ats'   && rv === 'A') ||
+                                (filterVal === 'rivco' && rv === 'H')
+                            );
+                        };
                         let members = allMembers.filter(m => {
                             const s = String(m.STATUS || m.status || m.STATU || '').trim().toUpperCase();
                             const r = String(m.REF || m.ref || '').trim().toUpperCase();
@@ -975,16 +984,17 @@
                             const s1 = s === '1' || isS4Census;
                             let pass = false;
                             if (filterVal === 'current')      pass = s1;
-                            else if (filterVal === 'ats')     pass = s1 && r === 'A';
-                            else if (filterVal === 'rivco')   pass = s1 && r === 'H';
+                            else if (filterVal === 'ats')     pass = (s1 && r === 'A') || (s === 'H' && r === 'A');
+                            else if (filterVal === 'rivco')   pass = (s1 && r === 'H') || (s === 'H' && r === 'H');
                             else if (filterVal === 'all')     pass = s !== '5';
                             else                              pass = true;
                             if (!pass && inclHW) pass = s === 'H' || s === 'W';
                             return pass;
                         });
+                        const bedHoldCount = members.filter(isBedHoldMember).length;
                         const hwCount = inclHW ? members.filter(m => {
                             const st = String(m.STATUS || m.status || m.STATU || '').trim().toUpperCase();
-                            return st === 'H' || st === 'W';
+                            return (st === 'H' || st === 'W') && !isBedHoldMember(m);
                         }).length : 0;
 
                         const today = new Date();
@@ -1020,7 +1030,8 @@
 
                         const rows = members.map(m => {
                             const st = String(m.STATUS || m.status || m.STATU || '').trim().toUpperCase();
-                            const isHW = st === 'H' || st === 'W';
+                            const isBedHold = isBedHoldMember(m);
+                            const isHW = (st === 'H' || st === 'W') && !isBedHold;
                             const first    = m['FIRST\r\nNAME'] || m['FIRST\nNAME'] || m['FIRST NAME'] || m.firstName || m.FIRST || '';
                             const last     = m['LAST\r\nNAME']  || m['LAST\nNAME']  || m['LAST NAME']  || m.lastName  || m.LAST || '';
                             const gender   = m['M/F'] || m.GENDER || m.gender || '';
@@ -1030,17 +1041,18 @@
                             const sober    = m['SOBER\r\nDATE'] || m['SOBER\nDATE'] || m['SOBER DATE'] || m.sobrietyDate || '';
                             const daysHere  = daysBetween(admit, dc || null);
                             const daysSober = daysBetween(sober, null);
-                            const idVal = (m.ID || m.id || '') + (isHW ? `<span class="hw-badge">${st}</span>` : '');
+                            const idVal = (m.ID || m.id || '') + (isBedHold ? '<span class="bh-badge">BED HOLD</span>' : (isHW ? `<span class="hw-badge">${st}</span>` : ''));
                             const cells = [idVal, first, last, gender, dob, fmt(admit), fmt(dc), daysHere, fmt(sober), daysSober];
                             if (inclRate)    cells.push(m.RATE || m.rate ? '$' + (m.RATE || m.rate) : '');
                             if (inclPhone)   cells.push(m.PHONE || m.phone || '');
                             if (inclEmail)   cells.push(m.EMAIL || m.email || '');
                             if (inclPin)     cells.push(m.PIN || m.pin || '');
                             if (inclBillDay) cells.push(m['BILL ON DAY'] || m['BILL ON \nDAY'] || m['BILL ON\r\nDAY'] || m.billOnDay || '');
-                            return `<tr${isHW ? ' class="hw-row"' : ''}>${cells.map(v => `<td>${v}</td>`).join('')}</tr>`;
+                            return `<tr${isBedHold ? ' class="bh-row"' : (isHW ? ' class="hw-row"' : '')}>${cells.map(v => `<td>${v}</td>`).join('')}</tr>`;
                         }).join('');
 
                         const printDate = today.toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' });
+                        const bedHoldNote = bedHoldCount > 0 ? ` &nbsp;&bull;&nbsp; ${bedHoldCount} Bed Hold` : '';
                         const hwNote = inclHW && hwCount > 0 ? ` &nbsp;&bull;&nbsp; ${hwCount} Hold/Wait` : '';
                         const availF = getAvailableBeds('F');
                         const availM = getAvailableBeds('M');
@@ -1066,13 +1078,16 @@
   tr.hw-row td{background:#fff3cd!important}
   tr.hw-row td:first-child{border-left:3px solid #f59e0b}
   .hw-badge{display:inline-block;background:#f59e0b;color:white;border-radius:3px;font-size:7.5px;padding:1px 4px;margin-left:3px;font-weight:700;vertical-align:middle;line-height:1.5}
+  tr.bh-row td{background:#fce8d5!important}
+  tr.bh-row td:first-child{border-left:3px solid #e07020}
+  .bh-badge{display:inline-block;background:#e07020;color:white;border-radius:3px;font-size:7.5px;padding:1px 4px;margin-left:3px;font-weight:700;vertical-align:middle;line-height:1.5}
   @media print{@page{margin:10mm;size:landscape}body{-webkit-print-color-adjust:exact;print-color-adjust:exact}}
 </style></head><body>
 <div class="rh">
-  <div><div class="rh-org">Horizon House</div><div class="rh-sub">${filterLabels[filterVal]}${inclHW && hwCount > 0 ? ' + Hold/Wait' : ''}</div></div>
+  <div><div class="rh-org">Horizon House</div><div class="rh-sub">${filterLabels[filterVal]}${bedHoldCount > 0 ? ' + Bed Hold' : ''}${inclHW && hwCount > 0 ? ' + Hold/Wait' : ''}</div></div>
   <div class="rh-date">Census Report<br>${printDate}</div>
 </div>
-<div class="rm"><span>${members.length} record${members.length !== 1 ? 's' : ''}${hwNote}${bedNote}</span></div>
+<div class="rm"><span>${members.length} record${members.length !== 1 ? 's' : ''}${bedHoldNote}${hwNote}${bedNote}</span></div>
 <div class="rb"><table><thead>${headerRow}</thead><tbody>${rows}</tbody></table></div>
 </body></html>`;
 
