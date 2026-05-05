@@ -394,30 +394,7 @@
         const API_URL = 'https://horizon-portal-backend-production-3532.up.railway.app';
         // Helper utilities to normalize IDs across backend variations
         function normalizeId(v) {
-            return String(v ?? '').trim();
-        }
-        function memberIdFrom(obj) {
-            return normalizeId(obj && (obj.memberId ?? obj.ID ?? obj.id));
-        }
-        function displayNameFrom(m) {
-            if (!m) return 'Unknown';
-            const nameCandidates = [m.memberName, m.name, m.MEMBER_NAME, m.MEMBERNAME, m.member_name, `${m.FIRST_NAME || m.first_name || ''} ${m.LAST_NAME || m.last_name || ''}`];
-            for (const c of nameCandidates) {
-                if (c && String(c).trim()) return String(c).trim();
-            }
-            const id = memberIdFrom(m);
-            return id || 'Unknown';
-        }
-        let autoResetTimer = null;
-        let pendingSignOutAction = false;
-        let currentMemberData = null;
-
-        // Update timestamp
-        function updateTimestamp() {
-            const now = new Date();
-            const timeStr = now.toLocaleString();
-            document.getElementById('timestamp').textContent = timeStr;
-            document.getElementById('statusTimestamp').textContent = timeStr;
+            return String(v ?? '').trim().replace(/^0+/, '') || '0';
         }
         updateTimestamp();
         setInterval(updateTimestamp, 1000);
@@ -630,7 +607,7 @@
                     showStatus(`✓ ${memberName} signed IN`, 'success');
                     setTimeout(showStatusScreen, 2000); // Return to status after 2 seconds
                 } else {
-                    showStatus('Error: ' + (result.message || 'Unknown error'), 'error');
+                    showStatus('Error: ' + (result.error || result.message || 'Unknown error'), 'error');
                 }
             } catch (error) {
                 showLoading(false);
@@ -666,13 +643,6 @@
                     showStatus(`✓ ${memberData.name} signed OUT`, 'success');
                     setTimeout(showStatusScreen, 2000); // Return to status after 2 seconds
                 } else {
-                    showStatus('Error: ' + (result.message || 'Unknown error'), 'error');
-                }
-            } catch (error) {
-                showLoading(false);
-                showStatus('Connection error. Please try again.', 'error');
-            }
-        }
-    </script>
+                    showStatus('Error: ' + (result.error || result.message || 'Unknown error'), 'error');
 </body>
 </html>

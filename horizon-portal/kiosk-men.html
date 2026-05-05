@@ -413,19 +413,7 @@
         const API_URL = 'https://horizon-portal-backend-production-3532.up.railway.app';
         // Helper utilities to normalize IDs and active status across backend variations
         function normalizeId(v) {
-            return String(v ?? '').trim();
-        }
-        function memberIdFrom(obj) {
-            return normalizeId(obj && (obj.memberId ?? obj.ID ?? obj.id));
-        }
-        function isActiveMember(obj) {
-            if (!obj) return false;
-            const status = String(obj.STATUS ?? obj.status ?? obj.STATU ?? '').trim();
-            // Status 1 = active resident (always include)
-            if (status === '1') return true;
-            // Status 4 = extended stay — only include if flagged inCensus (in bedboard)
-            if (status === '4') return obj.inCensus === true;
-            return false;
+            return String(v ?? '').trim().replace(/^0+/, '') || '0';
         }
         function displayNameFrom(m) {
             if (!m) return 'Unknown';
