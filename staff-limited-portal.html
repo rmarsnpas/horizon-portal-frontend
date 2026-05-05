@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Manager Portal � Horizon House</title>
+    <title>Manager Portal – Horizon House</title>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body {
@@ -120,7 +120,7 @@
 <!-- -- Login -- -->
 <div class="login-container" id="loginContainer">
     <div class="login-box">
-        <h1>?? Manager Portal</h1>
+        <h1>🔑 Manager Portal</h1>
         <p>Sign in with your Staff ID and password</p>
         <form id="loginForm" onsubmit="doLogin(event)">
             <div class="form-group">
@@ -143,34 +143,34 @@
         <div class="portal-header-left">
             <img src="/hhlogo.png" alt="Horizon House Logo" onerror="this.style.display='none'">
             <div>
-                <h1>?? Horizon House Manager Portal</h1>
+                <h1>🏢 Horizon House Manager Portal</h1>
                 <p>Welcome, <span id="staffName">Staff Member</span></p>
             </div>
         </div>
         <div class="header-buttons">
-            <a href="/" class="btn-home">?? Home</a>
+            <a href="/" class="btn-home">🏠 Home</a>
             <button class="btn-logout" onclick="logout()">Sign Out</button>
-            <a href="/index.html" style="display:block;margin-top:8px;padding:8px 18px;background:#4a5568;color:white;border-radius:6px;text-decoration:none;font-size:0.9rem;text-align:center;">? Back to Website</a>
+            <a href="/index.html" style="display:block;margin-top:8px;padding:8px 18px;background:#4a5568;color:white;border-radius:6px;text-decoration:none;font-size:0.9rem;text-align:center;">← Back to Website</a>
         </div>
     </div>
 
     <!-- Pending Review Section -->
     <div class="section-header" id="pendingSection" style="display:none;">
-        <h2>? Pending Review</h2>
+        <h2>⏳ Pending Review</h2>
         <p>Your assigned operational areas</p>
     </div>
     <div class="dashboard-grid" id="pendingGrid" style="display:none;"></div>
 
     <!-- Forms Section -->
     <div class="section-header" id="formsSection" style="display:none; margin-top: 8px;">
-        <h2>?? Forms</h2>
+        <h2>📝 Forms</h2>
         <p>Create and manage facility forms</p>
     </div>
     <div class="dashboard-grid" id="formsGrid" style="display:none;"></div>
 
     <!-- No access fallback -->
     <div class="empty-state" id="emptyState" style="display:none;">
-        <div class="icon">??</div>
+        <div class="icon">🔒</div>
         <h3>No Sections Assigned</h3>
         <p>You don't have access to any sections yet.<br>Please contact your administrator to be assigned permissions.</p>
     </div>
@@ -180,7 +180,7 @@
     const API_BASE = 'https://horizon-portal-backend-production-3532.up.railway.app';
     const SESSION_KEY = 'horizonLimitedStaffAuth';
 
-    // -- Permission ? card config ----------------------------------------------
+    // -- Permission / card config -----------------------------------------------
     // Each entry maps a permission key to display info.
     // group: 'pending' = operational section, 'forms' = forms section
     //
@@ -189,18 +189,18 @@
     //   2. Add the same key to ALL_PROFILE_PERMISSIONS in staff-dashboard.html.
     //   Set disabled:true and href:'#' while the page is not yet built.
     const SECTION_CONFIG = {
-        overnight_passes:   { icon: '??', title: 'Overnight Passes',      href: '#',                                                    label: 'Pending Requests',  group: 'pending', onclick: "alert('Overnight pass panel requires staff dashboard access.')" },
-        drug_screens:       { icon: '??', title: 'Drug Screen History',    href: '/drug-screen-history.html',                            label: 'View History',      group: 'pending' },
-        sign_inout:         { icon: '??', title: 'Sign In/Out Board',      href: '/horizon-portal/members/member-status.html',           label: 'Currently Out',     group: 'pending' },
-        member_schedules:   { icon: '??', title: 'Member Schedules',       href: '/horizon-portal/members/staff-schedules.html',         label: 'Submitted Entries', group: 'pending' },
-        meeting_cards:      { icon: '??', title: 'Meeting Cards',          href: '/horizon-portal/members/staff-meeting-cards.html',     label: 'Pending Review',    group: 'pending' },
+        overnight_passes:   { icon: '🌙', title: 'Overnight Passes',      href: '#',                                                    label: 'Pending Requests',  group: 'pending', onclick: "alert('Overnight pass panel requires staff dashboard access.')" },
+        drug_screens:       { icon: '🧪', title: 'Drug Screen History',    href: '/drug-screen-history.html',                            label: 'View History',      group: 'pending' },
+        sign_inout:         { icon: '🚪', title: 'Sign In/Out Board',      href: '/horizon-portal/members/member-status.html',           label: 'Currently Out',     group: 'pending' },
+        member_schedules:   { icon: '📅', title: 'Member Schedules',       href: '/horizon-portal/members/staff-schedules.html',         label: 'Submitted Entries', group: 'pending' },
+        meeting_cards:      { icon: '🪪', title: 'Meeting Cards',          href: '/horizon-portal/members/staff-meeting-cards.html',     label: 'Pending Review',    group: 'pending' },
         // -- Forms --
-        discharge_form:     { icon: '??', title: 'Discharge Form',         href: '/discharge-combined-fillable.html?returnTo=/staff-limited-portal.html',                    label: 'Member Discharge',  group: 'forms'   },
-        property_storage:   { icon: '??', title: 'Property Storage Log',   href: '/property-storage-form.html',                          label: 'Member Property',   group: 'forms'   },
-        drug_screen_form:   { icon: '??', title: 'Drug Screen Form',       href: '/drug-screen.html',                                    label: 'Record New Test',   group: 'forms'   },
-        incident_form:      { icon: '??',  title: 'Incident Report',        href: '/incident-form.html',                                  label: 'File Report',       group: 'forms',  disabled: true },
-        maintenance_request:{ icon: '??', title: 'Maintenance Request',    href: '#',                                                    label: 'Coming Soon',       group: 'forms',  disabled: true },
-        contract_form:      { icon: '??', title: 'Contract Form',          href: '#',                                                    label: 'Coming Soon',       group: 'forms',  disabled: true },
+        discharge_form:     { icon: '📄', title: 'Discharge Form',         href: '/discharge-combined-fillable.html?returnTo=/staff-limited-portal.html',                    label: 'Member Discharge',  group: 'forms'   },
+        property_storage:   { icon: '📦', title: 'Property Storage Log',   href: '/property-storage-form.html',                          label: 'Member Property',   group: 'forms'   },
+        drug_screen_form:   { icon: '🧪', title: 'Drug Screen Form',       href: '/drug-screen.html',                                    label: 'Record New Test',   group: 'forms'   },
+        incident_form:      { icon: '⚠️',  title: 'Incident Report',        href: '/incident-form.html',                                  label: 'File Report',       group: 'forms',  disabled: true },
+        maintenance_request:{ icon: '🔧', title: 'Maintenance Request',    href: '#',                                                    label: 'Coming Soon',       group: 'forms',  disabled: true },
+        contract_form:      { icon: '📜', title: 'Contract Form',          href: '#',                                                    label: 'Coming Soon',       group: 'forms',  disabled: true },
         // Add future forms below this line following the same pattern.
     };
 
@@ -225,7 +225,7 @@
         const err = document.getElementById('errorMsg');
 
         btn.disabled = true;
-        btn.textContent = 'Signing in�';
+        btn.textContent = 'Signing in�';
         err.style.display = 'none';
 
         try {
