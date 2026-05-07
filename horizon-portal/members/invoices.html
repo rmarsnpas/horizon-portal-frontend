@@ -234,10 +234,16 @@
   <header>
     <h1>Invoices</h1>
     <div class="header-buttons">
-      <a href="dashboard.html" class="header-btn btn-dashboard">← Dashboard</a>
+      <a href="dashboard.html" class="header-btn btn-dashboard" id="dashboardBtn">← Dashboard</a>
       <button onclick="logout()" class="header-btn btn-logout">🚪 Log Out</button>
     </div>
   </header>
+
+  <!-- Discharged member notice — shown only for status 3 -->
+  <div id="dischargedBanner" style="display:none;background:#fff3cd;border-bottom:3px solid #e67e22;padding:14px 20px;text-align:center;font-size:15px;color:#6b4226;">
+    <strong>📋 Discharged Member — Invoice Access</strong><br>
+    <span style="font-size:13px;color:#5a4a3a;">You have read-only access to your invoices and payment history. For questions, contact staff.</span>
+  </div>
 
   <div class="container">
     <h2>Your Invoices</h2>
@@ -267,9 +273,17 @@
   <script>
     const urlParams = new URLSearchParams(window.location.search);
     const memberId = (urlParams.get('id') || localStorage.getItem('memberId') || '').trim();
+    const memberAccessCode = parseInt(localStorage.getItem('memberAccessCode') || '0', 10);
 
     if (!memberId) {
       window.location.href = '/members/login.html';
+    }
+
+    // Discharged (status 3): show notice, hide dashboard link
+    if (memberAccessCode === 3) {
+      document.getElementById('dischargedBanner').style.display = 'block';
+      const dashBtn = document.getElementById('dashboardBtn');
+      if (dashBtn) dashBtn.style.display = 'none';
     }
 
     const memberEmail = (localStorage.getItem('memberEmail') || '').trim();

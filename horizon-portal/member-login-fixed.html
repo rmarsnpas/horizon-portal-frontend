@@ -254,7 +254,7 @@
             // Continue same flow as successful PIN verify
             if (userRecord.AccessCode >= 4) {
                 document.getElementById('staffPw').style.display = 'block';
-            } else if ([1,2].includes(userRecord.AccessCode)) {
+            } else if ([1,2,3].includes(userRecord.AccessCode)) {
                 routeUser();
             } else {
                 showError('Access denied.');
@@ -278,7 +278,7 @@
             document.getElementById('enterPin').style.display = 'none';
             if (userRecord.AccessCode >= 4) {
                 document.getElementById('staffPw').style.display = 'block';
-            } else if ([1,2].includes(userRecord.AccessCode)) {
+            } else if ([1,2,3].includes(userRecord.AccessCode)) {
                 routeUser();
             } else {
                 showError('Access denied.');
@@ -329,6 +329,9 @@
             console.log('AccessCode:', userRecord.AccessCode);
             if ([1,2,4,5].includes(userRecord.AccessCode)) {
                 window.location.href = 'members/dashboard.html';
+            } else if (userRecord.AccessCode === 3) {
+                // Discharged members: invoices + payment history only
+                window.location.href = 'members/invoices.html';
             } else {
                 showError('Access denied.');
             }

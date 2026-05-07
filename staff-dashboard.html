@@ -1824,7 +1824,35 @@
                                     boxes+`</div>`;
                             })(),
                             // Save button
-                            `<button type="submit" style="padding:12px;background:#28a745;color:white;border:none;border-radius:6px;font-weight:700;font-size:1.1rem;">Save</button>`
+                            `<button type="submit" style="padding:12px;background:#28a745;color:white;border:none;border-radius:6px;font-weight:700;font-size:1.1rem;">Save</button>`,
+                            // Readmit section — shown only for discharged (3) or alumni (2) members
+                            (function() {
+                                const s = statusVal;
+                                if (s !== '2' && s !== '3') return '';
+                                const alreadyReadmitted = member.readmittedAsId ? member.readmittedAsId : '';
+                                const readmitBtnHtml = alreadyReadmitted
+                                    ? `<div style="font-size:13px;color:#718096;margin-top:4px;">Already readmitted as <a href="#" onclick="event.preventDefault();closeStaffProfileModal();openStaffProfileModal('${alreadyReadmitted}');" style="color:#667eea;font-weight:700;">${alreadyReadmitted}</a></div>`
+                                    : `<button type="button" id="readmitBtn" onclick="window._doReadmit('${memberId}')" style="margin-top:4px;padding:10px 18px;background:#e67e22;color:white;border:none;border-radius:6px;font-weight:700;font-size:1rem;cursor:pointer;">♻️ Readmit as New Member</button>`;
+                                return `<div style="border:2px solid #e67e22;border-radius:8px;padding:14px 16px;margin-top:8px;">`+
+                                    `<div style="font-weight:700;color:#e67e22;margin-bottom:6px;">Readmission</div>`+
+                                    `<div style="font-size:13px;color:#555;margin-bottom:8px;">Creates a new member profile with a new ID using this member's personal information. The original profile and all its records remain intact, linked to the new profile.</div>`+
+                                    readmitBtnHtml+
+                                    `</div>`;
+                            })(),
+                            // Admission history — links to previous IDs
+                            (function() {
+                                const prevIds = Array.isArray(member.previousIds) ? member.previousIds : [];
+                                const fromId  = member.readmittedFromId || '';
+                                if (!prevIds.length && !fromId) return '';
+                                const displayIds = prevIds.length ? prevIds : [fromId];
+                                const links = displayIds.map(pid =>
+                                    `<a href="#" onclick="event.preventDefault();closeStaffProfileModal();openStaffProfileModal('${pid}');" style="color:#667eea;font-weight:700;text-decoration:underline;">${pid}</a>`
+                                ).join(', ');
+                                return `<div style="border:2px solid #667eea;border-radius:8px;padding:12px 14px;margin-top:6px;">`+
+                                    `<div style="font-weight:700;color:#667eea;margin-bottom:4px;">📋 Previous Admission ID(s)</div>`+
+                                    `<div style="font-size:13px;">${links}</div>`+
+                                    `</div>`;
+                            })()
                         ].join('');
 
                         // Toggle permissions section when status dropdown changes
@@ -1835,6 +1863,35 @@
                             if (cen) cen.style.display = val === '4' ? 'block' : 'none';
                             const spw = document.getElementById('staffPwSection');
                             if (spw) spw.style.display = (val === '4' || val === '5') ? 'block' : 'none';
+                        };
+
+                        // Readmit handler — called from the Readmit button inside the profile modal
+                        window._doReadmit = async function(oldId) {
+                            const memberName = (member.firstName || '') + ' ' + (member.lastName || '');
+                            if (!confirm(`Create a new profile for ${memberName.trim() || oldId}?\n\nThis will:\n• Copy their personal info to a new member ID\n• Keep the original profile (ID ${oldId}) and all related records intact\n• Link the new profile back to ID ${oldId}\n\nContinue?`)) return;
+                            const btn = document.getElementById('readmitBtn');
+                            if (btn) { btn.disabled = true; btn.textContent = 'Creating...'; }
+                            try {
+                                const r = await fetch(`${API_BASE}/api/readmitMember`, {
+                                    method: 'POST',
+                                    headers: { 'Content-Type': 'application/json' },
+                                    body: JSON.stringify({ oldId })
+                                });
+                                const result = await r.json();
+                                if (result.success) {
+                                    alert(`New profile created! New Member ID: ${result.newId}\n\nThe new profile is on Hold (H) status. Open it to assign a bed, admit date, and activate.`);
+                                    closeStaffProfileModal();
+                                    if (window.reloadAllMembersFromBackend) await window.reloadAllMembersFromBackend();
+                                    // Open the new profile immediately
+                                    setTimeout(() => openStaffProfileModal(result.newId), 300);
+                                } else {
+                                    alert('Error: ' + (result.error || 'Unknown error'));
+                                    if (btn) { btn.disabled = false; btn.textContent = '♻️ Readmit as New Member'; }
+                                }
+                            } catch (e) {
+                                alert('Network error. Please try again.');
+                                if (btn) { btn.disabled = false; btn.textContent = '♻️ Readmit as New Member'; }
+                            }
                         };
 
                         // Days sober calculator for profile form
@@ -2332,11 +2389,36 @@
                             <td style="white-space:nowrap;">
                                 <button onclick="event.stopPropagation();openEditMemberModalById('${id}')" style="padding:4px 10px;font-size:12px;background:#667eea;color:white;border:none;border-radius:4px;cursor:pointer;margin-right:4px;">Edit</button>
                                 <button onclick="event.stopPropagation();deleteMember('${id}','${firstName}','${lastName}')" style="padding:4px 10px;font-size:12px;background:#dc3545;color:white;border:none;border-radius:4px;cursor:pointer;">Delete</button>
+                                ${(String(status).trim()==='2'||String(status).trim()==='3') ? `<button onclick="event.stopPropagation();readmitMemberFromTable('${id}','${firstName}','${lastName}')" style="padding:4px 10px;font-size:12px;background:#e67e22;color:white;border:none;border-radius:4px;cursor:pointer;margin-left:4px;" title="Create new admission profile from this member">♻️ Readmit</button>` : ''}
                             </td>
                         </tr>`;
                     }).join('');
                 }
                 window.renderAllMembersTable = renderAllMembersTable;
+
+                // Readmit member from table row — opens profile modal on new ID after creation
+                window.readmitMemberFromTable = async function(id, firstName, lastName) {
+                    const label = `${firstName} ${lastName}`.trim() || id;
+                    if (!confirm(`Readmit ${label} (ID: ${id}) as a new member?\n\nThis will create a new profile with a new ID using their personal information. The original profile and all its records stay intact, linked to the new profile.`)) return;
+                    try {
+                        const r = await fetch(`${API_BASE}/api/readmitMember`, {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({ oldId: id })
+                        });
+                        const result = await r.json();
+                        if (result.success) {
+                            alert(`New profile created! New Member ID: ${result.newId}\n\nStatus is set to Hold (H). Open the profile to assign a bed, admit date, and activate.`);
+                            if (window.reloadAllMembersFromBackend) await window.reloadAllMembersFromBackend();
+                            // Open new profile in the staff profile modal
+                            setTimeout(() => openStaffProfileModal(result.newId), 300);
+                        } else {
+                            alert('Error: ' + (result.error || 'Unknown error'));
+                        }
+                    } catch (e) {
+                        alert('Network error. Please try again.');
+                    }
+                };
 
                 // Delete member function
                 async function deleteMember(id, firstName, lastName) {

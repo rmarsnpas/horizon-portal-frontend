@@ -263,6 +263,12 @@
     const firstName = localStorage.getItem('memberFirstName') || '';
     const lastName = localStorage.getItem('memberLastName') || '';
     const accessCode = parseInt(localStorage.getItem('memberAccessCode') || '0', 10);
+
+    // Discharged members (status 3) only have invoice access — redirect them
+    if (accessCode === 3) {
+      window.location.replace('invoices.html');
+    }
+
     if (firstName || lastName) {
       document.getElementById('welcomeBanner').textContent =
         'Welcome, ' + (firstName + ' ' + lastName).trim() + (memberId ? ' (ID: ' + memberId + ')' : '');

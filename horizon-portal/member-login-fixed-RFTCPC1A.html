@@ -248,10 +248,11 @@
                 if (userRecord.AccessCode >= 4) {
                     document.getElementById('staffPw').style.display = 'block';
                 } else {
-                    if (isCreatingPin) {
+                    if (isCreatingPin && userRecord.AccessCode !== 3) {
                         isCreatingPin = false;
                         window.location.href = '/index.html';
                     } else {
+                        isCreatingPin = false;
                         routeUser();
                     }
                 }
@@ -321,6 +322,7 @@
             localStorage.setItem('memberFirstName', userRecord.FIRST_NAME || '');
             localStorage.setItem('memberLastName', userRecord.LAST_NAME || '');
             localStorage.setItem('memberEmail', userRecord.EMAIL || '');
+            localStorage.setItem('memberAccessCode', String(userRecord.AccessCode || ''));
             
             switch (userRecord.AccessCode) {
                 case 1:
@@ -328,6 +330,10 @@
                     break;
                 case 2:
                     window.location.href = '/members/alumni.html';
+                    break;
+                case 3:
+                    // Discharged members: invoices + payment history only
+                    window.location.href = 'members/invoices.html';
                     break;
                 case 4:
                     window.location.href = '/members/staff/dashboard.html';
