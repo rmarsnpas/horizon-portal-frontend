@@ -351,7 +351,7 @@
                 <div>
                     <h2>Member Sign In/Out</h2>
                 </div>
-                <button class="btn-back" onclick="showStatusScreen()">← Back to Status</button>
+                <button class="btn-back" onclick="showStatusScreen()">&larr; Back to Status</button>
             </div>
 
             <div class="sign-in-form">
@@ -506,7 +506,7 @@
                 if (total === 0) {
                     statusGrid.innerHTML = `
                         <div class="empty-state" style="grid-column: 1 / -1;">
-                            <div class="empty-state-icon">✅</div>
+                            <div class="empty-state-icon">&#x2705;</div>
                             <p style="font-size: 1.5rem;">All members are signed in!</p>
                         </div>
                     `;
@@ -514,9 +514,9 @@
                     statusGrid.innerHTML = membersOut.map(member => `
                         <div class="status-card${member.isOverdue ? ' overdue' : ''}">
                             <div class="member-name">${displayNameFrom(member)}</div>
-                            <div class="member-info">📍 ${member.destination || ''}</div>
-                            <div class="member-info">🕐 Out: ${member.timeOut || ''}</div>
-                            <div class="member-info">⏰ Return: ${member.estimatedReturn || ''} ${member.isOverdue ? '<span class="overdue-badge">OVERDUE</span>' : ''}</div>
+                            <div class="member-info">&#x1F4CD; ${member.destination || ''}</div>
+                            <div class="member-info">&#x1F550; Out: ${member.timeOut || ''}</div>
+                            <div class="member-info">&#x23F0; Return: ${member.estimatedReturn || ''} ${member.isOverdue ? '<span class="overdue-badge">OVERDUE</span>' : ''}</div>
                         </div>
                     `).join('');
                 }
@@ -533,7 +533,7 @@
                 const container = document.getElementById('kioskMessages');
                 if (!msgs.length) { container.innerHTML = ''; return; }
                 container.innerHTML = msgs.map(m => {
-                    const icon = m.target === 'everyone' ? '📢' : m.target === 'women' ? '🌸' : '👤';
+                    const icon = m.target === 'everyone' ? '&#x1F4E2;' : m.target === 'women' ? '&#x1F338;' : '&#x1F464;';
                     const cls  = m.target === 'everyone' ? 'target-everyone' : m.target === 'women' ? 'target-women' : 'target-individual';
                     return `<div class="kiosk-msg-banner ${cls}">
                         <div class="msg-icon">${icon}</div>
@@ -662,7 +662,7 @@
                     const personal = personalMsgs.filter(m => m.target === 'individual');
                     if (personal.length) {
                         const preview = personal.map(m => (m.title ? m.title + ': ' : '') + m.body).join('\n');
-                        showStatus(`📬 Message for ${memberName}:\n${preview}`, 'info');
+                        showStatus(`Message for ${memberName}:\n${preview}`, 'info');
                         await new Promise(r => setTimeout(r, 4000));
                     }
                 } catch { /* silently ignore */ }
@@ -717,7 +717,7 @@
                 showLoading(false);
 
                 if (result.success) {
-                    showStatus(`✓ ${memberName} signed IN`, 'success');
+                    showStatus(`${memberName} signed IN`, 'success');
                     setTimeout(showStatusScreen, 2000); // Return to status after 2 seconds
                 } else {
                     showStatus('Error: ' + (result.error || result.message || 'Unknown error'), 'error');
@@ -753,7 +753,7 @@
                 showLoading(false);
 
                 if (result.success) {
-                    showStatus(`✓ ${memberData.name} signed OUT`, 'success');
+                    showStatus(`${memberData.name} signed OUT`, 'success');
                     setTimeout(showStatusScreen, 2000); // Return to status after 2 seconds
                 } else {
                     showStatus('Error: ' + (result.error || result.message || 'Unknown error'), 'error');
