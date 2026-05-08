@@ -780,10 +780,11 @@
         });
 
         // ── Screensaver ───────────────────────────────────────────────────────────
-        const SCREENSAVER_DELAY = 60000; // 60 seconds of inactivity
+        const SCREENSAVER_DELAY = 180000; // 3 minutes of inactivity
         let ssTimer = null;
 
         function showScreensaver() {
+            updateSsClock();
             document.getElementById('hhScreensaver').style.display = 'flex';
         }
         function hideScreensaver() {
@@ -794,6 +795,16 @@
             clearTimeout(ssTimer);
             ssTimer = setTimeout(showScreensaver, SCREENSAVER_DELAY);
         }
+        function updateSsClock() {
+            const now = new Date();
+            const time = now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+            const date = now.toLocaleDateString([], { weekday: 'long', month: 'long', day: 'numeric' });
+            const tc = document.getElementById('ssClock');
+            const td = document.getElementById('ssDate');
+            if (tc) tc.textContent = time;
+            if (td) td.textContent = date;
+        }
+        setInterval(() => { if (document.getElementById('hhScreensaver').style.display !== 'none') updateSsClock(); }, 1000);
         ['touchstart','touchend','mousedown','mousemove','keydown','scroll'].forEach(evt => {
             document.addEventListener(evt, hideScreensaver, { passive: true });
         });
@@ -801,9 +812,11 @@
     </script>
 
     <!-- Screensaver overlay -->
-    <div id="hhScreensaver" onclick="hideScreensaver()" style="position:fixed;inset:0;z-index:99999;background:#003366;display:none;align-items:center;justify-content:center;flex-direction:column;gap:24px;cursor:pointer;">
-        <img src="../HH logo grntree.png" alt="Horizon House" style="max-width:280px;width:60vw;opacity:0.95;">
-        <p style="color:rgba(255,255,255,0.7);font-size:1.1rem;font-family:Arial,sans-serif;margin:0;">Touch to continue</p>
+    <div id="hhScreensaver" onclick="hideScreensaver()" style="position:fixed;inset:0;z-index:99999;background:linear-gradient(135deg,#001f4d 0%,#003366 60%,#005599 100%);display:none;align-items:center;justify-content:center;flex-direction:column;gap:20px;cursor:pointer;user-select:none;">
+        <img src="../HH logo grntree.png" alt="Horizon House" style="max-width:240px;width:50vw;opacity:0.95;">
+        <div id="ssClock" style="color:#fff;font-size:4rem;font-family:'Segoe UI',Arial,sans-serif;font-weight:300;letter-spacing:4px;line-height:1;"></div>
+        <div id="ssDate" style="color:rgba(255,255,255,0.75);font-size:1.3rem;font-family:'Segoe UI',Arial,sans-serif;margin-top:-8px;"></div>
+        <div style="margin-top:16px;padding:14px 36px;border:2px solid rgba(255,255,255,0.4);border-radius:40px;color:rgba(255,255,255,0.85);font-size:1.15rem;font-family:'Segoe UI',Arial,sans-serif;">Touch anywhere to sign in / out</div>
     </div>
 </body>
 </html>
