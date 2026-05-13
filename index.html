@@ -152,6 +152,14 @@
     .hover-box:hover .hover-text{max-height:200px;opacity:1;margin-top:0.5rem}
     .hover-box.scroll-active .hover-text{max-height:200px;opacity:1;margin-top:0.5rem}
     
+    /* Beds Available Banner */
+    #bedsBanner{background:var(--slate);color:#fff;text-align:center;padding:0.35rem 0.75rem;font-size:0.9rem;font-weight:600;display:flex;align-items:center;justify-content:center;gap:1.5rem;flex-wrap:wrap;border-top:2px solid var(--amber)}
+    #bedsBanner .beds-item{display:inline-flex;align-items:center;gap:0.4rem}
+    #bedsBanner .beds-num{background:var(--amber);color:#1d1d1d;border-radius:.4rem;padding:0.1rem 0.55rem;font-size:1rem;font-weight:700;min-width:1.6rem;text-align:center}
+    #bedsBanner .beds-zero{background:#9c2f2f}
+    #bedsBanner .beds-label{opacity:0.9}
+    @media(max-width:640px){#bedsBanner{font-size:0.8rem;gap:1rem}#bedsBanner .beds-num{font-size:0.9rem}}
+
     /* Construction Banner */
     .construction-banner{background:linear-gradient(90deg,#ff9800,#ff5722,#ff9800);color:#fff;padding:0.5rem 0.75rem;text-align:center;font-weight:600;font-size:0.95rem;overflow:hidden;position:relative;white-space:nowrap;line-height:1.2}
     .construction-banner::before{content:'🚧';margin-right:8px}
@@ -458,6 +466,11 @@
       </nav>
     </div>
   </header>
+
+  <div id="bedsBanner" role="status" aria-label="Available beds">
+    <span class="beds-item">🛏️ <span class="beds-label">His House (Men):</span> <span class="beds-num" id="bannerAvailM">…</span> bed<span id="bannerAvailM_s">s</span> available</span>
+    <span class="beds-item">🛏️ <span class="beds-label">Her House (Women):</span> <span class="beds-num" id="bannerAvailF">…</span> bed<span id="bannerAvailF_s">s</span> available</span>
+  </div>
 
   <div class="construction-banner">
     <span class="banner-text">Check back here soon as this website is a work in progress and pages are being added and updated often.</span>
@@ -957,6 +970,16 @@
     }
   }
 
+  function setBannerCount(id, val) {
+    var el = document.getElementById(id);
+    if (!el) return;
+    el.textContent = val;
+    if (val === 0) el.classList.add('beds-zero'); else el.classList.remove('beds-zero');
+    var sId = id + '_s';
+    var sEl = document.getElementById(sId);
+    if (sEl) sEl.textContent = val === 1 ? '' : 's';
+  }
+
   fetch(API + '/api/members')
     .then(function(r){ return r.ok ? r.json() : Promise.reject(r.status); })
     .then(function(members){
@@ -973,12 +996,18 @@
         var g = String(m['M/F'] || m.GENDER || m.gender || '').toUpperCase().trim();
         return g === 'F';
       }).length;
-      setCount('availM', Math.max(0, M_BEDS.length - occM));
-      setCount('availF', Math.max(0, F_BEDS.length - occF));
+      var mCount = Math.max(0, M_BEDS.length - occM);
+      var fCount = Math.max(0, F_BEDS.length - occF);
+      setCount('availM', mCount);
+      setCount('availF', fCount);
+      setBannerCount('bannerAvailM', mCount);
+      setBannerCount('bannerAvailF', fCount);
     })
     .catch(function(){
       setCount('availM', '?');
       setCount('availF', '?');
+      setBannerCount('bannerAvailM', '?');
+      setBannerCount('bannerAvailF', '?');
     });
 })();
 </script>
