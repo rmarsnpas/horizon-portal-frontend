@@ -98,51 +98,31 @@
     }, 1200);
     activeTimeouts.push(t3);
 
-    /* 4 -- Leftward drift: mobile crosses full screen, desktop slow float */
-    var t4 = setTimeout(function() {
-      if (isMobile) {
-        var travel = -(window.innerWidth + 400);
-        driftAnim = scene.animate([
-          { transform: 'translateX(0px)' },
-          { transform: 'translateX(' + travel + 'px)' }
-        ], { duration: 30000, fill: 'forwards', easing: 'linear' });
-      } else {
-        driftAnim = scene.animate([
-          { transform: 'translateX(0px)'    },
-          { transform: 'translateX(-180px)' }
-        ], { duration: 60000, fill: 'forwards', easing: 'linear' });
-      }
-      activeAnims.push(driftAnim);
-    }, 3000);
-    activeTimeouts.push(t4);
+    /* 4 -- Drift in from right: mobile crosses full screen, desktop to mid-screen */
+    var travel = isMobile
+      ? -(window.innerWidth + 400)
+      : -(Math.round(window.innerWidth / 2) + 500);
+    var driftDuration = isMobile ? 25000 : 16000;
+    driftAnim = scene.animate([
+      { transform: 'translateX(0px)' },
+      { transform: 'translateX(' + travel + 'px)' }
+    ], { duration: driftDuration, fill: 'forwards', easing: 'linear' });
+    activeAnims.push(driftAnim);
 
-    /* 4b -- Cloud extra drift (desktop only) */
-    var t4b = setTimeout(function() {
-      if (!isMobile) {
-        var a = cloud.animate([
-          { transform: 'translateX(0px)'   },
-          { transform: 'translateX(-60px)' }
-        ], { duration: 45000, fill: 'forwards', easing: 'linear', composite: 'add' });
-        activeAnims.push(a);
-      }
-    }, 3000);
-    activeTimeouts.push(t4b);
-
-    /* 5 -- Mobile: fade out just before reaching left edge, then reschedule */
-    if (isMobile) {
-      var tFade = setTimeout(function() {
-        if (scrollFading) return;
-        scrollFading = true;
-        var a = scene.animate([
-          { opacity: 1 },
-          { opacity: 0 }
-        ], { duration: 2500, fill: 'forwards', easing: 'ease-in' });
-        activeAnims.push(a);
-        var tReschedule = setTimeout(function() { scheduleScene(); }, 3000);
-        activeTimeouts.push(tReschedule);
-      }, 18000);
-      activeTimeouts.push(tFade);
-    }
+    /* 5 -- Fade out: desktop at mid-screen (~13s), mobile before left edge (~18s) */
+    var fadeDelay = isMobile ? 18000 : 13000;
+    var tFade = setTimeout(function() {
+      if (scrollFading) return;
+      scrollFading = true;
+      var a = scene.animate([
+        { opacity: 1 },
+        { opacity: 0 }
+      ], { duration: 2500, fill: 'forwards', easing: 'ease-in' });
+      activeAnims.push(a);
+      var tReschedule = setTimeout(function() { scheduleScene(); }, 3000);
+      activeTimeouts.push(tReschedule);
+    }, fadeDelay);
+    activeTimeouts.push(tFade);
   }
 
   /* -- Scroll fade-out -- */
