@@ -58,7 +58,7 @@
     var cloud = scene.querySelector('.hope-cloud-img');
 
     /* reset */
-    scene.style.opacity = '1';
+    scene.style.opacity = '0';
     scene.style.transform = '';
     [sun, text, cloud].forEach(function(el) {
       el.style.opacity = '0';
@@ -102,15 +102,22 @@
     var travel = isMobile
       ? -(window.innerWidth + 400)
       : -(Math.round(window.innerWidth / 2) + 500);
-    var driftDuration = isMobile ? 25000 : 16000;
+    var driftDuration = isMobile ? 25000 : 9000;
     driftAnim = scene.animate([
       { transform: 'translateX(0px)' },
       { transform: 'translateX(' + travel + 'px)' }
     ], { duration: driftDuration, fill: 'forwards', easing: 'linear' });
     activeAnims.push(driftAnim);
 
-    /* 5 -- Fade out: desktop at mid-screen (~13s), mobile before left edge (~18s) */
-    var fadeDelay = isMobile ? 18000 : 13000;
+    /* 4b -- Scene fades in as it enters viewport (both platforms) */
+    var fadeInAnim = scene.animate([
+      { opacity: 0 },
+      { opacity: 1 }
+    ], { duration: 1800, fill: 'forwards', easing: 'ease-in' });
+    activeAnims.push(fadeInAnim);
+
+    /* 5 -- Fade out: desktop at mid-screen (~5.5s), mobile before left edge (~18s) */
+    var fadeDelay = isMobile ? 18000 : 5500;
     var tFade = setTimeout(function() {
       if (scrollFading) return;
       scrollFading = true;
