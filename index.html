@@ -234,142 +234,6 @@
       }
     }
 
-    /* Bed Availability Flip Cards */
-    .bed-avail-widget {
-      position: fixed;
-      bottom: 32px;
-      left: 32px;
-      z-index: 1003;
-      display: flex;
-      gap: 14px;
-      align-items: flex-end;
-    }
-    .bed-avail-card {
-      width: 116px;
-      height: 138px;
-      perspective: 700px;
-      cursor: pointer;
-    }
-    .bed-card-inner {
-      position: relative;
-      width: 100%;
-      height: 100%;
-      transform-style: preserve-3d;
-      transition: transform 0.52s cubic-bezier(.4,0,.2,1);
-    }
-    .bed-avail-card:hover .bed-card-inner {
-      transform: rotateY(180deg);
-    }
-    .bed-card-front,
-    .bed-card-back {
-      position: absolute;
-      inset: 0;
-      backface-visibility: hidden;
-      -webkit-backface-visibility: hidden;
-      border-radius: 16px;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      padding: 12px 8px;
-      box-shadow: 0 6px 28px rgba(0,0,0,.32), 0 0 0 1.5px rgba(255,255,255,.07);
-    }
-    .bed-card-back {
-      transform: rotateY(180deg);
-    }
-    /* Men — blue */
-    .bed-card-m .bed-card-front {
-      background: linear-gradient(145deg, #1e73be 0%, #0d3d78 100%);
-    }
-    .bed-card-m .bed-card-back {
-      background: linear-gradient(145deg, #0d3d78 0%, #1a5fa8 100%);
-    }
-    /* Women — pink */
-    .bed-card-f .bed-card-front {
-      background: linear-gradient(145deg, #d44e8a 0%, #7d1f52 100%);
-    }
-    .bed-card-f .bed-card-back {
-      background: linear-gradient(145deg, #7d1f52 0%, #c23b7f 100%);
-    }
-    .bed-card-icon {
-      font-size: 1.55rem;
-      margin-bottom: 2px;
-      opacity: .88;
-    }
-    .bed-card-label {
-      font-size: 0.6rem;
-      font-weight: 700;
-      text-transform: uppercase;
-      letter-spacing: 1px;
-      color: rgba(255,255,255,.72);
-      margin-bottom: 3px;
-    }
-    .bed-card-count {
-      font-size: 2.6rem;
-      font-weight: 900;
-      color: #fff;
-      line-height: 1;
-      text-shadow: 0 2px 10px rgba(0,0,0,.4);
-    }
-    .bed-card-sub {
-      font-size: 0.58rem;
-      font-weight: 600;
-      text-transform: uppercase;
-      letter-spacing: .8px;
-      color: rgba(255,255,255,.55);
-      margin-top: 3px;
-    }
-    .bed-card-hint {
-      font-size: 0.52rem;
-      color: rgba(255,255,255,.45);
-      margin-top: 6px;
-      letter-spacing: .4px;
-    }
-    /* Back side */
-    .bed-card-back-title {
-      font-size: 0.6rem;
-      font-weight: 800;
-      text-transform: uppercase;
-      letter-spacing: .9px;
-      color: rgba(255,255,255,.55);
-      margin-bottom: 10px;
-    }
-    .bed-card-action {
-      display: block;
-      width: 100%;
-      padding: 8px 6px;
-      border-radius: 9px;
-      background: rgba(255,255,255,.14);
-      border: 1px solid rgba(255,255,255,.18);
-      color: #fff;
-      text-align: center;
-      font-size: 0.6rem;
-      font-weight: 700;
-      text-decoration: none;
-      letter-spacing: .3px;
-      line-height: 1.35;
-      transition: background .18s, transform .15s;
-      margin-bottom: 7px;
-    }
-    .bed-card-action:last-child { margin-bottom: 0; }
-    .bed-card-action:hover {
-      background: rgba(255,255,255,.28);
-      transform: translateY(-1px);
-    }
-    /* Pulse glow when beds available */
-    .bed-avail-card.has-beds .bed-card-front {
-      animation: avail-pulse 2.8s ease-in-out infinite;
-    }
-    @keyframes avail-pulse {
-      0%, 100% { box-shadow: 0 6px 28px rgba(0,0,0,.32), 0 0 0 0 rgba(255,255,255,.0); }
-      50%       { box-shadow: 0 6px 32px rgba(0,0,0,.36), 0 0 0 7px rgba(255,255,255,.07); }
-    }
-    @media (max-width: 600px) {
-      .bed-avail-widget { bottom: 90px; left: 10px; gap: 10px; }
-      .bed-avail-card { width: 96px; height: 116px; }
-      .bed-card-count { font-size: 2rem; }
-      .bed-card-action { font-size: 0.54rem; padding: 6px 4px; }
-    }
   </style>
   
   <!-- Local Business Schema Markup for SEO -->
@@ -624,7 +488,7 @@
           <strong>📘 AA Daily Reflections</strong>
           <div class="hover-text" style="font-size:0.9rem;color:#555;">Today's reflection from Alcoholics Anonymous — a daily meditation to start your day grounded.</div>
         </a>
-        <a href="https://saddlebackclub.com/Twenty-Four-Hours-365.html" target="_blank" rel="noopener noreferrer" class="card hover-box" style="text-decoration:none;color:inherit;">
+        <a id="twentyFourHoursLink" href="#" target="_blank" rel="noopener noreferrer" class="card hover-box" style="text-decoration:none;color:inherit;">
           <strong>🕐 24 Hours A Day</strong>
           <div class="hover-text" style="font-size:0.9rem;color:#555;">Daily AA thought, meditation, and prayer — one reading for each day of the year.</div>
         </a>
@@ -657,6 +521,7 @@
           var slug = 'med' + months[d.getMonth()] + d.getDate();
           document.getElementById('livingLifeLinkPub').href = 'https://www.livinglifefully.com/meditations/' + slug + '.htm';
           document.getElementById('emmetFoxLinkPub').href = 'https://www.emmetfox.org/daily-readings/' + fullMonths[d.getMonth()];
+          document.getElementById('twentyFourHoursLink').href = 'https://www.justfortodaymeditations.com/daily-recovery-readings-' + fullMonths[d.getMonth()] + '-' + d.getDate() + '/';
         })();
       </script>
 
@@ -858,42 +723,6 @@
   </p>
 </footer>
 
-<!-- Bed Availability Flip Cards -->
-<div class="bed-avail-widget" role="status" aria-label="Available beds">
-  <div class="bed-avail-card bed-card-m" id="cardM" title="His House — Hover to take action">
-    <div class="bed-card-inner">
-      <div class="bed-card-front">
-        <div class="bed-card-icon">🛏️</div>
-        <div class="bed-card-label">His House</div>
-        <div class="bed-card-count" id="availM">-</div>
-        <div class="bed-card-sub">Beds Open</div>
-        <div class="bed-card-hint">hover for options</div>
-      </div>
-      <div class="bed-card-back">
-        <div class="bed-card-back-title">Men's Beds</div>
-        <a href="application.html" class="bed-card-action">✏️ Complete Application</a>
-        <a href="application.html?hold=1" class="bed-card-action">🔒 Request a Hold for a Bed</a>
-      </div>
-    </div>
-  </div>
-  <div class="bed-avail-card bed-card-f" id="cardF" title="Her House — Hover to take action">
-    <div class="bed-card-inner">
-      <div class="bed-card-front">
-        <div class="bed-card-icon">🛏️</div>
-        <div class="bed-card-label">Her House</div>
-        <div class="bed-card-count" id="availF">-</div>
-        <div class="bed-card-sub">Beds Open</div>
-        <div class="bed-card-hint">hover for options</div>
-      </div>
-      <div class="bed-card-back">
-        <div class="bed-card-back-title">Women's Beds</div>
-        <a href="application.html" class="bed-card-action">✏️ Complete Application</a>
-        <a href="application.html?hold=1" class="bed-card-action">🔒 Request a Hold for a Bed</a>
-      </div>
-    </div>
-  </div>
-</div>
-
 <!-- Hope Cloud -->
 <script src="hope-cloud.js"></script>
 
@@ -959,17 +788,6 @@
   var F_BEDS = ['1A','1B','2A','2B','3A','3B','3C','4'];        // 8 beds
   var API = 'https://horizon-portal-backend-production-3532.up.railway.app';
 
-  function setCount(id, val) {
-    var el = document.getElementById(id);
-    if (el) el.textContent = val;
-    var cardId = id === 'availM' ? 'cardM' : 'cardF';
-    var card = document.getElementById(cardId);
-    if (card) {
-      if (typeof val === 'number' && val > 0) card.classList.add('has-beds');
-      else card.classList.remove('has-beds');
-    }
-  }
-
   function setBannerCount(id, val) {
     var el = document.getElementById(id);
     if (!el) return;
@@ -998,14 +816,10 @@
       }).length;
       var mCount = Math.max(0, M_BEDS.length - occM);
       var fCount = Math.max(0, F_BEDS.length - occF);
-      setCount('availM', mCount);
-      setCount('availF', fCount);
       setBannerCount('bannerAvailM', mCount);
       setBannerCount('bannerAvailF', fCount);
     })
     .catch(function(){
-      setCount('availM', '?');
-      setCount('availF', '?');
       setBannerCount('bannerAvailM', '?');
       setBannerCount('bannerAvailF', '?');
     });
