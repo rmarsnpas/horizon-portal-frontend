@@ -102,7 +102,7 @@
     var travel = isMobile
       ? -(window.innerWidth + 400)
       : -(Math.round(window.innerWidth / 2) + 500);
-    var driftDuration = isMobile ? 25000 : 9000;
+    var driftDuration = isMobile ? 25000 : 16000;
     driftAnim = scene.animate([
       { transform: 'translateX(0px)' },
       { transform: 'translateX(' + travel + 'px)' }
@@ -116,8 +116,8 @@
     ], { duration: 1800, fill: 'forwards', easing: 'ease-in' });
     activeAnims.push(fadeInAnim);
 
-    /* 5 -- Fade out: desktop at mid-screen (~5.5s), mobile before left edge (~18s) */
-    var fadeDelay = isMobile ? 18000 : 5500;
+    /* 5 -- Fade out: desktop at mid-screen (~10s), mobile before left edge (~18s) */
+    var fadeDelay = isMobile ? 18000 : 10000;
     var tFade = setTimeout(function() {
       if (scrollFading) return;
       scrollFading = true;
@@ -156,7 +156,7 @@
   }, { passive: true });
 
   function scheduleScene() {
-    var delay = rand(8000, 14000);
+    var delay = rand(20000, 30000);
     var t = setTimeout(function() {
       showScene();
     }, delay);
