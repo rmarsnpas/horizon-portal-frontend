@@ -75,25 +75,25 @@
     }, 0);
     activeTimeouts.push(t1);
 
-    /* 2 -- Sun rises from behind cloud (t=1.2s, 6s) */
+    /* 2 -- Sun rises from behind cloud (t=1.2s, 10s) */
     var t2 = setTimeout(function() {
       var a = sun.animate([
         { opacity: 0,   transform: 'translateY(160px)' },
         { opacity: 0.4, transform: 'translateY(90px)',  offset: 0.40 },
         { opacity: 1,   transform: 'translateY(0px)'  }
-      ], { duration: 6000, fill: 'forwards', easing: 'cubic-bezier(.1,.9,.25,1)' });
+      ], { duration: 10000, fill: 'forwards', easing: 'cubic-bezier(.1,.9,.25,1)' });
       activeAnims.push(a);
     }, 1200);
     activeTimeouts.push(t2);
 
-    /* 3 -- Text grows from tiny → full as sun rises (t=1.2s, 6s — matches sun) */
+    /* 3 -- Text grows from tiny → full as sun rises (t=1.2s, 10s — matches sun) */
     var t3 = setTimeout(function() {
       var a = text.animate([
         { opacity: 0,   transform: 'scale(0.12)' },
         { opacity: 0.3, transform: 'scale(0.40)', offset: 0.30 },
         { opacity: 0.7, transform: 'scale(0.72)', offset: 0.65 },
         { opacity: 1,   transform: 'scale(1)'    }
-      ], { duration: 6000, fill: 'forwards', easing: 'cubic-bezier(.1,.9,.25,1)' });
+      ], { duration: 10000, fill: 'forwards', easing: 'cubic-bezier(.1,.9,.25,1)' });
       activeAnims.push(a);
     }, 1200);
     activeTimeouts.push(t3);
@@ -109,23 +109,47 @@
     ], { duration: driftDuration, fill: 'forwards', easing: 'linear' });
     activeAnims.push(driftAnim);
 
-    /* 4b -- Scene fades in as it enters viewport (both platforms) */
-    var fadeInAnim = scene.animate([
-      { opacity: 0 },
-      { opacity: 1 }
-    ], { duration: 1800, fill: 'forwards', easing: 'ease-in' });
-    activeAnims.push(fadeInAnim);
+    /* 4b -- Scene fades in as it enters viewport.
+       Mobile: scene enters ~6s in, so delay fade-in to match.
+       Desktop: enters almost immediately, short delay. */
+    var fadeInDelay = isMobile ? 5500 : 0;
+    var tFadeIn = setTimeout(function() {
+      var fadeInAnim = scene.animate([
+        { opacity: 0 },
+        { opacity: 1 }
+      ], { duration: 1800, fill: 'forwards', easing: 'ease-in' });
+      activeAnims.push(fadeInAnim);
+    }, fadeInDelay);
+    activeTimeouts.push(tFadeIn);
 
-    /* 5 -- Fade out: desktop at mid-screen (~10s), mobile before left edge (~18s) */
-    var fadeDelay = isMobile ? 18000 : 10000;
+    /* 5 -- Fade out: desktop mid-screen (~10s), mobile while still fully visible (~10s after fade-in) */
+    var fadeDelay = isMobile ? 14000 : 10000;
     var tFade = setTimeout(function() {
       if (scrollFading) return;
       scrollFading = true;
+      /* Fade out scene */
       var a = scene.animate([
         { opacity: 1 },
         { opacity: 0 }
       ], { duration: 2500, fill: 'forwards', easing: 'ease-in' });
       activeAnims.push(a);
+      /* Sun sinks down as it sets */
+      var sunEl = scene.querySelector('.hope-sun');
+      var textEl = scene.querySelector('.hope-text');
+      if (sunEl) {
+        var b = sunEl.animate([
+          { transform: 'translateY(0px)' },
+          { transform: 'translateY(80px)' }
+        ], { duration: 2500, fill: 'forwards', easing: 'ease-in', composite: 'add' });
+        activeAnims.push(b);
+      }
+      if (textEl) {
+        var c = textEl.animate([
+          { transform: 'translateY(0px)' },
+          { transform: 'translateY(80px)' }
+        ], { duration: 2500, fill: 'forwards', easing: 'ease-in', composite: 'add' });
+        activeAnims.push(c);
+      }
       var tReschedule = setTimeout(function() { scheduleScene(); }, 3000);
       activeTimeouts.push(tReschedule);
     }, fadeDelay);
@@ -138,7 +162,7 @@
     var scrollY = window.scrollY || window.pageYOffset;
     if (scrollFading) return;
     if (scrollY > lastScroll && scrollY > 80) {
-      /* user scrolled down — fade scene out slowly */
+      /* user scrolled down — fade scene out slowly with sun setting */
       scrollFading = true;
       var scene = document.getElementById('hopeScene');
       if (!scene) return;
@@ -147,6 +171,22 @@
         { opacity: 0 }
       ], { duration: 2500, fill: 'forwards', easing: 'ease-in' });
       activeAnims.push(a);
+      var sunEl = scene.querySelector('.hope-sun');
+      var textEl = scene.querySelector('.hope-text');
+      if (sunEl) {
+        var b = sunEl.animate([
+          { transform: 'translateY(0px)' },
+          { transform: 'translateY(80px)' }
+        ], { duration: 2500, fill: 'forwards', easing: 'ease-in', composite: 'add' });
+        activeAnims.push(b);
+      }
+      if (textEl) {
+        var c = textEl.animate([
+          { transform: 'translateY(0px)' },
+          { transform: 'translateY(80px)' }
+        ], { duration: 2500, fill: 'forwards', easing: 'ease-in', composite: 'add' });
+        activeAnims.push(c);
+      }
       /* reschedule next appearance after scene fades */
       setTimeout(function() {
         scheduleScene();
