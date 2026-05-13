@@ -42,8 +42,8 @@
   filter: drop-shadow(0 4px 14px rgba(0,0,0,.14));
 }
 @media (max-width: 600px) {
-  #hopeScene      { width: 210px; height: 230px; }
-  .hope-sun       { width: 140px; top: 45px; }
-  .hope-text      { width: 110px; left: 0; right: 0; margin: auto; top: 58px; z-index: 4; }
-  .hope-cloud-img { width: 210px; }
+  #hopeScene      { width: 170px; height: 185px; right: -200px; top: 18vh; }
+  .hope-sun       { width: 115px; top: 35px; }
+  .hope-text      { width: 95px; left: 42px; top: 50px; z-index: 4; }
+  .hope-cloud-img { width: 170px; }
 }
