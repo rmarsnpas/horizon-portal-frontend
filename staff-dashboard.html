@@ -1704,6 +1704,7 @@
                         const bedVal = gv('BED');
                         const statusVal = gv('STATUS').trim();
                         window._profileOriginalStatus = statusVal;  // track for relapse check on save
+                        window._profileOriginalId = gv('ID');       // track for ID change on save
                         const hideVal = gv('HIDE_INVOICES');
                         const isHideYes = hideVal === 'true' || hideVal === 'H' || hideVal === '1' || hideVal === 'Yes';
 
@@ -1732,7 +1733,7 @@
                             // Row: YR | ID
                             makeRow(
                                 `<label style='${labelStyle}'>YR</label><input name='YR' value="${gv('YR')}" readonly style='background:#eee;${fieldStyle}'>`,
-                                `<label style='${labelStyle}'>Member ID</label><input name='ID' value="${gv('ID')}" readonly style='background:#eee;${fieldStyle}'>`
+                                `<label style='${labelStyle}'>Member ID</label><input name='ID' id='profileMemberId' value="${gv('ID')}" style='${fieldStyle}' title='Change member ID — all records will be updated'>`
                             ),
                             // Row: M/F | BED
                             makeRow(
@@ -1963,7 +1964,29 @@
                         }
                         document.getElementById('staffProfileStatus').textContent = 'Saving...';
                         try {
+                            // If Member ID was changed, rename it first (cascades to all records)
+                            const originalId = window._profileOriginalId || '';
+                            const requestedId = payload.id;
+                            if (originalId && requestedId && originalId !== requestedId) {
+                                if (!confirm(`Change Member ID from ${originalId} to ${requestedId}?\n\nThis will update all sign-in/out records, drug screen records, and related data. Continue?`)) {
+                                    document.getElementById('staffProfileStatus').textContent = '';
+                                    return;
+                                }
+                                document.getElementById('staffProfileStatus').textContent = 'Changing ID...';
+                                const idRes = await fetch(`${API_BASE}/api/changeMemberId`, {
+                                    method: 'PATCH',
+                                    headers: { 'Content-Type': 'application/json' },
+                                    body: JSON.stringify({ oldId: originalId, newId: requestedId })
+                                });
+                                const idResult = await idRes.json();
+                                if (!idResult.success) {
+                                    document.getElementById('staffProfileStatus').textContent = 'ID change failed: ' + (idResult.error || 'Unknown');
+                                    return;
+                                }
+                                // payload.id is already the new ID — updateMember will use it
+                            }
                             // Try PATCH first (edit), if 404 then POST (add)
+                            document.getElementById('staffProfileStatus').textContent = 'Saving...';
                             let res = await fetch(`${API_BASE}/api/updateMember`, {
                                 method: 'PATCH',
                                 headers: { 'Content-Type': 'application/json' },
@@ -1978,7 +2001,7 @@
                             }
                             const result = await res.json();
                             if (result.success) {
-                                document.getElementById('staffProfileStatus').textContent = '? Saved!';
+                                document.getElementById('staffProfileStatus').textContent = '✓ Saved!';
                                 setTimeout(closeStaffProfileModal, 900);
                                 // Optionally reload members table if open
                                 if (window.reloadAllMembersFromBackend) await window.reloadAllMembersFromBackend();
