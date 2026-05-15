@@ -40,6 +40,31 @@
       .pdf-frame-wrap { display:none; }
       .mobile-fallback { display:block; }
     }
+    .submit-section {
+      background:#fff; border-radius:.6rem; box-shadow:0 2px 8px rgba(0,0,0,.08);
+      padding:1.5rem; margin-top:1.4rem;
+    }
+    .submit-section h2 { font-family:Inter; margin:0 0 .4rem; font-size:1.15rem; }
+    .submit-section .sub { color:#555; font-size:.9rem; margin:0 0 1.2rem; }
+    .form-row { display:flex; gap:1rem; flex-wrap:wrap; margin-bottom:.8rem; }
+    .form-row .field { flex:1; min-width:180px; display:flex; flex-direction:column; gap:.3rem; }
+    .form-row label { font-weight:600; font-size:.92rem; }
+    .form-row input, .form-row select, .form-row textarea {
+      padding:.55rem .7rem; border:1px solid #ccc; border-radius:.4rem;
+      font-size:1rem; font-family:inherit; width:100%;
+    }
+    .form-row textarea { resize:vertical; min-height:80px; }
+    .submit-btn {
+      display:inline-flex; align-items:center; gap:.5rem;
+      background:#28a745; color:#fff; font-weight:700; font-size:1rem;
+      padding:.8rem 1.8rem; border:none; border-radius:.45rem; cursor:pointer;
+      margin-top:.4rem; transition:filter .15s;
+    }
+    .submit-btn:hover { filter:brightness(1.1); }
+    .submit-btn:disabled { background:#aaa; cursor:not-allowed; filter:none; }
+    #submitStatus { margin-top:.8rem; font-weight:600; }
+    #submitSuccess { display:none; background:#d4edda; color:#155724; border:1px solid #c3e6cb; border-radius:.4rem; padding:1rem 1.2rem; margin-top:1rem; }
+
     footer { text-align:center; padding:1.2rem 0; color:#777; font-size:.85rem; }
   </style>
 </head>
@@ -63,7 +88,100 @@
     <p>Download the fillable PDF, complete it on your device, and email the finished form to <strong>horizonhousesober@gmail.com</strong>.</p>
     <a href="uploads/HorizonHouse-MemberApplication-Fillable.pdf" download class="dl-btn" style="display:inline-flex;">&#x2B07; Download Application PDF</a>
   </div>
+
+  <!-- Submit Form -->
+  <div class="submit-section" id="submitForm">
+    <h2>📬 Submit Your Application</h2>
+    <p class="sub">Fill in the fields below so we can follow up with you. Attach your completed PDF when you email us, or just click Submit and we'll reach out.</p>
+    <div class="form-row">
+      <div class="field"><label for="sf_first">First Name *</label><input id="sf_first" placeholder="First name" required></div>
+      <div class="field"><label for="sf_last">Last Name *</label><input id="sf_last" placeholder="Last name" required></div>
+    </div>
+    <div class="form-row">
+      <div class="field"><label for="sf_phone">Phone *</label><input id="sf_phone" type="tel" placeholder="(503) 555-0100" required></div>
+      <div class="field"><label for="sf_email">Email</label><input id="sf_email" type="email" placeholder="you@email.com"></div>
+    </div>
+    <div class="form-row">
+      <div class="field"><label for="sf_gender">Applying for</label>
+        <select id="sf_gender">
+          <option value="">-- Select --</option>
+          <option value="M">Men's House</option>
+          <option value="F">Women's House</option>
+        </select>
+      </div>
+      <div class="field"><label for="sf_ref">Referred By</label><input id="sf_ref" placeholder="e.g. treatment center, friend"></div>
+    </div>
+    <div class="form-row">
+      <div class="field" style="flex:1 1 100%;">
+        <label for="sf_notes">Additional Notes</label>
+        <textarea id="sf_notes" placeholder="Anything you'd like us to know…"></textarea>
+      </div>
+    </div>
+    <button class="submit-btn" id="submitBtn" onclick="submitApplication()">&#x2709; Submit Application</button>
+    <div id="submitStatus"></div>
+    <div id="submitSuccess">
+      ✅ <strong>Application received!</strong> We'll be in touch shortly. Your reference number: <strong id="submitRef"></strong>
+    </div>
+  </div>
+
 </div>
+
 <footer>&copy; 2026 Horizon House Sober Living &nbsp;|&nbsp; (503) 756-7749 &nbsp;|&nbsp; horizonhousesober@gmail.com</footer>
+
+<script>
+  const API_BASE = 'https://horizon-portal-backend-production-3532.up.railway.app';
+
+  function generateRef() {
+    return Math.random().toString(36).substring(2, 8).toUpperCase();
+  }
+
+  async function submitApplication() {
+    const first = document.getElementById('sf_first').value.trim();
+    const last  = document.getElementById('sf_last').value.trim();
+    const phone = document.getElementById('sf_phone').value.trim();
+    if (!first || !last || !phone) {
+      document.getElementById('submitStatus').textContent = 'Please fill in First Name, Last Name, and Phone.';
+      document.getElementById('submitStatus').style.color = '#c0392b';
+      return;
+    }
+    const btn = document.getElementById('submitBtn');
+    btn.disabled = true;
+    btn.textContent = 'Submitting…';
+    document.getElementById('submitStatus').textContent = '';
+
+    const ref = generateRef();
+    const formData = {
+      first_name:  first,
+      last_name:   last,
+      phone:       phone,
+      email:       document.getElementById('sf_email').value.trim(),
+      gender:      document.getElementById('sf_gender').value,
+      referred_by: document.getElementById('sf_ref').value.trim(),
+      notes:       document.getElementById('sf_notes').value.trim(),
+    };
+
+    try {
+      const res = await fetch(`${API_BASE}/api/applications`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ referenceNumber: ref, formData })
+      });
+      const result = await res.json();
+      if (result.success) {
+        document.getElementById('submitForm').style.opacity = '.5';
+        document.getElementById('submitForm').style.pointerEvents = 'none';
+        document.getElementById('submitRef').textContent = ref;
+        document.getElementById('submitSuccess').style.display = 'block';
+      } else {
+        throw new Error(result.error || 'Unknown error');
+      }
+    } catch (e) {
+      btn.disabled = false;
+      btn.textContent = '✉ Submit Application';
+      document.getElementById('submitStatus').textContent = 'Error: ' + e.message + '. Please try again or call (503) 756-7749.';
+      document.getElementById('submitStatus').style.color = '#c0392b';
+    }
+  }
+</script>
 </body>
 </html>
