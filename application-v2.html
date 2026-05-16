@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="utf-8">
-  <title>Horizon House — Member Application</title>
+  <title>Horizon House ï¿½ Member Application</title>
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="description" content="Horizon House Sober Living Member Application">
   <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
@@ -326,7 +326,7 @@
 
 <header id="mainHeader" style="display: none;">
   <div class="wrap">
-    <h1>Horizon House Sober Living — Member Application</h1>
+    <h1>Horizon House Sober Living ï¿½ Member Application</h1>
   </div>
 </header>
 
@@ -846,7 +846,7 @@
 </main>
 
 <footer>
-  © 2026 Horizon House Sober Living
+  ï¿½ 2026 Horizon House Sober Living
 </footer>
 
 <div id="successModal">
@@ -1495,54 +1495,63 @@
   document.getElementById('applicationForm').addEventListener('submit', async (e) => {
     e.preventDefault();
 
-    // 1. Generate PDF of the filled form
-    loadHtml2Pdf(async function() {
-      var form = document.getElementById('applicationForm');
-      var opt = {
-        margin: 0.5,
-        filename: 'member-application.pdf',
-        image: { type: 'jpeg', quality: 0.98 },
-        html2canvas: { scale: 2, useCORS: true },
-        jsPDF: { unit: 'in', format: 'letter', orientation: 'portrait' },
-        pagebreak: { mode: ['css', 'legacy'] }
-      };
+    const API_BASE = 'https://horizon-portal-backend-production-3532.up.railway.app';
+    const form = document.getElementById('applicationForm');
+    const submitBtn = form.querySelector('button[type="submit"]');
 
-      // Generate PDF as Blob
-      window.html2pdf().set(opt).from(form).outputPdf('blob').then(async function(pdfBlob) {
-        // 2. Prompt user to print or download
-        var pdfUrl = URL.createObjectURL(pdfBlob);
-        var win = window.open(pdfUrl, '_blank');
-        if (win) {
-          setTimeout(() => { win.print(); }, 500); // Let browser render PDF, then print
-        } else {
-          // Fallback: download
-          var a = document.createElement('a');
-          a.href = pdfUrl;
-          a.download = 'member-application.pdf';
-          document.body.appendChild(a);
-          a.click();
-          document.body.removeChild(a);
-        }
-
-        // 3. (Optional) Send PDF to backend (stubbed, will fail if no endpoint)
-        /*
-        const formData = new FormData();
-        formData.append('pdf', pdfBlob, 'member-application.pdf');
-        await fetch('https://horizon-portal-backend-production-3532.up.railway.app/api/uploadApplicationPdf', {
-          method: 'POST',
-          body: formData
-        });
-        */
-
-        // 4. Show success modal and reset form
-        const modal = document.getElementById('successModal');
-        modal.style.display = 'flex';
-        document.getElementById('applicationForm').reset();
-        setTimeout(() => {
-          window.location.href = '/';
-        }, 8000);
-      });
+    // Collect all named form fields into a plain object
+    const raw = new FormData(form);
+    const formData = {};
+    raw.forEach((value, key) => {
+      // For radio buttons / checkboxes only capture the checked value
+      if (formData[key] === undefined) {
+        formData[key] = value;
+      }
     });
+
+    // Also capture checked radio/checkbox values that FormData already handles,
+    // but make sure unchecked radio groups are represented as empty string
+    form.querySelectorAll('input[type="radio"], input[type="checkbox"]').forEach(el => {
+      if (!(el.name in formData)) formData[el.name] = '';
+    });
+
+    const referenceNumber = currentReferenceNumber || ('APP-' + Date.now());
+
+    try {
+      if (submitBtn) {
+        submitBtn.disabled = true;
+        submitBtn.textContent = 'Submittingâ€¦';
+      }
+
+      const response = await fetch(`${API_BASE}/api/applications`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ referenceNumber, formData })
+      });
+
+      if (!response.ok) {
+        throw new Error('Server returned ' + response.status);
+      }
+
+      // Show success modal and reset form
+      const modal = document.getElementById('successModal');
+      modal.style.display = 'flex';
+      form.reset();
+      localStorage.removeItem(DRAFT_KEY);
+      localStorage.removeItem('currentApplicationRef');
+      setTimeout(() => {
+        window.location.href = '/';
+      }, 8000);
+
+    } catch (err) {
+      console.error('Application submission error:', err);
+      alert('There was a problem submitting your application. Please try again or call us at (760) 766-0300.');
+    } finally {
+      if (submitBtn) {
+        submitBtn.disabled = false;
+        submitBtn.textContent = 'Submit Application';
+      }
+    }
   });
 </script>
 
