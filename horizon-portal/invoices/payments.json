@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-05-17T23:03:16.000Z",
+  "generatedAt": "2026-05-17T23:04:37.000Z",
   "payments": [
     {
       "memberId": "152",
@@ -287,15 +287,6 @@
       "amount": 500.0,
       "paymentMethod": "Transfer",
       "invoiceId": "141_202605",
-      "notes": "PAID IN FULL"
-    },
-    {
-      "memberId": "156",
-      "memberName": "",
-      "date": "05-15-2026",
-      "amount": 1200.0,
-      "paymentMethod": "Cash",
-      "invoiceId": "156_MANUAL_20260428_085344",
       "notes": "PAID IN FULL"
     },
     {
