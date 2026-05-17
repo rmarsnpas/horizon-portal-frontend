@@ -58,7 +58,7 @@ endobj
 endobj
 5 0 obj
 <<
-/Length 3744
+/Length 3717
 >>
 stream
 q
@@ -105,15 +105,15 @@ q
 1 0 0 1 60 538.1313 cm
 Q
 q
-1 0 0 1 72 490.1313 cm
+1 0 0 1 72 476.1313 cm
 q
 0 0 0 rg
 BT /F1 10 Tf 12 TL ET
-BT 1 0 0 1 6 35 Tm  T* ET
+BT 1 0 0 1 6 49 Tm  T* ET
 q
 1 0 0 1 294 3 cm
 q
-BT 1 0 0 1 0 31 Tm 53.039 0 Td 14 TL /F2 11 Tf 0 0 0 rg (Invoice #: 157_202604) Tj  T* 1.254 0 Td (Date Sent: 04-28-2026) Tj  T* 3.058 0 Td (Due Date: 04-29-2026) Tj T* -57.351 0 Td ET
+BT 1 0 0 1 0 45 Tm 5.387 0 Td 14 TL /F2 11 Tf 0 0 0 rg (Invoice #: 157_MANUAL_20260) Tj  T* 101.453 0 Td (422_081058) Tj  T* -52.547 0 Td (Date Sent: 04-22-2026) Tj  T* 3.058 0 Td (Due Date: 04-29-2026) Tj T* -57.351 0 Td ET
 Q
 Q
 q
@@ -121,10 +121,10 @@ Q
 Q
 Q
 q
-1 0 0 1 60 468.5313 cm
+1 0 0 1 60 454.5313 cm
 Q
 q
-1 0 0 1 72 408.5313 cm
+1 0 0 1 72 394.5313 cm
 q
 0 0 0 rg
 BT /F1 10 Tf 12 TL ET
@@ -157,10 +157,10 @@ Q
 Q
 Q
 q
-1 0 0 1 60 379.7313 cm
+1 0 0 1 60 365.7313 cm
 Q
 q
-1 0 0 1 72 223.7313 cm
+1 0 0 1 72 209.7313 cm
 q
 .941176 .941176 .941176 rg
 n 0 156 468 -36 re f*
@@ -185,7 +185,7 @@ q
 1 0 0 1 12 100 cm
 q
 0 0 0 rg
-BT 1 0 0 1 0 2 Tm /F1 10 Tf 12 TL (Monthly Membership Fee) Tj T* ET
+BT 1 0 0 1 0 2 Tm /F1 10 Tf 12 TL (member fee) Tj T* ET
 Q
 Q
 q
@@ -247,12 +247,12 @@ Q
 Q
 Q
 q
-1 0 0 1 60 194.9313 cm
+1 0 0 1 60 180.9313 cm
 Q
 q
-1 0 0 1 60 134.9313 cm
+1 0 0 1 60 120.9313 cm
 q
-BT 1 0 0 1 0 50 Tm 12 TL /F2 10 Tf 0 0 0 rg (Payment Options:) Tj /F1 10 Tf ( Zelle - 8189162214 \(Horizon Recovery\)) Tj  T*  T* /F2 10 Tf (IMPORTANT:) Tj /F1 10 Tf ( Fees not paid by due date are subject to late charges after 3 days.) Tj  T*  T* (Thank you for your prompt payment. For questions, contact us at \(760\) 766-0300 or info@horizon-house.org.) Tj T* ET
+BT 1 0 0 1 0 50 Tm 12 TL /F1 10 Tf 0 0 0 rg (pay 400, 400, 400) Tj  T*  T* /F2 10 Tf (IMPORTANT:) Tj /F1 10 Tf ( Fees not paid by due date are subject to late charges after 3 days.) Tj  T*  T* (Thank you for your prompt payment. For questions, contact us at \(760\) 766-0300 or info@horizon-house.org.) Tj T* ET
 Q
 Q
  
@@ -386,12 +386,12 @@ xref
 0000000113 00000 n 
 0000000162 00000 n 
 0000000572 00000 n 
-0000004368 00000 n 
-0000004475 00000 n 
-0000004582 00000 n 
-0000004694 00000 n 
-0000004806 00000 n 
-0000084683 00000 n 
+0000004341 00000 n 
+0000004448 00000 n 
+0000004555 00000 n 
+0000004667 00000 n 
+0000004779 00000 n 
+0000084656 00000 n 
 trailer
 <<
 /Size 12
@@ -399,5 +399,5 @@ trailer
 /Info 1 0 R
 >>
 startxref
-123975
+123948
 %%EOF
