@@ -449,7 +449,7 @@
                             oninput="checkReturnCurfew()"
                         >
                         <div id="curfewNextDay">?? Return is next day (after midnight)</div>
-                        <div id="curfewWarning">?? This return time is past curfew — you must notify your House Leader before leaving!</div>
+                        <div id="curfewWarning">?? This return time is past curfew ï¿½ you must notify your House Leader before leaving!</div>
                     </div>
                 </div>
 
@@ -551,7 +551,6 @@
                 const membersResponse = await fetch(`${API_URL}/api/members`);
                 const allMembers = await membersResponse.json();
                 const womenIds = new Set((allMembers || [])
-                    .filter(isActiveMember)
                     .filter(m => {
                         const g = ((m['M/F'] || m.GENDER || m.SEX || m.gender) || '').toString().toUpperCase().trim();
                         return g.startsWith('F');
@@ -567,7 +566,7 @@
                 const total = membersOut.length;
                 const overdue = membersOut.filter(m => m.isOverdue).length;
                 
-                statusSummary.textContent = `${total} member${total !== 1 ? 's' : ''} currently out${overdue > 0 ? ` • ${overdue} overdue` : ''}`;
+                statusSummary.textContent = `${total} member${total !== 1 ? 's' : ''} currently out${overdue > 0 ? ` ï¿½ ${overdue} overdue` : ''}`;
                 
                 if (total === 0) {
                     statusGrid.innerHTML = `
@@ -718,19 +717,18 @@
                 // Filter to show only women (F gender)
                 const statusResponse = await fetch(`${API_URL}/api/signInOut/current`);
                 const statusData = await statusResponse.json();
-                
-                // Get all members to check gender
+                const allMembersOut = statusData.membersOut || [];
+
+                // Get all members to check gender (for display filtering only)
                 const membersResponse = await fetch(`${API_URL}/api/members?gender=F`);
                 const womenMembers = await membersResponse.json();
-                const womenIds = new Set((womenMembers || []).filter(isActiveMember).map(m => memberIdFrom(m)));
-
-                // Filter status to only show women (robust to different id field names)
-                statusData.membersOut = (statusData.membersOut || []).filter(m => womenIds.has(memberIdFrom(m)));
+                const womenIds = new Set((womenMembers || []).map(m => memberIdFrom(m)));
+                statusData.membersOut = allMembersOut.filter(m => womenIds.has(memberIdFrom(m)));
 
                 showLoading(false);
 
-                // Check if this member is in the signed-out list
-                const isSignedOut = (statusData.membersOut || []).some(m => memberIdFrom(m) === normalizeId(memberId));
+                // Check against the unfiltered list â€” gender/status issues must not prevent sign-in
+                const isSignedOut = allMembersOut.some(m => memberIdFrom(m) === normalizeId(memberId));
 
                 if (isSignedOut) {
                     // Currently signed OUT, so sign IN
@@ -868,7 +866,7 @@
                     <div class="indiv-msg-item">
                         ${m.title ? `<div class="indiv-msg-title">${m.title}</div>` : ''}
                         <div class="indiv-msg-body">${m.body}</div>
-                        <div class="indiv-msg-from">— ${m.createdBy}</div>
+                        <div class="indiv-msg-from">ï¿½ ${m.createdBy}</div>
                     </div>
                 `).join('');
                 document.getElementById('indivMsgBalloon').classList.add('visible');
@@ -883,7 +881,7 @@
         }
     </script>
 
-    <!-- ?? Easter Bunny — auto-expires 2026-04-06 23:59 -->
+    <!-- ?? Easter Bunny ï¿½ auto-expires 2026-04-06 23:59 -->
     <script>(function() {
         if (new Date() > new Date('2026-04-06T23:59:59')) return;
         const el = document.createElement('div');

@@ -551,7 +551,6 @@
                 const membersResponse = await fetch(`${API_URL}/api/members`);
                 const allMembers = await membersResponse.json();
                 const menIds = new Set((allMembers || [])
-                    .filter(isActiveMember)
                     .filter(m => {
                         const g = ((m['M/F'] || m.GENDER || m.SEX || m.gender) || '').toString().toUpperCase().trim();
                         return g.startsWith('M');
@@ -726,16 +725,15 @@
                 const statusResponse = await fetch(`${API_URL}/api/signInOut/current`);
                 const statusData = await statusResponse.json();
                 
-                // Use the already-loaded members list
-                const menIds = new Set((allMembers || []).filter(isActiveMember).map(m => memberIdFrom(m)));
-
-                // Filter status to only show men (robust to different id field names)
-                statusData.membersOut = (statusData.membersOut || []).filter(m => menIds.has(memberIdFrom(m)));
+                // Use the already-loaded members list (for display filtering only)
+                const menIds = new Set((allMembers || []).map(m => memberIdFrom(m)));
+                const allMembersOut = statusData.membersOut || [];
+                statusData.membersOut = allMembersOut.filter(m => menIds.has(memberIdFrom(m)));
 
                 showLoading(false);
 
-                // Check if this member is in the signed-out list
-                const isSignedOut = (statusData.membersOut || []).some(m => memberIdFrom(m) === normalizeId(memberId));
+                // Check against the unfiltered list — gender/status issues must not prevent sign-in
+                const isSignedOut = allMembersOut.some(m => memberIdFrom(m) === normalizeId(memberId));
 
                 if (isSignedOut) {
                     // Currently signed OUT, so sign IN
