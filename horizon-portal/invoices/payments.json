@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-05-17T23:02:32.000Z",
+  "generatedAt": "2026-05-17T23:03:16.000Z",
   "payments": [
     {
       "memberId": "152",
@@ -305,6 +305,15 @@
       "amount": 1200.0,
       "paymentMethod": "Cash",
       "invoiceId": "157_202604",
+      "notes": "PAID IN FULL"
+    },
+    {
+      "memberId": "157",
+      "memberName": "Miranda Binger",
+      "date": "05-15-2026",
+      "amount": 1000.0,
+      "paymentMethod": "Cash",
+      "invoiceId": "157_MANUAL_20260422_081058",
       "notes": "PAID IN FULL"
     }
   ]
