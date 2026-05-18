@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-05-17T23:04:37.000Z",
+  "generatedAt": "2026-05-18T06:38:35.000Z",
   "payments": [
     {
       "memberId": "152",
@@ -306,6 +306,15 @@
       "paymentMethod": "Cash",
       "invoiceId": "157_MANUAL_20260422_081058",
       "notes": "PAID IN FULL"
+    },
+    {
+      "memberId": "143",
+      "memberName": "Jose Velasquez",
+      "date": "05-17-2026",
+      "amount": 1000.0,
+      "paymentMethod": "Cash",
+      "invoiceId": "143_202604",
+      "notes": ""
     }
   ]
 }
