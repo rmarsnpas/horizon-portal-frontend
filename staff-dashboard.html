@@ -798,7 +798,7 @@
             </a>
 
             <div class="dashboard-card" style="display: flex; flex-direction: column;">
-                <a href="/application.html" style="text-decoration: none; color: inherit; flex: 1;">
+                <a href="/application-v2.html" style="text-decoration: none; color: inherit; flex: 1;">
                     <div class="card-icon">📝</div>
                     <div class="card-title">Application Form</div>
                     <div class="card-count" style="font-size: 24px; color: #718096;">View Form</div>
@@ -1672,6 +1672,9 @@
                                 'BILL ON DAY': ['BILL ON DAY', 'BILL ON \nDAY', 'BILL ON\r\nDAY', 'BILL_ON_DAY', 'billOnDay'],
                                 'HIDE_INVOICES': ['HIDE_INVOICES', 'hideInvoices'],
                                 'M/F': ['M/F', 'GENDER', 'gender'],
+                                'REF_CASEWORKER': ['refCaseWorker'],
+                                'REF_CW_PHONE': ['refCwPhone'],
+                                'NOTES': ['notes'],
                             };
                             const keys = aliases[key] || [key, key.replace(/ /g, '_')];
                             for (const k of keys) {
@@ -1745,6 +1748,11 @@
                                 `<label style='${labelStyle}'>Status</label><select name='STATUS' onchange='togglePermissionsSection(this.value)' style='${fieldStyle}'>${statusOptions}</select>`,
                                 `<label style='${labelStyle}'>Ref</label><input name='REF' value="${gv('REF')}" style='${fieldStyle}'>`
                             ),
+                            // Row: Ref Case Worker | Ref CW Phone
+                            makeRow(
+                                `<label style='${labelStyle}'>Ref Case Worker</label><input name='REF_CASEWORKER' value="${gv('REF_CASEWORKER')}" style='${fieldStyle}'>`,
+                                `<label style='${labelStyle}'>Ref CW Phone</label><input name='REF_CW_PHONE' value="${gv('REF_CW_PHONE')}" style='${fieldStyle}'>`
+                            ),
                             // Row: FIRST | LAST
                             makeRow(
                                 `<label style='${labelStyle}'>First Name</label><input name='FIRST' value="${gv('FIRST')}" style='${fieldStyle}'>`,
@@ -1782,6 +1790,10 @@
                             ),
                             // Row: HIDE INVOICES (full width)
                             `<div style='margin-bottom:10px;'><label style='${labelStyle}'>Hide Invoices</label><select name='HIDE_INVOICES' style='${fieldStyle}'><option value=''>No</option><option value='1' ${isHideYes ? 'selected' : ''}>Yes</option></select></div>`,
+                            // Notes (full width)
+                            `<div style='margin-bottom:10px;'><label style='${labelStyle}'>Notes</label><textarea name='NOTES' rows='4' style='width:100%;padding:8px;font-size:1rem;border:1px solid #ccc;border-radius:6px;resize:vertical;'>${gv('NOTES')}</textarea></div>`,
+                            // Divider before save
+                            `<hr style='border:none;border-top:1px solid #e2e8f0;margin:8px 0;'>`,`
                             // Staff password (shown for status 4 and 5)
                             `<div id="staffPwSection" style="margin-bottom:10px;${(statusVal==='4'||statusVal==='5')?'':'display:none;'}"><label style='${labelStyle}'>Management Password</label><input name='STAFF_PW' type='text' value="${member.staffPw || ''}" placeholder="Set portal login password" style='${fieldStyle}'><div style="font-size:12px;color:#718096;margin-top:4px;">Password this manager uses to log into the Management Portal.</div></div>`,
                             // Census / bedboard inclusion (shown for status 4)
@@ -1945,6 +1957,9 @@
                             ref: form.elements['REF'] ? form.elements['REF'].value : '',
                             billOnDay: form.elements['BILL ON DAY'] ? form.elements['BILL ON DAY'].value : '',
                             HIDE_INVOICES: form.elements['HIDE_INVOICES'] ? (form.elements['HIDE_INVOICES'].value === '1') : false,
+                            refCaseWorker: form.elements['REF_CASEWORKER'] ? form.elements['REF_CASEWORKER'].value : '',
+                            refCwPhone: form.elements['REF_CW_PHONE'] ? form.elements['REF_CW_PHONE'].value : '',
+                            notes: form.elements['NOTES'] ? form.elements['NOTES'].value : '',
                         };
                         if (form.elements['PIN'] && form.elements['PIN'].value) payload.pin = form.elements['PIN'].value;
                         // Staff password (status 4)

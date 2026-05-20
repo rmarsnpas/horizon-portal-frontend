@@ -152,21 +152,7 @@
     .hover-box:hover .hover-text{max-height:200px;opacity:1;margin-top:0.5rem}
     .hover-box.scroll-active .hover-text{max-height:200px;opacity:1;margin-top:0.5rem}
     
-    /* Beds Available Banner */
-    #bedsBanner{background:var(--slate);color:#fff;text-align:center;padding:0.35rem 0.75rem;font-size:0.9rem;font-weight:600;display:flex;align-items:center;justify-content:center;gap:1.5rem;flex-wrap:wrap;border-top:2px solid var(--amber)}
-    #bedsBanner .beds-item{display:inline-flex;align-items:center;gap:0.4rem}
-    #bedsBanner .beds-num{background:var(--amber);color:#1d1d1d;border-radius:.4rem;padding:0.1rem 0.55rem;font-size:1rem;font-weight:700;min-width:1.6rem;text-align:center}
-    #bedsBanner .beds-zero{background:#9c2f2f}
-    #bedsBanner .beds-label{opacity:0.9}
-    @media(max-width:640px){#bedsBanner{font-size:0.8rem;gap:1rem}#bedsBanner .beds-num{font-size:0.9rem}}
-
-    /* Construction Banner */
-    .construction-banner{background:linear-gradient(90deg,#ff9800,#ff5722,#ff9800);color:#fff;padding:0.5rem 0.75rem;text-align:center;font-weight:600;font-size:0.95rem;overflow:hidden;position:relative;white-space:nowrap;line-height:1.2}
-    .construction-banner::before{content:'🚧';margin-right:8px}
-    .construction-banner::after{content:'🚧';margin-left:8px}
-    .banner-text{display:inline-block;animation:slide 20s linear infinite;white-space:nowrap}
-    @keyframes slide{0%{transform:translateX(100%);}100%{transform:translateX(-100%);}}
-    @media(max-width:640px){.construction-banner{font-size:0.78rem;padding:0.35rem 0.5rem}.construction-banner::before,.construction-banner::after{content:''}}
+    /* Hamburger Menu Styles */
     
     /* Hamburger Menu Styles */
     .hamburger{display:none;background:none;border:none;cursor:pointer;padding:0.5rem;z-index:1001}
@@ -304,7 +290,7 @@
   </script>
 </head>
 <body>
-<a href="application.html" class="float-cta float-cta-left" id="floatApply" aria-label="Apply Now">Apply Now</a>
+<a href="application-v2.html" class="float-cta float-cta-left" id="floatApply" aria-label="Apply Now">Apply Now</a>
 <a href="#contact" class="float-cta float-cta-right" id="floatTour" aria-label="Schedule a Tour">Schedule a Tour</a>
   <a class="sr-only" href="#main">Skip to content</a>
   <header>
@@ -331,14 +317,7 @@
     </div>
   </header>
 
-  <div id="bedsBanner" role="status" aria-label="Available beds">
-    <span class="beds-item">🛏️ <span class="beds-label">His House (Men):</span> <span class="beds-num" id="bannerAvailM">…</span> bed<span id="bannerAvailM_s">s</span> available</span>
-    <span class="beds-item">🛏️ <span class="beds-label">Her House (Women):</span> <span class="beds-num" id="bannerAvailF">…</span> bed<span id="bannerAvailF_s">s</span> available</span>
-  </div>
 
-  <div class="construction-banner">
-    <span class="banner-text">Check back here soon as this website is a work in progress and pages are being added and updated often.</span>
-  </div>
 
   <main id="main">
 
@@ -355,7 +334,7 @@
         <span>Clear Expectations</span> • <span>Consistent Routines</span> • <span>A community that works</span>
       </div>
       <div class="hero-cta-wrap" id="heroCtas">
-        <a href="application.html" class="hero-cta hero-cta-primary" id="ctaApply">Apply Now</a>
+        <a href="application-v2.html" class="hero-cta hero-cta-primary" id="ctaApply">Apply Now</a>
         <a href="#contact" class="hero-cta hero-cta-secondary" id="ctaTour">Schedule a Tour</a>
       </div>
     </section>

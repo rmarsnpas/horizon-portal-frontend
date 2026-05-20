@@ -165,6 +165,15 @@
             background: #5568d3;
         }
 
+        .btn-pdf {
+            background: #e53e3e;
+            color: white;
+        }
+
+        .btn-pdf:hover {
+            background: #c53030;
+        }
+
         .btn-approve {
             background: #48bb78;
             color: white;
@@ -479,6 +488,7 @@
 
                 <div class="app-actions">
                     <button class="btn btn-view" onclick="viewApplication(${idx})">👁️ View Full Application</button>
+                    ${(app.pdfPath || data.pdf_path) ? `<a class="btn btn-pdf" href="${API_BASE}${app.pdfPath || data.pdf_path}" target="_blank" rel="noopener noreferrer">📄 View PDF</a>` : ''}
                     ${app.status !== 'approved' ? `<button class="btn btn-approve" onclick="updateStatus(${idx}, 'approved')">✓ Approve</button>` : ''}
                     ${app.status !== 'rejected' ? `<button class="btn btn-deny" onclick="updateStatus(${idx}, 'rejected')">✗ Deny</button>` : ''}
                 </div>
@@ -508,8 +518,16 @@
             document.getElementById('modalTitle').textContent = `${data.first_name || ''} ${data.last_name || ''} - Application`;
             
             const modalBody = document.getElementById('modalBody');
+            const pdfUrl = (app.pdfPath || data.pdf_path) ? `${API_BASE}${app.pdfPath || data.pdf_path}` : null;
             modalBody.innerHTML = `
                 <div style="display: grid; gap: 20px;">
+                    ${pdfUrl ? `<div style="background:#fff5f5;border:2px solid #fc8181;border-radius:8px;padding:16px;display:flex;align-items:center;gap:12px;">
+                        <span style="font-size:1.5rem;">📄</span>
+                        <div>
+                            <strong style="color:#c53030;">PDF Application Attached</strong><br>
+                            <a href="${pdfUrl}" target="_blank" rel="noopener noreferrer" style="color:#e53e3e;font-weight:600;">Open PDF in new tab →</a>
+                        </div>
+                    </div>` : ''}
                     <div>
                         <h3 style="color: #2d3748; margin-bottom: 10px;">📋 Personal Information</h3>
                         <div style="display: grid; gap: 10px;">

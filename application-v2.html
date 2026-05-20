@@ -125,45 +125,96 @@
       }
     }
     
+    #printHeader { display: none; }
+
     @media print {
-      body {
-        background: white;
+      @page { margin: 0.65in; size: letter; }
+
+      body { background: white !important; color: #000 !important; font-size: 10pt; }
+
+      /* Hide all UI chrome */
+      header, #referenceModal, #referenceDisplay, #floatingSaveBtn,
+      #savePdfBtn, .signature-options, .sig-controls, footer,
+      #successModal, .date-display, .reminder-box,
+      [style*="background-color: #e8f4f8"],
+      [style*="background-color: #fff3cd"] { display: none !important; }
+
+      /* Show print header */
+      #printHeader { display: block !important; }
+      .ph-top {
+        background: #2b3440 !important;
+        color: #fff;
+        padding: 18px 24px;
+        text-align: center;
+        -webkit-print-color-adjust: exact;
+        print-color-adjust: exact;
       }
-      
-      .conditional-field {
-        display: block !important;
-        opacity: 1 !important;
-        transform: none !important;
+      .ph-top h1 { color: #c98a22 !important; font-family: Inter, Arial, sans-serif; font-size: 18pt; margin: 0 0 4px 0; letter-spacing: 2px; }
+      .ph-subtitle { color: #e2e8f0 !important; font-size: 12pt; margin: 0 0 4px 0; }
+      .ph-contact { color: #a0aec0 !important; font-size: 9pt; margin: 0; }
+      .ph-disclaimer {
+        background: #f7f7f7 !important;
+        border-left: 4px solid #c98a22;
+        padding: 6px 12px;
+        font-size: 8.5pt;
+        color: #555;
+        margin-bottom: 12px;
+        -webkit-print-color-adjust: exact;
+        print-color-adjust: exact;
       }
-      
-      button {
-        display: none;
+
+      /* Show all conditional fields */
+      .conditional-field { display: block !important; border-left: none; padding-left: 0; }
+
+      /* Form layout */
+      main.wrap { padding: 0; }
+      form { box-shadow: none !important; border-radius: 0; padding: 0; gap: 0.5rem; }
+
+      /* Section titles */
+      .section-title {
+        background: #2b3440 !important;
+        color: #c98a22 !important;
+        padding: 5px 12px;
+        font-size: 10pt;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        page-break-after: avoid;
+        -webkit-print-color-adjust: exact;
+        print-color-adjust: exact;
+        border-radius: 0;
       }
-      
-      .reminder-box {
-        display: none;
+
+      /* Inputs as underlined fields */
+      input[type="text"], input[type="tel"], input[type="email"],
+      input[type="date"], input[type="number"], select {
+        border: none !important;
+        border-bottom: 1px solid #555 !important;
+        border-radius: 0 !important;
+        padding: 1px 2px !important;
+        background: transparent !important;
+        box-shadow: none !important;
+        font-size: 10pt !important;
       }
-      
-      .date-display {
-        display: none;
+      textarea {
+        border: 1px solid #bbb !important;
+        border-radius: 0 !important;
+        background: transparent !important;
+        box-shadow: none !important;
+        font-size: 10pt !important;
       }
-      
-      input[type="date"] {
-        position: relative;
-      }
-      
-      input[type="date"]::after {
-        content: attr(data-formatted);
-        position: absolute;
-        left: 0;
-        top: 0;
-        width: 100%;
-        height: 100%;
-        display: flex;
-        align-items: center;
-        padding: 0.6rem;
-        background: white;
-      }
+      label { font-size: 8.5pt; color: #444; }
+
+      /* Radio/checkbox */
+      input[type="radio"], input[type="checkbox"] { width: auto !important; }
+
+      /* Signature */
+      .signature-area { display: none; }
+      .signature-area.active { display: block !important; }
+      #signatureCanvas { border: 1px solid #ccc; max-width: 100%; }
+      .typed-signature { font-size: 22pt; }
+
+      /* Buttons hidden */
+      button { display: none !important; }
     }
     
     #successModal {
@@ -305,6 +356,18 @@
 
 <body>
 
+<!-- Print Header (hidden on screen, shown on print) -->
+<div id="printHeader">
+  <div class="ph-top">
+    <h1>HORIZON HOUSE SOBER LIVING</h1>
+    <p class="ph-subtitle">Member Application</p>
+    <p class="ph-contact">(760) 766-0300 &nbsp;|&nbsp; info@horizon-house.org &nbsp;|&nbsp; horizon-house.org</p>
+  </div>
+  <div class="ph-disclaimer">
+    <strong>CONFIDENTIAL</strong> — This document contains sensitive personal health information protected under applicable privacy laws.
+  </div>
+</div>
+
 <!-- Reference Number Modal -->
 <div id="referenceModal" class="reference-modal">
   <div class="reference-content">
@@ -340,7 +403,7 @@
 
   <!-- Save as PDF Button -->
   <button type="button" id="savePdfBtn" style="margin-bottom: 20px; background: #667eea; color: white; font-size: 15px; font-weight: 700; padding: 10px 24px; border-radius: 6px; border: none; cursor: pointer; float: right;">
-    ?? Save as PDF
+    🖨️ Print / Save as PDF
   </button>
 
   <div id="referenceDisplay" style="display:none; background: #f7fafc; padding: 15px; border-radius: 8px; border: 2px solid #4299e1; margin-bottom: 20px; text-align: center;">
@@ -1559,27 +1622,8 @@
 </html>
 
 
-// --- PDF Export Logic (html2pdf.js) ---
-function loadHtml2Pdf(callback) {
-  if (window.html2pdf) return callback();
-  var script = document.createElement('script');
-  script.src = 'https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js';
-  script.onload = callback;
-  document.head.appendChild(script);
-}
-
+// --- Print / Save as PDF ---
 document.getElementById('savePdfBtn').addEventListener('click', function() {
-  loadHtml2Pdf(function() {
-    var form = document.getElementById('applicationForm');
-    var opt = {
-      margin: 0.5,
-      filename: 'member-application.pdf',
-      image: { type: 'jpeg', quality: 0.98 },
-      html2canvas: { scale: 2, useCORS: true },
-      jsPDF: { unit: 'in', format: 'letter', orientation: 'portrait' },
-      pagebreak: { mode: ['css', 'legacy'] }
-    };
-    window.html2pdf().set(opt).from(form).save();
-  });
+  window.print();
 });
 
