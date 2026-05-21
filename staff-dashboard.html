@@ -1793,9 +1793,20 @@
                             // Notes (full width)
                             `<div style='margin-bottom:10px;'><label style='${labelStyle}'>Notes</label><textarea name='NOTES' rows='4' style='width:100%;padding:8px;font-size:1rem;border:1px solid #ccc;border-radius:6px;resize:vertical;'>${gv('NOTES')}</textarea></div>`,
                             // Divider before save
-                            `<hr style='border:none;border-top:1px solid #e2e8f0;margin:8px 0;'>`,`
-                            // Staff password (shown for status 4 and 5)
-                            `<div id="staffPwSection" style="margin-bottom:10px;${(statusVal==='4'||statusVal==='5')?'':'display:none;'}"><label style='${labelStyle}'>Management Password</label><input name='STAFF_PW' type='text' value="${member.staffPw || ''}" placeholder="Set portal login password" style='${fieldStyle}'><div style="font-size:12px;color:#718096;margin-top:4px;">Password this manager uses to log into the Management Portal.</div></div>`,
+                            `<hr style='border:none;border-top:1px solid #e2e8f0;margin:8px 0;'>`,
+                            // Staff Portal Access checkbox (for non-status-4/5 members — live-in managers)
+                            (function() {
+                                const showPAC = statusVal !== '4' && statusVal !== '5';
+                                const hasAccess = member.staffPortalAccess === true;
+                                return `<div id="portalAccessSection" style="border:2px solid #667eea;border-radius:8px;padding:14px;margin-bottom:14px;${showPAC?'':'display:none;'}">`+
+                                    `<label style="display:flex;align-items:center;gap:10px;cursor:pointer;font-size:14px;font-weight:600;color:#2d3748;">`+
+                                    `<input type="checkbox" name="staffPortalAccess" id="staffPortalAccessChk" ${hasAccess?'checked':''} onchange="window.togglePortalAccessFields(this.checked)" style="width:18px;height:18px;">`+
+                                    `<span>🔑 Grant Staff Portal Access</span></label>`+
+                                    `<div style="font-size:12px;color:#718096;margin-top:6px;">Allows this member to log into the Management Portal with their ID and a password. Use the fields below to set a password and choose which areas they can access.</div>`+
+                                    `</div>`;
+                            })(),
+                            // Staff password (shown for status 4/5, or when staffPortalAccess is granted)
+                            `<div id="staffPwSection" style="margin-bottom:10px;${(statusVal==='4'||statusVal==='5'||member.staffPortalAccess)?'':'display:none;'}"><label style='${labelStyle}'>Management Password</label><input name='STAFF_PW' type='text' value="${member.staffPw || ''}" placeholder="Set portal login password" style='${fieldStyle}'><div style="font-size:12px;color:#718096;margin-top:4px;">Password this member uses to log into the Management Portal.</div></div>`,
                             // Census / bedboard inclusion (shown for status 4)
                             (function() {
                                 const isCensusChecked = member.inCensus === true;
@@ -1831,9 +1842,9 @@
                                     `<input type="checkbox" name="perm_${p.key}" value="${p.key}" ${currentPerms.includes(p.key)?'checked':''}>`+
                                     `<span>${p.label}</span></label>`
                                 ).join('');
-                                return `<div id="permissionsSection" style="border:2px solid #667eea;border-radius:8px;padding:14px;margin-bottom:14px;${statusVal==='4'?'':'display:none;'}">`+
+                                return `<div id="permissionsSection" style="border:2px solid #667eea;border-radius:8px;padding:14px;margin-bottom:14px;${(statusVal==='4'||member.staffPortalAccess)?'':'display:none;'}">`+
                                     `<div style="font-weight:700;color:#667eea;margin-bottom:8px;">🔑 Management Portal Access</div>`+
-                                    `<div style="font-size:12px;color:#718096;margin-bottom:10px;">Select which sections this manager can access in the Management Portal. Applies only to Status 4.</div>`+
+                                    `<div style="font-size:12px;color:#718096;margin-bottom:10px;">Select which sections this member can access in the Management Portal.</div>`+
                                     boxes+`</div>`;
                             })(),
                             // Save button
@@ -1870,12 +1881,25 @@
 
                         // Toggle permissions section when status dropdown changes
                         window.togglePermissionsSection = function(val) {
+                            const chk = document.getElementById('staffPortalAccessChk');
+                            const hasPortalAccess = chk && chk.checked;
                             const sec = document.getElementById('permissionsSection');
-                            if (sec) sec.style.display = val === '4' ? 'block' : 'none';
+                            if (sec) sec.style.display = (val === '4' || hasPortalAccess) ? 'block' : 'none';
                             const cen = document.getElementById('censusSection');
                             if (cen) cen.style.display = val === '4' ? 'block' : 'none';
                             const spw = document.getElementById('staffPwSection');
-                            if (spw) spw.style.display = (val === '4' || val === '5') ? 'block' : 'none';
+                            if (spw) spw.style.display = (val === '4' || val === '5' || hasPortalAccess) ? 'block' : 'none';
+                            const pac = document.getElementById('portalAccessSection');
+                            if (pac) pac.style.display = (val === '4' || val === '5') ? 'none' : 'block';
+                        };
+                        // Toggle password and permissions fields when "Grant Staff Portal Access" is checked/unchecked
+                        window.togglePortalAccessFields = function(checked) {
+                            const statusSel = document.querySelector('#staffProfileForm [name="STATUS"]');
+                            const val = statusSel ? statusSel.value : '';
+                            const spw = document.getElementById('staffPwSection');
+                            if (spw) spw.style.display = (val === '4' || val === '5' || checked) ? 'block' : 'none';
+                            const sec = document.getElementById('permissionsSection');
+                            if (sec) sec.style.display = (val === '4' || checked) ? 'block' : 'none';
                         };
 
                         // Readmit handler — called from the Readmit button inside the profile modal
@@ -1957,6 +1981,7 @@
                             ref: form.elements['REF'] ? form.elements['REF'].value : '',
                             billOnDay: form.elements['BILL ON DAY'] ? form.elements['BILL ON DAY'].value : '',
                             HIDE_INVOICES: form.elements['HIDE_INVOICES'] ? (form.elements['HIDE_INVOICES'].value === '1') : false,
+                            staffPortalAccess: form.elements['staffPortalAccess'] ? form.elements['staffPortalAccess'].checked : false,
                             refCaseWorker: form.elements['REF_CASEWORKER'] ? form.elements['REF_CASEWORKER'].value : '',
                             refCwPhone: form.elements['REF_CW_PHONE'] ? form.elements['REF_CW_PHONE'].value : '',
                             notes: form.elements['NOTES'] ? form.elements['NOTES'].value : '',
