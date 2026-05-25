@@ -187,7 +187,11 @@
                 };
 
                 document.getElementById('step1').style.display = 'none';
-                if (!userRecord.PIN) {
+
+                // Status 5 (admin): skip PIN, go straight to password
+                if (userRecord.AccessCode === 5) {
+                    document.getElementById('staffPw').style.display = 'block';
+                } else if (!userRecord.PIN) {
                     isCreatingPin = true;
                     document.getElementById('createPin').style.display = 'block';
                 } else {

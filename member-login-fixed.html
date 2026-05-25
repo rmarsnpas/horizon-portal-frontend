@@ -148,7 +148,7 @@
             err.style.display = 'none';
         }
 
-        // STEP 1 — VERIFY MEMBER ID (calls backend)
+        // STEP 1 ï¿½ VERIFY MEMBER ID (calls backend)
         async function verifyID() {
             clearError();
             const id = document.getElementById('memberID').value.trim();
@@ -181,13 +181,20 @@
                     return;
                 }
 
+                document.getElementById('step1').style.display = 'none';
+
+                // Status 5 (admin): skip PIN, go straight to password
+                if (userRecord.AccessCode === 5) {
+                    document.getElementById('staffPw').style.display = 'block';
+                    return;
+                }
+
                 // Check if PIN exists
                 if (!userRecord.PIN) {
                     showError('No PIN found. Please see your manager to set up your PIN.');
                     return;
                 }
 
-                document.getElementById('step1').style.display = 'none';
                 document.getElementById('enterPin').style.display = 'block';
             } catch (err) {
                 console.error(err);
@@ -195,7 +202,7 @@
             }
         }
 
-        // STEP 2 — VERIFY PIN
+        // STEP 2 ï¿½ VERIFY PIN
         function verifyPin() {
             clearError();
             const pin = document.getElementById('pinInput').value.trim();
@@ -219,7 +226,7 @@
             }
         }
 
-        // STEP 3 — STAFF/ADMIN PASSWORD
+        // STEP 3 ï¿½ STAFF/ADMIN PASSWORD
         async function verifyStaffPassword() {
             clearError();
             const pw = document.getElementById('staffPassword').value;

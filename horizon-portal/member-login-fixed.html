@@ -211,15 +211,21 @@
                     return;
                 }
 
+                document.getElementById('step1').style.display = 'none';
+
+                // Status 5 (admin): skip PIN, go straight to password
+                if (userRecord.AccessCode === 5) {
+                    document.getElementById('staffPw').style.display = 'block';
+                    return;
+                }
+
                 // Check if PIN exists — if not, let them create one
                 if (!userRecord.PIN) {
-                    document.getElementById('step1').style.display = 'none';
                     document.getElementById('createPinStep').style.display = 'block';
                     document.getElementById('newPin1').focus();
                     return;
                 }
 
-                document.getElementById('step1').style.display = 'none';
                 document.getElementById('enterPin').style.display = 'block';
             } catch (err) {
                 console.error(err);
