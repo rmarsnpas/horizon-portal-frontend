@@ -927,6 +927,7 @@
 
                     <label style="font-weight:700;display:block;margin-bottom:8px;">Optional Fields to Include</label>
                     <div style="display:flex;flex-wrap:wrap;gap:10px 24px;margin-bottom:16px;">
+                        <label style="display:flex;align-items:center;gap:6px;cursor:pointer;"><input type="checkbox" id="cpf-ref" checked> Ref</label>
                         <label style="display:flex;align-items:center;gap:6px;cursor:pointer;"><input type="checkbox" id="cpf-rate"> Rate</label>
                         <label style="display:flex;align-items:center;gap:6px;cursor:pointer;"><input type="checkbox" id="cpf-phone"> Phone</label>
                         <label style="display:flex;align-items:center;gap:6px;cursor:pointer;"><input type="checkbox" id="cpf-email"> Email</label>
@@ -1049,6 +1050,7 @@
                         const inclPin     = document.getElementById('cpf-pin').checked;
                         const inclBillDay = document.getElementById('cpf-billday').checked;
                         const inclHW      = document.getElementById('cpf-holdwait').checked;
+                        const inclRef     = document.getElementById('cpf-ref').checked;
 
                         const allMembers = (window._allMembersTableData || {}).members || [];
                         // Helper: is this member a bed-hold inclusion for this report type?
@@ -1104,6 +1106,7 @@
                         };
 
                         let cols = ['ID','First Name','Last Name','Gender','DOB','Admit Date','Discharge Date','Days Here','Sober Date','Sober Days'];
+                        if (inclRef)     cols.push('Ref');
                         if (inclRate)    cols.push('Rate');
                         if (inclPhone)   cols.push('Phone');
                         if (inclEmail)   cols.push('Email');
@@ -1126,7 +1129,9 @@
                             const daysHere  = daysBetween(admit, dc || null);
                             const daysSober = daysBetween(sober, null);
                             const idVal = (m.ID || m.id || '') + (isBedHold ? '<span class="bh-badge">BED HOLD</span>' : (isHW ? `<span class="hw-badge">${st}</span>` : ''));
+                            const ref = m.REF || m.ref || '';
                             const cells = [idVal, first, last, gender, dob, fmt(admit), fmt(dc), daysHere, fmt(sober), daysSober];
+                            if (inclRef)     cells.push(ref);
                             if (inclRate)    cells.push(m.RATE || m.rate ? '$' + (m.RATE || m.rate) : '');
                             if (inclPhone)   cells.push(m.PHONE || m.phone || '');
                             if (inclEmail)   cells.push(m.EMAIL || m.email || '');
@@ -1143,6 +1148,13 @@
                         const bedNote = `&nbsp;&bull;&nbsp; 🛏 Beds Available: F&nbsp;${availF.length} / M&nbsp;${availM.length}` +
                             (availF.length ? ` (F: ${availF.join(', ')})` : '') +
                             (availM.length ? ` (M: ${availM.join(', ')})` : '');
+
+                        // Breakdown totals
+                        const totalF    = members.filter(m => String(m['M/F'] || m.GENDER || m.gender || '').trim().toUpperCase() === 'F').length;
+                        const totalM    = members.filter(m => String(m['M/F'] || m.GENDER || m.gender || '').trim().toUpperCase() === 'M').length;
+                        const totalATS  = members.filter(m => String(m.REF || m.ref || '').trim().toUpperCase() === 'A').length;
+                        const totalRIV  = members.filter(m => String(m.REF || m.ref || '').trim().toUpperCase() === 'H').length;
+                        const totalSelf = members.filter(m => { const r = String(m.REF || m.ref || '').trim().toUpperCase(); return r !== 'A' && r !== 'H'; }).length;
                         const html = `<!DOCTYPE html><html><head><title>Census Report – ${printDate}</title>
 <style>
   *{box-sizing:border-box}
@@ -1171,7 +1183,16 @@
   <div><div class="rh-org">Horizon House</div><div class="rh-sub">${filterLabels[filterVal]}${bedHoldCount > 0 ? ' + Bed Hold' : ''}${inclHW && hwCount > 0 ? ' + Hold/Wait' : ''}</div></div>
   <div class="rh-date">Census Report<br>${printDate}</div>
 </div>
-<div class="rm"><span>${members.length} record${members.length !== 1 ? 's' : ''}${bedHoldNote}${hwNote}${bedNote}</span></div>
+<div class="rm">
+  <span>${members.length} record${members.length !== 1 ? 's' : ''}${bedHoldNote}${hwNote}${bedNote}</span>
+  <span style="margin-left:auto;display:flex;gap:18px;">
+    <span>&#9792; F:&nbsp;<strong>${totalF}</strong></span>
+    <span>&#9794; M:&nbsp;<strong>${totalM}</strong></span>
+    <span style="border-left:1px solid #a0b8d8;padding-left:18px;">ATS:&nbsp;<strong>${totalATS}</strong></span>
+    <span>RIVco:&nbsp;<strong>${totalRIV}</strong></span>
+    <span>Self:&nbsp;<strong>${totalSelf}</strong></span>
+  </span>
+</div>
 <div class="rb"><table><thead>${headerRow}</thead><tbody>${rows}</tbody></table></div>
 </body></html>`;
 
