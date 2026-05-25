@@ -66,10 +66,7 @@
       0%, 100% { background: #fefcbf; border-color: #d69e2e; box-shadow: 0 0 0 0 rgba(214,158,46,0.4); }
       50% { background: #faf089; border-color: #b7791f; box-shadow: 0 0 0 8px rgba(214,158,46,0); }
     }
-    @keyframes flash-red {
-      0%, 100% { background: #fed7d7; border-color: #e53e3e; box-shadow: 0 0 0 0 rgba(229,62,62,0.5); }
-      50% { background: #fc8181; border-color: #9b2c2c; box-shadow: 0 0 0 10px rgba(229,62,62,0); }
-    }
+
     .invoice-alert {
       display: none;
       padding: 20px 28px;
@@ -86,7 +83,7 @@
     .invoice-alert.flash-green a { color: #22543d; }
     .invoice-alert.flash-yellow { animation: flash-yellow 0.9s ease-in-out infinite; color: #744210; }
     .invoice-alert.flash-yellow a { color: #744210; }
-    .invoice-alert.flash-red { animation: flash-red 0.6s ease-in-out infinite; color: #742a2a; }
+    .invoice-alert.flash-red { background: #fed7d7; border-color: #e53e3e; color: #742a2a; }
     .invoice-alert.flash-red a { color: #742a2a; }
 
     /* Memo card new/ack-required flash */
