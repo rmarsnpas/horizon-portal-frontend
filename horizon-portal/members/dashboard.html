@@ -520,9 +520,21 @@
         const res = await fetch(API_BASE + '/api/memorandums');
         const memos = await res.json();
         if (!Array.isArray(memos) || !memos.length) return;
+        // Filter to only memos addressed to this member (same logic as memorandums.html)
+        const memberStatus = String(localStorage.getItem('memberAccessCode') || '1');
+        function memoIsForMe(m) {
+          const r = m.recipients;
+          if (!r || r.type === 'all') return true;
+          if (r.type === 'status1') return memberStatus === '1';
+          if (r.type === 'status2') return memberStatus === '2';
+          if (r.type === 'individual') return (r.memberIds || []).map(String).includes(String(memberId));
+          return true;
+        }
+        const visibleMemos = memos.filter(memoIsForMe);
+        if (!visibleMemos.length) return;
         const lastVisit = parseInt(localStorage.getItem('memoLastVisit') || '0', 10);
-        const hasNew = memos.some(m => new Date(m.timestamp).getTime() > lastVisit);
-        const pendingAck = memos.filter(m =>
+        const hasNew = visibleMemos.some(m => new Date(m.timestamp).getTime() > lastVisit);
+        const pendingAck = visibleMemos.filter(m =>
           m.requireAck &&
           !(m.acknowledgments || []).some(a => String(a.memberId) === String(memberId))
         );

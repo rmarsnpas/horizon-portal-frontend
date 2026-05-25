@@ -102,16 +102,29 @@
         .upload-icon { font-size: 48px; margin-bottom: 10px; }
         .upload-zone p { color: #718096; font-size: 15px; margin: 4px 0; }
         .upload-zone small { color: #a0aec0; font-size: 12px; }
-        .upload-zone .camera-hint {
-            margin-top: 12px;
-            display: inline-block;
+        .upload-choice-btns {
+            display: flex;
+            gap: 12px;
+            justify-content: center;
+            flex-wrap: wrap;
+            margin-top: 14px;
+        }
+        .upload-choice-btn {
             background: var(--hh-primary);
-            color: white;
-            padding: 8px 20px;
+            color: #fff;
+            border: none;
+            padding: 10px 22px;
             border-radius: 20px;
             font-size: 14px;
             font-weight: 600;
+            cursor: pointer;
+            transition: background 0.15s;
         }
+        .upload-choice-btn:hover { background: #d4722a; }
+        .upload-choice-btn--library {
+            background: #2b3440;
+        }
+        .upload-choice-btn--library:hover { background: #1a1a2e; }
 
         /* Preview */
         #previewContainer {
@@ -281,12 +294,19 @@
             </div>
 
             <!-- Photo upload -->
+            <!-- Hidden inputs: one forces camera, one opens photo library -->
+            <input type="file" id="cardFile" accept="image/*" capture="environment" onchange="handleFileSelect(event)" style="display:none;">
+            <input type="file" id="cardFileLibrary" accept="image/*" onchange="handleFileSelect(event)" style="display:none;">
+
             <div class="upload-zone" id="uploadZone">
-                <input type="file" id="cardFile" accept="image/*" capture="environment" onchange="handleFileSelect(event)">
                 <div class="upload-icon">📷</div>
-                <p><strong>Take a photo</strong> or tap to choose from your camera roll</p>
+                <p><strong>Add a photo of your meeting card:</strong></p>
                 <small>JPG, PNG, HEIC accepted · Max 10 MB</small>
-                <span class="camera-hint">📸 Open Camera</span>
+                <div class="upload-choice-btns">
+                    <button type="button" class="upload-choice-btn" onclick="document.getElementById('cardFile').click()">📸 Take Photo</button>
+                    <button type="button" class="upload-choice-btn upload-choice-btn--library" onclick="document.getElementById('cardFileLibrary').click()">🖼️ Photo Library</button>
+                </div>
+                <small style="color:#a0aec0;margin-top:8px;display:block;">On desktop you can also drag &amp; drop an image here</small>
             </div>
 
             <div id="previewContainer">
@@ -387,6 +407,7 @@
 
     function clearFile() {
         document.getElementById('cardFile').value = '';
+        document.getElementById('cardFileLibrary').value = '';
         document.getElementById('previewContainer').style.display = 'none';
         document.getElementById('uploadZone').style.display = 'block';
         document.getElementById('previewImg').src = '';
@@ -427,7 +448,7 @@
             return;
         }
 
-        const file = document.getElementById('cardFile').files[0];
+        const file = document.getElementById('cardFile').files[0] || document.getElementById('cardFileLibrary').files[0];
         if (!file) {
             showAlert('Please select or take a photo of your meeting card.', 'error');
             return;

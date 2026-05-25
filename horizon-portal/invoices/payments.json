@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-05-18T06:38:35.000Z",
+  "generatedAt": "2026-05-23T16:20:09.000Z",
   "payments": [
     {
       "memberId": "152",
@@ -227,7 +227,7 @@
       "notes": "PAID IN FULL"
     },
     {
-      "memberId": "0160",
+      "memberId": "161",
       "memberName": "Jared Unfug",
       "date": "04-23-2026",
       "amount": 600.0,
@@ -263,7 +263,7 @@
       "notes": ""
     },
     {
-      "memberId": "0161",
+      "memberId": "161",
       "memberName": "Jared Unfug",
       "date": "04-30-2026",
       "amount": 600.0,
@@ -310,11 +310,29 @@
     {
       "memberId": "143",
       "memberName": "Jose Velasquez",
-      "date": "05-17-2026",
-      "amount": 1000.0,
+      "date": "05-18-2026",
+      "amount": 1200.0,
       "paymentMethod": "Cash",
       "invoiceId": "143_202604",
+      "notes": "PAID IN FULL"
+    },
+    {
+      "memberId": "148",
+      "memberName": "Barbara Bruner-Price",
+      "date": "05-23-2026",
+      "amount": 800.0,
+      "paymentMethod": "Transfer",
+      "invoiceId": "148_202605",
       "notes": ""
+    },
+    {
+      "memberId": "148",
+      "memberName": "Barbara Bruner-Price",
+      "date": "05-23-2026",
+      "amount": 800.0,
+      "paymentMethod": "Transfer",
+      "invoiceId": "148_202604",
+      "notes": "PAID IN FULL"
     }
   ]
 }
