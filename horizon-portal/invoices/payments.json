@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-05-25T22:22:23.000Z",
+  "generatedAt": "2026-05-29T19:16:59.000Z",
   "payments": [
     {
       "memberId": "152",
@@ -317,13 +317,31 @@
       "notes": "PAID IN FULL"
     },
     {
-      "memberId": "166",
-      "memberName": "Sophia",
-      "date": "05-22-2026",
-      "amount": 1000.0,
+      "memberId": "148",
+      "memberName": "Barbara Bruner-Price",
+      "date": "05-23-2026",
+      "amount": 800.0,
       "paymentMethod": "Transfer",
-      "invoiceId": "166_202605",
+      "invoiceId": "148_202605",
       "notes": ""
+    },
+    {
+      "memberId": "148",
+      "memberName": "Barbara Bruner-Price",
+      "date": "05-23-2026",
+      "amount": 800.0,
+      "paymentMethod": "Transfer",
+      "invoiceId": "148_202604",
+      "notes": "PAID IN FULL"
+    },
+    {
+      "memberId": "144",
+      "memberName": "Adriana Cadena",
+      "date": "05-27-2026",
+      "amount": 600.0,
+      "paymentMethod": "Cash",
+      "invoiceId": "144_202605",
+      "notes": "PAID IN FULL"
     }
   ]
 }
