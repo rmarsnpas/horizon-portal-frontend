@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-05-29T19:41:02.000Z",
+  "generatedAt": "2026-05-31T20:31:09.000Z",
   "payments": [
     {
       "memberId": "152",
@@ -369,6 +369,15 @@
       "paymentMethod": "Transfer",
       "invoiceId": "164_202605",
       "notes": "PAID IN FULL"
+    },
+    {
+      "memberId": "167",
+      "memberName": "Jose Rodriguez",
+      "date": "05-30-2026",
+      "amount": 300.0,
+      "paymentMethod": "Transfer",
+      "invoiceId": "167_202605",
+      "notes": "to d/c on 6/2"
     }
   ]
 }
