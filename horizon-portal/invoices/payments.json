@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-06-05T00:43:10.000Z",
+  "generatedAt": "2026-06-05T00:44:19.000Z",
   "payments": [
     {
       "memberId": "152",
@@ -395,6 +395,15 @@
       "amount": 1000.0,
       "paymentMethod": "Cash",
       "invoiceId": "150_202606",
+      "notes": "PAID IN FULL"
+    },
+    {
+      "memberId": "149",
+      "memberName": "Michael Brabo",
+      "date": "05-23-2026",
+      "amount": 1500.0,
+      "paymentMethod": "Check",
+      "invoiceId": "149_202605",
       "notes": "PAID IN FULL"
     }
   ]
