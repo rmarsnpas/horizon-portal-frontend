@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-06-05T00:46:00.000Z",
+  "generatedAt": "2026-06-05T00:47:34.000Z",
   "payments": [
     {
       "memberId": "152",
@@ -413,6 +413,15 @@
       "amount": 1500.0,
       "paymentMethod": "Check",
       "invoiceId": "154_County_202605",
+      "notes": "PAID IN FULL"
+    },
+    {
+      "memberId": "156",
+      "memberName": "",
+      "date": "05-23-2026",
+      "amount": 1000.0,
+      "paymentMethod": "Check",
+      "invoiceId": "108_MANUAL_20260517_160513",
       "notes": "PAID IN FULL"
     }
   ]
