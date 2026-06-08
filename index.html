@@ -150,6 +150,7 @@
     .hover-box:hover{box-shadow:0 6px 16px rgba(0,0,0,0.15);transform:translateY(-4px)}
     .hover-text{max-height:0;overflow:hidden;opacity:0;transition:max-height 0.4s ease,opacity 0.3s ease,margin-top 0.3s ease}
     .hover-box:hover .hover-text{max-height:200px;opacity:1;margin-top:0.5rem}
+    .hover-box:focus-within .hover-text{max-height:200px;opacity:1;margin-top:0.5rem}
     .hover-box.scroll-active .hover-text{max-height:200px;opacity:1;margin-top:0.5rem}
     
     /* Hamburger Menu Styles */
@@ -290,7 +291,7 @@
   </script>
 </head>
 <body>
-<a href="application-v2.html" class="float-cta float-cta-left" id="floatApply" aria-label="Apply Now">Apply Now</a>
+<a href="application-v2.html" class="float-cta float-cta-left" id="floatApply" aria-label="Apply Now (quick access)">Apply Now</a>
 <a href="#contact" class="float-cta float-cta-right" id="floatTour" aria-label="Schedule a Tour">Schedule a Tour</a>
   <a class="sr-only" href="#main">Skip to content</a>
   <header>
@@ -305,7 +306,7 @@
           <span></span>
         </button>
         <ul>
-          <li><a href="#">Home</a></li>
+          <li><a href="index.html">Home</a></li>
           <li><a href="gallery.html">Gallery</a></li>
           <li><a href="/brochure-viewer.html">Brochure</a></li>
           <li><a href="#resources">Resources</a></li>
@@ -389,8 +390,8 @@
 
     <section class="wrap section" id="admissions" aria-labelledby="admissions-title">
       <h2 id="admissions-title">Admissions process made clear</h2>
-      <ol>
-        <li><strong>Inquiry:</strong> Send a message or call.</li>
+      <ol>  
+        <li><strong>Inquiry:</strong> Send a message or call. (Medical, IEHP, RUHS members contact your caseworker and request a referral to Horizon House.)</li>
         <li><strong>Intro call:</strong> Quick conversation to align needs and fit.</li>
         <li><strong>Tour:</strong> In-person or virtual.</li>
         <li><strong>Intake:</strong> Agreements and orientation.</li>
@@ -708,6 +709,25 @@
 </script>
   </p>
 </footer>
+
+<!-- Accessibility: aria-hidden on hover-text cards -->
+<script>
+(function(){
+  // Set initial aria-hidden on all hover-text elements
+  document.querySelectorAll('.hover-text').forEach(function(el){
+    el.setAttribute('aria-hidden','true');
+  });
+  // Toggle aria-hidden when parent card is hovered or focused
+  document.querySelectorAll('.hover-box').forEach(function(box){
+    function show(){ box.querySelectorAll('.hover-text').forEach(function(t){ t.setAttribute('aria-hidden','false'); }); }
+    function hide(){ box.querySelectorAll('.hover-text').forEach(function(t){ t.setAttribute('aria-hidden','true'); }); }
+    box.addEventListener('mouseenter', show);
+    box.addEventListener('mouseleave', hide);
+    box.addEventListener('focusin', show);
+    box.addEventListener('focusout', hide);
+  });
+})();
+</script>
 
 <!-- Hope Cloud -->
 <script src="hope-cloud.js"></script>
