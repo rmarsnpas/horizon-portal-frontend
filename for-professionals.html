@@ -1,0 +1,504 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>For Professionals | Horizon House Sober Living</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Referring professionals — learn how Horizon House Sober Living partners with treatment centers, interventionists, case managers, and medical providers in the Coachella Valley. NARR Level II, Medi-Cal, IEHP, and HHope Housing accepted.">
+  <link rel="canonical" href="https://horizon-house.org/for-professionals.html">
+
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="https://horizon-house.org/for-professionals.html">
+  <meta property="og:title" content="For Professionals | Horizon House Sober Living">
+  <meta property="og:description" content="A trusted sober living partner for treatment centers, interventionists, case managers, and medical providers in the Coachella Valley.">
+  <meta property="og:image" content="https://horizon-house.org/HH%20logo%20grntree.png">
+
+  <link rel="icon" type="image/png" href="HH%20logo%20grntree.png">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@500;700&family=Nunito:wght@400;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="hope-cloud.css">
+  <style>
+    :root {
+      --slate:#2b3440; --amber:#c98a22; --sand:#f5f1ea; --green:#2e6a4f; --red:#9c2f2f;
+    }
+    *{box-sizing:border-box}
+    body{margin:0;font-family:Nunito,system-ui,-apple-system;line-height:1.6;color:#2b3440;background:var(--sand);overflow-x:hidden}
+    a{color:var(--amber);text-decoration:none}
+    a:focus,button:focus{outline:3px solid var(--amber);outline-offset:2px}
+    header{background:var(--slate);color:hsl(42,84%,60%)}
+    .wrap{max-width:1080px;margin:0 auto;padding:1rem}
+    nav{display:flex;align-items:center;gap:1rem;justify-content:space-between}
+    nav ul{list-style:none;display:flex;gap:.75rem;margin:0;padding:0}
+    nav a{color:#fff;font-weight:600}
+    .cta{background:var(--amber);color:#1d1d1d;padding:.8rem 1.4rem;border-radius:.5rem;border:none;font-weight:700;cursor:pointer;font-size:1.1rem}
+    footer{background:#1f2530;color:#cfd6e6;padding:2rem 0;margin-top:2rem}
+    .sr-only{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0}
+
+    /* Dropdown sub-nav */
+    nav ul li{position:relative;}
+    nav ul li ul.subnav{
+      display:none;position:absolute;top:100%;left:0;
+      background:#1f2530;min-width:220px;
+      border-radius:.4rem;box-shadow:0 6px 18px rgba(0,0,0,.35);
+      padding:.4rem 0;z-index:1100;list-style:none;margin:0;
+    }
+    nav ul li:hover ul.subnav,
+    nav ul li:focus-within ul.subnav{display:block;}
+    nav ul li ul.subnav li a{
+      display:block;padding:.55rem 1.1rem;
+      color:#cfd6e6;font-size:.88rem;font-weight:600;
+      white-space:nowrap;
+    }
+    nav ul li ul.subnav li a:hover{background:rgba(201,138,34,.15);color:#c98a22;}
+    .subnav-badge{
+      display:inline-block;margin-left:.5rem;
+      background:rgba(201,138,34,.2);color:#c98a22;
+      font-size:.68rem;font-weight:700;letter-spacing:.4px;
+      padding:.1rem .45rem;border-radius:2rem;
+      vertical-align:middle;
+    }
+    @media(max-width:768px){
+      nav ul li ul.subnav{
+        position:static;display:block;
+        background:rgba(255,255,255,.05);
+        box-shadow:none;border-radius:.35rem;
+        padding:.25rem 0 .25rem .75rem;margin-top:.25rem;
+      }
+    }
+    /* Hamburger */
+    .hamburger{display:none;background:none;border:none;cursor:pointer;padding:0.5rem;z-index:1001}
+    .hamburger span{display:block;width:25px;height:3px;background:#fff;margin:5px 0;transition:0.3s}
+    .hamburger.active span:nth-child(1){transform:rotate(45deg) translate(7px,7px)}
+    .hamburger.active span:nth-child(2){opacity:0}
+    .hamburger.active span:nth-child(3){transform:rotate(-45deg) translate(7px,-7px)}
+    @media(max-width:768px){
+      .hamburger{display:block}
+      nav ul{
+        position:fixed;top:0;right:0;height:100vh;width:250px;
+        background:var(--slate);flex-direction:column;
+        padding:5rem 2rem 2rem;gap:1.5rem;
+        box-shadow:-2px 0 10px rgba(0,0,0,0.3);
+        transform:translateX(100%);transition:transform 0.3s ease;z-index:1000;
+      }
+      nav ul.active{transform:translateX(0)}
+      nav ul li a{font-size:1.1rem;display:block;padding:0.5rem 0}
+      nav > .cta{display:none}
+    }
+
+    /* Hero */
+    .page-hero{
+      background:var(--slate);
+      color:#fff;
+      text-align:center;
+      padding:3.5rem 1rem 3rem;
+    }
+    .page-hero h1{
+      font-family:Inter,system-ui;
+      font-size:2.4rem;
+      margin:.25rem 0 .75rem;
+      color:hsl(42,84%,60%);
+    }
+    .page-hero p{
+      max-width:680px;
+      margin:0 auto;
+      color:#cfd6e6;
+      font-size:1.1rem;
+    }
+    .page-hero .badge{
+      display:inline-block;
+      margin-top:1.25rem;
+      background:rgba(255,255,255,.1);
+      border:1.5px solid rgba(201,138,34,.5);
+      color:hsl(42,84%,70%);
+      border-radius:2rem;
+      padding:.35rem 1.1rem;
+      font-size:.9rem;
+      font-weight:600;
+      letter-spacing:.5px;
+    }
+
+    /* Audience chips */
+    .audience-bar{
+      display:flex;flex-wrap:wrap;gap:.6rem;justify-content:center;
+      padding:1.5rem 1rem;
+      background:#fff;
+      border-bottom:2px solid #eee;
+    }
+    .chip{
+      background:var(--sand);
+      border:1.5px solid var(--amber);
+      color:var(--slate);
+      border-radius:2rem;
+      padding:.35rem 1rem;
+      font-size:.9rem;
+      font-weight:600;
+    }
+
+    /* Section cards */
+    .pro-section{
+      background:#fff;
+      border-radius:.75rem;
+      box-shadow:0 2px 8px rgba(0,0,0,.07);
+      padding:2.5rem 2rem;
+      margin:2rem auto;
+      max-width:960px;
+    }
+    .pro-section h2{
+      font-family:Inter,system-ui;
+      font-size:1.6rem;
+      color:var(--slate);
+      margin-bottom:1.2rem;
+      border-bottom:3px solid var(--amber);
+      padding-bottom:.5rem;
+      display:inline-block;
+    }
+
+    /* Check list */
+    .check-list{
+      list-style:none;
+      padding:0;
+      margin:0;
+      display:grid;
+      gap:.65rem;
+    }
+    .check-list li{
+      display:flex;
+      align-items:flex-start;
+      gap:.65rem;
+    }
+    .check-list li::before{
+      content:"✓";
+      color:var(--green);
+      font-weight:700;
+      font-size:1.1rem;
+      flex-shrink:0;
+      margin-top:.1rem;
+    }
+
+    /* Two-col grid */
+    .two-col{display:grid;grid-template-columns:1fr 1fr;gap:1.5rem;}
+    @media(max-width:620px){.two-col{grid-template-columns:1fr;}}
+
+    /* Insurance cards */
+    .ins-grid{
+      display:grid;
+      grid-template-columns:repeat(auto-fit,minmax(200px,1fr));
+      gap:1rem;
+    }
+    .ins-card{
+      background:var(--sand);
+      border:2px solid var(--amber);
+      border-radius:.75rem;
+      padding:1.25rem 1.5rem;
+      text-align:center;
+      font-weight:700;
+      font-size:1.05rem;
+      color:var(--slate);
+    }
+    .ins-card span{
+      display:block;
+      font-size:.85rem;
+      font-weight:400;
+      color:#555;
+      margin-top:.3rem;
+    }
+
+    /* Contact card */
+    .contact-card{
+      background:var(--slate);
+      color:#fff;
+      border-radius:.75rem;
+      padding:2rem;
+      max-width:960px;
+      margin:2rem auto 3rem;
+    }
+    .contact-card h2{
+      font-family:Inter,system-ui;
+      font-size:1.5rem;
+      color:hsl(42,84%,60%);
+      margin-bottom:1rem;
+    }
+    .contact-card a{color:hsl(42,84%,70%);text-decoration:underline;}
+    .contact-grid{
+      display:grid;
+      grid-template-columns:1fr 1fr;
+      gap:1.5rem;
+    }
+    @media(max-width:540px){.contact-grid{grid-template-columns:1fr;}}
+    .contact-person{
+      background:rgba(255,255,255,.07);
+      border-radius:.6rem;
+      padding:1.25rem 1.5rem;
+    }
+    .contact-person strong{font-size:1.05rem;color:hsl(42,84%,70%);}
+    .btn-primary{
+      display:inline-block;
+      padding:.85rem 2.2rem;
+      background:var(--amber);
+      color:#1d1d1d;
+      font-weight:700;
+      font-size:1rem;
+      border-radius:.6rem;
+      transition:transform .15s,box-shadow .15s;
+      text-decoration:none;
+    }
+    .btn-primary:hover{transform:translateY(-2px);box-shadow:0 6px 18px rgba(0,0,0,.2);}
+    .btn-outline{
+      display:inline-block;
+      padding:.85rem 2.2rem;
+      background:transparent;
+      color:#fff;
+      border:2px solid rgba(255,255,255,.6);
+      font-weight:700;
+      font-size:1rem;
+      border-radius:.6rem;
+      transition:transform .15s,box-shadow .15s;
+      text-decoration:none;
+    }
+    .btn-outline:hover{transform:translateY(-2px);box-shadow:0 6px 18px rgba(0,0,0,.2);border-color:#fff;}
+
+    /* Quote pull */
+    .pull-quote{
+      border-left:4px solid var(--amber);
+      margin:1.5rem 0;
+      padding:.75rem 1.25rem;
+      background:#f9f7f3;
+      border-radius:0 .5rem .5rem 0;
+      font-style:italic;
+      color:var(--slate);
+      font-size:1.05rem;
+    }
+  </style>
+</head>
+<body>
+  <a class="sr-only" href="#main">Skip to content</a>
+  <header>
+    <div class="wrap">
+      <nav aria-label="Main">
+        <div>
+          <a href="index.html">
+            <img src="HH logo grntree.png" alt="Horizon House logo" style="height:120px;">
+          </a>
+        </div>
+        <button class="hamburger" aria-label="Toggle menu" aria-expanded="false">
+          <span></span><span></span><span></span>
+        </button>
+        <ul>
+          <li><a href="index.html">Home</a></li>
+          <li><a href="about.html">About Us</a></li>
+          <li>
+            <a href="for-professionals.html" aria-current="page">For Professionals</a>
+            <ul class="subnav">
+              <li><a href="professionals-portal.html">Professionals Portal <span class="subnav-badge">Coming Soon</span></a></li>
+            </ul>
+          </li>
+          <li><a href="gallery.html">Gallery</a></li>
+          <li><a href="/brochure-viewer.html">Brochure</a></li>
+          <li><a href="index.html#resources">Resources</a></li>
+          <li><a href="index.html#contact">Contact</a></li>
+          <li><a href="horizon-portal/member-login-fixed.html">Member Portal</a></li>
+        </ul>
+        <button class="cta" onclick="window.location.href='tel:7607660300'">760.766.0300</button>
+      </nav>
+    </div>
+  </header>
+
+  <div class="page-hero">
+    <h1>For Professionals</h1>
+    <p>A structured, communicative sober living partner for treatment teams, interventionists, case managers, and medical providers.</p>
+    <span class="badge">NARR Level II Standards &nbsp;|&nbsp; Medi-Cal &nbsp;·&nbsp; IEHP &nbsp;·&nbsp; HHope Housing</span>
+  </div>
+
+  <div class="audience-bar" aria-label="We work with">
+    <span class="chip">Treatment Centers</span>
+    <span class="chip">Interventionists</span>
+    <span class="chip">Sober Companions</span>
+    <span class="chip">Case Managers</span>
+    <span class="chip">Medical Providers</span>
+    <span class="chip">Hospital Social Workers</span>
+    <span class="chip">Detox Centers</span>
+    <span class="chip">Psychiatrists &amp; PCPs</span>
+  </div>
+
+  <main id="main">
+    <div class="wrap">
+
+      <!-- Introduction -->
+      <section class="pro-section" aria-labelledby="intro-title">
+        <h2 id="intro-title">Who We Are</h2>
+        <p>Horizon House Sober Living is operated by <strong>Marshall and Elizabeth (Liz) Richter</strong>, and provides structured, accountability-driven recovery residences for individuals transitioning from treatment into stable, independent living.</p>
+        <p>We work closely with professionals who want a sober living partner that is <strong>consistent, communicative, and aligned</strong> with each client's long-term recovery goals. We are not a treatment provider — we serve as the bridge between treatment and independent living, reinforcing the work your team has already begun.</p>
+        <div class="pull-quote">
+          "We take seriously what it means when you refer a client to us — you are entrusting us with the continuation of the work you have already invested in."
+        </div>
+      </section>
+
+      <!-- About Our Homes -->
+      <section class="pro-section" aria-labelledby="homes-title">
+        <h2 id="homes-title">About Our Homes</h2>
+        <p>Horizon House consists of two adjacent residences — <strong>His House</strong> (men) and <strong>Her House</strong> (women) — located in Cathedral City. We provide a clean, supportive, and highly structured environment for individuals serious about maintaining sobriety.</p>
+        <div class="two-col" style="margin-top:1.25rem;">
+          <div>
+            <h3 style="font-family:Inter,system-ui;font-size:1.1rem;color:var(--amber);margin-bottom:.75rem;">Our Program Emphasizes</h3>
+            <ul class="check-list">
+              <li><strong>Accountability</strong> — daily routines, clear expectations, consistent standards</li>
+              <li><strong>Integrity &amp; Honesty</strong> — coaching residents to show up truthfully and consistently</li>
+              <li><strong>Community Structure</strong> — peer support, shared responsibility, a culture of growth</li>
+              <li><strong>Safety &amp; Stability</strong> — a predictable, recovery-focused environment</li>
+            </ul>
+          </div>
+          <div>
+            <h3 style="font-family:Inter,system-ui;font-size:1.1rem;color:var(--amber);margin-bottom:.75rem;">Why Referral Partners Choose Us</h3>
+            <ul class="check-list">
+              <li>Structure without chaos</li>
+              <li>Firm but supportive guidance</li>
+              <li>A home that reinforces treatment, not undermines it</li>
+              <li>Residents held to consistent expectations</li>
+              <li>A team that communicates clearly and professionally</li>
+            </ul>
+          </div>
+        </div>
+      </section>
+
+      <!-- Communication & Collaboration -->
+      <section class="pro-section" aria-labelledby="comms-title">
+        <h2 id="comms-title">Coordinated Communication &amp; Collaboration</h2>
+        <p>One of the greatest benefits of partnering with Horizon House is our commitment to consistent, coordinated communication with referring professionals. <strong>Our goal is to ensure you are never in the dark about how your client is doing once they leave your care.</strong></p>
+        <ul class="check-list" style="margin-top:1rem;">
+          <li>Regular updates on attendance, engagement, and general progress</li>
+          <li>Immediate notification of concerns, behavioral issues, or relapse indicators</li>
+          <li>Collaborative planning for step-downs, aftercare, and long-term goals</li>
+          <li>Clear boundaries around what we can and cannot provide</li>
+        </ul>
+
+        <!-- Portal teaser -->
+        <div style="margin-top:2rem;background:linear-gradient(135deg,#1e3a52,#0d2236);border-radius:.75rem;padding:1.75rem 2rem;color:#fff;position:relative;overflow:hidden;">
+          <div style="position:absolute;top:-20px;right:-20px;width:120px;height:120px;background:rgba(201,138,34,.12);border-radius:50%;"></div>
+          <div style="position:absolute;bottom:-30px;right:60px;width:80px;height:80px;background:rgba(201,138,34,.08);border-radius:50%;"></div>
+          <div style="display:flex;align-items:flex-start;gap:1rem;flex-wrap:wrap;">
+            <div style="flex:1;min-width:220px;">
+              <p style="margin:0 0 .3rem;font-size:.8rem;font-weight:700;letter-spacing:1px;color:#c98a22;text-transform:uppercase;">Coming Soon</p>
+              <h3 style="font-family:Inter,system-ui;font-size:1.35rem;margin:0 0 .75rem;color:#fff;">Professionals Portal</h3>
+              <p style="margin:0 0 1rem;color:#b0c4d8;font-size:.97rem;">We're building a secure, dedicated portal so referring professionals can collaborate with us directly — in real time, all in one place.</p>
+              <ul style="list-style:none;padding:0;margin:0;display:grid;gap:.5rem;">
+                <li style="display:flex;align-items:center;gap:.6rem;font-size:.93rem;color:#cfd6e6;"><span style="color:#c98a22;font-weight:700;">▸</span> Submit and track referrals online</li>
+                <li style="display:flex;align-items:center;gap:.6rem;font-size:.93rem;color:#cfd6e6;"><span style="color:#c98a22;font-weight:700;">▸</span> Receive real-time status updates on your clients</li>
+                <li style="display:flex;align-items:center;gap:.6rem;font-size:.93rem;color:#cfd6e6;"><span style="color:#c98a22;font-weight:700;">▸</span> Secure messaging with the Horizon House team</li>
+                <li style="display:flex;align-items:center;gap:.6rem;font-size:.93rem;color:#cfd6e6;"><span style="color:#c98a22;font-weight:700;">▸</span> Check bed availability before you refer</li>
+                <li style="display:flex;align-items:center;gap:.6rem;font-size:.93rem;color:#cfd6e6;"><span style="color:#c98a22;font-weight:700;">▸</span> Upload and share documents securely</li>
+                <li style="display:flex;align-items:center;gap:.6rem;font-size:.93rem;color:#cfd6e6;"><span style="color:#c98a22;font-weight:700;">▸</span> Collaborative aftercare and step-down planning</li>
+                <li style="display:flex;align-items:center;gap:.6rem;font-size:.93rem;color:#cfd6e6;"><span style="color:#c98a22;font-weight:700;">▸</span> Notification preferences — get updates your way</li>
+                <li style="display:flex;align-items:center;gap:.6rem;font-size:.93rem;color:#cfd6e6;"><span style="color:#c98a22;font-weight:700;">▸</span> View random drug screen test results</li>
+                <li style="display:flex;align-items:center;gap:.6rem;font-size:.93rem;color:#cfd6e6;"><span style="color:#c98a22;font-weight:700;">▸</span> Review meeting attendance card submissions</li>
+                <li style="display:flex;align-items:center;gap:.6rem;font-size:.93rem;color:#cfd6e6;"><span style="color:#c98a22;font-weight:700;">▸</span> Access incident reports related to your clients</li>
+              </ul>
+              <a href="professionals-portal.html" style="display:inline-block;margin-top:1.25rem;padding:.7rem 1.75rem;background:#c98a22;color:#1d1d1d;font-weight:700;font-size:.95rem;border-radius:.5rem;text-decoration:none;transition:transform .15s;" onmouseover="this.style.transform='translateY(-2px)'" onmouseout="this.style.transform=''">Preview the Portal →</a>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Insurance / Funding -->
+      <section class="pro-section" aria-labelledby="insurance-title">
+        <h2 id="insurance-title">Insurance &amp; Funding Accepted</h2>
+        <p>Horizon House is an approved provider for the following programs:</p>
+        <div class="ins-grid" style="margin-top:1.25rem;">
+          <div class="ins-card">
+            Medi-Cal
+            <span>through Riverside University Health System (RUHS)</span>
+          </div>
+          <div class="ins-card">
+            IEHP
+            <span>Inland Empire Health Plan</span>
+          </div>
+          <div class="ins-card">
+            HHope Housing
+            <span>HHope program funding</span>
+          </div>
+        </div>
+        <p style="margin-top:1.25rem;font-size:.95rem;color:#555;">For insurance verification or prior authorization questions, contact us directly — we'll work through it with you.</p>
+      </section>
+
+      <!-- NARR note -->
+      <section class="pro-section" aria-labelledby="standards-title">
+        <h2 id="standards-title">Standards &amp; Certification</h2>
+        <p>Horizon House follows <strong>NARR Level II</strong> (National Alliance for Recovery Residences) certification standards, providing a consistent, accountable framework for sober living that meets professionally recognized benchmarks for quality and safety.</p>
+      </section>
+
+      <!-- Contact / Let's Connect -->
+      <div class="contact-card" id="professional-contact">
+        <h2>Let's Connect</h2>
+        <p>We welcome the opportunity to learn more about your program and explore how we can support your clients together. For gender-specific questions or referrals, please reach out to the appropriate contact below.</p>
+        <div class="contact-grid" style="margin:1.5rem 0;">
+          <div class="contact-person">
+            <strong>Marshall Richter</strong>
+            <p style="margin:.5rem 0 0;font-size:.95rem;color:#cfd6e6;">His House — Male Residents<br>
+              <a href="tel:6266167273">(626) 616-7273</a><br>
+              <a href="mailto:mars@horizon-house.org">mars@horizon-house.org</a>
+            </p>
+          </div>
+          <div class="contact-person">
+            <strong>Elizabeth (Liz) Richter</strong>
+            <p style="margin:.5rem 0 0;font-size:.95rem;color:#cfd6e6;">Her House — Female Residents<br>
+              <a href="tel:8189162214">(818) 916-2214</a><br>
+              <a href="mailto:liz@horizon-house.org">liz@horizon-house.org</a>
+            </p>
+          </div>
+        </div>
+        <p style="font-size:.95rem;color:#cfd6e6;margin-bottom:1.5rem;">Main line: <a href="tel:7607660300">(760) 766-0300</a> &nbsp;|&nbsp; <a href="https://horizon-house.org">horizon-house.org</a></p>
+        <div style="display:flex;flex-wrap:wrap;gap:1rem;">
+          <a href="mailto:mars@horizon-house.org" class="btn-primary">Email Marshall</a>
+          <a href="mailto:liz@horizon-house.org" class="btn-primary">Email Liz</a>
+          <a href="index.html#contact" class="btn-outline">General Contact Form</a>
+        </div>
+      </div>
+
+    </div>
+  </main>
+
+  <footer role="contentinfo">
+    <div class="wrap">
+      <p><strong>Horizon House</strong> — Structured, caring sober living</p>
+      <div style="display:flex;justify-content:flex-start;align-items:center;flex-wrap:wrap;gap:2rem;margin-bottom:0.25rem;">
+        <div>
+          <p style="margin:0;">28321 Horizon Rd.<br>Cathedral City, CA 92234</p>
+        </div>
+        <div style="display:flex;align-items:center;gap:0.5rem;padding-right:50px;margin-left:35%;">
+          <img src="iehp-logo.png" alt="IEHP" style="height:45px;object-fit:contain;background:#fff;border-radius:4px;padding:3px;">
+          <img src="ruhs-logo.png" alt="RUHS" style="height:45px;object-fit:contain;background:#fff;border-radius:4px;padding:3px;">
+        </div>
+      </div>
+      <p style="margin:0;">© <span id="y"></span> Horizon House. All rights reserved.</p>
+      <a href="privacy.html" style="color:#91aef3;text-decoration:underline;">Privacy</a> •
+      <a href="accessibility.html" style="color:#97b0eb;text-decoration:underline;">Accessibility</a>
+    </div>
+  </footer>
+
+  <script>
+    document.getElementById('y').textContent = new Date().getFullYear();
+
+    const hamburger = document.querySelector('.hamburger');
+    const navMenu = document.querySelector('nav ul');
+    hamburger.addEventListener('click', () => {
+      hamburger.classList.toggle('active');
+      navMenu.classList.toggle('active');
+      const isExpanded = hamburger.getAttribute('aria-expanded') === 'true';
+      hamburger.setAttribute('aria-expanded', !isExpanded);
+    });
+    document.querySelectorAll('nav ul li a').forEach(link => {
+      link.addEventListener('click', () => {
+        hamburger.classList.remove('active');
+        navMenu.classList.remove('active');
+        hamburger.setAttribute('aria-expanded', 'false');
+      });
+    });
+    document.addEventListener('click', (e) => {
+      if (!e.target.closest('nav')) {
+        hamburger.classList.remove('active');
+        navMenu.classList.remove('active');
+        hamburger.setAttribute('aria-expanded', 'false');
+      }
+    });
+  </script>
+</body>
+</html>

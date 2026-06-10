@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="utf-8">
-  <title>Horizon House � Member Application</title>
+  <title>Horizon House &ndash; Member Application</title>
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="description" content="Horizon House Sober Living Member Application">
   <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
@@ -371,14 +371,14 @@
 <!-- Reference Number Modal -->
 <div id="referenceModal" class="reference-modal">
   <div class="reference-content">
-    <h2>?? Application Draft</h2>
+    <h2>&#128203; Application Draft</h2>
     <p>Do you have a reference number from a previously saved draft?</p>
     
     <input type="text" id="referenceInput" class="reference-input" placeholder="Enter Reference Number" maxlength="6">
     
     <div class="reference-buttons">
-      <button type="button" class="ref-btn ref-btn-secondary" onclick="startNewApplication()">? Start New Application</button>
-      <button type="button" class="ref-btn ref-btn-primary" onclick="loadDraft()">?? Load Draft</button>
+      <button type="button" class="ref-btn ref-btn-secondary" onclick="startNewApplication()">&#10010; Start New Application</button>
+      <button type="button" class="ref-btn ref-btn-primary" onclick="loadDraft()">&#128193; Load Draft</button>
     </div>
     
     <p style="font-size: 14px; color: #718096; margin-top: 20px; text-align: center;">
@@ -389,7 +389,7 @@
 
 <header id="mainHeader" style="display: none;">
   <div class="wrap">
-    <h1>Horizon House Sober Living � Member Application</h1>
+    <h1>Horizon House Sober Living &ndash; Member Application</h1>
   </div>
 </header>
 
@@ -398,7 +398,7 @@
 
   <!-- Floating Save Button -->
   <button type="button" id="floatingSaveBtn" onclick="saveDraft()" style="display:none; position: fixed; bottom: 20px; right: 20px; padding: 12px 20px; background: #4299e1; color: white; border: none; border-radius: 50px; cursor: pointer; font-size: 14px; font-weight: 600; box-shadow: 0 4px 12px rgba(66, 153, 225, 0.4); z-index: 999; transition: all 0.3s ease;">
-    ?? Save Draft
+    &#128190; Save Draft
   </button>
 
   <!-- Save as PDF Button -->
@@ -408,13 +408,13 @@
 
   <div id="referenceDisplay" style="display:none; background: #f7fafc; padding: 15px; border-radius: 8px; border: 2px solid #4299e1; margin-bottom: 20px; text-align: center;">
     <p style="margin: 0; color: #2d3748; font-weight: 600;">
-      ?? Your Reference Number: <strong id="refNumberText" style="font-family: monospace; letter-spacing: 3px; font-size: 18px; color: #2b6cb0;"></strong>
+      &#128278; Your Reference Number: <strong id="refNumberText" style="font-family: monospace; letter-spacing: 3px; font-size: 18px; color: #2b6cb0;"></strong>
     </p>
     <p style="margin: 5px 0 0 0; font-size: 13px; color: #718096;">
       Save this number to resume your application later
     </p>
     <p id="saveIndicator" style="margin: 8px 0 0 0; font-size: 12px; color: #48bb78; font-weight: 600; display: none;">
-      ? Draft saved
+      &#10003; Draft saved
     </p>
   </div>
 
@@ -426,7 +426,7 @@
   <form id="applicationForm">
 
     <div style="background-color: #e8f4f8; padding: 15px; border-left: 4px solid #0066cc; margin-bottom: 20px; border-radius: 4px;">
-      <strong>?? Please Be Honest</strong>
+      <strong>&#128161; Please Be Honest</strong>
       <p style="margin: 8px 0 0 0; line-height: 1.5;">Your answers help us determine the best path for your successful recovery. This information is used to support you, not to disqualify your acceptance. Honesty allows us to provide the most appropriate care and environment for your journey.</p>
     </div>
 
@@ -896,7 +896,7 @@
     <input type="date" name="signature_date" required id="signatureDate">
 
     <div style="background-color: #fff3cd; padding: 20px; border-left: 4px solid #ffc107; margin-top: 30px; border-radius: 4px;">
-      <strong style="color: #856404; font-size: 16px;">? Before You Submit</strong>
+      <strong style="color: #856404; font-size: 16px;">&#9888;&#65039; Before You Submit</strong>
       <p style="margin: 10px 0 0 0; line-height: 1.6; color: #856404;">Your complete and truthful answers will help us determine the best pathway for your success. Please be sure your contact information is current so we can reach you promptly.</p>
     </div>
 
@@ -909,12 +909,12 @@
 </main>
 
 <footer>
-  � 2026 Horizon House Sober Living
+  &copy; 2026 Horizon House Sober Living
 </footer>
 
 <div id="successModal">
   <div class="success-box">
-    <h2>? Thank You for Your Interest in Horizon House!</h2>
+    <h2>&#127881; Thank You for Your Interest in Horizon House!</h2>
     <p>Your application has been submitted and will be reviewed by our admissions staff.</p>
     <p>We will be in contact with you shortly.</p>
     <div class="contact-info">
@@ -1583,10 +1583,11 @@
     try {
       if (submitBtn) {
         submitBtn.disabled = true;
-        submitBtn.textContent = 'Submitting…';
+        submitBtn.textContent = 'Submitting… (this may take 15–30 seconds)';
       }
 
-      const response = await fetch(`${API_BASE}/api/applications`, {
+      const response = await fetch(`${API_BASE}/api/applications`,
+ {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ referenceNumber, formData })
@@ -1616,14 +1617,13 @@
       }
     }
   });
+
+  // --- Print / Save as PDF ---
+  document.getElementById('savePdfBtn').addEventListener('click', function() {
+    window.print();
+  });
 </script>
 
 </body>
 </html>
-
-
-// --- Print / Save as PDF ---
-document.getElementById('savePdfBtn').addEventListener('click', function() {
-  window.print();
-});
 

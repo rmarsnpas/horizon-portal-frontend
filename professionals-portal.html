@@ -1,0 +1,645 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Professionals Portal | Horizon House Sober Living</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="The Horizon House Professionals Portal — a secure collaboration hub for referring treatment professionals. Coming soon.">
+  <meta name="robots" content="noindex">
+  <link rel="canonical" href="https://horizon-house.org/professionals-portal.html">
+
+  <link rel="icon" type="image/png" href="HH%20logo%20grntree.png">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@500;700&family=Nunito:wght@400;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="hope-cloud.css">
+  <style>
+    :root {
+      --slate:#2b3440; --amber:#c98a22; --sand:#f5f1ea; --green:#2e6a4f; --navy:#0d2236;
+    }
+    *{box-sizing:border-box}
+    body{margin:0;font-family:Nunito,system-ui,-apple-system;line-height:1.6;color:#2b3440;background:#0b1929;overflow-x:hidden}
+    a{color:var(--amber);text-decoration:none}
+    a:focus,button:focus{outline:3px solid var(--amber);outline-offset:2px}
+    .sr-only{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0}
+
+    /* Top bar */
+    .top-bar{
+      background:#07111d;
+      padding:.7rem 1.5rem;
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      flex-wrap:wrap;
+      gap:.75rem;
+    }
+    .top-bar-brand{
+      display:flex;align-items:center;gap:.75rem;
+    }
+    .top-bar-brand img{height:52px;}
+    .top-bar-brand span{
+      font-family:Inter,system-ui;
+      font-weight:700;
+      font-size:1rem;
+      color:#fff;
+      line-height:1.2;
+    }
+    .top-bar-brand span small{
+      display:block;
+      font-weight:400;
+      font-size:.75rem;
+      color:#7a9bb5;
+      letter-spacing:.5px;
+      text-transform:uppercase;
+    }
+    .back-link{
+      font-size:.85rem;
+      color:#7a9bb5;
+      font-weight:600;
+      text-decoration:none;
+      display:flex;
+      align-items:center;
+      gap:.35rem;
+    }
+    .back-link:hover{color:#c98a22;}
+
+    /* Hero */
+    .portal-hero{
+      text-align:center;
+      padding:4.5rem 1.5rem 3rem;
+      position:relative;
+    }
+    .construction-badge{
+      display:inline-flex;
+      align-items:center;
+      gap:.5rem;
+      background:rgba(201,138,34,.15);
+      border:1.5px solid rgba(201,138,34,.5);
+      color:#c98a22;
+      border-radius:2rem;
+      padding:.4rem 1.2rem;
+      font-size:.85rem;
+      font-weight:700;
+      letter-spacing:.8px;
+      text-transform:uppercase;
+      margin-bottom:1.5rem;
+    }
+    .construction-badge .dot{
+      width:8px;height:8px;
+      background:#c98a22;
+      border-radius:50%;
+      animation:pulse 1.6s ease-in-out infinite;
+    }
+    @keyframes pulse{
+      0%,100%{opacity:1;transform:scale(1);}
+      50%{opacity:.4;transform:scale(.7);}
+    }
+    .portal-hero h1{
+      font-family:Inter,system-ui;
+      font-size:2.8rem;
+      color:#fff;
+      margin:.25rem 0 .75rem;
+      line-height:1.15;
+    }
+    .portal-hero h1 span{color:#c98a22;}
+    .portal-hero p{
+      max-width:620px;
+      margin:0 auto 2rem;
+      color:#7a9bb5;
+      font-size:1.08rem;
+    }
+
+    /* Notify form */
+    .notify-form{
+      display:flex;
+      gap:.6rem;
+      justify-content:center;
+      flex-wrap:wrap;
+      max-width:520px;
+      margin:0 auto 1rem;
+    }
+    .notify-form input{
+      flex:1;
+      min-width:220px;
+      padding:.75rem 1rem;
+      border-radius:.5rem;
+      border:1.5px solid #2a4a63;
+      background:#112236;
+      color:#fff;
+      font-size:.95rem;
+      font-family:Nunito,system-ui;
+    }
+    .notify-form input::placeholder{color:#4a6a85;}
+    .notify-form input:focus{outline:none;border-color:#c98a22;}
+    .notify-form button{
+      padding:.75rem 1.5rem;
+      background:#c98a22;
+      color:#1d1d1d;
+      border:none;
+      border-radius:.5rem;
+      font-weight:700;
+      font-size:.95rem;
+      cursor:pointer;
+      font-family:Nunito,system-ui;
+      transition:background .2s,transform .15s;
+    }
+    .notify-form button:hover{background:#eab85e;transform:translateY(-1px);}
+    #notify-status{font-size:.88rem;color:#7a9bb5;text-align:center;min-height:1.2rem;}
+
+    /* Feature grid */
+    .features-wrap{
+      max-width:1040px;
+      margin:0 auto;
+      padding:0 1.5rem 4rem;
+    }
+    .features-label{
+      text-align:center;
+      color:#3d6580;
+      font-size:.8rem;
+      font-weight:700;
+      letter-spacing:1.2px;
+      text-transform:uppercase;
+      margin-bottom:1.5rem;
+    }
+    .features-grid{
+      display:grid;
+      grid-template-columns:repeat(auto-fit,minmax(280px,1fr));
+      gap:1.25rem;
+      margin-bottom:3rem;
+    }
+    .feature-card{
+      background:#112236;
+      border:1.5px solid #1c3a54;
+      border-radius:.85rem;
+      padding:1.5rem 1.75rem;
+      transition:border-color .2s,transform .2s;
+      position:relative;
+      overflow:hidden;
+    }
+    .feature-card:hover{border-color:#c98a22;transform:translateY(-3px);}
+    .feature-card .card-icon{
+      font-size:1.8rem;
+      margin-bottom:.75rem;
+      display:block;
+    }
+    .feature-card h3{
+      font-family:Inter,system-ui;
+      font-size:1.05rem;
+      color:#fff;
+      margin:0 0 .5rem;
+    }
+    .feature-card p{
+      color:#7a9bb5;
+      font-size:.92rem;
+      margin:0;
+      line-height:1.55;
+    }
+    .feature-card .status-pill{
+      position:absolute;
+      top:1rem;right:1rem;
+      font-size:.68rem;
+      font-weight:700;
+      letter-spacing:.5px;
+      text-transform:uppercase;
+      padding:.2rem .6rem;
+      border-radius:2rem;
+    }
+    .pill-planned{background:rgba(201,138,34,.15);color:#c98a22;border:1px solid rgba(201,138,34,.3);}
+    .pill-priority{background:rgba(46,106,79,.2);color:#4db380;border:1px solid rgba(46,106,79,.4);}
+
+    /* How it will work timeline */
+    .timeline{
+      max-width:760px;
+      margin:0 auto 3.5rem;
+    }
+    .timeline h2{
+      text-align:center;
+      font-family:Inter,system-ui;
+      font-size:1.5rem;
+      color:#fff;
+      margin-bottom:2rem;
+    }
+    .tl-item{
+      display:flex;
+      gap:1.25rem;
+      margin-bottom:1.5rem;
+      align-items:flex-start;
+    }
+    .tl-num{
+      flex-shrink:0;
+      width:36px;height:36px;
+      background:#c98a22;
+      color:#1d1d1d;
+      border-radius:50%;
+      font-weight:700;
+      font-family:Inter,system-ui;
+      display:flex;align-items:center;justify-content:center;
+      font-size:1rem;
+    }
+    .tl-content h4{
+      margin:0 0 .3rem;
+      font-family:Inter,system-ui;
+      font-size:1rem;
+      color:#fff;
+    }
+    .tl-content p{margin:0;color:#7a9bb5;font-size:.92rem;}
+
+    /* Mock UI preview */
+    .preview-wrap{
+      max-width:840px;
+      margin:0 auto 3.5rem;
+      text-align:center;
+    }
+    .preview-wrap h2{
+      font-family:Inter,system-ui;
+      font-size:1.5rem;
+      color:#fff;
+      margin-bottom:1.75rem;
+    }
+    .mock-browser{
+      background:#07111d;
+      border:1.5px solid #1c3a54;
+      border-radius:.75rem;
+      overflow:hidden;
+      box-shadow:0 20px 60px rgba(0,0,0,.5);
+    }
+    .mock-toolbar{
+      background:#0f1e2e;
+      padding:.6rem 1rem;
+      display:flex;
+      align-items:center;
+      gap:.5rem;
+      border-bottom:1px solid #1c3a54;
+    }
+    .mock-dot{width:10px;height:10px;border-radius:50%;}
+    .mock-url{
+      flex:1;
+      margin-left:.5rem;
+      background:#07111d;
+      border:1px solid #1c3a54;
+      border-radius:.35rem;
+      padding:.2rem .75rem;
+      font-size:.75rem;
+      color:#3d6580;
+      text-align:left;
+    }
+    .mock-body{padding:1.5rem;}
+    .mock-tabs{
+      display:flex;gap:.5rem;margin-bottom:1.5rem;flex-wrap:wrap;
+    }
+    .mock-tab{
+      padding:.4rem 1rem;
+      border-radius:.4rem;
+      font-size:.8rem;
+      font-weight:700;
+      color:#7a9bb5;
+      background:transparent;
+      border:1px solid #1c3a54;
+    }
+    .mock-tab.active{background:#c98a22;color:#1d1d1d;border-color:#c98a22;}
+    .mock-stat-row{
+      display:grid;
+      grid-template-columns:repeat(auto-fit,minmax(130px,1fr));
+      gap:.75rem;
+      margin-bottom:1.25rem;
+    }
+    .mock-stat{
+      background:#112236;
+      border:1px solid #1c3a54;
+      border-radius:.5rem;
+      padding:.85rem 1rem;
+      text-align:left;
+    }
+    .mock-stat .label{font-size:.68rem;color:#3d6580;text-transform:uppercase;letter-spacing:.5px;font-weight:700;}
+    .mock-stat .value{font-size:1.5rem;font-weight:700;font-family:Inter,system-ui;color:#fff;margin-top:.15rem;}
+    .mock-stat .sub{font-size:.72rem;color:#4db380;}
+    .mock-table-row{
+      display:flex;
+      align-items:center;
+      gap:.75rem;
+      padding:.6rem .75rem;
+      border-radius:.4rem;
+      margin-bottom:.4rem;
+      background:#112236;
+      border:1px solid #1c3a54;
+      font-size:.82rem;
+    }
+    .mock-table-row .name{flex:1;color:#cfd6e6;font-weight:600;}
+    .mock-table-row .house{color:#7a9bb5;font-size:.75rem;min-width:70px;}
+    .mock-table-row .pill{padding:.18rem .6rem;border-radius:2rem;font-size:.68rem;font-weight:700;white-space:nowrap;}
+    .p-active{background:rgba(46,106,79,.25);color:#4db380;}
+    .p-pending{background:rgba(201,138,34,.2);color:#c98a22;}
+    .p-alert{background:rgba(156,47,47,.25);color:#e07070;}
+    .mock-table-row .date{color:#3d6580;font-size:.72rem;min-width:80px;text-align:right;}
+
+    /* CTA strip */
+    .cta-strip{
+      max-width:840px;
+      margin:0 auto 4rem;
+      background:#112236;
+      border:1.5px solid #1c3a54;
+      border-radius:.85rem;
+      padding:2.25rem 2rem;
+      text-align:center;
+    }
+    .cta-strip h2{
+      font-family:Inter,system-ui;
+      font-size:1.5rem;
+      color:#fff;
+      margin:0 0 .75rem;
+    }
+    .cta-strip p{color:#7a9bb5;margin:0 0 1.5rem;font-size:.97rem;}
+    .btn-amber{display:inline-block;padding:.8rem 2rem;background:#c98a22;color:#1d1d1d;font-weight:700;font-size:.97rem;border-radius:.5rem;margin:.35rem;transition:background .2s,transform .15s;}
+    .btn-amber:hover{background:#eab85e;transform:translateY(-2px);}
+    .btn-ghost{display:inline-block;padding:.8rem 2rem;background:transparent;color:#7a9bb5;border:1.5px solid #2a4a63;font-weight:700;font-size:.97rem;border-radius:.5rem;margin:.35rem;transition:border-color .2s,color .2s,transform .15s;}
+    .btn-ghost:hover{border-color:#c98a22;color:#c98a22;transform:translateY(-2px);}
+  </style>
+</head>
+<body>
+  <a class="sr-only" href="#main">Skip to content</a>
+
+  <div class="top-bar">
+    <div class="top-bar-brand">
+      <img src="HH logo grntree.png" alt="Horizon House logo">
+      <span>
+        Horizon House
+        <small>Professionals Portal</small>
+      </span>
+    </div>
+    <a href="for-professionals.html" class="back-link">← For Professionals</a>
+  </div>
+
+  <main id="main">
+
+    <!-- Hero -->
+    <div class="portal-hero">
+      <div class="construction-badge">
+        <span class="dot"></span>
+        Under Construction
+      </div>
+      <h1>The <span>Professionals</span> Portal</h1>
+      <p>A secure, dedicated workspace where referring professionals collaborate with Horizon House — track referrals, get real-time updates, and stay connected with your clients' recovery journey.</p>
+      <div class="notify-form">
+        <input type="email" id="notify-email" placeholder="Your work email address" autocomplete="email">
+        <button onclick="handleNotify()">Notify Me at Launch</button>
+      </div>
+      <div id="notify-status"></div>
+    </div>
+
+    <!-- Features -->
+    <div class="features-wrap">
+
+      <p class="features-label">Planned Features</p>
+      <div class="features-grid">
+
+        <div class="feature-card">
+          <span class="status-pill pill-priority">Priority</span>
+          <span class="card-icon">📋</span>
+          <h3>Online Referral Submission</h3>
+          <p>Submit a referral directly from the portal with client details, insurance info, and clinical notes — no phone tag required.</p>
+        </div>
+
+        <div class="feature-card">
+          <span class="status-pill pill-priority">Priority</span>
+          <span class="card-icon">📡</span>
+          <h3>Real-Time Referral Tracking</h3>
+          <p>See where every referral stands — submitted, under review, admitted, or pending documentation — at a glance.</p>
+        </div>
+
+        <div class="feature-card">
+          <span class="status-pill pill-priority">Priority</span>
+          <span class="card-icon">🏠</span>
+          <h3>Bed Availability Dashboard</h3>
+          <p>Check current openings at His House and Her House before you make a referral call — live availability, updated daily.</p>
+        </div>
+
+        <div class="feature-card">
+          <span class="status-pill pill-planned">Planned</span>
+          <span class="card-icon">💬</span>
+          <h3>Secure Messaging</h3>
+          <p>Communicate directly with Marshall or Liz through an encrypted, HIPAA-conscious messaging thread tied to each client record.</p>
+        </div>
+
+        <div class="feature-card">
+          <span class="status-pill pill-planned">Planned</span>
+          <span class="card-icon">📈</span>
+          <h3>Client Progress Updates</h3>
+          <p>Receive structured progress notes — engagement, attendance, behavioral flags, and milestone check-ins — delivered to your portal or inbox.</p>
+        </div>
+
+        <div class="feature-card">
+          <span class="status-pill pill-planned">Planned</span>
+          <span class="card-icon">📁</span>
+          <h3>Secure Document Sharing</h3>
+          <p>Upload authorizations, clinical summaries, and discharge documents — and receive signed agreements and intake forms — all in one secure place.</p>
+        </div>
+
+        <div class="feature-card">
+          <span class="status-pill pill-planned">Planned</span>
+          <span class="card-icon">🤝</span>
+          <h3>Collaborative Care Planning</h3>
+          <p>Co-author aftercare and step-down plans with the Horizon House team, so the transition from your care to ours is seamless and documented.</p>
+        </div>
+
+        <div class="feature-card">
+          <span class="status-pill pill-planned">Planned</span>
+          <span class="card-icon">🔔</span>
+          <h3>Custom Notification Preferences</h3>
+          <p>Choose how and when you hear from us — instant alerts for critical events, daily digests, or weekly summaries. Your workflow, your way.</p>
+        </div>
+
+        <div class="feature-card">
+          <span class="status-pill pill-planned">Planned</span>
+          <span class="card-icon">📊</span>
+          <h3>Referral History &amp; Outcomes</h3>
+          <p>A full log of every client you've referred — length of stay, completion status, and follow-up notes — to support your own program evaluation.</p>
+        </div>
+
+        <div class="feature-card">
+          <span class="status-pill pill-priority">Priority</span>
+          <span class="card-icon">🧪</span>
+          <h3>Drug Screen Results</h3>
+          <p>View results from your client's random drug screening tests — date, substances tested, and outcome — logged and accessible as they occur.</p>
+        </div>
+
+        <div class="feature-card">
+          <span class="status-pill pill-priority">Priority</span>
+          <span class="card-icon">📅</span>
+          <h3>Meeting Attendance Records</h3>
+          <p>See submitted meeting attendance cards — which meetings were attended, how often, and any gaps — giving you a clear picture of your client's program engagement.</p>
+        </div>
+
+        <div class="feature-card">
+          <span class="status-pill pill-planned">Planned</span>
+          <span class="card-icon">⚠️</span>
+          <h3>Incident Reports</h3>
+          <p>Receive structured reports for any incidents involving your client — behavioral concerns, rule violations, or safety events — documented and shared with you promptly.</p>
+        </div>
+
+      </div>
+
+      <!-- How it will work -->
+      <div class="timeline">
+        <h2>How It Will Work</h2>
+        <div class="tl-item">
+          <div class="tl-num">1</div>
+          <div class="tl-content">
+            <h4>Request Access</h4>
+            <p>Verified professionals apply for a portal account. We confirm your organization and set up your secure profile.</p>
+          </div>
+        </div>
+        <div class="tl-item">
+          <div class="tl-num">2</div>
+          <div class="tl-content">
+            <h4>Submit a Referral</h4>
+            <p>Fill out a structured referral form with client details, clinical background, and insurance information. Attach documents directly.</p>
+          </div>
+        </div>
+        <div class="tl-item">
+          <div class="tl-num">3</div>
+          <div class="tl-content">
+            <h4>We Review &amp; Respond</h4>
+            <p>Horizon House reviews the referral and responds through the portal — admission approval, questions, or alternative suggestions — typically within 24 hours.</p>
+          </div>
+        </div>
+        <div class="tl-item">
+          <div class="tl-num">4</div>
+          <div class="tl-content">
+            <h4>Track Progress in Real Time</h4>
+            <p>Once your client is admitted, you receive structured updates through your portal dashboard and notification preferences.</p>
+          </div>
+        </div>
+        <div class="tl-item">
+          <div class="tl-num">5</div>
+          <div class="tl-content">
+            <h4>Collaborate on the Care Plan</h4>
+            <p>Use shared care planning tools to coordinate step-downs, aftercare, and long-term goals between your team and ours.</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Mock UI Preview -->
+      <div class="preview-wrap">
+        <h2>Portal Preview</h2>
+        <div class="mock-browser">
+          <div class="mock-toolbar">
+            <div class="mock-dot" style="background:#e05c5c;"></div>
+            <div class="mock-dot" style="background:#e0a030;"></div>
+            <div class="mock-dot" style="background:#4db380;"></div>
+            <div class="mock-url">horizon-house.org/professionals-portal</div>
+          </div>
+          <div class="mock-body">
+            <div class="mock-tabs">
+              <div class="mock-tab active">Dashboard</div>
+              <div class="mock-tab">Referrals</div>
+              <div class="mock-tab">Messages</div>
+              <div class="mock-tab">Documents</div>
+              <div class="mock-tab">Availability</div>
+            </div>
+            <div class="mock-stat-row">
+              <div class="mock-stat">
+                <div class="label">Active Clients</div>
+                <div class="value">3</div>
+                <div class="sub">↑ 1 this month</div>
+              </div>
+              <div class="mock-stat">
+                <div class="label">Pending Referrals</div>
+                <div class="value">1</div>
+                <div class="sub">Awaiting review</div>
+              </div>
+              <div class="mock-stat">
+                <div class="label">Unread Messages</div>
+                <div class="value">2</div>
+                <div class="sub">From Horizon House</div>
+              </div>
+              <div class="mock-stat">
+                <div class="label">Beds Available</div>
+                <div class="value">2</div>
+                <div class="sub">His House: 1 · Her House: 1</div>
+              </div>
+            </div>
+            <div style="font-size:.72rem;color:#3d6580;text-transform:uppercase;letter-spacing:.8px;font-weight:700;margin-bottom:.5rem;">Recent Client Updates</div>
+            <div class="mock-table-row">
+              <div class="name">J. M.</div>
+              <div class="house">His House</div>
+              <span class="pill p-active">Active</span>
+              <div class="date">Updated today</div>
+            </div>
+            <div class="mock-table-row">
+              <div class="name">S. R.</div>
+              <div class="house">Her House</div>
+              <span class="pill p-active">Active</span>
+              <div class="date">Updated 2d ago</div>
+            </div>
+            <div class="mock-table-row">
+              <div class="name">D. K.</div>
+              <div class="house">His House</div>
+              <span class="pill p-pending">Referral Pending</span>
+              <div class="date">Submitted today</div>
+            </div>
+            <div class="mock-table-row">
+              <div class="name">M. T.</div>
+              <div class="house">Her House</div>
+              <span class="pill p-alert">Needs Attention</span>
+              <div class="date">Flagged today</div>
+            </div>
+          </div>
+        </div>
+        <p style="color:#3d6580;font-size:.8rem;margin-top:.75rem;">Mockup — names are illustrative only. Actual portal will be HIPAA-conscious and access-controlled.</p>
+      </div>
+
+      <!-- CTA -->
+      <div class="cta-strip">
+        <h2>Be the First to Know</h2>
+        <p>Leave your email to get notified when the portal launches — or reach out now to start collaborating the traditional way.</p>
+        <div class="notify-form" style="margin-bottom:1rem;">
+          <input type="email" id="notify-email-2" placeholder="Your work email address" autocomplete="email">
+          <button onclick="handleNotify2()">Notify Me</button>
+        </div>
+        <div id="notify-status-2" style="font-size:.88rem;color:#7a9bb5;text-align:center;min-height:1.2rem;margin-bottom:1rem;"></div>
+        <a href="for-professionals.html#professional-contact" class="btn-amber">Contact Us Now</a>
+        <a href="for-professionals.html" class="btn-ghost">← Back to For Professionals</a>
+      </div>
+
+    </div>
+  </main>
+
+  <script>
+    function handleNotify() {
+      const email = document.getElementById('notify-email').value.trim();
+      const status = document.getElementById('notify-status');
+      if (!email || !email.includes('@')) {
+        status.textContent = 'Please enter a valid email address.';
+        status.style.color = '#e07070';
+        return;
+      }
+      // Store in localStorage as a simple placeholder until backend is wired
+      const list = JSON.parse(localStorage.getItem('portalNotifyList') || '[]');
+      if (!list.includes(email)) list.push(email);
+      localStorage.setItem('portalNotifyList', JSON.stringify(list));
+      status.textContent = '✓ Got it! We\'ll notify you at ' + email + ' when the portal launches.';
+      status.style.color = '#4db380';
+      document.getElementById('notify-email').value = '';
+    }
+    function handleNotify2() {
+      const email = document.getElementById('notify-email-2').value.trim();
+      const status = document.getElementById('notify-status-2');
+      if (!email || !email.includes('@')) {
+        status.textContent = 'Please enter a valid email address.';
+        status.style.color = '#e07070';
+        return;
+      }
+      const list = JSON.parse(localStorage.getItem('portalNotifyList') || '[]');
+      if (!list.includes(email)) list.push(email);
+      localStorage.setItem('portalNotifyList', JSON.stringify(list));
+      status.textContent = '✓ Got it! We\'ll notify you at ' + email + ' when the portal launches.';
+      status.style.color = '#4db380';
+      document.getElementById('notify-email-2').value = '';
+    }
+    // Allow Enter key on inputs
+    ['notify-email','notify-email-2'].forEach((id, i) => {
+      const el = document.getElementById(id);
+      if (el) el.addEventListener('keydown', e => { if (e.key === 'Enter') i === 0 ? handleNotify() : handleNotify2(); });
+    });
+  </script>
+</body>
+</html>

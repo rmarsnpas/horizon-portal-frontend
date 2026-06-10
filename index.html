@@ -153,6 +153,37 @@
     .hover-box:focus-within .hover-text{max-height:200px;opacity:1;margin-top:0.5rem}
     .hover-box.scroll-active .hover-text{max-height:200px;opacity:1;margin-top:0.5rem}
     
+    /* Dropdown sub-nav */
+    nav ul li{position:relative;}
+    nav ul li ul.subnav{
+      display:none;position:absolute;top:100%;left:0;
+      background:#1f2530;min-width:220px;
+      border-radius:.4rem;box-shadow:0 6px 18px rgba(0,0,0,.35);
+      padding:.4rem 0;z-index:1100;list-style:none;margin:0;
+    }
+    nav ul li:hover ul.subnav,
+    nav ul li:focus-within ul.subnav{display:block;}
+    nav ul li ul.subnav li a{
+      display:block;padding:.55rem 1.1rem;
+      color:#cfd6e6;font-size:.88rem;font-weight:600;
+      white-space:nowrap;
+    }
+    nav ul li ul.subnav li a:hover{background:rgba(201,138,34,.15);color:#c98a22;}
+    .subnav-badge{
+      display:inline-block;margin-left:.5rem;
+      background:rgba(201,138,34,.2);color:#c98a22;
+      font-size:.68rem;font-weight:700;letter-spacing:.4px;
+      padding:.1rem .45rem;border-radius:2rem;
+      vertical-align:middle;
+    }
+    @media(max-width:768px){
+      nav ul li ul.subnav{
+        position:static;display:block;
+        background:rgba(255,255,255,.05);
+        box-shadow:none;border-radius:.35rem;
+        padding:.25rem 0 .25rem .75rem;margin-top:.25rem;
+      }
+    }
     /* Hamburger Menu Styles */
     
     /* Hamburger Menu Styles */
@@ -307,6 +338,13 @@
         </button>
         <ul>
           <li><a href="index.html">Home</a></li>
+          <li><a href="about.html">About Us</a></li>
+          <li>
+            <a href="for-professionals.html">For Professionals</a>
+            <ul class="subnav">
+              <li><a href="professionals-portal.html">Professionals Portal <span class="subnav-badge">Coming Soon</span></a></li>
+            </ul>
+          </li>
           <li><a href="gallery.html">Gallery</a></li>
           <li><a href="/brochure-viewer.html">Brochure</a></li>
           <li><a href="#resources">Resources</a></li>
@@ -346,47 +384,12 @@
       <a href="what-makes-us-different.html" class="expand-button orange-btn">The Horizon House Difference</a>
     </div>
 
-    <!-- Our Values & Commitment -->
-    <section class="wrap section" style="background: #f3f7fb; padding: 3rem 1.5rem; margin: 2rem auto; border-radius: 8px; max-width: 1200px;">
-      <h2 style="text-align:center; font-family:Inter,system-ui; font-size:1.75rem; color:var(--slate); margin-bottom:1.75rem;">Our Values</h2>
-      <div style="display:grid; grid-template-columns:repeat(auto-fit,minmax(260px,1fr)); gap:1rem; max-width:960px; margin:0 auto 2.5rem;">
-        <div style="background:#fff; border-radius:.75rem; padding:1.25rem 1.5rem; box-shadow:0 2px 6px rgba(0,0,0,.06); border-left:4px solid var(--amber);">
-          <p style="margin:0;"><strong>Stability</strong> — A calm, orderly environment where recovery can take root</p>
-        </div>
-        <div style="background:#fff; border-radius:.75rem; padding:1.25rem 1.5rem; box-shadow:0 2px 6px rgba(0,0,0,.06); border-left:4px solid var(--amber);">
-          <p style="margin:0;"><strong>Accountability</strong> — Respectful, consistent expectations for every Member</p>
-        </div>
-        <div style="background:#fff; border-radius:.75rem; padding:1.25rem 1.5rem; box-shadow:0 2px 6px rgba(0,0,0,.06); border-left:4px solid var(--amber);">
-          <p style="margin:0;"><strong>Community</strong> — A supportive network that strengthens each individual</p>
-        </div>
-        <div style="background:#fff; border-radius:.75rem; padding:1.25rem 1.5rem; box-shadow:0 2px 6px rgba(0,0,0,.06); border-left:4px solid var(--amber);">
-          <p style="margin:0;"><strong>Growth</strong> — Daily habits that build long-term success</p>
-        </div>
-        <div style="background:#fff; border-radius:.75rem; padding:1.25rem 1.5rem; box-shadow:0 2px 6px rgba(0,0,0,.06); border-left:4px solid var(--amber);">
-          <p style="margin:0;"><strong>Integrity</strong> — Honest communication and responsible living</p>
-        </div>
-        <div style="background:#fff; border-radius:.75rem; padding:1.25rem 1.5rem; box-shadow:0 2px 6px rgba(0,0,0,.06); border-left:4px solid var(--amber);">
-          <p style="margin:0;"><strong>Hope</strong> — Because every day offers a new horizon</p>
-        </div>
-      </div>
-
-      <h2 style="text-align:center; font-family:Inter,system-ui; font-size:1.75rem; color:var(--slate); margin-bottom:1.25rem;">Our Commitment</h2>
-      <div style="max-width:820px; margin:0 auto; text-align:center; color:#444; line-height:1.8; font-size:1.05rem;">
-        <p>Horizon House is committed to providing a safe, structured, and supportive sober living environment where Members can rebuild their lives with dignity and purpose. We believe in the power of community, the strength of routine, and the resilience of every person who walks through our doors.</p>
-        <p style="font-style:italic; font-weight:600; color:var(--slate); margin-top:1rem;">We are a colony built for recovery — where there is hope on the horizon!</p>
-      </div>
+    <!-- About Us link -->
+    <section class="wrap section" style="text-align:center; padding:2.5rem 1rem;">
+      <h2 style="font-family:Inter,system-ui; font-size:1.75rem; color:var(--slate); margin-bottom:.75rem;">Who We Are</h2>
+      <p style="max-width:640px; margin:0 auto 1.5rem; color:#444;">Learn about our mission, values, and commitment to structured sober living in the Coachella Valley.</p>
+      <a href="about.html" style="display:inline-block;padding:.9rem 2.4rem;background:var(--amber);color:#1d1d1d;font-weight:700;font-size:1.1rem;border-radius:.6rem;transition:transform .15s,box-shadow .15s;" onmouseover="this.style.transform='translateY(-2px)'" onmouseout="this.style.transform=''">About Us →</a>
     </section>
-
-    <section class="wrap section" id="about" aria-labelledby="about-title">
-      <h2 id="about-title">Our Mission</h2>
-      <p>We believe structure and compassion can coexist. Our team blends building safety expertise with recovery-minded care to create a place where people feel safe, respected, and supported.</p>
-      <p><strong>Two Houses, One Mission:</strong> Horizon House operates two separate facilities—<strong>His House</strong> and <strong>Her House</strong>. This structure provides comfortable, focused environments where all members can concentrate on their recovery journey with supportive peers. We welcome all individuals in recovery and work with each person to find the best fit for their needs and comfort.</p>
-    <img src="houses.jpg" alt="Horizon Houses" style="max-width:100%;margin:1rem 0;border-radius:.5rem;">
-    <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;text-align:center;font-weight:600;color:var(--amber);margin-bottom:2rem;">
-      <div>His House </div>
-      <div>Her House </div>
-    </div>
-  </section>
 
     <section class="wrap section" id="admissions" aria-labelledby="admissions-title">
       <h2 id="admissions-title">Admissions process made clear</h2>
