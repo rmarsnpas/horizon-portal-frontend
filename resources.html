@@ -104,6 +104,9 @@
       color:hsl(42,84%,60%);
     }
     .page-hero p{max-width:660px;margin:0 auto;color:#cfd6e6;font-size:1.05rem;}
+    .back-home{display:inline-block;margin-bottom:1rem;color:#cfd6e6;font-size:.9rem;font-weight:600;text-decoration:none;opacity:.8;transition:opacity .2s;}
+    .back-home:hover{opacity:1;color:#c98a22;}
+    .back-home::before{content:'\2190\00a0';}
 
     /* Section headers */
     .res-heading{
@@ -170,6 +173,7 @@
   </header>
 
   <div class="page-hero">
+    <a href="index.html" class="back-home">Back to Home</a>
     <h1>Resources</h1>
     <p>Daily readings, meeting finders, crisis support, and local resources — for members, families, and anyone on the recovery journey.</p>
   </div>

@@ -63,6 +63,9 @@
     .page-hero h1{font-family:Inter,system-ui;font-size:2.4rem;margin:.25rem 0 .75rem;color:hsl(42,84%,60%);}
     .page-hero p{max-width:660px;margin:0 auto;color:#cfd6e6;font-size:1.1rem;}
     .page-hero .badge{display:inline-block;margin-top:1.25rem;background:rgba(255,255,255,.1);border:1.5px solid rgba(201,138,34,.5);color:hsl(42,84%,70%);border-radius:2rem;padding:.35rem 1.1rem;font-size:.9rem;font-weight:600;letter-spacing:.5px;}
+    .back-home{display:inline-block;margin-bottom:1rem;color:#cfd6e6;font-size:.9rem;font-weight:600;text-decoration:none;opacity:.8;transition:opacity .2s;}
+    .back-home:hover{opacity:1;color:#c98a22;}
+    .back-home::before{content:'\2190\00a0';}
 
     /* Section card */
     .fund-section{background:#fff;border-radius:.75rem;box-shadow:0 2px 8px rgba(0,0,0,.07);padding:2.5rem 2rem;margin:2rem auto;max-width:960px;}
@@ -148,6 +151,7 @@
   <main id="main">
 
     <div class="page-hero">
+      <a href="index.html" class="back-home">Back to Home</a>
       <h1>Funding &amp; Insurance Options</h1>
       <p>We work with families, individuals, and referring professionals to find a funding path that works — because cost should never be the barrier to recovery.</p>
     </div>

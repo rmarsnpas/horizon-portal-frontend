@@ -51,6 +51,9 @@
     .page-hero{background:var(--slate);color:#fff;text-align:center;padding:3.5rem 1rem 3rem;}
     .page-hero h1{font-family:Inter,system-ui;font-size:2.4rem;margin:.25rem 0 .75rem;color:hsl(42,84%,60%);}
     .page-hero p{max-width:660px;margin:0 auto;color:#cfd6e6;font-size:1.1rem;}
+    .back-home{display:inline-block;margin-bottom:1rem;color:#cfd6e6;font-size:.9rem;font-weight:600;text-decoration:none;opacity:.8;transition:opacity .2s;}
+    .back-home:hover{opacity:1;color:#c98a22;}
+    .back-home::before{content:'\2190\00a0';}
     .content-section{background:#fff;border-radius:.75rem;box-shadow:0 2px 8px rgba(0,0,0,.07);padding:2.5rem 2rem;margin:2rem auto;max-width:780px;}
     .content-section h2{font-family:Inter,system-ui;font-size:1.5rem;color:var(--slate);margin-bottom:1rem;border-bottom:3px solid var(--amber);padding-bottom:.5rem;display:inline-block;}
     .content-section ul{padding-left:1.25rem;margin:.75rem 0;}
@@ -110,6 +113,7 @@
 
   <main id="main">
     <div class="page-hero">
+      <a href="index.html" class="back-home">Back to Home</a>
       <h1>&#127920; What to Bring</h1>
       <p>A guide to what is welcome — and what is not allowed — in our homes. When in doubt, ask us first.</p>
     </div>
