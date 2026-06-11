@@ -329,7 +329,7 @@
     <div class="wrap">
       <nav aria-label="Main">
         <div>
-  <img src="HH logo grntree.png" alt="Horizon House logo" style="height:120px;">
+  <img src="HH logo wht ltrs 626.png" alt="Horizon House logo" style="height:120px;">
 </div>
         <button class="hamburger" aria-label="Toggle menu" aria-expanded="false">
           <span></span>
@@ -338,16 +338,30 @@
         </button>
         <ul>
           <li><a href="index.html">Home</a></li>
-          <li><a href="about.html">About Us</a></li>
+          <li>
+            <a href="about.html">About</a>
+            <ul class="subnav">
+              <li><a href="about.html">About Us</a></li>
+              <li><a href="gallery.html">Gallery</a></li>
+              <li><a href="/brochure-viewer.html">Brochure</a></li>
+              <li><a href="funding.html">Funding</a></li>
+            </ul>
+          </li>
           <li>
             <a href="for-professionals.html">For Professionals</a>
             <ul class="subnav">
               <li><a href="professionals-portal.html">Professionals Portal <span class="subnav-badge">Coming Soon</span></a></li>
             </ul>
           </li>
-          <li><a href="gallery.html">Gallery</a></li>
-          <li><a href="/brochure-viewer.html">Brochure</a></li>
-          <li><a href="#resources">Resources</a></li>
+          <li>
+            <a href="resources.html">Resources</a>
+            <ul class="subnav">
+              <li><a href="resources.html#daily-reading">Daily Readings</a></li>
+              <li><a href="resources.html#find-meetings">Find Meetings</a></li>
+              <li><a href="resources.html#local-resources">Local Resources</a></li>
+              <li><a href="resources.html#house-info">House Info</a></li>
+            </ul>
+          </li>
           <li><a href="#contact">Contact</a></li>
           <li><a href="horizon-portal/member-login-fixed.html">Member Portal</a></li>
         </ul>
@@ -366,7 +380,7 @@
       <h1 id="hero-title">Rise • Recover • Rebuild</h1>
       <p>A calm, accountable sober living community where Members rebuild their lives through structure, clarity, and shared purpose.</p>
       <p>
-        <img src="HH logo grntree.jpg" alt="Horizon House logo" style="height:170px;">
+        <img src="HH logo blk 626.png" alt="Horizon House logo" style="height:170px;">
       </p>
       <!-- Removed floating button from hero section -->
       <div class="trust" aria-label="Trust highlights">
@@ -462,9 +476,14 @@
       </script>
     </section>
 
-    <section class="wrap section" id="resources" aria-labelledby="resources-title">
-      <h2 id="resources-title">Resources</h2>
+    <section class="wrap section" id="resources" style="text-align:center;padding:2.5rem 1rem;">
+      <h2 id="resources-title" style="font-family:Inter,system-ui;font-size:1.75rem;color:var(--slate);margin-bottom:.75rem;">Resources</h2>
+      <p style="max-width:640px;margin:0 auto 1.5rem;color:#444;">Daily readings, meeting finders, crisis hotlines, and local recovery resources — all in one place.</p>
+      <a href="resources.html" style="display:inline-block;padding:.9rem 2.4rem;background:var(--amber);color:#1d1d1d;font-weight:700;font-size:1.1rem;border-radius:.6rem;transition:transform .15s,box-shadow .15s;" onmouseover="this.style.transform='translateY(-2px)'" onmouseout="this.style.transform=''">View All Resources →</a>
+    </section>
 
+    <!-- PLACEHOLDER to preserve structure -->
+    <section style="display:none;">
       <h3 style="font-family:Inter,system-ui;font-size:1.1rem;color:var(--amber);margin:1.5rem 0 0.5rem;">📖 Daily Reading</h3>
       <div class="cards">
         <a href="https://www.aa.org/daily-reflections" target="_blank" rel="noopener noreferrer" class="card hover-box" style="text-decoration:none;color:inherit;">
@@ -607,7 +626,7 @@
         </div>
         <div style="display:flex;align-items:center;gap:0.5rem;padding-right:50px;margin-left:35%;">
           <img src="iehp-logo.png" alt="IEHP" style="height:45px;object-fit:contain;background:#fff;border-radius:4px;padding:3px;">
-          <img src="ruhs-logo.png" alt="RUHS" style="height:45px;object-fit:contain;background:#fff;border-radius:4px;padding:3px;">
+          <a href="https://www.ruhealth.org/behavioral-health/housing" target="_blank" rel="noopener noreferrer"><img src="ruhs-logo.png" alt="RUHS" style="height:45px;object-fit:contain;background:#fff;border-radius:4px;padding:3px;"></a>
         </div>
       </div>
       <p style="margin:0;">© <span id="y"></span> Horizon House. All rights reserved.</p>

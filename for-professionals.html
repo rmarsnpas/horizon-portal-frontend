@@ -277,7 +277,7 @@
       <nav aria-label="Main">
         <div>
           <a href="index.html">
-            <img src="HH logo grntree.png" alt="Horizon House logo" style="height:120px;">
+            <img src="HH logo wht ltrs 626.png" alt="Horizon House logo" style="height:120px;">
           </a>
         </div>
         <button class="hamburger" aria-label="Toggle menu" aria-expanded="false">
@@ -285,16 +285,30 @@
         </button>
         <ul>
           <li><a href="index.html">Home</a></li>
-          <li><a href="about.html">About Us</a></li>
+          <li>
+            <a href="about.html">About</a>
+            <ul class="subnav">
+              <li><a href="about.html">About Us</a></li>
+              <li><a href="gallery.html">Gallery</a></li>
+              <li><a href="/brochure-viewer.html">Brochure</a></li>
+              <li><a href="funding.html">Funding</a></li>
+            </ul>
+          </li>
           <li>
             <a href="for-professionals.html" aria-current="page">For Professionals</a>
             <ul class="subnav">
               <li><a href="professionals-portal.html">Professionals Portal <span class="subnav-badge">Coming Soon</span></a></li>
             </ul>
           </li>
-          <li><a href="gallery.html">Gallery</a></li>
-          <li><a href="/brochure-viewer.html">Brochure</a></li>
-          <li><a href="index.html#resources">Resources</a></li>
+          <li>
+            <a href="resources.html">Resources</a>
+            <ul class="subnav">
+              <li><a href="resources.html#daily-reading">Daily Readings</a></li>
+              <li><a href="resources.html#find-meetings">Find Meetings</a></li>
+              <li><a href="resources.html#local-resources">Local Resources</a></li>
+              <li><a href="resources.html#house-info">House Info</a></li>
+            </ul>
+          </li>
           <li><a href="index.html#contact">Contact</a></li>
           <li><a href="horizon-portal/member-login-fixed.html">Member Portal</a></li>
         </ul>
@@ -306,8 +320,7 @@
   <div class="page-hero">
     <h1>For Professionals</h1>
     <p>A structured, communicative sober living partner for treatment teams, interventionists, case managers, and medical providers.</p>
-    <span class="badge">NARR Level II Standards &nbsp;|&nbsp; Medi-Cal &nbsp;·&nbsp; IEHP &nbsp;·&nbsp; HHope Housing</span>
-  </div>
+      </div>
 
   <div class="audience-bar" aria-label="We work with">
     <span class="chip">Treatment Centers</span>
@@ -402,12 +415,12 @@
 
       <!-- Insurance / Funding -->
       <section class="pro-section" aria-labelledby="insurance-title">
-        <h2 id="insurance-title">Insurance &amp; Funding Accepted</h2>
-        <p>Horizon House is an approved provider for the following programs:</p>
+        <h2 id="insurance-title">Insurance &amp; Funding Options</h2>
+        <p>Horizon House is an approved provider for Medi-Cal through the following programs:</p>
         <div class="ins-grid" style="margin-top:1.25rem;">
           <div class="ins-card">
-            Medi-Cal
-            <span>through Riverside University Health System (RUHS)</span>
+            RUHS
+            <span>Riverside University Health System (RUHS)</span>
           </div>
           <div class="ins-card">
             IEHP
@@ -415,10 +428,25 @@
           </div>
           <div class="ins-card">
             HHope Housing
-            <span>HHope program funding</span>
+            <span>HHope program</span>
           </div>
         </div>
-        <p style="margin-top:1.25rem;font-size:.95rem;color:#555;">For insurance verification or prior authorization questions, contact us directly — we'll work through it with you.</p>
+        <h3 style="font-family:Inter,system-ui;font-size:1.1rem;color:var(--slate);margin:1.75rem 0 .75rem;">Additional Payment Options</h3>
+        <div class="ins-grid">
+          <div class="ins-card">
+            Private Pay
+            <span>Self-pay accepted — contact us for current rates</span>
+          </div>
+          <div class="ins-card">
+            Scholarships
+            <span>A limited number of scholarships become available to qualified individuals</span>
+          </div>
+          <div class="ins-card">
+            Sliding Scale
+            <span>Considered on a case-by-case basis for those who qualify</span>
+          </div>
+        </div>
+        <p style="margin-top:1.25rem;font-size:.95rem;color:#555;">For insurance verification, prior authorization questions, or to learn more about scholarships, sliding scale, and other options that may be available — contact us directly and we'll work through it with you.</p>
       </section>
 
       <!-- NARR note -->
@@ -467,7 +495,7 @@
         </div>
         <div style="display:flex;align-items:center;gap:0.5rem;padding-right:50px;margin-left:35%;">
           <img src="iehp-logo.png" alt="IEHP" style="height:45px;object-fit:contain;background:#fff;border-radius:4px;padding:3px;">
-          <img src="ruhs-logo.png" alt="RUHS" style="height:45px;object-fit:contain;background:#fff;border-radius:4px;padding:3px;">
+          <a href="https://www.ruhealth.org/behavioral-health/housing" target="_blank" rel="noopener noreferrer"><img src="ruhs-logo.png" alt="RUHS" style="height:45px;object-fit:contain;background:#fff;border-radius:4px;padding:3px;"></a>
         </div>
       </div>
       <p style="margin:0;">© <span id="y"></span> Horizon House. All rights reserved.</p>
