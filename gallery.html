@@ -36,8 +36,9 @@
     .hamburger.active span:nth-child(3){transform:rotate(-45deg) translate(7px,-7px)}
     @media(max-width:768px){
       .hamburger{display:block}
-      nav ul{position:fixed;top:0;right:0;height:100vh;width:250px;background:var(--slate);flex-direction:column;padding:5rem 2rem 2rem;gap:1.5rem;box-shadow:-2px 0 10px rgba(0,0,0,0.3);transform:translateX(100%);transition:transform 0.3s ease;z-index:1000;}
+      nav ul{display:flex;position:fixed;top:0;right:0;height:100vh;width:250px;background:var(--slate);flex-direction:column;padding:5rem 2rem 2rem;gap:1.5rem;box-shadow:-2px 0 10px rgba(0,0,0,0.3);transform:translateX(100%);transition:transform 0.3s ease;z-index:1000;overflow-y:auto;}
       nav ul.active{transform:translateX(0)}
+      nav ul li{display:block;}
       nav ul li a{font-size:1.1rem;display:block;padding:0.5rem 0}
       nav>.cta{display:none}
     }

@@ -51,8 +51,9 @@
     .hamburger.active span:nth-child(3){transform:rotate(-45deg) translate(7px,-7px)}
     @media(max-width:768px){
       .hamburger{display:block}
-      nav ul{position:fixed;top:0;right:0;height:100vh;width:250px;background:var(--slate);flex-direction:column;padding:5rem 2rem 2rem;gap:1.5rem;box-shadow:-2px 0 10px rgba(0,0,0,0.3);transform:translateX(100%);transition:transform 0.3s ease;z-index:1000;}
+      nav ul{display:flex;position:fixed;top:0;right:0;height:100vh;width:250px;background:var(--slate);flex-direction:column;padding:5rem 2rem 2rem;gap:1.5rem;box-shadow:-2px 0 10px rgba(0,0,0,0.3);transform:translateX(100%);transition:transform 0.3s ease;z-index:1000;overflow-y:auto;}
       nav ul.active{transform:translateX(0)}
+      nav ul li{display:block;}
       nav ul li a{font-size:1.1rem;display:block;padding:0.5rem 0}
       nav>.cta{display:none}
     }
@@ -149,12 +150,32 @@
     <div class="page-hero">
       <h1>Funding &amp; Insurance Options</h1>
       <p>We work with families, individuals, and referring professionals to find a funding path that works — because cost should never be the barrier to recovery.</p>
-      <span class="badge">Medi-Cal Approved Provider</span>
     </div>
+
+    <!-- Private Pay & Other -->
+    <section class="fund-section" id="private-pay" aria-labelledby="private-title">
+      <h2 id="private-title">Payment Options</h2>
+      <p>We believe everyone deserves access to quality sober living. We offer several options to make placement possible.</p>
+      <div class="ins-grid" style="margin-top:1.25rem;">
+        <div class="ins-card">
+          Private Pay
+          <span>Self-pay accepted — contact us for current rates</span>
+        </div>
+        <div class="ins-card">
+          Scholarships
+          <span>A limited number of scholarships become available to qualified individuals</span>
+        </div>
+        <div class="ins-card">
+          Sliding Scale
+          <span>Considered case-by-case for those who qualify</span>
+        </div>
+      </div>
+      <p style="margin-top:1.25rem;font-size:.95rem;color:#555;">For questions about scholarships, sliding scale availability, or current private pay rates, reach out directly — we'll work through every option with you.</p>
+    </section>
 
     <!-- Medi-Cal -->
     <section class="fund-section" id="medi-cal" aria-labelledby="medicaid-title">
-      <h2 id="medicaid-title">Medi-Cal Coverage</h2>
+      <h2 id="medicaid-title">Medi-Cal</h2>
       <p>Horizon House is an approved provider for Medi-Cal through the following managed care programs. If you or your client has active Medi-Cal coverage, we can work directly with your plan to verify eligibility and coordinate placement.</p>
       <div class="ins-grid" style="margin-top:1.25rem;">
         <div class="ins-card">
@@ -175,27 +196,6 @@
         <a href="https://www.ruhealth.org/behavioral-health/housing" target="_blank" rel="noopener noreferrer"><img src="ruhs-logo.png" alt="RUHS"></a>
       </div>
       <p style="margin-top:1.25rem;font-size:.95rem;color:#555;">Not sure if your plan is covered? Contact us and we'll do a complimentary benefits verification for you.</p>
-    </section>
-
-    <!-- Private Pay & Other -->
-    <section class="fund-section" id="private-pay" aria-labelledby="private-title">
-      <h2 id="private-title">Additional Payment Options</h2>
-      <p>We believe everyone deserves access to quality sober living. Beyond Medi-Cal, we offer several options to make placement possible.</p>
-      <div class="ins-grid" style="margin-top:1.25rem;">
-        <div class="ins-card">
-          Private Pay
-          <span>Self-pay accepted — contact us for current rates</span>
-        </div>
-        <div class="ins-card">
-          Scholarships
-          <span>A limited number of scholarships become available to qualified individuals</span>
-        </div>
-        <div class="ins-card">
-          Sliding Scale
-          <span>Considered case-by-case for those who qualify</span>
-        </div>
-      </div>
-      <p style="margin-top:1.25rem;font-size:.95rem;color:#555;">For questions about scholarships, sliding scale availability, or current private pay rates, reach out directly — we'll work through every option with you.</p>
     </section>
 
     <!-- FAQ -->
