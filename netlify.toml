@@ -1,3 +1,15 @@
 [build]
   command = "node horizon-portal/backend/generate-invoices-manifest.js"
   publish = "horizon-portal"
+
+# HTML pages: always fetch fresh — prevents members seeing stale portal pages
+[[headers]]
+  for = "/*.html"
+  [headers.values]
+    Cache-Control = "no-cache, no-store, must-revalidate"
+
+# JSON data files: also never cache so invoice/payment data is always current
+[[headers]]
+  for = "/**/*.json"
+  [headers.values]
+    Cache-Control = "no-cache, no-store, must-revalidate"
