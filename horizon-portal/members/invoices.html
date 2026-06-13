@@ -420,31 +420,47 @@
       wrap.appendChild(table);
     }
 
-    // Normalize an invoice ID for fuzzy matching:
-    // strips MID prefix, replaces underscores/spaces with dashes, lowercases,
-    // strips trailing timestamp (HHmmss) so month-level IDs match day-level ones.
+    // Normalize an invoice ID for fuzzy matching.
     function normalizeInvId(id) {
       return String(id || '')
         .trim()
-        .replace(/^MID/i, '')
-        .replace(/[_\s]+/g, '-')
+        .replace(/^MID/i, '')                       // strip MID prefix
+        .replace(/[_\s]+/g, '-')                    // underscores/spaces → dashes
         .toLowerCase()
-        .replace(/-\d{6}$/, '');  // strip trailing HHmmss time block
+        .replace(/(-[a-z][a-z0-9]*)(?=-\d)/g, '')  // strip word tokens (county, manual…) between digit groups
+        .replace(/-\d{6}$/, '')                      // strip trailing HHmmss timestamp
+        .replace(/^-/, '');                          // strip leading dash if any
     }
 
     function findInvoicePdf(invoiceId, memberInvoices) {
       if (!invoiceId || !memberInvoices || !memberInvoices.length) return null;
       const needle = normalizeInvId(invoiceId);
       if (!needle) return null;
+
+      let best = null;
+      let bestScore = -1;
+
       for (const inv of memberInvoices) {
         const num = normalizeInvId(inv.invoiceNumber || '');
         if (!num) continue;
-        // Prefix match handles YYYYMM (payment) vs YYYYMMDD (invoice) granularity
-        if (num === needle || num.startsWith(needle) || needle.startsWith(num)) {
-          return `../${inv.pdfPath}`;
+
+        let score = -1;
+        if (num === needle) {
+          score = 10000; // exact match wins outright
+        } else if (num.startsWith(needle) || needle.startsWith(num)) {
+          // Score by length of common prefix; prefer paid invoices on ties
+          const prefixLen = Math.min(num.length, needle.length);
+          const paidBonus = inv.status === 'paid' ? 100 : 0;
+          score = prefixLen + paidBonus;
+        }
+
+        if (score > bestScore) {
+          bestScore = score;
+          best = inv;
         }
       }
-      return null;
+
+      return best ? `../${best.pdfPath}` : null;
     }
 
     function renderPaymentHistory(payments, memberInvoices) {
