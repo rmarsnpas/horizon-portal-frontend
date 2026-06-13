@@ -420,46 +420,48 @@
       wrap.appendChild(table);
     }
 
-    // Normalize an invoice ID for fuzzy matching.
-    function normalizeInvId(id) {
-      return String(id || '')
-        .trim()
-        .replace(/^MID/i, '')                       // strip MID prefix
-        .replace(/[_\s]+/g, '-')                    // underscores/spaces → dashes
-        .toLowerCase()
-        .replace(/(-[a-z][a-z0-9]*)(?=-\d)/g, '')  // strip word tokens (county, manual…) between digit groups
-        .replace(/-\d{6}$/, '')                      // strip trailing HHmmss timestamp
-        .replace(/^-/, '');                          // strip leading dash if any
+    // Extract YYYYMM from any invoice/payment ID string.
+    // Handles: YYYYMMDD, YYYYMM, MM-DD-YYYY, MID<id>_INV<YYYYMMDD>, etc.
+    function extractYYYYMM(id) {
+      const s = String(id || '').replace(/^MID\d+[_-]/i, ''); // strip leading MID<n>_ prefix
+      // YYYYMMDD (8 consecutive digits) → take YYYY+MM
+      const m8 = s.match(/(\d{4})(\d{2})\d{2}/);
+      if (m8) return m8[1] + m8[2];
+      // YYYYMM (6 consecutive digits not followed by more digits)
+      const m6 = s.match(/(\d{6})(?!\d)/);
+      if (m6) return m6[1];
+      return null;
     }
 
     function findInvoicePdf(invoiceId, memberInvoices) {
       if (!invoiceId || !memberInvoices || !memberInvoices.length) return null;
-      const needle = normalizeInvId(invoiceId);
-      if (!needle) return null;
 
-      let best = null;
-      let bestScore = -1;
-
+      // 1. Try exact invoice number match (case-insensitive, ignoring MID prefix)
+      const normalize = s => String(s).replace(/^MID\d+[_-]/i, '').replace(/[_\s]/g, '-').toLowerCase();
+      const needleExact = normalize(invoiceId);
       for (const inv of memberInvoices) {
-        const num = normalizeInvId(inv.invoiceNumber || '');
-        if (!num) continue;
-
-        let score = -1;
-        if (num === needle) {
-          score = 10000; // exact match wins outright
-        } else if (num.startsWith(needle) || needle.startsWith(num)) {
-          // Score by length of common prefix; prefer paid invoices on ties
-          const prefixLen = Math.min(num.length, needle.length);
-          const paidBonus = inv.status === 'paid' ? 100 : 0;
-          score = prefixLen + paidBonus;
-        }
-
-        if (score > bestScore) {
-          bestScore = score;
-          best = inv;
+        if (normalize(inv.invoiceNumber || '') === needleExact) {
+          return `../${inv.pdfPath}`;
         }
       }
 
+      // 2. Match by year+month — most specific reliable signal across all ID formats
+      const payYYYYMM = extractYYYYMM(invoiceId);
+      if (!payYYYYMM) return null;
+
+      let best = null;
+      let bestScore = -1;
+      for (const inv of memberInvoices) {
+        const invYYYYMM = extractYYYYMM(inv.invoiceNumber || '');
+        if (invYYYYMM === payYYYYMM) {
+          // Among same-month matches, prefer paid over unpaid
+          const score = inv.status === 'paid' ? 1 : 0;
+          if (score > bestScore) {
+            bestScore = score;
+            best = inv;
+          }
+        }
+      }
       return best ? `../${best.pdfPath}` : null;
     }
 
