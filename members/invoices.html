@@ -208,12 +208,6 @@
       <div id="unpaidEmpty" class="muted" style="margin-top:8px; display:none;">No unpaid invoices found.</div>
       <div id="unpaidWrap"></div>
     </div>
-
-    <div class="section card">
-      <h3 style="margin:0;color:#F58634;">Paid</h3>
-      <div id="paidEmpty" class="muted" style="margin-top:8px; display:none;">No paid invoices found.</div>
-      <div id="paidWrap"></div>
-    </div>
   </div>
 
   <script>
@@ -372,7 +366,6 @@
         console.error(e);
         showError('Unable to load invoices. Please try again later.');
         document.getElementById('unpaidEmpty').style.display = 'block';
-        document.getElementById('paidEmpty').style.display = 'block';
         return;
       }
 
@@ -380,13 +373,10 @@
 
       const mine = all.filter((inv) => String(inv.memberId || '').trim() === String(memberId).trim());
       const unpaid = mine.filter((inv) => inv.status === 'unpaid');
-      const paid = mine.filter((inv) => inv.status === 'paid');
 
       if (!unpaid.length) document.getElementById('unpaidEmpty').style.display = 'block';
-      if (!paid.length) document.getElementById('paidEmpty').style.display = 'block';
 
       renderTable('unpaidWrap', unpaid, 'unpaid');
-      renderTable('paidWrap', paid, 'paid');
     }
 
     // Logout function
