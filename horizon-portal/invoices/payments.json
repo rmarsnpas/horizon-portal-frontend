@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-06-16T19:45:45.000Z",
+  "generatedAt": "2026-06-16T19:47:45.000Z",
   "payments": [
     {
       "memberId": "152",
@@ -455,7 +455,7 @@
       "memberId": "167",
       "memberName": "Jose Rodriguez",
       "date": "06-16-2026",
-      "amount": 1500.0,
+      "amount": 500.0,
       "paymentMethod": "Check",
       "invoiceId": "167_202606",
       "notes": "PAID IN FULL"
