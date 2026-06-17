@@ -2078,34 +2078,18 @@
                 modal.style.display = 'block';
                 document.body.style.overflow = 'hidden';
                 // Fetch all members
-                let members = [];
-                try {
-                    const res = await fetch(`${API_BASE}/api/members`);
-                    members = await res.json();
-                } catch {
-                    document.getElementById('allMembersTableHead').innerHTML = '';
-                    document.getElementById('allMembersTableBody').innerHTML = '<tr><td colspan="20" style="text-align:center;color:#e53e3e;">Error loading members</td></tr>';
-                    return;
-                }
+                const members = await fetchMembersSafe();
                 if (!members.length) {
                     document.getElementById('allMembersTableHead').innerHTML = '';
-                    document.getElementById('allMembersTableBody').innerHTML = '<tr><td colspan="20" style="text-align:center;color:#999;">No members found</td></tr>';
+                    document.getElementById('allMembersTableBody').innerHTML = '<tr><td colspan="20" style="text-align:center;color:#999;">No members found (or members service temporarily unavailable)</td></tr>';
                     return;
                 }
                 // Helper to reload members from backend
                 window.reloadAllMembersFromBackend = async function() {
-                    let members = [];
-                    try {
-                        const res = await fetch(`${API_BASE}/api/members`);
-                        members = await res.json();
-                    } catch {
-                        document.getElementById('allMembersTableHead').innerHTML = '';
-                        document.getElementById('allMembersTableBody').innerHTML = '<tr><td colspan="20" style="text-align:center;color:#e53e3e;">Error loading members</td></tr>';
-                        return;
-                    }
+                    const members = await fetchMembersSafe();
                     if (!members.length) {
                         document.getElementById('allMembersTableHead').innerHTML = '';
-                        document.getElementById('allMembersTableBody').innerHTML = '<tr><td colspan="20" style="text-align:center;color:#999;">No members found</td></tr>';
+                        document.getElementById('allMembersTableBody').innerHTML = '<tr><td colspan="20" style="text-align:center;color:#999;">No members found (or members service temporarily unavailable)</td></tr>';
                         return;
                     }
                     window._allMembersTableData.members = members;
@@ -3441,6 +3425,15 @@
             }
         }
 
+        async function fetchMembersSafe() {
+            const raw = await fetchJsonSafe(`${API_BASE}/api/members`, []);
+            if (!Array.isArray(raw)) {
+                console.warn('Members API returned non-array payload');
+                return [];
+            }
+            return raw.filter(m => m && typeof m === 'object');
+        }
+
         // Module-level cache for submitted forms (discharge, property, etc.)
         let allSubmittedForms = [];
 
@@ -3896,8 +3889,7 @@
         // Milestone detection
         async function loadMilestones() {
             try {
-                const response = await fetch(`${API_BASE}/api/members`);
-                const allMembers = await response.json();
+                const allMembers = await fetchMembersSafe();
                 
                 // Filter active members (status 1, 2, 4, 5)
                 const activeMembers = allMembers.filter(m => {
@@ -4038,8 +4030,7 @@
         // Load new members (arrived within last 3 days)
         async function loadNewMembers() {
             try {
-                const response = await fetch(`${API_BASE}/api/members`);
-                const allMembers = await response.json();
+                const allMembers = await fetchMembersSafe();
                 // Filter active members (status 1, 2, 4, 5)
                 const activeMembers = allMembers.filter(m => {
                     const status = m.STATUS || m.status || m.STATU;
@@ -4105,8 +4096,7 @@
         async function loadMemberBoard() {
             try {
                 // Fetch all members
-                const response = await fetch(`${API_BASE}/api/members`);
-                const allMembers = await response.json();
+                const allMembers = await fetchMembersSafe();
                 // Filter active members (status 1, H, W, or inCensus status 4)
                 const activeMembers = allMembers.filter(m => {
                     const status = (m.STATUS || m.status || m.STATU || '').toString().toUpperCase().trim();
