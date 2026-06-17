@@ -3873,8 +3873,18 @@
 
             } catch (error) {
                 console.error('Error loading dashboard data:', error);
-                document.getElementById('loading').textContent = 'Error loading data. Please check backend connection.';
-                document.getElementById('loading').style.color = '#e53e3e';
+                const loadingEl = document.getElementById('loading');
+                const host = (window.location && window.location.hostname) ? window.location.hostname.toLowerCase() : '';
+                const isLocal = host === 'localhost' || host === '127.0.0.1' || host === '';
+
+                if (isLocal) {
+                    loadingEl.textContent = 'Error loading data: local origin is blocked by backend CORS. Use https://www.horizon-house.org/staff-dashboard.html to test live backend.';
+                } else if (host === 'horizon-house.org') {
+                    loadingEl.textContent = 'Error loading data from this host. Open https://www.horizon-house.org/staff-dashboard.html and try again.';
+                } else {
+                    loadingEl.textContent = 'Error loading data. Please check backend connection.';
+                }
+                loadingEl.style.color = '#e53e3e';
             }
         }
 
