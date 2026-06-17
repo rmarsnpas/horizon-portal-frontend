@@ -3427,6 +3427,20 @@
         const API_BASE = 'https://horizon-portal-backend-production-3532.up.railway.app';
         const SESSION_KEY = 'horizonStaffAuth';
 
+        async function fetchJsonSafe(url, fallbackValue) {
+            try {
+                const res = await fetch(url);
+                if (!res.ok) {
+                    console.warn('Dashboard API non-OK response:', url, res.status);
+                    return fallbackValue;
+                }
+                return await res.json();
+            } catch (err) {
+                console.warn('Dashboard API request failed:', url, err);
+                return fallbackValue;
+            }
+        }
+
         // Module-level cache for submitted forms (discharge, property, etc.)
         let allSubmittedForms = [];
 
@@ -3682,72 +3696,58 @@
 
         async function loadDashboardData() {
             try {
-                // Fetch all data in parallel
+                // Fetch all dashboard data in parallel with per-endpoint fallbacks.
                 const [
-                    applicationsRes, 
-                    contactsRes, 
-                    drugScreensRes, 
-                    signInOutRes,
-                    schedulesRes,
-                    meetingCardsRes,
-                    agreementsRes,
-                    licenseeRes,
-                    roiRes,
-                    emergencyRes,
-                    liabilityRes,
-                    propertyRes,
-                    submittedFormsRes,
-                    membersForECRes
+                    applications,
+                    contacts,
+                    drugScreens,
+                    signInOut,
+                    schedulesData,
+                    meetingCardsData,
+                    agreements,
+                    licensee,
+                    roi,
+                    emergency,
+                    liability,
+                    property,
+                    submittedForms,
+                    membersForEC
                 ] = await Promise.all([
-                    fetch(`${API_BASE}/api/pendingApplications`),
-                    fetch(`${API_BASE}/api/contactSubmissions`),
-                    fetch(`${API_BASE}/api/drugScreens`),
-                    fetch(`${API_BASE}/api/signInOut/current`),
-                    fetch(`${API_BASE}/api/schedules`),
-                    fetch(`${API_BASE}/api/meetingCards`),
-                    fetch(`${API_BASE}/api/intake/agreements`),
-                    fetch(`${API_BASE}/api/intake/licensee-agreement`),
-                    fetch(`${API_BASE}/api/intake/release-of-information`),
-                    fetch(`${API_BASE}/api/intake/emergency-contact`),
-                    fetch(`${API_BASE}/api/intake/release-of-liability`),
-                    fetch(`${API_BASE}/api/intake/personal-property-release`),
-                    fetch(`${API_BASE}/api/forms`),
-                    fetch(`${API_BASE}/api/members`)
+                    fetchJsonSafe(`${API_BASE}/api/pendingApplications`, []),
+                    fetchJsonSafe(`${API_BASE}/api/contactSubmissions`, []),
+                    fetchJsonSafe(`${API_BASE}/api/drugScreens`, []),
+                    fetchJsonSafe(`${API_BASE}/api/signInOut/current`, { total: 0, membersOut: [] }),
+                    fetchJsonSafe(`${API_BASE}/api/schedules`, { schedules: [] }),
+                    fetchJsonSafe(`${API_BASE}/api/meetingCards`, { cards: [] }),
+                    fetchJsonSafe(`${API_BASE}/api/intake/agreements`, []),
+                    fetchJsonSafe(`${API_BASE}/api/intake/licensee-agreement`, []),
+                    fetchJsonSafe(`${API_BASE}/api/intake/release-of-information`, []),
+                    fetchJsonSafe(`${API_BASE}/api/intake/emergency-contact`, []),
+                    fetchJsonSafe(`${API_BASE}/api/intake/release-of-liability`, []),
+                    fetchJsonSafe(`${API_BASE}/api/intake/personal-property-release`, []),
+                    fetchJsonSafe(`${API_BASE}/api/forms`, []),
+                    fetchJsonSafe(`${API_BASE}/api/members`, [])
                 ]);
 
-                const applications = await applicationsRes.json();
-                const contacts = await contactsRes.json();
-                const drugScreens = await drugScreensRes.json();
-                const signInOut = await signInOutRes.json();
-                const schedulesData = await schedulesRes.json();
-                const meetingCardsData = await meetingCardsRes.json();
-                const agreements = await agreementsRes.json();
-                const licensee = await licenseeRes.json();
-                const roi = await roiRes.json();
-                const emergency = await emergencyRes.json();
-                const liability = await liabilityRes.json();
-                const property = await propertyRes.json();
-                const submittedForms = await submittedFormsRes.json();
                 allSubmittedForms = Array.isArray(submittedForms) ? submittedForms : [];
-                const membersForEC = await membersForECRes.json();
 
                 // Count pending applications (already filtered on backend)
-                const pendingApps = applications.length;
+                const pendingApps = Array.isArray(applications) ? applications.length : 0;
                 
                 // Count unread contacts
-                const unreadContacts = contacts.filter(c => c.status !== 'read').length;
+                const unreadContacts = (Array.isArray(contacts) ? contacts : []).filter(c => c.status !== 'read').length;
                 
                 // Total drug screens
-                const totalDrugScreens = drugScreens.length;
+                const totalDrugScreens = Array.isArray(drugScreens) ? drugScreens.length : 0;
 
                 // Members currently signed out
                 const membersOut = signInOut.total || 0;
 
                 // Schedule entries submitted
-                const totalSchedules = (schedulesData.schedules || []).length;
+                const totalSchedules = ((schedulesData && schedulesData.schedules) || []).length;
 
                 // Meeting cards pending review
-                const pendingMeetingCards = (meetingCardsData.cards || []).filter(c => c.status === 'pending').length;
+                const pendingMeetingCards = ((meetingCardsData && meetingCardsData.cards) || []).filter(c => c.status === 'pending').length;
 
                 // Emergency contacts: count current members (Status 1) missing a submission
                 const ecSubmitted = new Set(
@@ -3768,11 +3768,16 @@
                 }).length;
 
                 // Total intake agreements
-                const totalAgreements = agreements.length;
+                const totalAgreements = Array.isArray(agreements) ? agreements.length : 0;
                 
                 // Total all intake forms
-                const totalIntakeForms = agreements.length + licensee.length + roi.length + 
-                                        emergency.length + liability.length + property.length;
+                const totalIntakeForms =
+                    (Array.isArray(agreements) ? agreements.length : 0) +
+                    (Array.isArray(licensee) ? licensee.length : 0) +
+                    (Array.isArray(roi) ? roi.length : 0) +
+                    (Array.isArray(emergency) ? emergency.length : 0) +
+                    (Array.isArray(liability) ? liability.length : 0) +
+                    (Array.isArray(property) ? property.length : 0);
 
                 // Count submitted forms pending filing
                 const pendingForms = submittedForms.filter(f => f.status === 'pending').length;
