@@ -15,6 +15,14 @@
   ],
   "rewrites": [
     {
+      "source": "/intake/guest-liability-waiver",
+      "destination": "/horizon-portal/intake/guest-liability-waiver.html"
+    },
+    {
+      "source": "/intake/guest-liability-waiver.html",
+      "destination": "/horizon-portal/intake/guest-liability-waiver.html"
+    },
+    {
       "source": "/horizon-portal/members/dashboard",
       "destination": "/horizon-portal/members/dashboard.html"
     },
