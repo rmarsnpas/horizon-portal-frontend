@@ -264,6 +264,21 @@
                     </script>
                     </select>
                 </div>
+                <div class="form-group full" id="readmitModeGroup">
+                    <label style="display:flex;align-items:center;gap:8px;text-transform:none;letter-spacing:normal;font-size:13px;color:#2d3748;">
+                        <input id="fReadmitMode" type="checkbox" onchange="toggleReadmitMode()" style="width:auto;padding:0;margin:0;">
+                        Readmit from previous member ID
+                    </label>
+                </div>
+                <div class="form-group full" id="readmitSourceGroup" style="display:none;">
+                    <label>Previous Member ID *</label>
+                    <div style="display:flex;gap:8px;align-items:center;">
+                        <input id="fReadmitFrom" type="text" list="memberIdOptions" placeholder="Enter previous ID" autocomplete="off" style="flex:1;">
+                        <button type="button" class="btn btn-secondary btn-sm" onclick="applyReadmitSource()">Load Info</button>
+                    </div>
+                    <small style="color:#718096;">Creates a new member record using this ID's profile info, but keeps your new ID/admit/sober dates.</small>
+                    <datalist id="memberIdOptions"></datalist>
+                </div>
                 <div class="form-group">
                     <label>First Name *</label>
                     <input id="fFirst" type="text" autocomplete="off">
@@ -430,7 +445,16 @@
 
         document.getElementById('importBtn').textContent = 'Sync from Excel';
         document.getElementById('importBtn').disabled = false;
+        refreshMemberIdOptions();
         renderTable();
+    }
+
+    function refreshMemberIdOptions() {
+        const list = document.getElementById('memberIdOptions');
+        if (!list) return;
+        list.innerHTML = allMembers
+            .map(m => `<option value="${escHtml(String(m.id || ''))}" label="${escHtml(`${String(m.id || '')} - ${(m.firstName || '').trim()} ${(m.lastName || '').trim()}`)}"></option>`)
+            .join('');
     }
 
     function setFilter(f, btn) {
@@ -489,20 +513,58 @@
     }
 
     function clearForm() {
-        ['fId','fFirst','fLast','fPhone','fEmail','fDob','fAdmit','fDischarge','fSober','fPin','fStaffPw','fNotes','fBed','fEmerName','fEmerPhone']
+        ['fId','fFirst','fLast','fPhone','fEmail','fDob','fAdmit','fDischarge','fSober','fPin','fStaffPw','fNotes','fBed','fEmerName','fEmerPhone','fReadmitFrom']
             .forEach(id => { const el = document.getElementById(id); if (el) el.value = ''; });
         document.getElementById('fStatus').value = '1';
         document.getElementById('fGender').value = '';
         document.getElementById('fRate').value   = '';
+        document.getElementById('fReadmitMode').checked = false;
+        document.getElementById('readmitSourceGroup').style.display = 'none';
         document.getElementById('modalAlert').textContent = '';
         document.getElementById('staffPwGroup').style.display = 'none';
         renderCustomFields({});
+    }
+
+    function toggleReadmitMode() {
+        const isReadmit = document.getElementById('fReadmitMode').checked;
+        document.getElementById('readmitSourceGroup').style.display = isReadmit ? '' : 'none';
+        if (isReadmit) {
+            document.getElementById('fStatus').value = '1';
+            document.getElementById('fDischarge').value = '';
+            document.getElementById('fReadmitFrom').focus();
+        }
+    }
+
+    function applyReadmitSource() {
+        const alert = document.getElementById('modalAlert');
+        const srcId = document.getElementById('fReadmitFrom').value.trim();
+        if (!srcId) { alert.textContent = 'Enter a previous member ID first.'; return; }
+
+        const source = allMembers.find(m => String(m.id) === srcId);
+        if (!source) { alert.textContent = `Member ID ${srcId} not found.`; return; }
+
+        document.getElementById('fFirst').value = source.firstName || '';
+        document.getElementById('fLast').value = source.lastName || '';
+        document.getElementById('fGender').value = source.gender || '';
+        document.getElementById('fDob').value = source.dob || '';
+        document.getElementById('fPhone').value = source.phone || '';
+        document.getElementById('fEmail').value = source.email || '';
+        document.getElementById('fRate').value = source.rate || '';
+        document.getElementById('fBed').value = source.bed || '';
+        document.getElementById('fEmerName').value = source.emergencyContactName || '';
+        document.getElementById('fEmerPhone').value = source.emergencyContactPhone || '';
+        document.getElementById('fNotes').value = source.notes || '';
+        renderCustomFields(source.customFields || {});
+        document.getElementById('fStatus').value = '1';
+        document.getElementById('fDischarge').value = '';
+        alert.textContent = `Loaded profile from member ${srcId}. Set new ID, admit date, and sober date.`;
     }
 
     function openAdd() {
         editingId = null;
         document.getElementById('modalTitle').textContent = 'Add New Member';
         document.getElementById('deactivateBtn').style.display = 'none';
+        document.getElementById('readmitModeGroup').style.display = '';
         clearForm();
         document.getElementById('fId').value    = nextId();
         document.getElementById('fAdmit').value = new Date().toISOString().split('T')[0];
@@ -516,6 +578,7 @@
         if (!m) return;
         document.getElementById('modalTitle').textContent = `Edit: ${m.firstName||''} ${m.lastName||''}`;
         document.getElementById('deactivateBtn').style.display = parseInt(m.status||0) > 0 ? '' : 'none';
+        document.getElementById('readmitModeGroup').style.display = 'none';
         clearForm();
         document.getElementById('fId').value     = m.id    || '';
         document.getElementById('fStatus').value = String(m.status || '1');
@@ -549,12 +612,19 @@
         const lastName  = document.getElementById('fLast').value.trim();
         const id        = document.getElementById('fId').value.trim();
         const pin       = document.getElementById('fPin').value.trim();
+        const isReadmit = !editingId && document.getElementById('fReadmitMode').checked;
+        const readmitFromId = document.getElementById('fReadmitFrom').value.trim();
+        const admitDate = document.getElementById('fAdmit').value;
+        const sobrietyDate = document.getElementById('fSober').value;
         const alert     = document.getElementById('modalAlert');
         alert.textContent = '';
 
         if (!id)        { alert.textContent = 'Member ID is required.'; return; }
-        if (!firstName) { alert.textContent = 'First name is required.'; return; }
-        if (!lastName)  { alert.textContent = 'Last name is required.'; return; }
+        if (!isReadmit && !firstName) { alert.textContent = 'First name is required.'; return; }
+        if (!isReadmit && !lastName)  { alert.textContent = 'Last name is required.'; return; }
+        if (isReadmit && !readmitFromId) { alert.textContent = 'Previous Member ID is required for readmit.'; return; }
+        if (isReadmit && !admitDate) { alert.textContent = 'Admit date is required for readmit.'; return; }
+        if (isReadmit && !sobrietyDate) { alert.textContent = 'Sobriety date is required for readmit.'; return; }
         if (pin && pin.length < 4) { alert.textContent = 'PIN must be at least 4 characters.'; return; }
 
         const body = {
@@ -564,9 +634,9 @@
             dob:          document.getElementById('fDob').value,
             phone:        document.getElementById('fPhone').value.trim(),
             email:        document.getElementById('fEmail').value.trim(),
-            admitDate:    document.getElementById('fAdmit').value,
+            admitDate:    admitDate,
             dischargeDate: document.getElementById('fDischarge').value,
-            sobrietyDate: document.getElementById('fSober').value,
+            sobrietyDate: sobrietyDate,
             rate:         parseFloat(document.getElementById('fRate').value) || 0,
             bed:          document.getElementById('fBed').value.trim(),
             emergencyContactName:  document.getElementById('fEmerName').value.trim(),
@@ -574,6 +644,7 @@
             notes:        document.getElementById('fNotes').value.trim(),
             customFields: getCustomFields(),
         };
+        if (isReadmit) body.readmitFromId = readmitFromId;
         if (pin) body.pin = pin;
         const staffPwVal = document.getElementById('fStaffPw').value.trim();
         if (staffPwVal) body.memberStaffPw = staffPwVal;
