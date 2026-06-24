@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-06-24T19:34:52.000Z",
+  "generatedAt": "2026-06-24T19:35:48.000Z",
   "payments": [
     {
       "memberId": "152",
@@ -503,6 +503,15 @@
       "amount": 1000.0,
       "paymentMethod": "Transfer",
       "invoiceId": "166_202606",
+      "notes": "PAID IN FULL"
+    },
+    {
+      "memberId": "170",
+      "memberName": "Chris Henry",
+      "date": "06-23-2026",
+      "amount": 1500.0,
+      "paymentMethod": "Transfer",
+      "invoiceId": "170_202606",
       "notes": "PAID IN FULL"
     }
   ]
