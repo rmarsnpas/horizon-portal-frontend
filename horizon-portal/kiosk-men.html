@@ -415,6 +415,32 @@
         function normalizeId(v) {
             return String(v ?? '').trim().replace(/^0+/, '') || '0';
         }
+        // Extract a member's ID from varied backend field names
+        function memberIdFrom(obj) {
+            if (!obj) return '';
+            const candidates = [obj.memberId, obj.ID, obj.id, obj['Member ID'], obj['MEMBER ID'], obj.member_id, obj.MemberId];
+            for (const c of candidates) {
+                if (c !== undefined && c !== null && String(c).trim() !== '') return String(c).trim();
+            }
+            return '';
+        }
+
+        // Determine whether a member record represents an active/current member
+        function isActiveMember(m) {
+            if (!m) return false;
+            // Common fields that indicate active status
+            const inactiveFields = [m.inactive, m.INACTIVE, m['INACTIVE'], m['Inactive'], m.status, m.STATUS, m.Status];
+            for (const f of inactiveFields) {
+                if (f === true) return false;
+                if (typeof f === 'string' && f.toLowerCase().includes('inactive')) return false;
+                if (typeof f === 'number' && f === 0) return false;
+            }
+            // If there's an explicit Active field
+            const active = m.active || m.ACTIVE || m['ACTIVE'] || m['Active'];
+            if (active === false) return false;
+            if (typeof active === 'string' && active.toLowerCase().includes('no')) return false;
+            return true;
+        }
         function displayNameFrom(m) {
             if (!m) return 'Unknown';
             const nameCandidates = [m.memberName, m.name, m.MEMBER_NAME, m.MEMBERNAME, m.member_name, `${m.FIRST_NAME || m.first_name || ''} ${m.LAST_NAME || m.last_name || ''}`];

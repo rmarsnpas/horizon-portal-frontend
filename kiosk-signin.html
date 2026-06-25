@@ -448,6 +448,20 @@
             }
         }
 
+        // Capture global JS errors and store them in the kiosk log
+        window.addEventListener('error', function(evt) {
+            try {
+                logKioskError({ label: 'window.error', message: evt.message, filename: evt.filename, lineno: evt.lineno, colno: evt.colno, stack: (evt.error && evt.error.stack) || null });
+            } catch (e) { console.error('Error logging window.error', e); }
+        });
+
+        window.addEventListener('unhandledrejection', function(evt) {
+            try {
+                const reason = evt.reason || {};
+                logKioskError({ label: 'unhandledrejection', message: reason.message || String(reason), stack: reason.stack || null });
+            } catch (e) { console.error('Error logging unhandledrejection', e); }
+        });
+
         // Small debug UI to view error log
         function openKioskLog() {
             const modal = document.getElementById('kioskLogModal');
