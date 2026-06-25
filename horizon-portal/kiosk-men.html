@@ -411,6 +411,59 @@
 
     <script>
         const API_URL = 'https://horizon-portal-backend-production-3532.up.railway.app';
+
+        // --- Error logging ---
+        function logKioskError(entry) {
+            try {
+                const now = new Date().toISOString();
+                const log = JSON.parse(localStorage.getItem('kioskErrorLog') || '[]');
+                log.unshift(Object.assign({ ts: now }, entry));
+                if (log.length > 100) log.length = 100;
+                localStorage.setItem('kioskErrorLog', JSON.stringify(log));
+                console.error('KioskLog:', entry);
+            } catch (e) {
+                console.error('Failed to write kiosk log', e);
+            }
+        }
+
+        async function fetchWithLogging(url, options = {}, label = '') {
+            try {
+                const res = await fetch(url, options);
+                if (!res.ok) {
+                    let bodyText = null;
+                    try { bodyText = await res.text(); } catch (e) { bodyText = '<unreadable>'; }
+                    logKioskError({ label, url, status: res.status, statusText: res.statusText, response: bodyText, options });
+                }
+                return res;
+            } catch (err) {
+                logKioskError({ label, url, error: err && err.message ? err.message : String(err), options });
+                throw err;
+            }
+        }
+
+        function openKioskLog() {
+            const modal = document.getElementById('kioskLogModal');
+            const content = document.getElementById('kioskLogContent');
+            const log = JSON.parse(localStorage.getItem('kioskErrorLog') || '[]');
+            content.textContent = log.map(l => JSON.stringify(l, null, 2)).join('\n\n');
+            modal.style.display = 'flex';
+        }
+        function closeKioskLog() { document.getElementById('kioskLogModal').style.display = 'none'; }
+
+        // Capture global JS errors
+        window.addEventListener('error', function(evt) {
+            try {
+                logKioskError({ label: 'window.error', message: evt.message, filename: evt.filename, lineno: evt.lineno, colno: evt.colno, stack: (evt.error && evt.error.stack) || null });
+            } catch (e) { console.error('Error logging window.error', e); }
+        });
+
+        window.addEventListener('unhandledrejection', function(evt) {
+            try {
+                const reason = evt.reason || {};
+                logKioskError({ label: 'unhandledrejection', message: reason.message || String(reason), stack: reason.stack || null });
+            } catch (e) { console.error('Error logging unhandledrejection', e); }
+        });
+
         // Helper utilities to normalize IDs and active status across backend variations
         function normalizeId(v) {
             return String(v ?? '').trim().replace(/^0+/, '') || '0';
@@ -494,11 +547,11 @@
 
         async function loadStatusBoard() {
             try {
-                const response = await fetch(`${API_URL}/api/signInOut/current`);
+                const response = await fetchWithLogging(`${API_URL}/api/signInOut/current`, {}, 'loadStatusBoard-current');
                 const data = await response.json();
 
                 // Build a set of male member IDs from the members endpoint (robust to field names)
-                const membersResponse = await fetch(`${API_URL}/api/members`);
+                const membersResponse = await fetchWithLogging(`${API_URL}/api/members`, {}, 'loadStatusBoard-members');
                 const allMembers = await membersResponse.json();
                 const menIds = new Set((allMembers || [])
                     .filter(isActiveMember)
@@ -544,7 +597,7 @@
 
         async function loadKioskMessages() {
             try {
-                const res = await fetch(`${API_URL}/api/kioskMessages?target=men`);
+                const res = await fetchWithLogging(`${API_URL}/api/kioskMessages?target=men`, {}, 'loadKioskMessages');
                 const msgs = await res.json();
                 const container = document.getElementById('kioskMessages');
                 if (!msgs.length) { container.innerHTML = ''; return; }
@@ -628,7 +681,7 @@
 
             try {
                 // Get full member list to find this member with name
-                const membersResponse = await fetch(`${API_URL}/api/members?gender=M`);
+                const membersResponse = await fetchWithLogging(`${API_URL}/api/members?gender=M`, {}, 'processSignInOut-members');
                 const allMembers = await membersResponse.json();
                 
                 // Find this specific member
@@ -662,7 +715,7 @@
                 }
 
                 // Check current sign-in status - get list of all signed-out members
-                const statusResponse = await fetch(`${API_URL}/api/signInOut/current`);
+                const statusResponse = await fetchWithLogging(`${API_URL}/api/signInOut/current`, {}, 'processSignInOut-status');
                 const statusData = await statusResponse.json();
                 
                 // Use the already-loaded members list
@@ -678,7 +731,7 @@
 
                 // Fetch any personal messages for this member and show them briefly
                 try {
-                    const msgRes = await fetch(`${API_URL}/api/kioskMessages?memberId=${encodeURIComponent(memberId)}`);
+                    const msgRes = await fetchWithLogging(`${API_URL}/api/kioskMessages?memberId=${encodeURIComponent(memberId)}`, {}, 'personalMessages');
                     const personalMsgs = await msgRes.json();
                     const personal = personalMsgs.filter(m => m.target === 'individual');
                     if (personal.length) {
@@ -723,7 +776,7 @@
                 const timeIn = now.toTimeString().slice(0, 5);
                 const date = `${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}-${String(now.getFullYear())}`;
                 
-                const actionResponse = await fetch(`${API_URL}/api/signInOut/in`, {
+                const actionResponse = await fetchWithLogging(`${API_URL}/api/signInOut/in`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ 
@@ -732,7 +785,7 @@
                         timeIn: timeIn,
                         date: date
                     })
-                });
+                }, 'signIn');
 
                 const result = await actionResponse.json();
                 showLoading(false);
@@ -781,11 +834,11 @@
                 
                 console.log('Sign-out payload:', payload);
                 
-                const actionResponse = await fetch(`${API_URL}/api/signInOut/out`, {
+                const actionResponse = await fetchWithLogging(`${API_URL}/api/signInOut/out`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify(payload)
-                });
+                }, 'signOut');
 
                 const result = await actionResponse.json();
                 showLoading(false);
@@ -856,5 +909,17 @@
         <div id="ssDate" style="color:rgba(255,255,255,0.75);font-size:1.3rem;font-family:'Segoe UI',Arial,sans-serif;margin-top:-8px;"></div>
         <div style="margin-top:16px;padding:14px 36px;border:2px solid rgba(255,255,255,0.4);border-radius:40px;color:rgba(255,255,255,0.85);font-size:1.15rem;font-family:'Segoe UI',Arial,sans-serif;">Touch anywhere to sign in / out</div>
     </div>
+
+    <!-- Kiosk log modal + button -->
+    <div id="kioskLogModal" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,0.6); z-index:10000; align-items:center; justify-content:center;">
+        <div style="width:90%; max-width:900px; max-height:80%; overflow:auto; background:#fff; border-radius:8px; padding:12px;">
+            <div style="display:flex; justify-content:space-between; align-items:center;">
+                <h3 style="margin:0;">Kiosk Error Log</h3>
+                <button onclick="closeKioskLog()" style="padding:6px 10px;">Close</button>
+            </div>
+            <pre id="kioskLogContent" style="white-space:pre-wrap; font-size:12px; margin-top:8px;"></pre>
+        </div>
+    </div>
+    <button id="viewKioskLogBtn" onclick="openKioskLog()" style="position:fixed; right:12px; bottom:12px; z-index:10001; padding:8px 12px; border-radius:8px; background:#333; color:#fff; border:none; cursor:pointer;">View Logs</button>
 </body>
 </html>
