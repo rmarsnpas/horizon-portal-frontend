@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="utf-8">
-  <title>Horizon House — Discharge Packet (Fillable)</title>
+  <title>Horizon House ï¿½ Discharge Packet (Fillable)</title>
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="robots" content="noindex, nofollow">
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@500;700&family=Nunito:wght@400;600&display=swap" rel="stylesheet">
@@ -342,7 +342,7 @@
 <body>
 
 
-  <!-- PAGE 1 — DISCHARGE REPORT -->
+  <!-- PAGE 1 ï¿½ DISCHARGE REPORT -->
   <div class="page">
 
     <div class="header">
@@ -512,7 +512,7 @@
 
   </div>
 
-  <!-- PAGE 2 — CONTINUED -->
+  <!-- PAGE 2 ï¿½ CONTINUED -->
   <div class="page" style="page-break-before:always;">
 
     <div class="page2-header">Discharge Report (Continued)</div>
@@ -634,7 +634,12 @@
 
   </div>
 
+("- Insert PDF libs and updated handlers -")
 </form>
+
+<!-- Libraries for client-side PDF generation -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 
 <script>
 (function prefillFromUrl() {
@@ -742,14 +747,83 @@ document.getElementById('member_id').addEventListener('blur', async function() {
   } catch (e) {}
 });
 
-function saveToPDF() {
-  saveFormToBackend();
-  window.print();
-  // Open property storage form after printing if property was stored by staff
-  if (document.getElementById('prop_stored') && document.getElementById('prop_stored').checked) {
-    const memberName = document.getElementById('member_name').value;
-    const url = memberName ? 'property-storage-form.html?memberName=' + encodeURIComponent(memberName) : 'property-storage-form.html';
-    setTimeout(function() { window.open(url, '_blank'); }, 1000);
+async function generatePdfBlob() {
+  // Uses html2canvas + jsPDF to render each .page element into PDF pages
+  try {
+    const { jsPDF } = window.jspdf;
+    const pages = Array.from(document.querySelectorAll('.page'));
+    if (!pages.length) throw new Error('No pages found to render');
+
+    const pdf = new jsPDF({ unit: 'pt', format: 'letter' });
+
+    for (let i = 0; i < pages.length; i++) {
+      const page = pages[i];
+      // ensure signatures and inputs are visible as intended
+      const canvas = await html2canvas(page, { scale: 2, useCORS: true, logging: false });
+      const imgData = canvas.toDataURL('image/jpeg', 0.95);
+      const imgProps = pdf.getImageProperties(imgData);
+      const pdfWidth = pdf.internal.pageSize.getWidth();
+      const pdfHeight = (imgProps.height * pdfWidth) / imgProps.width;
+
+      if (i > 0) pdf.addPage();
+      pdf.addImage(imgData, 'JPEG', 0, 0, pdfWidth, pdfHeight);
+    }
+
+    return pdf.output('blob');
+  } catch (err) {
+    console.error('PDF generation failed', err);
+    throw err;
+  }
+}
+
+async function saveToPDF() {
+  // Save form data to backend, then generate PDF and offer upload/download
+  try {
+    await saveFormToBackend();
+
+    let blob;
+    try {
+      blob = await generatePdfBlob();
+    } catch (err) {
+      // Fallback to print if PDF generation fails
+      console.warn('Falling back to print due to PDF generation error');
+      window.print();
+      return;
+    }
+
+    // Try uploading PDF to backend endpoint
+    const memberName = (document.getElementById('member_name') || {}).value || 'discharge';
+    const filename = `${memberName.replace(/[^a-z0-9_-]/ig, '_')}_${Date.now()}.pdf`;
+    const fd = new FormData();
+    fd.append('memberId', document.getElementById('member_id')?.value || '');
+    fd.append('memberName', memberName);
+    fd.append('pdf', blob, filename);
+
+    try {
+      const res = await fetch('https://horizon-portal-backend-production-3532.up.railway.app/api/forms/discharge/pdf', {
+        method: 'POST', body: fd
+      });
+      if (!res.ok) throw new Error('Upload failed ' + res.status);
+      alert('PDF saved and uploaded successfully.');
+    } catch (err) {
+      console.error('PDF upload failed', err);
+      // Offer download as fallback
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url; a.download = filename; document.body.appendChild(a); a.click(); a.remove();
+      URL.revokeObjectURL(url);
+      alert('PDF generated â€” downloaded locally as fallback (upload failed).');
+    }
+
+    // Open property storage form after printing if property was stored by staff
+    if (document.getElementById('prop_stored') && document.getElementById('prop_stored').checked) {
+      const memberName2 = document.getElementById('member_name').value;
+      const url = memberName2 ? 'property-storage-form.html?memberName=' + encodeURIComponent(memberName2) : 'property-storage-form.html';
+      setTimeout(function() { window.open(url, '_blank'); }, 1000);
+    }
+  } catch (err) {
+    console.error('saveToPDF error', err);
+    alert('Error generating or saving PDF. Please try again.');
   }
 }
 
@@ -757,7 +831,24 @@ async function submitForm() {
   const memberName = document.getElementById('member_name') ? document.getElementById('member_name').value.trim() : '';
   if (!memberName) { alert('Please enter a Member Name before submitting.'); return; }
   try {
+    // Save JSON form data first
     await saveFormToBackend();
+
+    // Attempt to generate and upload a PDF version of the filled form
+    try {
+      const blob = await generatePdfBlob();
+      const filename = `${memberName.replace(/[^a-z0-9_-]/ig, '_')}_${Date.now()}.pdf`;
+      const fd = new FormData();
+      fd.append('memberId', document.getElementById('member_id')?.value || '');
+      fd.append('memberName', memberName);
+      fd.append('pdf', blob, filename);
+      const r = await fetch('https://horizon-portal-backend-production-3532.up.railway.app/api/forms/discharge/pdf', { method: 'POST', body: fd });
+      if (!r.ok) throw new Error('PDF upload failed ' + r.status);
+      console.log('PDF uploaded');
+    } catch (pdfErr) {
+      console.warn('PDF upload failed, proceeding without PDF:', pdfErr);
+    }
+
     alert('Discharge form submitted successfully.');
     const returnTo = new URLSearchParams(window.location.search).get('returnTo');
     if (returnTo) {
@@ -766,6 +857,7 @@ async function submitForm() {
       window.close();
     }
   } catch(e) {
+    console.error('Submission error', e);
     alert('Error submitting form. Please try again.');
   }
 }

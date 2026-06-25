@@ -187,6 +187,7 @@
             <input type="file" id="excelFileInput" accept=".xlsx,.xls" style="display:none" onchange="uploadAndSync(this)">
             <button id="importBtn" class="btn btn-secondary btn-sm" onclick="document.getElementById('excelFileInput').click()">Sync from Excel</button>
             <button class="btn btn-secondary btn-sm" onclick="downloadDB()">⬇ Download DB</button>
+            <button class="btn btn-secondary btn-sm" onclick="openReadmit()">Readmit Member</button>
             <button class="btn btn-primary btn-sm" onclick="openAdd()">+ Add Member</button>
         </div>
     </div>
@@ -570,6 +571,16 @@
         document.getElementById('fAdmit').value = new Date().toISOString().split('T')[0];
         document.getElementById('modalOverlay').style.display = 'flex';
         setTimeout(() => document.getElementById('fFirst').focus(), 100);
+    }
+
+    function openReadmit() {
+        openAdd();
+        const readmitToggle = document.getElementById('fReadmitMode');
+        if (!readmitToggle) return;
+        readmitToggle.checked = true;
+        toggleReadmitMode();
+        const sourceInput = document.getElementById('fReadmitFrom');
+        if (sourceInput) sourceInput.focus();
     }
 
     function openEdit(id) {

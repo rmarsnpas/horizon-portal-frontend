@@ -390,6 +390,18 @@
         </div>
     </div>
 
+    <!-- Kiosk log modal + button -->
+    <div id="kioskLogModal" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,0.6); z-index:10000; align-items:center; justify-content:center;">
+        <div style="width:90%; max-width:900px; max-height:80%; overflow:auto; background:#fff; border-radius:8px; padding:12px;">
+            <div style="display:flex; justify-content:space-between; align-items:center;">
+                <h3 style="margin:0;">Kiosk Error Log</h3>
+                <button onclick="closeKioskLog()" style="padding:6px 10px;">Close</button>
+            </div>
+            <pre id="kioskLogContent" style="white-space:pre-wrap; font-size:12px; margin-top:8px;"></pre>
+        </div>
+    </div>
+    <button id="viewKioskLogBtn" onclick="openKioskLog()" style="position:fixed; right:12px; bottom:12px; z-index:10001; padding:8px 12px; border-radius:8px; background:#333; color:#fff; border:none;">View Logs</button>
+
     <!-- Overnight Pass Prompt Overlay -->
     <div id="overnightOverlay" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.6); z-index:9999; justify-content:center; align-items:center;">
         <div style="background:#fff; border-radius:16px; padding:32px; max-width:500px; width:90%; text-align:center; box-shadow:0 8px 40px rgba(0,0,0,0.3);">
@@ -406,6 +418,45 @@
 
     <script>
         const API_URL = 'https://horizon-portal-backend-production-3532.up.railway.app';
+
+        // --- Kiosk API wrapper + logging ---
+        function logKioskError(entry) {
+            try {
+                const now = new Date().toISOString();
+                const log = JSON.parse(localStorage.getItem('kioskErrorLog') || '[]');
+                log.unshift(Object.assign({ ts: now }, entry));
+                if (log.length > 100) log.length = 100;
+                localStorage.setItem('kioskErrorLog', JSON.stringify(log));
+                console.error('KioskLog:', entry);
+            } catch (e) {
+                console.error('Failed to write kiosk log', e);
+            }
+        }
+
+        async function fetchWithLogging(url, options = {}, label = '') {
+            try {
+                const res = await fetch(url, options);
+                if (!res.ok) {
+                    let bodyText = null;
+                    try { bodyText = await res.text(); } catch (e) { bodyText = '<unreadable>'; }
+                    logKioskError({ label, url, status: res.status, statusText: res.statusText, response: bodyText, options });
+                }
+                return res;
+            } catch (err) {
+                logKioskError({ label, url, error: err && err.message ? err.message : String(err), options });
+                throw err;
+            }
+        }
+
+        // Small debug UI to view error log
+        function openKioskLog() {
+            const modal = document.getElementById('kioskLogModal');
+            const content = document.getElementById('kioskLogContent');
+            const log = JSON.parse(localStorage.getItem('kioskErrorLog') || '[]');
+            content.textContent = log.map(l => JSON.stringify(l, null, 2)).join('\n\n');
+            modal.style.display = 'flex';
+        }
+        function closeKioskLog() { document.getElementById('kioskLogModal').style.display = 'none'; }
         // Helper utilities to normalize IDs across backend variations
         function normalizeId(v) {
             return String(v ?? '').trim();
@@ -440,14 +491,31 @@
         loadStatusBoard();
         setInterval(loadStatusBoard, 10000); // Refresh every 10 seconds
 
-        // Focus input on load
-        document.getElementById('memberIdInput').focus();
+        // Focus input on load and add robust input handlers
+        const memberIdInput = document.getElementById('memberIdInput');
+        memberIdInput.focus();
 
-        // Allow Enter key to submit
-        document.getElementById('memberIdInput').addEventListener('keypress', function(e) {
+        // Submit on Enter (use keydown to be more reliable across devices)
+        memberIdInput.addEventListener('keydown', function(e) {
             if (e.key === 'Enter') {
+                e.preventDefault();
                 processSignInOut();
             }
+        });
+
+        // Trim whitespace as user types (helps barcode scanners and pasted values)
+        memberIdInput.addEventListener('input', function() {
+            const cleaned = this.value.replace(/\s+/g, '');
+            if (cleaned !== this.value) this.value = cleaned;
+        });
+
+        // If a scanner pastes the full ID, handle it immediately
+        memberIdInput.addEventListener('paste', function() {
+            setTimeout(() => {
+                this.value = this.value.replace(/\s+/g, '');
+                // Auto-submit if there's any content
+                if (this.value) processSignInOut();
+            }, 50);
         });
 
         function showStatusScreen() {
@@ -465,7 +533,7 @@
 
         async function loadStatusBoard() {
             try {
-                const response = await fetch(`${API_URL}/api/signInOut/current`);
+                const response = await fetchWithLogging(`${API_URL}/api/signInOut/current`, {}, 'loadStatusBoard');
                 const data = await response.json();
                 
                 const statusGrid = document.getElementById('statusGrid');
@@ -565,9 +633,9 @@
 
             try {
                 // First, verify the member exists
-                const memberResponse = await fetch(`${API_URL}/api/getMember?id=${encodeURIComponent(memberId)}`);
+                const memberResponse = await fetchWithLogging(`${API_URL}/api/getMember?id=${encodeURIComponent(memberId)}`, {}, 'getMember');
                 
-                if (!memberResponse.ok) {
+                if (!memberResponse || !memberResponse.ok) {
                     showLoading(false);
                     showStatus('Member ID not found', 'error');
                     return;
@@ -583,7 +651,7 @@
                 const memberName = `${memberData.FIRST_NAME || ''} ${memberData.LAST_NAME || ''}`.trim();
 
                 // Check current sign-in status - get list of all signed-out members
-                const statusResponse = await fetch(`${API_URL}/api/signInOut/current`);
+                const statusResponse = await fetchWithLogging(`${API_URL}/api/signInOut/current`, {}, 'currentStatus');
                 const statusData = await statusResponse.json();
 
                 showLoading(false);
@@ -626,7 +694,7 @@
                 const timeIn = now.toTimeString().slice(0, 5);
                 const date = `${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}-${String(now.getFullYear())}`;
                 
-                const actionResponse = await fetch(`${API_URL}/api/signInOut/in`, {
+                const actionResponse = await fetchWithLogging(`${API_URL}/api/signInOut/in`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ 
@@ -635,7 +703,7 @@
                         timeIn: timeIn,
                         date: date
                     })
-                });
+                }, 'signIn');
 
                 const result = await actionResponse.json();
                 showLoading(false);
@@ -654,7 +722,7 @@
 
         async function checkOvernightAndSignOut(memberData, destination, returnTime) {
             try {
-                const res = await fetch(`${API_URL}/api/overnight-pass/check?memberId=${encodeURIComponent(memberData.id)}`);
+                const res = await fetchWithLogging(`${API_URL}/api/overnight-pass/check?memberId=${encodeURIComponent(memberData.id)}`, {}, 'overnightCheck');
                 const data = await res.json();
                 if (data.passes && data.passes.length > 0) {
                     const pass = data.passes[0];
@@ -694,7 +762,7 @@
                 const timeOut = now.toTimeString().slice(0, 5);
                 const date = `${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}-${String(now.getFullYear())}`;
                 
-                const actionResponse = await fetch(`${API_URL}/api/signInOut/out`, {
+                const actionResponse = await fetchWithLogging(`${API_URL}/api/signInOut/out`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ 
@@ -707,7 +775,7 @@
                         overnightPassId: overnightPass ? overnightPass.id : undefined,
                         isOvernightPass: !!overnightPass
                     })
-                });
+                }, 'signOut');
 
                 const result = await actionResponse.json();
                 showLoading(false);
