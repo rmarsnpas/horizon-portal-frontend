@@ -335,6 +335,8 @@
                 <button class="btn-action" onclick="showSignInScreen()">Sign In/Out</button>
             </div>
 
+            <div id="offlineIndicator" style="display:none; background:#ff9800; color:#fff; padding:12px; border-radius:8px; margin-bottom:16px; text-align:center; font-weight:700; font-size:1.1rem;">⚠️ OFFLINE MODE - Data stored locally</div>
+            
             <h2 style="margin-bottom: 10px;">Currently Signed Out</h2>
             <p style="color: #666; margin-bottom: 20px;" id="statusSummary">Loading...</p>
             
@@ -464,6 +466,40 @@
             } catch (e) { console.error('Error logging unhandledrejection', e); }
         });
 
+        // ──── OFFLINE MODE ────────────────────────────────────────────────────────
+        let offlineMode = false;
+        let memberCache = [];
+        const LOCAL_SIGNOUT_KEY = 'kioskSignOuts';
+        
+        function getLocalSignOuts() {
+            try {
+                return JSON.parse(localStorage.getItem(LOCAL_SIGNOUT_KEY) || '[]');
+            } catch { return []; }
+        }
+        
+        function saveLocalSignOut(data) {
+            const signOuts = getLocalSignOuts();
+            signOuts.push(Object.assign({ _localTs: Date.now() }, data));
+            localStorage.setItem(LOCAL_SIGNOUT_KEY, JSON.stringify(signOuts));
+        }
+        
+        function removeLocalSignOut(memberId) {
+            const signOuts = getLocalSignOuts().filter(s => String(s.memberId) !== String(memberId));
+            localStorage.setItem(LOCAL_SIGNOUT_KEY, JSON.stringify(signOuts));
+        }
+        
+        function showOfflineIndicator() {
+            offlineMode = true;
+            const indicator = document.getElementById('offlineIndicator');
+            if (indicator) indicator.style.display = 'block';
+        }
+        
+        function hideOfflineIndicator() {
+            offlineMode = false;
+            const indicator = document.getElementById('offlineIndicator');
+            if (indicator) indicator.style.display = 'none';
+        }
+
         // Helper utilities to normalize IDs and active status across backend variations
         function normalizeId(v) {
             return String(v ?? '').trim().replace(/^0+/, '') || '0';
@@ -549,10 +585,12 @@
             try {
                 const response = await fetchWithLogging(`${API_URL}/api/signInOut/current`, {}, 'loadStatusBoard-current');
                 const data = await response.json();
+                hideOfflineIndicator();
 
                 // Build a set of male member IDs from the members endpoint (robust to field names)
                 const membersResponse = await fetchWithLogging(`${API_URL}/api/members`, {}, 'loadStatusBoard-members');
                 const allMembers = await membersResponse.json();
+                memberCache = allMembers || [];
                 const menIds = new Set((allMembers || [])
                     .filter(isActiveMember)
                     .filter(m => {
@@ -591,7 +629,31 @@
                 }
             } catch (error) {
                 console.error('Error loading status:', error);
-                document.getElementById('statusSummary').textContent = 'Error loading status';
+                showOfflineIndicator();
+                // Show local sign-outs when offline
+                const localSignOuts = getLocalSignOuts();
+                const statusGrid = document.getElementById('statusGrid');
+                const statusSummary = document.getElementById('statusSummary');
+                statusSummary.textContent = `Offline Mode: ${localSignOuts.length} member${localSignOuts.length !== 1 ? 's' : ''} signed out locally`;
+                
+                if (localSignOuts.length === 0) {
+                    statusGrid.innerHTML = `
+                        <div class="empty-state" style="grid-column: 1 / -1;">
+                            <div class="empty-state-icon">⚠️</div>
+                            <p style="font-size: 1.5rem; color: #f57c00;">Offline Mode</p>
+                            <p style="font-size: 1rem; color: #666;">All members are signed in (locally)</p>
+                        </div>
+                    `;
+                } else {
+                    statusGrid.innerHTML = localSignOuts.map(member => `
+                        <div class="status-card">
+                            <div class="member-name">${member.memberName}</div>
+                            <div class="member-info">📍 ${member.destination || ''}</div>
+                            <div class="member-info">🕐 Out: ${member.timeOut || ''}</div>
+                            <div class="member-info">⏰ Return: ${member.estimatedReturn || ''}</div>
+                        </div>
+                    `).join('');
+                }
             }
         }
 
@@ -680,9 +742,26 @@
             showStatus('Processing...', 'info');
 
             try {
-                // Get full member list to find this member with name
-                const membersResponse = await fetchWithLogging(`${API_URL}/api/members?gender=M`, {}, 'processSignInOut-members');
-                const allMembers = await membersResponse.json();
+                let allMembers = memberCache;
+                
+                // Try to fetch fresh member list, fall back to cache if offline
+                if (!offlineMode) {
+                    try {
+                        const membersResponse = await fetchWithLogging(`${API_URL}/api/members?gender=M`, {}, 'processSignInOut-members');
+                        allMembers = await membersResponse.json();
+                        memberCache = allMembers;
+                        hideOfflineIndicator();
+                    } catch (err) {
+                        showOfflineIndicator();
+                        console.warn('Using cached member list');
+                    }
+                }
+                
+                if (!allMembers || allMembers.length === 0) {
+                    showLoading(false);
+                    showStatus('No member data available. Cannot sign in/out offline.', 'error');
+                    return;
+                }
                 
                 // Find this specific member
                 const memberData = (allMembers || []).find(m => normalizeId(memberIdFrom(m)) === normalizeId(memberId));
@@ -715,8 +794,19 @@
                 }
 
                 // Check current sign-in status - get list of all signed-out members
-                const statusResponse = await fetchWithLogging(`${API_URL}/api/signInOut/current`, {}, 'processSignInOut-status');
-                const statusData = await statusResponse.json();
+                let statusData = { membersOut: [] };
+                if (!offlineMode) {
+                    try {
+                        const statusResponse = await fetchWithLogging(`${API_URL}/api/signInOut/current`, {}, 'processSignInOut-status');
+                        statusData = await statusResponse.json();
+                    } catch (err) {
+                        showOfflineIndicator();
+                        // Use local sign-outs when offline
+                        statusData = { membersOut: getLocalSignOuts() };
+                    }
+                } else {
+                    statusData = { membersOut: getLocalSignOuts() };
+                }
                 
                 // Use the already-loaded members list
                 const menIds = new Set((allMembers || []).filter(isActiveMember).map(m => memberIdFrom(m)));
@@ -776,25 +866,43 @@
                 const timeIn = now.toTimeString().slice(0, 5);
                 const date = `${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}-${String(now.getFullYear())}`;
                 
-                const actionResponse = await fetchWithLogging(`${API_URL}/api/signInOut/in`, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ 
-                        memberId: parseInt(memberId),
-                        memberName: memberName,
-                        timeIn: timeIn,
-                        date: date
-                    })
-                }, 'signIn');
-
-                const result = await actionResponse.json();
-                showLoading(false);
-
-                if (result.success) {
-                    showStatus(`${memberName} signed IN`, 'success');
-                    setTimeout(showStatusScreen, 2000); // Return to status after 2 seconds
+                if (offlineMode) {
+                    // Offline sign-in: just remove from local storage
+                    removeLocalSignOut(memberId);
+                    showLoading(false);
+                    showStatus(`${memberName} signed IN (offline)`, 'success');
+                    setTimeout(showStatusScreen, 2000);
                 } else {
-                    showStatus(`Sign-in error: ${result.message || result.error || 'Unknown error'}`, 'error');
+                    try {
+                        const actionResponse = await fetchWithLogging(`${API_URL}/api/signInOut/in`, {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({ 
+                                memberId: parseInt(memberId),
+                                memberName: memberName,
+                                timeIn: timeIn,
+                                date: date
+                            })
+                        }, 'signIn');
+
+                        const result = await actionResponse.json();
+                        showLoading(false);
+
+                        if (result.success) {
+                            removeLocalSignOut(memberId);
+                            showStatus(`${memberName} signed IN`, 'success');
+                            setTimeout(showStatusScreen, 2000);
+                        } else {
+                            showStatus(`Sign-in error: ${result.message || result.error || 'Unknown error'}`, 'error');
+                        }
+                    } catch (err) {
+                        // Fallback to offline
+                        removeLocalSignOut(memberId);
+                        showOfflineIndicator();
+                        showLoading(false);
+                        showStatus(`${memberName} signed IN (offline)`, 'success');
+                        setTimeout(showStatusScreen, 2000);
+                    }
                 }
             } catch (error) {
                 showLoading(false);
@@ -834,20 +942,38 @@
                 
                 console.log('Sign-out payload:', payload);
                 
-                const actionResponse = await fetchWithLogging(`${API_URL}/api/signInOut/out`, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify(payload)
-                }, 'signOut');
-
-                const result = await actionResponse.json();
-                showLoading(false);
-
-                if (result.success) {
-                    showStatus(`${memberData.name} signed OUT`, 'success');
-                    setTimeout(showStatusScreen, 2000); // Return to status after 2 seconds
+                if (offlineMode) {
+                    // Offline sign-out: save to local storage
+                    saveLocalSignOut(payload);
+                    showLoading(false);
+                    showStatus(`${memberData.name} signed OUT (offline)`, 'success');
+                    setTimeout(showStatusScreen, 2000);
                 } else {
-                    showStatus(`Sign-out error: ${result.message || result.error || 'Unknown error'}`, 'error');
+                    try {
+                        const actionResponse = await fetchWithLogging(`${API_URL}/api/signInOut/out`, {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify(payload)
+                        }, 'signOut');
+
+                        const result = await actionResponse.json();
+                        showLoading(false);
+
+                        if (result.success) {
+                            saveLocalSignOut(payload);
+                            showStatus(`${memberData.name} signed OUT`, 'success');
+                            setTimeout(showStatusScreen, 2000);
+                        } else {
+                            showStatus(`Sign-out error: ${result.message || result.error || 'Unknown error'}`, 'error');
+                        }
+                    } catch (err) {
+                        // Fallback to offline
+                        saveLocalSignOut(payload);
+                        showOfflineIndicator();
+                        showLoading(false);
+                        showStatus(`${memberData.name} signed OUT (offline)`, 'success');
+                        setTimeout(showStatusScreen, 2000);
+                    }
                 }
             } catch (error) {
                 showLoading(false);
