@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-07-01T18:41:54.000Z",
+  "generatedAt": "2026-07-01T18:43:24.000Z",
   "invoices": [
     {
       "memberId": "142",
@@ -208,17 +208,6 @@
       "amount": "",
       "pdfPath": "invoices/unpaid/MID157_INV157-20260616_MANUAL_DUE06-16-2026.pdf",
       "fileName": "MID157_INV157-20260616_MANUAL_DUE06-16-2026.pdf",
-      "parseOk": true
-    },
-    {
-      "memberId": "161",
-      "invoiceNumber": "161-20260626",
-      "status": "unpaid",
-      "dueDate": "06-26-2026",
-      "paidDate": "",
-      "amount": "",
-      "pdfPath": "invoices/unpaid/MID161_INV161-20260626_DUE06-26-2026.pdf",
-      "fileName": "MID161_INV161-20260626_DUE06-26-2026.pdf",
       "parseOk": true
     },
     {
@@ -769,6 +758,17 @@
       "amount": "",
       "pdfPath": "invoices/paid/MID144_INV144-20260627_DUE06-27-2026_PAID06-24-2026.pdf",
       "fileName": "MID144_INV144-20260627_DUE06-27-2026_PAID06-24-2026.pdf",
+      "parseOk": true
+    },
+    {
+      "memberId": "161",
+      "invoiceNumber": "161-20260626",
+      "status": "paid",
+      "dueDate": "06-26-2026",
+      "paidDate": "06-28-2026",
+      "amount": "",
+      "pdfPath": "invoices/paid/MID161_INV161-20260626_DUE06-26-2026_PAID06-28-2026.pdf",
+      "fileName": "MID161_INV161-20260626_DUE06-26-2026_PAID06-28-2026.pdf",
       "parseOk": true
     }
   ]
