@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-07-01T18:41:44.000Z",
+  "generatedAt": "2026-07-01T18:41:49.000Z",
   "invoices": [
     {
       "memberId": "142",
@@ -307,6 +307,17 @@
       "amount": "",
       "pdfPath": "invoices/unpaid/MID171_INV171-20260701_MANUAL_DUE07-01-2026.pdf",
       "fileName": "MID171_INV171-20260701_MANUAL_DUE07-01-2026.pdf",
+      "parseOk": true
+    },
+    {
+      "memberId": "172",
+      "invoiceNumber": "172-20260701",
+      "status": "unpaid",
+      "dueDate": "07-01-2026",
+      "paidDate": "",
+      "amount": "",
+      "pdfPath": "invoices/unpaid/MID172_INV172-20260701_DUE07-01-2026.pdf",
+      "fileName": "MID172_INV172-20260701_DUE07-01-2026.pdf",
       "parseOk": true
     },
     {
