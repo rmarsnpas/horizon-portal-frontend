@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-07-01T18:43:13.000Z",
+  "generatedAt": "2026-07-03T21:41:23.000Z",
   "payments": [
     {
       "memberId": "152",
@@ -317,228 +317,30 @@
       "notes": "PAID IN FULL"
     },
     {
-      "memberId": "148",
-      "memberName": "Barbara Bruner-Price",
-      "date": "05-23-2026",
-      "amount": 800.0,
-      "paymentMethod": "Transfer",
-      "invoiceId": "148_202605",
-      "notes": ""
-    },
-    {
-      "memberId": "148",
-      "memberName": "Barbara Bruner-Price",
-      "date": "05-23-2026",
-      "amount": 800.0,
-      "paymentMethod": "Transfer",
-      "invoiceId": "148_202604",
-      "notes": "PAID IN FULL"
-    },
-    {
-      "memberId": "144",
-      "memberName": "Adriana Cadena",
-      "date": "05-27-2026",
-      "amount": 600.0,
-      "paymentMethod": "Cash",
-      "invoiceId": "144_202605",
-      "notes": "PAID IN FULL"
-    },
-    {
-      "memberId": "161",
-      "memberName": "Jared Unfug",
-      "date": "05-29-2026",
-      "amount": 1200.0,
-      "paymentMethod": "Other",
-      "invoiceId": "161_202605",
-      "notes": "Cash app | PAID IN FULL"
-    },
-    {
       "memberId": "166",
       "memberName": "Sophia",
       "date": "05-22-2026",
       "amount": 1000.0,
       "paymentMethod": "Transfer",
       "invoiceId": "166_202605",
-      "notes": "PAID IN FULL"
-    },
-    {
-      "memberId": "164",
-      "memberName": "Ryan Tokeshi",
-      "date": "05-20-2026",
-      "amount": 1200.0,
-      "paymentMethod": "Transfer",
-      "invoiceId": "164_202605",
-      "notes": "PAID IN FULL"
-    },
-    {
-      "memberId": "167",
-      "memberName": "Jose Rodriguez",
-      "date": "05-30-2026",
-      "amount": 300.0,
-      "paymentMethod": "Transfer",
-      "invoiceId": "167_202605",
-      "notes": "to d/c on 6/2"
-    },
-    {
-      "memberId": "143",
-      "memberName": "Jose Velasquez",
-      "date": "06-01-2026",
-      "amount": 300.0,
-      "paymentMethod": "Transfer",
-      "invoiceId": "143_MANUAL_20260601_141019",
       "notes": ""
     },
     {
-      "memberId": "150",
-      "memberName": "Alli",
-      "date": "06-02-2026",
-      "amount": 1000.0,
-      "paymentMethod": "Cash",
-      "invoiceId": "150_202606",
-      "notes": "PAID IN FULL"
-    },
-    {
-      "memberId": "149",
-      "memberName": "Michael Brabo",
-      "date": "05-23-2026",
-      "amount": 1500.0,
-      "paymentMethod": "Check",
-      "invoiceId": "149_202605",
-      "notes": "PAID IN FULL"
-    },
-    {
-      "memberId": "154",
-      "memberName": "Jared Mercado",
-      "date": "05-23-2026",
-      "amount": 1500.0,
-      "paymentMethod": "Check",
-      "invoiceId": "154_County_202605",
-      "notes": "PAID IN FULL"
-    },
-    {
-      "memberId": "156",
-      "memberName": "",
-      "date": "05-23-2026",
-      "amount": 1000.0,
-      "paymentMethod": "Check",
-      "invoiceId": "108_MANUAL_20260517_160513",
-      "notes": "PAID IN FULL"
-    },
-    {
-      "memberId": "139",
-      "memberName": "",
-      "date": "05-23-2026",
-      "amount": 1250.0,
-      "paymentMethod": "Check",
-      "invoiceId": "139_MANUAL_20260604_175133",
-      "notes": "PAID IN FULL"
-    },
-    {
       "memberId": "143",
       "memberName": "",
-      "date": "06-13-2026",
+      "date": "06-12-2026",
       "amount": 550.0,
       "paymentMethod": "Transfer",
       "invoiceId": "",
       "notes": "PAID IN FULL"
     },
     {
-      "memberId": "141",
-      "memberName": "Monica Gray",
-      "date": "06-14-2026",
-      "amount": 500.0,
-      "paymentMethod": "Transfer",
-      "invoiceId": "141_202606",
-      "notes": "PAID IN FULL"
-    },
-    {
-      "memberId": "167",
-      "memberName": "Jose Rodriguez",
-      "date": "06-16-2026",
-      "amount": 500.0,
-      "paymentMethod": "Check",
-      "invoiceId": "167_202606",
-      "notes": "PAID IN FULL"
-    },
-    {
-      "memberId": "154",
-      "memberName": "Jared Mercado",
-      "date": "06-16-2026",
-      "amount": 1500.0,
-      "paymentMethod": "Check",
-      "invoiceId": "154_202606",
-      "notes": "PAID IN FULL"
-    },
-    {
-      "memberId": "149",
-      "memberName": "Michael Brabo",
-      "date": "06-16-2026",
-      "amount": 1500.0,
-      "paymentMethod": "Check",
-      "invoiceId": "149_202606",
-      "notes": "PAID IN FULL"
-    },
-    {
-      "memberId": "160",
-      "memberName": "Darren W",
-      "date": "06-16-2026",
-      "amount": 1200.0,
-      "paymentMethod": "Check",
-      "invoiceId": "160_202606",
-      "notes": "PAID IN FULL"
-    },
-    {
-      "memberId": "169",
-      "memberName": "",
-      "date": "06-20-2026",
-      "amount": 1100.0,
-      "paymentMethod": "Check",
-      "invoiceId": "169_202606",
-      "notes": "PAID IN FULL"
-    },
-    {
-      "memberId": "166",
-      "memberName": "Sophia",
-      "date": "06-21-2026",
+      "memberId": "150",
+      "memberName": "Alli",
+      "date": "07-03-2026",
       "amount": 1000.0,
       "paymentMethod": "Transfer",
-      "invoiceId": "166_202606",
-      "notes": "PAID IN FULL"
-    },
-    {
-      "memberId": "170",
-      "memberName": "Chris Henry",
-      "date": "06-23-2026",
-      "amount": 1500.0,
-      "paymentMethod": "Transfer",
-      "invoiceId": "170_202606",
-      "notes": "PAID IN FULL"
-    },
-    {
-      "memberId": "144",
-      "memberName": "Adriana Cadena",
-      "date": "06-24-2026",
-      "amount": 600.0,
-      "paymentMethod": "Cash",
-      "invoiceId": "144_202606",
-      "notes": "PAID IN FULL"
-    },
-    {
-      "memberId": "144",
-      "memberName": "Adriana Cadena",
-      "date": "06-24-2026",
-      "amount": 600.0,
-      "paymentMethod": "Cash",
-      "invoiceId": "144_202606",
-      "notes": "PAID IN FULL"
-    },
-    {
-      "memberId": "161",
-      "memberName": "Jared Unfug",
-      "date": "06-28-2026",
-      "amount": 1200.0,
-      "paymentMethod": "Other",
-      "invoiceId": "161_202606",
+      "invoiceId": "150_202607",
       "notes": "PAID IN FULL"
     }
   ]
