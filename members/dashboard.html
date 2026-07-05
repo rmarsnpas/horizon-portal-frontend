@@ -331,7 +331,185 @@
         <a href="chat.html" class="button">Open Messages</a>
     </div>
 
+    <!-- ── Document Upload Card ─────────────────────────────── -->
+    <div class="card" id="docUploadCard">
+        <h3>📎 Upload Documents</h3>
+        <p>Submit copies of your ID, court documents, medical paperwork, or other files to staff. You can take a photo with your phone camera or choose a file from your device.</p>
+
+        <div id="docUploadForm">
+            <div style="margin-bottom:12px;">
+                <label for="docTypeSelect" style="display:block;font-weight:700;color:var(--hh-primary);margin-bottom:6px;">Document Type</label>
+                <select id="docTypeSelect" style="width:100%;padding:10px;border:1px solid var(--hh-gold);border-radius:6px;font-size:15px;background:#fff;">
+                    <option value="Government ID">Government ID / Driver's License</option>
+                    <option value="Court Order">Court Order / Legal Document</option>
+                    <option value="Medical Record">Medical Record / Prescription</option>
+                    <option value="Insurance">Insurance Card / Document</option>
+                    <option value="Employment">Employment / Pay Stub</option>
+                    <option value="Program Certificate">Program Certificate</option>
+                    <option value="Other">Other</option>
+                </select>
+            </div>
+
+            <div style="margin-bottom:12px;">
+                <label for="docNotes" style="display:block;font-weight:700;color:var(--hh-primary);margin-bottom:6px;">Description <span style="font-weight:400;color:#888;">(optional)</span></label>
+                <textarea id="docNotes" rows="3" placeholder="Describe what this document is — e.g. &quot;Renewed driver's license, expires 2028&quot;, &quot;March 2026 court order from Judge Smith&quot;, &quot;Insurance card for Blue Shield PPO&quot;…" style="width:100%;padding:10px;border:1px solid var(--hh-gold);border-radius:6px;font-size:15px;box-sizing:border-box;font-family:inherit;resize:vertical;"></textarea>
+                <div style="font-size:12px;color:#888;margin-top:4px;">A short description helps staff quickly identify this document in your file.</div>
+            </div>
+
+            <!-- Drop zone / file picker -->
+            <div id="docDropZone" style="border:3px dashed var(--hh-gold);border-radius:10px;padding:28px 16px;text-align:center;background:#fff9f2;cursor:pointer;transition:border-color .2s,background .2s;margin-bottom:12px;" onclick="document.getElementById('docFileInput').click()" ondragover="docDragOver(event)" ondrop="docDrop(event)">
+                <div style="font-size:40px;margin-bottom:8px;">📄</div>
+                <div style="font-weight:700;color:var(--hh-primary);font-size:15px;">Tap to browse or drag a file here</div>
+                <div style="font-size:13px;color:#777;margin-top:4px;">Images &amp; PDF · up to 20 MB</div>
+            </div>
+
+            <!-- Camera capture for mobile -->
+            <div style="display:flex;gap:10px;margin-bottom:14px;">
+                <button type="button" onclick="document.getElementById('docFileInput').click()" class="button" style="flex:1;text-align:center;">📁 Browse File</button>
+                <button type="button" onclick="document.getElementById('docCameraInput').click()" class="button" style="flex:1;text-align:center;">📷 Use Camera</button>
+            </div>
+
+            <!-- Hidden inputs -->
+            <input type="file" id="docFileInput" accept="image/*,.pdf" style="display:none" onchange="docFileSelected(this)">
+            <input type="file" id="docCameraInput" accept="image/*" capture="environment" style="display:none" onchange="docFileSelected(this)">
+
+            <div id="docSelectedFile" style="display:none;background:#fff3e0;border:1px solid var(--hh-gold);border-radius:6px;padding:10px 14px;margin-bottom:12px;font-size:14px;color:#5a3a00;display:flex;align-items:center;gap:8px;">
+                <span style="font-size:20px;">📎</span>
+                <span id="docSelectedFileName" style="font-weight:700;"></span>
+                <button type="button" onclick="docClearFile()" style="margin-left:auto;background:none;border:none;font-size:18px;cursor:pointer;color:#e07020;padding:0;">✕</button>
+            </div>
+
+            <!-- Security & Privacy notice -->
+            <div style="background:#f0f7ff;border:1px solid #bbd6f7;border-radius:8px;padding:14px 16px;margin-bottom:14px;display:flex;gap:12px;align-items:flex-start;">
+                <span style="font-size:22px;flex-shrink:0;">🔒</span>
+                <div style="font-size:13px;color:#1a365d;line-height:1.6;">
+                    <strong style="display:block;margin-bottom:4px;color:#1a365d;">Your privacy and security are protected.</strong>
+                    All documents you upload are transmitted over an encrypted, secure HTTPS connection and stored on a private, access-controlled server. Only authorized Horizon House staff can view your files — they are never shared with third parties, publicly accessible, or visible to other members. Uploaded documents are retained solely for case management purposes in accordance with Horizon House's confidentiality policy. You may ask staff to remove any document from your file at any time.
+                </div>
+            </div>
+
+            <button type="button" id="docUploadBtn" onclick="docUpload()" class="button" style="width:100%;background:var(--hh-primary);color:#fff;font-size:16px;padding:14px;margin-bottom:6px;" disabled>⬆️ Upload Document</button>
+
+            <div id="docUploadStatus" style="display:none;padding:10px 14px;border-radius:6px;margin-top:6px;font-size:14px;font-weight:700;"></div>
+        </div>
+
+        <!-- Previously uploaded documents -->
+        <div style="margin-top:24px;border-top:1px solid var(--hh-gold);padding-top:16px;">
+            <div style="font-weight:700;color:var(--hh-primary);margin-bottom:10px;">My Uploaded Documents</div>
+            <div id="myDocsList" style="font-size:14px;color:#777;">Loading...</div>
+        </div>
+    </div>
+
 </div>
+
+<script>
+// ── Document Upload ──────────────────────────────────────────────
+const API = 'https://horizon-portal-backend-production-3532.up.railway.app/api';
+let _docFile = null;
+
+function docDragOver(e) {
+    e.preventDefault();
+    document.getElementById('docDropZone').style.borderColor = 'var(--hh-primary)';
+    document.getElementById('docDropZone').style.background = '#fff0e0';
+}
+
+function docDrop(e) {
+    e.preventDefault();
+    document.getElementById('docDropZone').style.borderColor = 'var(--hh-gold)';
+    document.getElementById('docDropZone').style.background = '#fff9f2';
+    const file = e.dataTransfer.files[0];
+    if (file) setDocFile(file);
+}
+
+function docFileSelected(input) {
+    if (input.files && input.files[0]) setDocFile(input.files[0]);
+}
+
+function setDocFile(file) {
+    _docFile = file;
+    document.getElementById('docSelectedFileName').textContent = file.name + ' (' + (file.size / 1024).toFixed(1) + ' KB)';
+    document.getElementById('docSelectedFile').style.display = 'flex';
+    document.getElementById('docUploadBtn').disabled = false;
+}
+
+function docClearFile() {
+    _docFile = null;
+    document.getElementById('docSelectedFile').style.display = 'none';
+    document.getElementById('docFileInput').value = '';
+    document.getElementById('docCameraInput').value = '';
+    document.getElementById('docUploadBtn').disabled = true;
+}
+
+async function docUpload() {
+    if (!_docFile) return;
+    const memberId = localStorage.getItem('memberId') || '';
+    const memberName = (localStorage.getItem('memberFirstName') || '') + ' ' + (localStorage.getItem('memberLastName') || '');
+    if (!memberId) { docStatus('error', 'Could not identify member. Please log in again.'); return; }
+
+    const btn = document.getElementById('docUploadBtn');
+    btn.disabled = true;
+    btn.textContent = 'Uploading…';
+
+    const fd = new FormData();
+    fd.append('document', _docFile);
+    fd.append('memberId', memberId);
+    fd.append('memberName', memberName.trim());
+    fd.append('docType', document.getElementById('docTypeSelect').value);
+    fd.append('notes', document.getElementById('docNotes').value.trim());
+
+    try {
+        const res = await fetch(`${API}/member-documents/upload`, { method: 'POST', body: fd });
+        if (!res.ok) throw new Error((await res.json()).error || 'Upload failed');
+        docStatus('success', '✅ Document uploaded successfully! Staff will review it shortly.');
+        docClearFile();
+        document.getElementById('docNotes').value = '';
+        loadMyDocs();
+    } catch (err) {
+        docStatus('error', '❌ Upload failed: ' + err.message);
+    } finally {
+        btn.disabled = false;
+        btn.textContent = '⬆️ Upload Document';
+    }
+}
+
+function docStatus(type, msg) {
+    const el = document.getElementById('docUploadStatus');
+    el.textContent = msg;
+    el.style.display = 'block';
+    el.style.background = type === 'success' ? '#d4edda' : '#f8d7da';
+    el.style.color = type === 'success' ? '#155724' : '#721c24';
+    el.style.border = type === 'success' ? '1px solid #c3e6cb' : '1px solid #f5c6cb';
+    setTimeout(() => { el.style.display = 'none'; }, 6000);
+}
+
+async function loadMyDocs() {
+    const memberId = localStorage.getItem('memberId');
+    const el = document.getElementById('myDocsList');
+    if (!memberId) { el.textContent = 'Not logged in.'; return; }
+    try {
+        const res = await fetch(`${API}/member-documents?memberId=${encodeURIComponent(memberId)}`);
+        const docs = await res.json();
+        if (!docs.length) { el.innerHTML = '<em>No documents uploaded yet.</em>'; return; }
+        el.innerHTML = docs.slice().reverse().map(d => `
+            <div style="display:flex;align-items:center;gap:10px;padding:8px 10px;border-bottom:1px solid #f0e0d0;flex-wrap:wrap;">
+                <span style="font-size:20px;">${d.isPdf ? '📄' : '🖼️'}</span>
+                <div style="flex:1;min-width:0;">
+                    <div style="font-weight:700;color:var(--hh-primary);">${escapeHtml(d.docType)}</div>
+                    <div style="font-size:12px;color:#777;">${escapeHtml(d.originalName)} · ${new Date(d.uploadedAt).toLocaleDateString()}</div>
+                    ${d.notes ? `<div style="font-size:12px;color:#555;">${escapeHtml(d.notes)}</div>` : ''}
+                </div>
+                <span style="font-size:11px;padding:3px 8px;border-radius:10px;font-weight:700;background:${d.savedToRecord ? '#d4edda' : '#fff3cd'};color:${d.savedToRecord ? '#155724' : '#856404'};">${d.savedToRecord ? '✔ Saved' : 'Pending'}</span>
+            </div>`).join('');
+    } catch { el.innerHTML = '<em>Could not load documents.</em>'; }
+}
+
+function escapeHtml(s) {
+    return String(s || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+}
+
+// Load on page ready (after member data fetch completes)
+document.addEventListener('DOMContentLoaded', () => { setTimeout(loadMyDocs, 800); });
+</script>
 
 <script>
     // Get member ID from URL parameter or localStorage

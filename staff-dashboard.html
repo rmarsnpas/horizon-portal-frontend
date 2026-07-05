@@ -739,6 +739,52 @@
                 <div class="card-count" style="font-size:24px;color:rgba(255,255,255,0.9);">Add / Edit</div>
                 <div class="card-label" style="color:rgba(255,255,255,0.85);">Master Member List</div>
             </a>
+
+            <a href="#" onclick="openMemberDocsPanel(); return false;" class="dashboard-card" style="background: linear-gradient(135deg, #2d6a4f 0%, #40916c 100%); color: white;">
+                <div class="card-icon" style="color:white;">📎</div>
+                <div class="card-title" style="color:white;">Member Documents</div>
+                <div class="card-count" id="memberDocsCount" style="font-size:24px;color:rgba(255,255,255,0.9);">-</div>
+                <div class="card-label" style="color:rgba(255,255,255,0.85);">Pending Review</div>
+            </a>
+        </div>
+
+        <!-- ── Member Documents Panel ─────────────────────────────────────── -->
+        <div id="memberDocsPanel" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.55);z-index:100000;align-items:flex-start;justify-content:center;overflow-y:auto;padding:24px 10px;">
+            <div style="background:white;border-radius:14px;padding:28px 24px;max-width:860px;width:100%;box-shadow:0 8px 40px rgba(0,0,0,0.25);position:relative;margin:auto;">
+                <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;">
+                    <h2 style="margin:0;font-size:1.3rem;color:#1a1a2e;">📎 Member Documents</h2>
+                    <span onclick="closeMemberDocsPanel()" style="font-size:1.8rem;cursor:pointer;line-height:1;color:#aaa;">&times;</span>
+                </div>
+
+                <!-- Filter bar -->
+                <div style="display:flex;gap:10px;flex-wrap:wrap;margin-bottom:16px;align-items:center;">
+                    <input id="memberDocsSearch" type="text" placeholder="Search by name, type, notes…" style="flex:1;min-width:180px;padding:9px 12px;border:1px solid #ccc;border-radius:6px;font-size:14px;" oninput="filterMemberDocs()">
+                    <select id="memberDocsFilter" onchange="filterMemberDocs()" style="padding:9px 12px;border:1px solid #ccc;border-radius:6px;font-size:14px;">
+                        <option value="all">All Documents</option>
+                        <option value="pending">Pending (not saved)</option>
+                        <option value="saved">Saved to Record</option>
+                    </select>
+                    <button onclick="loadMemberDocsList()" style="padding:9px 14px;background:#2d6a4f;color:white;border:none;border-radius:6px;font-weight:700;cursor:pointer;">↻ Refresh</button>
+                </div>
+
+                <div id="memberDocsListWrap" style="font-size:14px;">Loading...</div>
+            </div>
+        </div>
+
+        <!-- Document Preview Modal -->
+        <div id="memberDocPreviewModal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.7);z-index:200000;align-items:center;justify-content:center;">
+            <div style="background:white;border-radius:12px;max-width:90vw;max-height:90vh;overflow:auto;padding:20px;position:relative;min-width:320px;">
+                <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;gap:12px;flex-wrap:wrap;">
+                    <div id="memberDocPreviewTitle" style="font-weight:700;font-size:1rem;color:#1a1a2e;"></div>
+                    <div style="display:flex;gap:8px;flex-wrap:wrap;">
+                        <button id="memberDocPrintBtn" onclick="printMemberDoc()" style="padding:8px 16px;background:#2d6a4f;color:white;border:none;border-radius:6px;font-weight:700;cursor:pointer;">🖨️ Print</button>
+                        <button id="memberDocSaveBtn" onclick="saveDocToRecord()" style="padding:8px 16px;background:#155724;color:white;border:none;border-radius:6px;font-weight:700;cursor:pointer;">✔ Save to Record</button>
+                        <button id="memberDocDeleteBtn" onclick="deleteMemberDoc()" style="padding:8px 16px;background:#dc3545;color:white;border:none;border-radius:6px;font-weight:700;cursor:pointer;">🗑 Delete</button>
+                        <button onclick="closeMemberDocPreview()" style="padding:8px 16px;background:#6c757d;color:white;border:none;border-radius:6px;font-weight:700;cursor:pointer;">✕ Close</button>
+                    </div>
+                </div>
+                <div id="memberDocPreviewContent" style="text-align:center;"></div>
+            </div>
         </div>
 
         <!-- Forms Section -->
@@ -3725,7 +3771,8 @@ ${rateSummaryHtml}
                     liability,
                     property,
                     submittedForms,
-                    membersForEC
+                    membersForEC,
+                    memberDocsList
                 ] = await Promise.all([
                     fetchJsonSafe(`${API_BASE}/api/pendingApplications`, []),
                     fetchJsonSafe(`${API_BASE}/api/contactSubmissions`, []),
@@ -3740,7 +3787,8 @@ ${rateSummaryHtml}
                     fetchJsonSafe(`${API_BASE}/api/intake/release-of-liability`, []),
                     fetchJsonSafe(`${API_BASE}/api/intake/personal-property-release`, []),
                     fetchJsonSafe(`${API_BASE}/api/forms`, []),
-                    fetchJsonSafe(`${API_BASE}/api/members`, [])
+                    fetchJsonSafe(`${API_BASE}/api/members`, []),
+                    fetchJsonSafe(`${API_BASE}/api/member-documents`, [])
                 ]);
 
                 allSubmittedForms = Array.isArray(submittedForms) ? submittedForms : [];
@@ -3845,6 +3893,11 @@ ${rateSummaryHtml}
                 }
                 if (document.getElementById('meetingCardsCount')) {
                     document.getElementById('meetingCardsCount').textContent = pendingMeetingCards;
+                }
+                // Member documents count (pending / not yet saved to record)
+                const pendingDocs = (Array.isArray(memberDocsList) ? memberDocsList : []).filter(d => !d.savedToRecord).length;
+                if (document.getElementById('memberDocsCount')) {
+                    document.getElementById('memberDocsCount').textContent = pendingDocs;
                 }
                 if (document.getElementById('totalIntakeForms')) {
                     document.getElementById('totalIntakeForms').textContent = totalIntakeForms;
@@ -4465,4 +4518,177 @@ function openUploadModal() {
     document.body.style.overflow = 'hidden';
 }
 window.openUploadModal = openUploadModal;
+</script>
+
+<script>
+// ── Member Documents Panel ────────────────────────────────────────────────────
+const MDOC_API = 'https://horizon-portal-backend-production-3532.up.railway.app/api';
+let _allMemberDocs = [];
+let _currentPreviewDoc = null;
+
+function openMemberDocsPanel() {
+    const panel = document.getElementById('memberDocsPanel');
+    panel.style.display = 'flex';
+    document.body.style.overflow = 'hidden';
+    loadMemberDocsList();
+}
+function closeMemberDocsPanel() {
+    document.getElementById('memberDocsPanel').style.display = 'none';
+    document.body.style.overflow = '';
+}
+
+async function loadMemberDocsList() {
+    const wrap = document.getElementById('memberDocsListWrap');
+    wrap.textContent = 'Loading…';
+    try {
+        const res = await fetch(`${MDOC_API}/member-documents`);
+        _allMemberDocs = await res.json();
+        renderMemberDocsList(_allMemberDocs);
+    } catch (e) {
+        wrap.innerHTML = '<span style="color:#dc3545;">Failed to load documents.</span>';
+    }
+}
+
+function filterMemberDocs() {
+    const q = (document.getElementById('memberDocsSearch').value || '').toLowerCase();
+    const f = document.getElementById('memberDocsFilter').value;
+    let docs = _allMemberDocs;
+    if (f === 'pending') docs = docs.filter(d => !d.savedToRecord);
+    if (f === 'saved')   docs = docs.filter(d => d.savedToRecord);
+    if (q) docs = docs.filter(d =>
+        (d.memberName || '').toLowerCase().includes(q) ||
+        (d.docType || '').toLowerCase().includes(q) ||
+        (d.notes || '').toLowerCase().includes(q) ||
+        String(d.memberId || '').includes(q)
+    );
+    renderMemberDocsList(docs);
+}
+
+function renderMemberDocsList(docs) {
+    const wrap = document.getElementById('memberDocsListWrap');
+    if (!docs.length) { wrap.innerHTML = '<em style="color:#777;">No documents found.</em>'; return; }
+
+    // Group by member
+    const byMember = {};
+    docs.slice().reverse().forEach(d => {
+        const key = d.memberId;
+        if (!byMember[key]) byMember[key] = { name: d.memberName || `Member #${d.memberId}`, id: d.memberId, docs: [] };
+        byMember[key].docs.push(d);
+    });
+
+    wrap.innerHTML = Object.values(byMember).map(m => `
+        <div style="margin-bottom:18px;border:1px solid #e2e8f0;border-radius:8px;overflow:hidden;">
+            <div style="background:#2d6a4f;color:white;padding:10px 16px;font-weight:700;font-size:14px;">
+                👤 ${escMD(m.name)} <span style="font-weight:400;opacity:0.8;">(ID: ${escMD(m.id)})</span>
+                <span style="float:right;opacity:0.85;">${m.docs.length} doc${m.docs.length !== 1 ? 's' : ''}</span>
+            </div>
+            ${m.docs.map(d => `
+            <div style="display:flex;align-items:center;gap:12px;padding:10px 14px;border-bottom:1px solid #f0f4f8;flex-wrap:wrap;background:${d.savedToRecord ? '#f0fff4' : '#fff'};">
+                <span style="font-size:24px;flex-shrink:0;">${d.isPdf ? '📄' : '🖼️'}</span>
+                <div style="flex:1;min-width:0;">
+                    <div style="font-weight:700;color:#2d3748;">${escMD(d.docType)}</div>
+                    <div style="font-size:12px;color:#718096;">${escMD(d.originalName)} · ${new Date(d.uploadedAt).toLocaleDateString()} · ${(d.size/1024).toFixed(1)} KB</div>
+                    ${d.notes ? `<div style="font-size:12px;color:#555;margin-top:2px;">${escMD(d.notes)}</div>` : ''}
+                </div>
+                <div style="display:flex;gap:6px;flex-shrink:0;flex-wrap:wrap;">
+                    <button onclick="previewMemberDoc('${d.id}')" style="padding:6px 12px;background:#2d6a4f;color:white;border:none;border-radius:5px;cursor:pointer;font-size:13px;font-weight:700;">👁 View</button>
+                    ${!d.savedToRecord ? `<button onclick="quickSaveToRecord('${d.id}',this)" style="padding:6px 12px;background:#155724;color:white;border:none;border-radius:5px;cursor:pointer;font-size:13px;font-weight:700;">✔ Save</button>` : `<span style="padding:6px 10px;background:#d4edda;color:#155724;border-radius:5px;font-size:12px;font-weight:700;">✔ Saved</span>`}
+                </div>
+            </div>`).join('')}
+        </div>`).join('');
+}
+
+async function previewMemberDoc(docId) {
+    const doc = _allMemberDocs.find(d => d.id === docId);
+    if (!doc) return;
+    _currentPreviewDoc = doc;
+
+    document.getElementById('memberDocPreviewTitle').textContent = `${doc.docType} — ${doc.memberName || 'Member #' + doc.memberId} · ${new Date(doc.uploadedAt).toLocaleDateString()}`;
+    document.getElementById('memberDocSaveBtn').style.display = doc.savedToRecord ? 'none' : '';
+
+    const content = document.getElementById('memberDocPreviewContent');
+    const fileUrl = `${MDOC_API}/member-documents/file/${encodeURIComponent(doc.filename)}`;
+
+    if (doc.isPdf) {
+        content.innerHTML = `<iframe src="${fileUrl}" style="width:100%;min-height:70vh;border:none;border-radius:6px;" title="${escMD(doc.originalName)}"></iframe>`;
+    } else {
+        content.innerHTML = `<img src="${fileUrl}" alt="${escMD(doc.originalName)}" style="max-width:100%;max-height:75vh;border-radius:6px;box-shadow:0 2px 12px rgba(0,0,0,0.15);">`;
+    }
+
+    document.getElementById('memberDocPreviewModal').style.display = 'flex';
+    document.body.style.overflow = 'hidden';
+}
+
+function closeMemberDocPreview() {
+    document.getElementById('memberDocPreviewModal').style.display = 'none';
+    document.getElementById('memberDocPreviewContent').innerHTML = '';
+    _currentPreviewDoc = null;
+}
+
+function printMemberDoc() {
+    if (!_currentPreviewDoc) return;
+    const fileUrl = `${MDOC_API}/member-documents/file/${encodeURIComponent(_currentPreviewDoc.filename)}`;
+    if (_currentPreviewDoc.isPdf) {
+        // Open PDF in new tab for printing
+        const win = window.open(fileUrl, '_blank');
+        if (win) win.focus();
+    } else {
+        // Print image via hidden iframe
+        const iframe = document.createElement('iframe');
+        iframe.style.display = 'none';
+        document.body.appendChild(iframe);
+        iframe.contentDocument.write(`<html><body style="margin:0"><img src="${fileUrl}" style="max-width:100%;"></body></html>`);
+        iframe.contentDocument.close();
+        iframe.contentWindow.onload = function() {
+            iframe.contentWindow.print();
+            setTimeout(() => document.body.removeChild(iframe), 1000);
+        };
+    }
+}
+
+async function saveDocToRecord() {
+    if (!_currentPreviewDoc) return;
+    await doSaveToRecord(_currentPreviewDoc.id);
+    _currentPreviewDoc.savedToRecord = true;
+    document.getElementById('memberDocSaveBtn').style.display = 'none';
+    // Refresh list
+    const idx = _allMemberDocs.findIndex(d => d.id === _currentPreviewDoc.id);
+    if (idx !== -1) _allMemberDocs[idx].savedToRecord = true;
+    filterMemberDocs();
+}
+
+async function quickSaveToRecord(docId, btn) {
+    await doSaveToRecord(docId);
+    const idx = _allMemberDocs.findIndex(d => d.id === docId);
+    if (idx !== -1) _allMemberDocs[idx].savedToRecord = true;
+    btn.outerHTML = `<span style="padding:6px 10px;background:#d4edda;color:#155724;border-radius:5px;font-size:12px;font-weight:700;">✔ Saved</span>`;
+    // Update count badge
+    const pending = _allMemberDocs.filter(d => !d.savedToRecord).length;
+    const el = document.getElementById('memberDocsCount');
+    if (el) el.textContent = pending;
+}
+
+async function doSaveToRecord(docId) {
+    try {
+        await fetch(`${MDOC_API}/member-documents/${encodeURIComponent(docId)}/save-to-record`, { method: 'POST' });
+    } catch (e) { console.error('Save to record failed:', e); }
+}
+
+async function deleteMemberDoc() {
+    if (!_currentPreviewDoc) return;
+    if (!confirm(`Delete "${_currentPreviewDoc.originalName}" for ${_currentPreviewDoc.memberName}? This cannot be undone.`)) return;
+    try {
+        await fetch(`${MDOC_API}/member-documents/${encodeURIComponent(_currentPreviewDoc.id)}`, { method: 'DELETE' });
+        _allMemberDocs = _allMemberDocs.filter(d => d.id !== _currentPreviewDoc.id);
+        closeMemberDocPreview();
+        filterMemberDocs();
+        const pending = _allMemberDocs.filter(d => !d.savedToRecord).length;
+        const el = document.getElementById('memberDocsCount');
+        if (el) el.textContent = pending;
+    } catch (e) { alert('Delete failed: ' + e.message); }
+}
+
+function escMD(s) {
+    return String(s || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
 </script>
