@@ -537,16 +537,19 @@ function toggleSection(header) {
 function renderDocsTable(docs) {
   if (!docs || !docs.length) return emptyRow('No documents uploaded yet');
   return `<table class="file-table"><thead><tr><th>Type</th><th>Description</th><th>Uploaded</th><th>Status</th><th></th></tr></thead><tbody>` +
-    docs.slice().reverse().map(d => `<tr>
-      <td><span style="font-size:16px;">${d.isPdf ? '📄' : '🖼️'}</span> ${esc(d.docType)}</td>
-      <td style="max-width:200px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${esc(d.notes || d.originalName)}</td>
-      <td style="white-space:nowrap;">${fmtDate(d.uploadedAt)}</td>
-      <td><span class="badge ${d.savedToRecord ? 'badge-green' : 'badge-orange'}">${d.savedToRecord ? '✔ Saved' : 'Pending'}</span></td>
-      <td style="white-space:nowrap;">
-        <button class="btn-view" onclick="previewDoc('${d.id}','${esc(d.filename)}','${esc(d.originalName)}',${d.isPdf},'${esc(d.docType)}')">View</button>
-        ${!d.savedToRecord ? `<button class="btn-view" style="background:#155724;margin-left:4px;" onclick="markSaved('${d.id}',this)">Save</button>` : ''}
-      </td>
-    </tr>`).join('') + `</tbody></table>`;
+    docs.slice().reverse().map(d => {
+      const key = _cacheItem({ doc: d });
+      return `<tr>
+        <td><span style="font-size:16px;">${d.isPdf ? '📄' : '🖼️'}</span> ${esc(d.docType)}</td>
+        <td style="max-width:200px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${esc(d.notes || d.originalName)}</td>
+        <td style="white-space:nowrap;">${fmtDate(d.uploadedAt)}</td>
+        <td><span class="badge ${d.savedToRecord ? 'badge-green' : 'badge-orange'}">${d.savedToRecord ? '✔ Saved' : 'Pending'}</span></td>
+        <td style="white-space:nowrap;">
+          <button class="btn-view" onclick="previewDocCached('${key}')">View</button>
+          ${!d.savedToRecord ? `<button class="btn-view" style="background:#155724;margin-left:4px;" onclick="markSaved('${d.id}',this)">Save</button>` : ''}
+        </td>
+      </tr>`;
+    }).join('') + `</tbody></table>`;
 }
 
 // ── View Cache (avoids broken onclick attribute escaping) ─────────────────────
@@ -720,13 +723,31 @@ async function markSaved(docId, btn) {
 }
 
 // ── Preview ───────────────────────────────────────────────────────────────────
+function previewDocCached(cacheKey) {
+  const cached = _emrViewCache[cacheKey];
+  if (!cached) return;
+  const d = cached.doc;
+  // Use GCS URL directly when available; otherwise go through backend serve route
+  const url = d.gcsUrl || `${API}/member-documents/file/${encodeURIComponent(d.filename)}`;
+  _previewDoc = { docId: d.id, isPdf: d.isPdf };
+  document.getElementById('previewTitle').textContent = (d.docType || '') + ' — ' + (d.originalName || d.filename);
+  document.getElementById('btnSaveRec').style.display = d.savedToRecord ? 'none' : '';
+  if (d.isPdf) {
+    document.getElementById('previewContent').innerHTML = `<iframe src="${url}" title="${esc(d.originalName)}" style="width:80vw;height:75vh;border:none;border-radius:6px;"></iframe>`;
+  } else {
+    document.getElementById('previewContent').innerHTML = `<img src="${url}" alt="${esc(d.originalName)}" style="max-width:100%;max-height:75vh;display:block;margin:0 auto;">`;
+  }
+  document.getElementById('previewOverlay').style.display = 'flex';
+  document.body.style.overflow = 'hidden';
+}
+
 function previewDoc(docId, filename, originalName, isPdf, docType) {
   const url = `${API}/member-documents/file/${encodeURIComponent(filename)}`;
   _previewDoc = { docId, isPdf };
   document.getElementById('previewTitle').textContent = docType + ' — ' + originalName;
   document.getElementById('previewContent').innerHTML = isPdf
-    ? `<iframe src="${url}" title="${esc(originalName)}"></iframe>`
-    : `<img src="${url}" alt="${esc(originalName)}">`;
+    ? `<iframe src="${url}" title="${esc(originalName)}" style="width:80vw;height:75vh;border:none;border-radius:6px;"></iframe>`
+    : `<img src="${url}" alt="${esc(originalName)}" style="max-width:100%;max-height:75vh;display:block;margin:0 auto;">`;
   document.getElementById('previewOverlay').style.display = 'flex';
   document.body.style.overflow = 'hidden';
 }
