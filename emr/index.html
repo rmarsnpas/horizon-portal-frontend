@@ -113,6 +113,19 @@ body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; b
 .status-tab .tab-count { display: inline-block; background: #e2e8f0; color: #4a5568; padding: 1px 6px; border-radius: 8px; font-size: 11px; margin-left: 3px; }
 .status-tab.active .tab-count { background: var(--green); color: #fff; }
 
+/* ── Form Detail View (print-friendly) ── */
+.form-detail { font-family:Georgia,serif; font-size:14px; line-height:1.7; color:#1a202c; padding:4px; }
+.form-detail h3 { font-size:1.05rem; color:var(--green); border-bottom:2px solid var(--green); padding-bottom:4px; margin:14px 0 8px; }
+.form-detail .fd-row { display:flex; gap:10px; margin-bottom:5px; flex-wrap:wrap; }
+.form-detail .fd-label { font-weight:700; min-width:160px; color:#4a5568; font-size:13px; }
+.form-detail .fd-val { flex:1; font-size:13px; color:#1a202c; }
+.form-detail .fd-sig { margin-top:12px; padding:10px 14px; border:1px solid #c3d9ca; border-radius:6px; background:#f0faf4; }
+.mc-detail-card { border:1px solid var(--border); border-radius:10px; padding:18px 20px; margin:4px; background:#fff; }
+.mc-detail-card .mc-row { display:flex; gap:10px; margin-bottom:6px; }
+.mc-detail-card .mc-label { font-weight:700; min-width:140px; color:#4a5568; font-size:13px; }
+.mc-detail-card .mc-val { flex:1; font-size:13px; }
+@media print { body > *:not(.preview-overlay) { display:none !important; } .preview-overlay { position:static !important; background:none !important; } .preview-box { box-shadow:none !important; border:none !important; } #previewTitle { font-size:1.2rem; } #btnPrint, #btnSaveRec, button { display:none !important; } }
+
 /* ── Import Records Modal ── */
 #importOverlay { display:none; position:fixed; inset:0; background:rgba(0,0,0,0.6); z-index:15000; overflow-y:auto; padding:24px 10px; }
 .import-box { background:#fff; border-radius:14px; padding:24px; max-width:820px; width:100%; box-shadow:0 8px 40px rgba(0,0,0,0.25); margin:auto; }
@@ -533,26 +546,37 @@ function renderDocsTable(docs) {
     </tr>`).join('') + `</tbody></table>`;
 }
 
+// ── View Cache (avoids broken onclick attribute escaping) ─────────────────────
+let _emrViewCache = {};
+let _emrViewCacheIdx = 0;
+function _cacheItem(obj) {
+  const key = 'emrc_' + (_emrViewCacheIdx++);
+  _emrViewCache[key] = obj;
+  return key;
+}
+
 function renderIntakeForms(forms) {
+  _emrViewCacheIdx = 0; _emrViewCache = {};
   const sections = [
-    { key: 'agreements', label: 'Member Agreement', icon: '📜' },
-    { key: 'licensee',   label: 'Licensee Agreement', icon: '📜' },
-    { key: 'roi',        label: 'Release of Information', icon: '📋' },
-    { key: 'emergency',  label: 'Emergency Contact', icon: '🚨' },
-    { key: 'liability',  label: 'Release of Liability', icon: '⚖️' },
+    { key: 'agreements', label: 'Member Agreement',        icon: '📜' },
+    { key: 'licensee',   label: 'Licensee Agreement',      icon: '📜' },
+    { key: 'roi',        label: 'Release of Information',  icon: '📋' },
+    { key: 'emergency',  label: 'Emergency Contact',       icon: '🚨' },
+    { key: 'liability',  label: 'Release of Liability',    icon: '⚖️' },
     { key: 'property',   label: 'Personal Property Release', icon: '📦' },
   ];
   const rows = [];
   sections.forEach(s => {
     (forms[s.key] || []).forEach(f => {
       const subDate = f.submittedAt || f.createdAt || '';
-      const sigName = f.signature?.name || f.memberInfo?.firstName || '';
+      const sigName = f.signature?.name || f.memberInfo?.firstName || f.residentName || '';
+      const key = _cacheItem({ formType: s.key, label: s.label, data: f });
       rows.push(`<tr>
         <td>${s.icon} ${s.label}</td>
         <td>${esc(sigName)}</td>
         <td style="white-space:nowrap;">${fmtDate(subDate)}</td>
         <td><span class="badge badge-green">Submitted</span></td>
-        <td><button class="btn-view" onclick="previewJson(${JSON.stringify(JSON.stringify(f))}, '${esc(s.label)}')">View</button></td>
+        <td><button class="btn-view" onclick="viewIntakeForm('${key}')">View</button></td>
       </tr>`);
     });
   });
@@ -586,13 +610,13 @@ function renderMeetingCards(cards) {
   if (!cards || !cards.length) return emptyRow('No meeting cards on file');
   return `<table class="file-table"><thead><tr><th>Date</th><th>Meeting</th><th>Type</th><th>Status</th><th></th></tr></thead><tbody>` +
     cards.slice().reverse().map(c => {
-      const fileUrl = `${API}/meetingCards/image/${encodeURIComponent(c.imageFile || c.filename || '')}`;
+      const key = _cacheItem({ card: c });
       return `<tr>
         <td style="white-space:nowrap;">${fmtDate(c.meetingDate || c.submittedAt)}</td>
         <td>${esc(c.meetingName || '—')}</td>
         <td>${esc(c.meetingType || '—')}</td>
         <td><span class="badge ${c.status==='approved'?'badge-green':c.status==='rejected'?'badge-orange':'badge-gray'}">${esc(c.status||'pending')}</span></td>
-        <td>${(c.imageFile||c.filename) ? `<button class="btn-view" onclick="previewImg('${fileUrl}','${esc(c.meetingName||'Meeting Card')}')">View</button>` : '—'}</td>
+        <td><button class="btn-view" onclick="viewMeetingCard('${key}')">View</button></td>
       </tr>`;
     }).join('') + `</tbody></table>`;
 }
@@ -600,23 +624,29 @@ function renderMeetingCards(cards) {
 function renderApplications(apps) {
   if (!apps || !apps.length) return emptyRow('No application on file');
   return `<table class="file-table"><thead><tr><th>Submitted</th><th>Ref #</th><th>Status</th><th></th></tr></thead><tbody>` +
-    apps.map(a => `<tr>
-      <td style="white-space:nowrap;">${fmtDate(a.submittedAt || a.createdAt)}</td>
-      <td>${esc(a.referenceNumber || a.id || '—')}</td>
-      <td><span class="badge badge-green">${esc(a.status||'submitted')}</span></td>
-      <td><button class="btn-view" onclick="previewJson(${JSON.stringify(JSON.stringify(a))}, 'Application')">View</button></td>
-    </tr>`).join('') + `</tbody></table>`;
+    apps.map(a => {
+      const key = _cacheItem({ formType:'application', label:'Application', data: a });
+      return `<tr>
+        <td style="white-space:nowrap;">${fmtDate(a.submittedAt || a.createdAt)}</td>
+        <td>${esc(a.referenceNumber || a.id || '—')}</td>
+        <td><span class="badge badge-green">${esc(a.status||'submitted')}</span></td>
+        <td><button class="btn-view" onclick="viewIntakeForm('${key}')">View</button></td>
+      </tr>`;
+    }).join('') + `</tbody></table>`;
 }
 
 function renderSubmittedForms(forms) {
   if (!forms || !forms.length) return emptyRow('No submitted forms on file');
   return `<table class="file-table"><thead><tr><th>Type</th><th>Submitted</th><th>Status</th><th></th></tr></thead><tbody>` +
-    forms.slice().reverse().map(f => `<tr>
-      <td style="text-transform:capitalize;">${esc(f.type || f.formType || '—')}</td>
-      <td style="white-space:nowrap;">${fmtDate(f.submittedAt || f.createdAt)}</td>
-      <td><span class="badge badge-gray">${esc(f.status || 'filed')}</span></td>
-      <td><button class="btn-view" onclick="previewJson(${JSON.stringify(JSON.stringify(f))}, '${esc(f.type||'Form')}')">View</button></td>
-    </tr>`).join('') + `</tbody></table>`;
+    forms.slice().reverse().map(f => {
+      const key = _cacheItem({ formType: f.type||f.formType||'form', label: f.type||'Form', data: f });
+      return `<tr>
+        <td style="text-transform:capitalize;">${esc(f.type || f.formType || '—')}</td>
+        <td style="white-space:nowrap;">${fmtDate(f.submittedAt || f.createdAt)}</td>
+        <td><span class="badge badge-gray">${esc(f.status || 'filed')}</span></td>
+        <td><button class="btn-view" onclick="viewIntakeForm('${key}')">View</button></td>
+      </tr>`;
+    }).join('') + `</tbody></table>`;
 }
 
 function emptyRow(msg) {
@@ -698,6 +728,114 @@ function previewDoc(docId, filename, originalName, isPdf, docType) {
   document.body.style.overflow = 'hidden';
 }
 
+// ── Intake Form Detail View ───────────────────────────────────────────────────
+function viewIntakeForm(cacheKey) {
+  const cached = _emrViewCache[cacheKey];
+  if (!cached) return;
+  const { formType, label, data } = cached;
+  document.getElementById('previewTitle').textContent = label || 'Form';
+  document.getElementById('btnSaveRec').style.display = 'none';
+  _previewDoc = null;
+  document.getElementById('previewContent').innerHTML = buildFormDetailHtml(formType, data);
+  document.getElementById('previewOverlay').style.display = 'flex';
+  document.body.style.overflow = 'hidden';
+}
+
+function buildFormDetailHtml(formType, d) {
+  const row = (label, val) => val ? `<div class="fd-row"><span class="fd-label">${label}</span><span class="fd-val">${esc(String(val))}</span></div>` : '';
+  const sig = d.signature || {};
+  const mi = d.memberInfo || d.residentInfo || {};
+  const sections = [];
+
+  // Common member info block
+  const name = sig.name || mi.firstName || d.residentName || d.memberName || '';
+  const date = fmtDate(d.submittedAt || d.createdAt);
+  sections.push(`<h3>Submission Info</h3>${row('Member Name', name)}${row('Submitted', date)}${row('Status', d.status || 'Submitted')}`);
+
+  if (formType === 'emergency') {
+    const ec = d.emergencyContact || d.contact || d;
+    sections.push(`<h3>Emergency Contact</h3>
+      ${row('Contact Name', ec.contactName || ec.name)}
+      ${row('Relationship', ec.relationship)}
+      ${row('Phone', ec.phone || ec.phoneNumber)}
+      ${row('Alt Phone', ec.altPhone || ec.altPhoneNumber)}
+      ${row('Address', ec.address)}
+      ${row('City/State', (ec.city||'') + (ec.state ? ', '+ec.state : ''))}
+    `);
+    const ec2 = d.emergencyContact2 || d.contact2;
+    if (ec2) sections.push(`<h3>Secondary Contact</h3>
+      ${row('Contact Name', ec2.contactName || ec2.name)}
+      ${row('Relationship', ec2.relationship)}
+      ${row('Phone', ec2.phone || ec2.phoneNumber)}
+    `);
+  } else if (formType === 'roi') {
+    const r = d.releaseInfo || d;
+    sections.push(`<h3>Release of Information</h3>
+      ${row('Authorize To', r.authorizeTo || r.releaseTo)}
+      ${row('Purpose', r.purpose)}
+      ${row('Information Type', r.infoType || r.informationType)}
+      ${row('Expiration', fmtDate(r.expirationDate))}
+    `);
+  } else if (formType === 'property') {
+    const items = d.propertyItems || d.items || [];
+    let propHtml = items.map(i => `<div class="fd-row"><span class="fd-val">${esc(i.description||i.item||JSON.stringify(i))}</span></div>`).join('');
+    sections.push(`<h3>Property Items</h3>${propHtml || '<em>No items listed</em>'}`);
+  } else {
+    // Generic: show all non-trivial keys
+    const skip = new Set(['submittedAt','createdAt','id','_id','status','signature','memberInfo']);
+    const genericRows = Object.entries(d).filter(([k,v]) => !skip.has(k) && v && typeof v !== 'object')
+      .map(([k,v]) => row(k.replace(/([A-Z])/g,' $1').replace(/^./,s=>s.toUpperCase()), v)).join('');
+    if (genericRows) sections.push(`<h3>Details</h3>${genericRows}`);
+  }
+
+  // Signature block
+  if (sig.name || sig.date) {
+    sections.push(`<div class="fd-sig">
+      ${row('Signed By', sig.name)}
+      ${row('Date', fmtDate(sig.date || sig.signedAt))}
+      ${row('IP', sig.ip)}
+    </div>`);
+  }
+
+  return `<div class="form-detail">${sections.join('')}</div>`;
+}
+
+// ── Meeting Card Detail View ──────────────────────────────────────────────────
+function viewMeetingCard(cacheKey) {
+  const cached = _emrViewCache[cacheKey];
+  if (!cached) return;
+  const c = cached.card;
+  document.getElementById('previewTitle').textContent = '🪪 Meeting Card — ' + (c.meetingName || fmtDate(c.meetingDate || c.submittedAt));
+  document.getElementById('btnSaveRec').style.display = 'none';
+  _previewDoc = null;
+
+  const row = (label, val) => val ? `<div class="mc-row"><span class="mc-label">${label}</span><span class="mc-val">${esc(String(val))}</span></div>` : '';
+  let html = `<div class="mc-detail-card">
+    ${row('Member', c.memberName || c.residentName)}
+    ${row('Meeting Name', c.meetingName)}
+    ${row('Meeting Type', c.meetingType)}
+    ${row('Meeting Date', fmtDate(c.meetingDate))}
+    ${row('Submitted', fmtDate(c.submittedAt))}
+    ${row('Sponsor Name', c.sponsorName)}
+    ${row('Sponsor Phone', c.sponsorPhone)}
+    ${row('Location', c.location || c.meetingLocation)}
+    ${row('Notes', c.notes)}
+    ${row('Status', c.status)}
+  </div>`;
+
+  if (c.imageFile || c.filename) {
+    const imgUrl = `${API}/meetingCards/image/${encodeURIComponent(c.imageFile || c.filename)}`;
+    html += `<div style="margin-top:12px;text-align:center;">
+      <p style="font-size:12px;color:#718096;margin-bottom:6px;">Attached Image</p>
+      <img src="${imgUrl}" alt="Meeting card" style="max-width:100%;max-height:50vh;border-radius:6px;border:1px solid #e2e8f0;">
+    </div>`;
+  }
+
+  document.getElementById('previewContent').innerHTML = html;
+  document.getElementById('previewOverlay').style.display = 'flex';
+  document.body.style.overflow = 'hidden';
+}
+
 function previewImg(url, title) {
   _previewDoc = null;
   document.getElementById('previewTitle').textContent = title;
@@ -728,17 +866,29 @@ function closePreview() {
 
 function printPreview() {
   const content = document.getElementById('previewContent');
+  const title = document.getElementById('previewTitle').textContent;
   const iframe = content.querySelector('iframe');
-  const img = content.querySelector('img');
+  const img = content.querySelector('img:not([alt="Meeting card"])');
   if (iframe) { iframe.contentWindow.print(); return; }
-  if (img) {
-    const w = window.open('', '_blank');
-    w.document.write(`<html><body style="margin:0"><img src="${img.src}" style="max-width:100%"></body></html>`);
-    w.document.close();
-    w.onload = () => { w.print(); };
-    return;
-  }
-  window.print();
+  // Open a clean print window with just the preview content
+  const w = window.open('', '_blank');
+  w.document.write(`<!DOCTYPE html><html><head><title>${title}</title><style>
+    body { font-family: Georgia, serif; font-size: 14px; color: #1a202c; padding: 24px; max-width: 700px; margin: auto; }
+    h3 { color: #2d6a4f; border-bottom: 2px solid #2d6a4f; padding-bottom: 4px; margin: 14px 0 8px; font-size: 1rem; }
+    .fd-row, .mc-row { display: flex; gap: 10px; margin-bottom: 5px; }
+    .fd-label, .mc-label { font-weight: bold; min-width: 160px; color: #4a5568; font-size: 13px; }
+    .fd-val, .mc-val { flex: 1; font-size: 13px; }
+    .fd-sig { margin-top: 12px; padding: 10px 14px; border: 1px solid #c3d9ca; border-radius: 6px; background: #f0faf4; }
+    .mc-detail-card { border: 1px solid #ddd; border-radius: 8px; padding: 18px; }
+    img { max-width: 100%; margin-top: 12px; }
+    .badge { display:inline-block; padding:2px 8px; border-radius:8px; font-size:12px; }
+    @media print { @page { margin: 1cm; } }
+  </style></head><body>
+    <h2 style="color:#2d6a4f;">${title}</h2>
+    ${content.innerHTML}
+  </body></html>`);
+  w.document.close();
+  w.onload = () => { w.focus(); w.print(); };
 }
 
 async function savePreviewToRecord() {
