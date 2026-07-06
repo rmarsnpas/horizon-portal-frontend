@@ -105,8 +105,25 @@ body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; b
 .btn-view { padding: 5px 12px; background: var(--green); color: #fff; border: none; border-radius: 5px; cursor: pointer; font-size: 12px; font-weight: 700; }
 .btn-del  { padding: 5px 10px; background: #fee2e2; color: #991b1b; border: none; border-radius: 5px; cursor: pointer; font-size: 12px; font-weight: 700; }
 
-/* ── Doc Preview ── */
-#previewOverlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.7); z-index: 9999; align-items: center; justify-content: center; }
+/* ── Status Tabs ── */
+.status-tabs { display: flex; gap: 0; border-bottom: 1px solid var(--border); background: #f8fafb; flex-shrink: 0; }
+.status-tab { flex: 1; padding: 9px 4px; border: none; background: none; font-size: 12px; font-weight: 700; cursor: pointer; color: var(--muted); border-bottom: 3px solid transparent; transition: all .15s; white-space: nowrap; }
+.status-tab:hover { background: #f0fff4; color: var(--green); }
+.status-tab.active { color: var(--green); border-bottom-color: var(--green); background: #fff; }
+.status-tab .tab-count { display: inline-block; background: #e2e8f0; color: #4a5568; padding: 1px 6px; border-radius: 8px; font-size: 11px; margin-left: 3px; }
+.status-tab.active .tab-count { background: var(--green); color: #fff; }
+
+/* ── Profile Card ── */
+#profileOverlay { display:none; position:fixed; inset:0; background:rgba(0,0,0,0.55); z-index:20000; align-items:center; justify-content:center; }
+.profile-card { background:#fff; border-radius:14px; padding:28px 24px; max-width:480px; width:95%; box-shadow:0 8px 40px rgba(0,0,0,0.22); position:relative; max-height:90vh; overflow-y:auto; }
+.profile-card .pc-avatar { width:64px; height:64px; border-radius:50%; background:var(--green); color:#fff; display:flex; align-items:center; justify-content:center; font-size:26px; font-weight:700; flex-shrink:0; }
+.profile-card .pc-header { display:flex; gap:16px; align-items:center; margin-bottom:20px; }
+.profile-card .pc-name { font-size:1.3rem; font-weight:800; color:var(--text); }
+.profile-card .pc-id { font-size:13px; color:var(--muted); margin-top:2px; }
+.profile-grid { display:grid; grid-template-columns:1fr 1fr; gap:12px 20px; }
+.profile-field label { display:block; font-size:11px; font-weight:700; color:var(--muted); text-transform:uppercase; letter-spacing:.05em; margin-bottom:3px; }
+.profile-field span { font-size:14px; color:var(--text); font-weight:600; }
+.btn-pc-close { position:absolute; top:14px; right:16px; background:none; border:none; font-size:1.6rem; cursor:pointer; color:var(--muted); line-height:1; }
 .preview-box { background: var(--white); border-radius: 12px; padding: 20px; max-width: 92vw; max-height: 92vh; overflow: auto; position: relative; min-width: 320px; }
 .preview-box img { max-width: 100%; max-height: 75vh; border-radius: 6px; display: block; margin: 0 auto; }
 .preview-box iframe { width: 80vw; height: 75vh; border: none; border-radius: 6px; }
@@ -157,7 +174,13 @@ body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; b
     <!-- Sidebar -->
     <div class="sidebar">
       <div class="sidebar-search">
-        <input type="text" id="memberSearch" placeholder="🔍 Search members…" oninput="filterMembers()">
+        <input type="text" id="memberSearch" placeholder="🔍 Search by name or ID…" oninput="filterMembers()">
+      </div>
+      <div class="status-tabs" id="statusTabs">
+        <button class="status-tab active" data-tab="active" onclick="setTab('active',this)">Current<span class="tab-count" id="tc-active">0</span></button>
+        <button class="status-tab" data-tab="alumni" onclick="setTab('alumni',this)">Alumni<span class="tab-count" id="tc-alumni">0</span></button>
+        <button class="status-tab" data-tab="discharged" onclick="setTab('discharged',this)">D/C<span class="tab-count" id="tc-discharged">0</span></button>
+        <button class="status-tab" data-tab="all" onclick="setTab('all',this)">All<span class="tab-count" id="tc-all">0</span></button>
       </div>
       <div class="member-count" id="memberCount">Loading…</div>
       <div class="member-list" id="memberList"></div>
@@ -188,6 +211,21 @@ body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; b
   </div>
 </div>
 
+<!-- Profile Card Overlay -->
+<div id="profileOverlay" style="display:none;">
+  <div class="profile-card">
+    <button class="btn-pc-close" onclick="closeProfileCard()">&times;</button>
+    <div class="pc-header">
+      <div class="pc-avatar" id="pcAvatar"></div>
+      <div>
+        <div class="pc-name" id="pcName"></div>
+        <div class="pc-id" id="pcId"></div>
+      </div>
+    </div>
+    <div class="profile-grid" id="pcGrid"></div>
+  </div>
+</div>
+
 <input type="file" id="hiddenFileInput" accept="image/*,.pdf" style="display:none" onchange="fileChosen(this)">
 <input type="file" id="hiddenCameraInput" accept="image/*" capture="environment" style="display:none" onchange="fileChosen(this)">
 
@@ -198,6 +236,8 @@ let _allMembers = [];
 let _currentMemberId = null;
 let _pendingUploadFile = null;
 let _previewDoc = null;
+let _activeTab = 'active';
+let _currentMemberData = null;
 
 // ── Auth ──────────────────────────────────────────────────────────────────────
 async function doLogin() {
@@ -249,16 +289,35 @@ async function loadMemberList() {
   document.getElementById('memberCount').textContent = 'Loading…';
   try {
     const data = await fetch(`${API}/members`).then(r => r.json());
-    _allMembers = (Array.isArray(data) ? data : []).filter(m => {
-      const s = String(m.STATUS || m.status || m.STATU || '').trim();
-      return s === '1' || s === '2' || s === '4' || s === '5';
-    }).sort((a, b) => {
+    // Keep all statuses; sort: 1 first, H, W, 2, 3, 4, 5 — then alpha by last name
+    const order = { '1':0, 'H':1, 'W':2, '2':3, '3':4, '4':5, '5':6 };
+    _allMembers = (Array.isArray(data) ? data : []).sort((a, b) => {
+      const sa = String(a.STATUS || a.status || a.STATU || '').trim();
+      const sb = String(b.STATUS || b.status || b.STATU || '').trim();
+      const oa = order[sa] ?? 9;
+      const ob = order[sb] ?? 9;
+      if (oa !== ob) return oa - ob;
       const la = (a.lastName || a['LAST NAME'] || a['LAST\nNAME'] || '').toLowerCase();
       const lb = (b.lastName || b['LAST NAME'] || b['LAST\nNAME'] || '').toLowerCase();
       return la.localeCompare(lb);
     });
-    renderMemberList(_allMembers);
+    // Update tab counts
+    const cnt = (fn) => _allMembers.filter(fn).length;
+    document.getElementById('tc-active').textContent    = cnt(m => { const s=getStatus(m); return s==='1'||s==='H'||s==='W'; });
+    document.getElementById('tc-alumni').textContent    = cnt(m => getStatus(m)==='2');
+    document.getElementById('tc-discharged').textContent= cnt(m => getStatus(m)==='3');
+    document.getElementById('tc-all').textContent       = _allMembers.length;
+    filterMembers();
   } catch { document.getElementById('memberCount').textContent = 'Failed to load'; }
+}
+
+function getStatus(m) { return String(m.STATUS || m.status || m.STATU || '').trim(); }
+
+function setTab(tab, el) {
+  _activeTab = tab;
+  document.querySelectorAll('.status-tab').forEach(t => t.classList.remove('active'));
+  el.classList.add('active');
+  filterMembers();
 }
 
 function getMemberName(m) {
@@ -269,28 +328,45 @@ function getMemberName(m) {
 
 function renderMemberList(members) {
   const statusLabel = { '1':'Current','2':'Alumni','4':'Staff','5':'Admin','H':'Hold','W':'Waitlist','3':'Discharged' };
+  const statusColor  = { '1':'#155724','2':'#004085','3':'#842029','H':'#856404','W':'#0c5460','4':'#4a5568','5':'#4a5568' };
+  const statusBg     = { '1':'#d4edda','2':'#cce5ff','3':'#f8d7da','H':'#fff3cd','W':'#d1ecf1','4':'#e2e8f0','5':'#e2e8f0' };
   document.getElementById('memberCount').textContent = `${members.length} member${members.length !== 1 ? 's' : ''}`;
   document.getElementById('memberList').innerHTML = members.map(m => {
     const { full } = getMemberName(m);
     const id = m.ID || m.id || '';
-    const s = String(m.STATUS || m.status || m.STATU || '').trim();
+    const s  = getStatus(m);
     const label = statusLabel[s] || s;
+    const color = statusColor[s] || '#4a5568';
+    const bg    = statusBg[s]    || '#e2e8f0';
     const bed = m.BED || m.bed || '';
     return `<div class="member-item" data-id="${id}" onclick="openMemberFile('${id}')">
       <div class="m-name">${esc(full || 'Unknown')} <span style="font-weight:400;color:#aaa;font-size:12px;">#${id}</span></div>
-      <div class="m-meta">${label}${bed ? ' · Bed ' + bed : ''}</div>
+      <div class="m-meta" style="display:flex;gap:6px;align-items:center;margin-top:3px;">
+        <span style="background:${bg};color:${color};padding:1px 7px;border-radius:8px;font-size:11px;font-weight:700;">${label}</span>
+        ${bed ? `<span style="font-size:12px;color:#718096;">Bed ${bed}</span>` : ''}
+      </div>
     </div>`;
   }).join('') || '<div style="padding:20px;color:#999;text-align:center;">No members found</div>';
 }
 
 function filterMembers() {
   const q = document.getElementById('memberSearch').value.toLowerCase();
-  if (!q) { renderMemberList(_allMembers); return; }
-  renderMemberList(_allMembers.filter(m => {
-    const { full } = getMemberName(m);
-    const id = String(m.ID || m.id || '');
-    return full.toLowerCase().includes(q) || id.includes(q);
-  }));
+  let list = _allMembers;
+  if (!q) {
+    // Apply tab filter
+    if (_activeTab === 'active')     list = list.filter(m => { const s=getStatus(m); return s==='1'||s==='H'||s==='W'; });
+    else if (_activeTab === 'alumni')     list = list.filter(m => getStatus(m)==='2');
+    else if (_activeTab === 'discharged') list = list.filter(m => getStatus(m)==='3');
+    // 'all' = no filter
+  } else {
+    // Search across all statuses
+    list = list.filter(m => {
+      const { full } = getMemberName(m);
+      const id = String(m.ID || m.id || '');
+      return full.toLowerCase().includes(q) || id.includes(q);
+    });
+  }
+  renderMemberList(list);
 }
 
 // ── Member File ───────────────────────────────────────────────────────────────
@@ -304,6 +380,7 @@ async function openMemberFile(memberId) {
 
   try {
     const data = await fetch(`${API}/emr/member-file/${encodeURIComponent(memberId)}`).then(r => r.json());
+    _currentMemberData = data;
     renderMemberFile(data);
   } catch (e) {
     fileDiv.innerHTML = `<div style="color:#e53e3e;padding:20px;">Failed to load file: ${e.message}</div>`;
@@ -329,7 +406,7 @@ function renderMemberFile(data) {
     <div class="member-header">
       <div class="avatar">${esc(initials) || '?'}</div>
       <div class="info" style="flex:1;">
-        <h2>${esc(full)}</h2>
+        <h2 style="cursor:pointer;text-decoration:underline dotted;" onclick="openProfileCard()" title="View full profile">${esc(full)}</h2>
         <div style="font-size:13px;color:#718096;">ID: ${member.ID || member.id || ''} ${phone ? '· ' + phone : ''} ${dob ? '· DOB: ' + dob : ''}</div>
         <div class="badges" style="margin-top:8px;">
           <span class="badge badge-green">${statusLabel[s] || s}</span>
@@ -630,6 +707,53 @@ async function savePreviewToRecord() {
   await markSaved(_previewDoc.docId, { outerHTML: '' });
   document.getElementById('btnSaveRec').style.display = 'none';
 }
+
+// ── Profile Card ─────────────────────────────────────────────────────────────
+function openProfileCard() {
+  if (!_currentMemberData) return;
+  const m = _currentMemberData.member;
+  const { first, last, full } = getMemberName(m);
+  const initials = (first[0]||'') + (last[0]||'');
+  const statusLabel = { '1':'Current','2':'Alumni','3':'Discharged','4':'Staff','5':'Admin','H':'Hold','W':'Waitlist' };
+  const s = getStatus(m);
+
+  document.getElementById('pcAvatar').textContent = initials || '?';
+  document.getElementById('pcName').textContent   = full;
+  document.getElementById('pcId').textContent     = `Member ID: ${m.ID || m.id || '—'}`;
+
+  const fields = [
+    { label:'Status',      val: statusLabel[s] || s },
+    { label:'Bed',         val: m.BED || m.bed || '—' },
+    { label:'Date of Birth', val: m.dob || m.DOB || m['D.O.B'] || '—' },
+    { label:'Admit Date',  val: m.admitDate || m['ADMIT DATE'] || m['ADMIT\nDATE'] || m['ADMIT\r\nDATE'] || '—' },
+    { label:'Sober Date',  val: m.soberDate || m['SOBER DATE'] || m['SOBER\nDATE'] || m['SOBER\r\nDATE'] || '—' },
+    { label:'Phone',       val: m.phone || m.PHONE || '—' },
+    { label:'Email',       val: m.email || m.EMAIL || '—' },
+    { label:'Rate',        val: m.rate  || m.RATE  || '—' },
+    { label:'Bill On Day', val: m.billOnDay || m['BILL ON DAY'] || m['BILL\r\nON DAY'] || '—' },
+    { label:'Ref',         val: m.ref   || m.REF   || '—' },
+    { label:'Key',         val: m.key   || m.KEY   || '—' },
+    { label:'Gender',      val: m.gender|| m['M/F']|| '—' },
+  ];
+
+  document.getElementById('pcGrid').innerHTML = fields.map(f =>
+    `<div class="profile-field"><label>${esc(f.label)}</label><span>${esc(String(f.val))}</span></div>`
+  ).join('');
+
+  document.getElementById('profileOverlay').style.display = 'flex';
+  document.body.style.overflow = 'hidden';
+}
+
+function closeProfileCard() {
+  document.getElementById('profileOverlay').style.display = 'none';
+  document.body.style.overflow = '';
+}
+
+// Close overlays on backdrop click
+document.addEventListener('click', e => {
+  if (e.target.id === 'profileOverlay') closeProfileCard();
+  if (e.target.id === 'previewOverlay') closePreview();
+});
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
 function esc(s) { return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
