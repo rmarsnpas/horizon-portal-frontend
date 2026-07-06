@@ -105,6 +105,9 @@ body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; b
 .btn-view { padding: 5px 12px; background: var(--green); color: #fff; border: none; border-radius: 5px; cursor: pointer; font-size: 12px; font-weight: 700; }
 .btn-del  { padding: 5px 10px; background: #fee2e2; color: #991b1b; border: none; border-radius: 5px; cursor: pointer; font-size: 12px; font-weight: 700; }
 
+/* ── Document Preview Overlay ── */
+#previewOverlay { display:none; position:fixed; inset:0; background:rgba(0,0,0,0.6); z-index:10000; align-items:center; justify-content:center; overflow-y:auto; padding:20px; }
+
 /* ── Status Tabs ── */
 .status-tabs { display: flex; gap: 0; border-bottom: 1px solid var(--border); background: #f8fafb; flex-shrink: 0; }
 .status-tab { flex: 1; padding: 9px 4px; border: none; background: none; font-size: 12px; font-weight: 700; cursor: pointer; color: var(--muted); border-bottom: 3px solid transparent; transition: all .15s; white-space: nowrap; }
