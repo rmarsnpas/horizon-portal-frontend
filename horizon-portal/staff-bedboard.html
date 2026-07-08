@@ -507,7 +507,7 @@
         // Update statistics
         function updateStats(menMembers, womenMembers) {
             const totalOccupied = menMembers.length + womenMembers.length;
-            const totalBeds = 30; // Adjust based on actual capacity
+            const totalBeds = 31; // Adjust based on actual capacity
             const emptyBeds = totalBeds - totalOccupied;
             const occupancyRate = totalBeds > 0 ? Math.round((totalOccupied / totalBeds) * 100) : 0;
             
