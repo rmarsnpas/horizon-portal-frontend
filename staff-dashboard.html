@@ -1199,8 +1199,9 @@
                                 const _p  = Math.max(0, Math.min(1, (1500 - _rv) / 1500));
                                 const _pct = Math.round(_p * 100);
                                 let _r, _g;
-                                if (_p <= 0.5) { const _t = _p * 2;       _r = 255;                    _g = Math.round(200 + 55 * _t); }
-                                else           { const _t = (_p - 0.5)*2; _r = Math.round(255-55*_t); _g = 255; }
+                                const _c = 1 - _p;
+                                if (_c <= 0.5) { const _t = _c * 2;       _r = 255;                    _g = Math.round(200 + 55 * _t); }
+                                else           { const _t = (_c - 0.5)*2; _r = Math.round(255-55*_t); _g = 255; }
                                 cells.push({ value: `${_pct}%`, style: `background:rgb(${_r},${_g},200)!important;text-align:center;font-weight:700;` });
                             }
                             if (inclPhone)   cells.push(m.PHONE || m.phone || '');

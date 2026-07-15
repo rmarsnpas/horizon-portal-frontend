@@ -52,14 +52,15 @@ function toNumber(value) {
 // p=0 (rate=1500, 0% covered)     → light red     #FFC8C8
 function atsColorHex(rate) {
   const p = Math.max(0, Math.min(1, (TARGET_RATE - rate) / TARGET_RATE));
+  const c = 1 - p;
   let r, g;
   const b = 200;
-  if (p <= 0.5) {
-    const t = p * 2;
+  if (c <= 0.5) {
+    const t = c * 2;
     r = 255;
     g = Math.round(200 + 55 * t);
   } else {
-    const t = (p - 0.5) * 2;
+    const t = (c - 0.5) * 2;
     r = Math.round(255 - 55 * t);
     g = 255;
   }
