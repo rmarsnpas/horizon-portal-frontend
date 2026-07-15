@@ -1160,6 +1160,12 @@
                             return (a && b) ? Math.floor((b - a) / 86400000) : '';
                         };
 
+                        const parseRate = raw => {
+                            if (raw === undefined || raw === null || raw === '') return 0;
+                            const num = Number(String(raw).replace(/[$,\s]/g, ''));
+                            return Number.isFinite(num) ? num : 0;
+                        };
+
                         let cols = ['#','ID','First Name','Last Name','Gender','DOB','Admit Date','Discharge Date','Days Here','Sober Date','Sober Days'];
                         if (inclRef)     cols.push('Ref');
                         if (inclRate)  { cols.push('Rate'); cols.push('Scholarship %'); }
@@ -1219,11 +1225,6 @@
                         const totalATS  = members.filter(m => String(m.REF || m.ref || '').trim().toUpperCase() === 'A').length;
                         const totalRIV  = members.filter(m => String(m.REF || m.ref || '').trim().toUpperCase() === 'H').length;
                         const totalSelf = members.filter(m => { const r = String(m.REF || m.ref || '').trim().toUpperCase(); return r !== 'A' && r !== 'H'; }).length;
-                                                const parseRate = raw => {
-                                                        if (raw === undefined || raw === null || raw === '') return 0;
-                                                        const num = Number(String(raw).replace(/[$,\s]/g, ''));
-                                                        return Number.isFinite(num) ? num : 0;
-                                                };
                                                 const rateTotal = members.reduce((sum, m) => sum + parseRate(m.RATE || m.rate), 0);
                                                 const targetRateTotal = members.length * 1500;
                                                 const rateDifference = rateTotal - targetRateTotal;
