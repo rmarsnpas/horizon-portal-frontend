@@ -46,6 +46,26 @@ function toNumber(value) {
   return Number.isFinite(parsed) ? parsed : 0;
 }
 
+// Returns a light-pastel RRGGBB hex color for the ATS coverage gradient.
+// p=1 (rate=0, 100% ATS covered)  → light green  #C8FFC8
+// p=0.5 (rate=750, 50% covered)   → light yellow  #FFFFC8
+// p=0 (rate=1500, 0% covered)     → light red     #FFC8C8
+function atsColorHex(rate) {
+  const p = Math.max(0, Math.min(1, (TARGET_RATE - rate) / TARGET_RATE));
+  let r, g;
+  const b = 200;
+  if (p <= 0.5) {
+    const t = p * 2;
+    r = 255;
+    g = Math.round(200 + 55 * t);
+  } else {
+    const t = (p - 0.5) * 2;
+    r = Math.round(255 - 55 * t);
+    g = 255;
+  }
+  return [r, g, b].map((v) => v.toString(16).padStart(2, '0').toUpperCase()).join('');
+}
+
 function detectHeaderRow(rows) {
   const maxScan = Math.min(rows.length, 10);
   for (let i = 0; i < maxScan; i += 1) {
@@ -180,17 +200,17 @@ function writeBudgetWorkbook(clients) {
 
   XLSX.utils.book_append_sheet(wb, ws, 'Monthly Status1');
 
-  const printHeader = ['Client ID', 'Client Name', 'Status', 'Bed', 'Rate'];
+  const printHeader = ['#', 'Client ID', 'Client Name', 'Status', 'Bed', 'Rate', 'Scholarship %'];
   const printData = [
-    ['Census Print Report', '', '', '', ''],
-    ['As Of Date', asOfDate, '', '', ''],
-    ['Report Month', reportMonth, '', '', ''],
+    ['', 'Census Print Report', '', '', '', '', ''],
+    ['', 'As Of Date', asOfDate, '', '', '', ''],
+    ['', 'Report Month', reportMonth, '', '', '', ''],
     [],
     printHeader,
   ];
 
-  clients.forEach((client) => {
-    printData.push([client.id, client.fullName, client.status, client.bed, client.rate]);
+  clients.forEach((client, i) => {
+    printData.push([i + 1, client.id, client.fullName, client.status, client.bed, client.rate, null]);
   });
 
   const printTotalRow = printData.length + 1;
@@ -198,11 +218,11 @@ function writeBudgetWorkbook(clients) {
   const printEndDataRow = printStartDataRow + clients.length - 1;
 
   printData.push([]);
-  printData.push(['Summary', '', '', '', '']);
-  printData.push(['Members In Census', clients.length, '', '', '']);
-  printData.push(['Rate Column Total', '', '', '', null]);
-  printData.push(['Members x 1500', '', '', '', null]);
-  printData.push(['Difference (Rate Total - Members x 1500)', '', '', '', null]);
+  printData.push(['', 'Summary', '', '', '', '', '']);
+  printData.push(['', 'Members In Census', clients.length, '', '', '', '']);
+  printData.push(['', 'Rate Column Total', '', '', '', null, '']);
+  printData.push(['', 'Members x 1500', '', '', '', null, '']);
+  printData.push(['', 'Difference (Rate Total - Members x 1500)', '', '', '', null, '']);
 
   const pws = XLSX.utils.aoa_to_sheet(printData);
 
@@ -210,20 +230,42 @@ function writeBudgetWorkbook(clients) {
   const summaryTargetRow = printTotalRow + 4;
   const summaryDiffRow = printTotalRow + 5;
 
-  pws[`E${summaryRateTotalRow}`] = { t: 'n', v: 0, f: `SUM(E${printStartDataRow}:E${printEndDataRow})` };
-  pws[`E${summaryTargetRow}`] = { t: 'n', v: 0, f: `B${printTotalRow + 2}*${TARGET_RATE}` };
-  pws[`E${summaryDiffRow}`] = { t: 'n', v: 0, f: `E${summaryRateTotalRow}-E${summaryTargetRow}` };
+  pws[`F${summaryRateTotalRow}`] = { t: 'n', v: 0, f: `SUM(F${printStartDataRow}:F${printEndDataRow})` };
+  pws[`F${summaryTargetRow}`] = { t: 'n', v: 0, f: `C${printTotalRow + 2}*${TARGET_RATE}` };
+  pws[`F${summaryDiffRow}`] = { t: 'n', v: 0, f: `F${summaryRateTotalRow}-F${summaryTargetRow}` };
+
+  // Scholarship % column (G): formula + light pastel fill
+  for (let i = 0; i < clients.length; i += 1) {
+    const row = printStartDataRow + i;
+    const colorHex = atsColorHex(clients[i].rate);
+    pws[`G${row}`] = {
+      t: 'n',
+      f: `MAX(0,(${TARGET_RATE}-F${row})/${TARGET_RATE})`,
+      z: '0%',
+      s: {
+        fill: { patternType: 'solid', fgColor: { rgb: colorHex } },
+        alignment: { horizontal: 'center' },
+      },
+    };
+  }
+
+  // Expand !ref to include column G
+  const pRange = XLSX.utils.decode_range(pws['!ref']);
+  pRange.e.c = Math.max(pRange.e.c, 6);
+  pws['!ref'] = XLSX.utils.encode_range(pRange);
 
   pws['!cols'] = [
+    { wch: 4 },
     { wch: 12 },
     { wch: 26 },
     { wch: 10 },
     { wch: 10 },
     { wch: 14 },
+    { wch: 16 },
   ];
 
   XLSX.utils.book_append_sheet(wb, pws, 'Print Census');
-  XLSX.writeFile(wb, OUTPUT_PATH);
+  XLSX.writeFile(wb, OUTPUT_PATH, { cellStyles: true });
 }
 
 const { clients, unmatchedProvidedNames } = buildRows();
