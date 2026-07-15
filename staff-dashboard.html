@@ -1160,9 +1160,9 @@
                             return (a && b) ? Math.floor((b - a) / 86400000) : '';
                         };
 
-                        let cols = ['ID','First Name','Last Name','Gender','DOB','Admit Date','Discharge Date','Days Here','Sober Date','Sober Days'];
+                        let cols = ['#','ID','First Name','Last Name','Gender','DOB','Admit Date','Discharge Date','Days Here','Sober Date','Sober Days'];
                         if (inclRef)     cols.push('Ref');
-                        if (inclRate)    cols.push('Rate');
+                        if (inclRate)  { cols.push('Rate'); cols.push('Scholarship %'); }
                         if (inclPhone)   cols.push('Phone');
                         if (inclEmail)   cols.push('Email');
                         if (inclPin)     cols.push('PIN');
@@ -1170,7 +1170,7 @@
 
                         const headerRow = `<tr>${cols.map(c => `<th>${c}</th>`).join('')}</tr>`;
 
-                        const rows = members.map(m => {
+                        const rows = members.map((m, rowIdx) => {
                             const st = String(m.STATUS || m.status || m.STATU || '').trim().toUpperCase();
                             const isBedHold = isBedHoldMember(m);
                             const isHW = (st === 'H' || st === 'W') && !isBedHold;
@@ -1185,14 +1185,23 @@
                             const daysSober = daysBetween(sober, null);
                             const idVal = (m.ID || m.id || '') + (isBedHold ? '<span class="bh-badge">BED HOLD</span>' : (isHW ? `<span class="hw-badge">${st}</span>` : ''));
                             const ref = m.REF || m.ref || '';
-                            const cells = [idVal, first, last, gender, dob, fmt(admit), fmt(dc), daysHere, fmt(sober), daysSober];
+                            const cells = [rowIdx + 1, idVal, first, last, gender, dob, fmt(admit), fmt(dc), daysHere, fmt(sober), daysSober];
                             if (inclRef)     cells.push(ref);
-                            if (inclRate)    cells.push(m.RATE || m.rate ? '$' + (m.RATE || m.rate) : '');
+                            if (inclRate) {
+                                cells.push(m.RATE || m.rate ? '$' + (m.RATE || m.rate) : '');
+                                const _rv = parseRate(m.RATE || m.rate);
+                                const _p  = Math.max(0, Math.min(1, (1500 - _rv) / 1500));
+                                const _pct = Math.round(_p * 100);
+                                let _r, _g;
+                                if (_p <= 0.5) { const _t = _p * 2;       _r = 255;                    _g = Math.round(200 + 55 * _t); }
+                                else           { const _t = (_p - 0.5)*2; _r = Math.round(255-55*_t); _g = 255; }
+                                cells.push({ value: `${_pct}%`, style: `background:rgb(${_r},${_g},200)!important;text-align:center;font-weight:700;` });
+                            }
                             if (inclPhone)   cells.push(m.PHONE || m.phone || '');
                             if (inclEmail)   cells.push(m.EMAIL || m.email || '');
                             if (inclPin)     cells.push(m.PIN || m.pin || '');
                             if (inclBillDay) cells.push(m['BILL ON DAY'] || m['BILL ON \nDAY'] || m['BILL ON\r\nDAY'] || m.billOnDay || '');
-                            return `<tr${isBedHold ? ' class="bh-row"' : (isHW ? ' class="hw-row"' : '')}>${cells.map(v => `<td>${v}</td>`).join('')}</tr>`;
+                            return `<tr${isBedHold ? ' class="bh-row"' : (isHW ? ' class="hw-row"' : '')}>${cells.map(v => typeof v === 'object' && v !== null ? `<td style="${v.style}">${v.value}</td>` : `<td>${v}</td>`).join('')}</tr>`;
                         }).join('');
 
                         const printDate = today.toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' });
