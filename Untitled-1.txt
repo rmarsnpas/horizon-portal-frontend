@@ -1,3 +1,0 @@
-cd horizon-portal/backend
-npm init -y
-npm install express cors body-parser xlsx

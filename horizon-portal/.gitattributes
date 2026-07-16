@@ -1,2 +1,0 @@
-# Treat PDF files as binary to prevent line-ending corruption
-*.pdf binary
