@@ -189,6 +189,7 @@
     //   2. Add the same key to ALL_PROFILE_PERMISSIONS in staff-dashboard.html.
     //   Set disabled:true and href:'#' while the page is not yet built.
     const SECTION_CONFIG = {
+        member_database_list: { icon: '👥', title: 'Member Database',      href: '/horizon-portal/staff/staff-member-database-readonly.html', label: 'Read Only',         group: 'pending' },
         overnight_passes:   { icon: '🌙', title: 'Overnight Passes',      href: '#',                                                    label: 'Pending Requests',  group: 'pending', onclick: "alert('Overnight pass panel requires staff dashboard access.')" },
         drug_screens:       { icon: '🧪', title: 'Drug Screen History',    href: '/drug-screen-history.html',                            label: 'View History',      group: 'pending' },
         sign_inout:         { icon: '🚪', title: 'Sign In/Out Board',      href: '/horizon-portal/members/member-status.html',           label: 'Currently Out',     group: 'pending' },

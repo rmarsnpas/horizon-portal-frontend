@@ -1,0 +1,476 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Member Database (Read Only) — Horizon House</title>
+    <style>
+        :root {
+            --hh-primary: #F58634;
+            --hh-gold: #E1C462;
+            --hh-green: #94A880;
+            --hh-bg: #FFF8F3;
+        }
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body { 
+            font-family: 'Segoe UI', system-ui, sans-serif; 
+            background: var(--hh-bg); 
+            color: #2d2d2d; 
+            min-height: 100vh; 
+        }
+
+        /* Header */
+        header {
+            background: var(--hh-primary); 
+            color: #fff; 
+            padding: 0 24px;
+            display: flex; 
+            align-items: center; 
+            justify-content: space-between;
+            height: 56px; 
+            position: sticky; 
+            top: 0; 
+            z-index: 100; 
+            box-shadow: 0 2px 8px rgba(0,0,0,.12);
+        }
+        header h1 { font-size: 18px; font-weight: 700; }
+        .back-btn {
+            padding: 8px 16px;
+            background: rgba(255,255,255,0.2);
+            color: #fff;
+            text-decoration: none;
+            border-radius: 6px;
+            font-size: 14px;
+            font-weight: 600;
+        }
+        .back-btn:hover { background: rgba(255,255,255,0.3); }
+
+        /* Toolbar */
+        .toolbar {
+            padding: 20px 24px;
+            background: #fff;
+            border-bottom: 1px solid #e2e8f0;
+            display: flex;
+            gap: 16px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+        .toolbar h2 {
+            font-size: 20px;
+            color: #2d3748;
+            flex: 1;
+        }
+        #searchInput {
+            padding: 10px 16px;
+            border: 1.5px solid #e2e8f0;
+            border-radius: 8px;
+            font-size: 14px;
+            width: 280px;
+        }
+        #searchInput:focus { 
+            outline: none; 
+            border-color: var(--hh-primary); 
+        }
+        .filter-group {
+            display: flex;
+            gap: 8px;
+            align-items: center;
+        }
+        .filter-group label {
+            font-size: 14px;
+            font-weight: 600;
+            color: #4a5568;
+        }
+        .filter-group select {
+            padding: 8px 12px;
+            border: 1.5px solid #e2e8f0;
+            border-radius: 6px;
+            font-size: 14px;
+            background: white;
+            cursor: pointer;
+        }
+
+        /* Stats */
+        .stats-bar {
+            padding: 16px 24px;
+            background: #f8fafc;
+            border-bottom: 1px solid #e2e8f0;
+            display: flex;
+            gap: 24px;
+            font-size: 14px;
+        }
+        .stat-item {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .stat-label {
+            color: #718096;
+        }
+        .stat-value {
+            font-weight: 700;
+            color: var(--hh-primary);
+        }
+
+        /* Table */
+        .table-container {
+            padding: 24px;
+            overflow-x: auto;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            background: #fff;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 1px 8px rgba(0,0,0,.06);
+        }
+        thead {
+            background: #f8fafc;
+        }
+        th {
+            padding: 14px 12px;
+            text-align: left;
+            font-size: 11px;
+            font-weight: 700;
+            color: #718096;
+            text-transform: uppercase;
+            letter-spacing: .04em;
+            border-bottom: 2px solid #e2e8f0;
+            white-space: nowrap;
+        }
+        td {
+            padding: 14px 12px;
+            font-size: 14px;
+            border-bottom: 1px solid #f0f4f8;
+            vertical-align: middle;
+        }
+        tr:last-child td { 
+            border-bottom: none; 
+        }
+        tbody tr:hover {
+            background: #fffbf5;
+        }
+
+        /* Status Badges */
+        .badge {
+            display: inline-block;
+            padding: 4px 10px;
+            border-radius: 12px;
+            font-size: 11px;
+            font-weight: 700;
+            color: #fff;
+        }
+        .badge-1 { background: #48bb78; } /* Active */
+        .badge-2 { background: #ecc94b; color: #744210; } /* Alumni */
+        .badge-3 { background: #ed8936; } /* Discharged */
+        .badge-4 { background: #4299e1; } /* Staff */
+        .badge-5 { background: #805ad5; } /* Admin */
+
+        /* Loading & Empty States */
+        .loading, .empty {
+            text-align: center;
+            padding: 60px 20px;
+            color: #718096;
+        }
+        .loading { font-size: 16px; }
+        .empty { font-size: 15px; }
+
+        /* Read-only notice */
+        .readonly-notice {
+            background: #e6fffa;
+            border: 1.5px solid #81e6d9;
+            border-radius: 8px;
+            padding: 12px 18px;
+            margin: 0 24px 16px 24px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 14px;
+            color: #234e52;
+        }
+        .readonly-notice strong {
+            font-weight: 700;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>👥 Member Database (Read Only)</h1>
+        <a href="/staff-limited-portal.html" class="back-btn">← Back to Portal</a>
+    </header>
+
+    <div class="readonly-notice">
+        <span style="font-size: 20px;">🔒</span>
+        <div>
+            <strong>Read-Only Access:</strong> You can view member information but cannot modify any data.
+        </div>
+    </div>
+
+    <div class="toolbar">
+        <h2>All Members</h2>
+        <div class="filter-group">
+            <label for="statusFilter">Status:</label>
+            <select id="statusFilter" onchange="filterTable()">
+                <option value="all">All Statuses</option>
+                <option value="1">Active (1)</option>
+                <option value="2">Alumni (2)</option>
+                <option value="3">Discharged (3)</option>
+                <option value="4">Staff (4)</option>
+                <option value="5">Admin (5)</option>
+            </select>
+        </div>
+        <div class="filter-group">
+            <label for="genderFilter">Gender:</label>
+            <select id="genderFilter" onchange="filterTable()">
+                <option value="all">All</option>
+                <option value="M">Men</option>
+                <option value="F">Women</option>
+            </select>
+        </div>
+        <input type="text" id="searchInput" placeholder="Search by name, ID, bed, phone..." onkeyup="filterTable()">
+    </div>
+
+    <div class="stats-bar">
+        <div class="stat-item">
+            <span class="stat-label">Total Members:</span>
+            <span class="stat-value" id="totalCount">0</span>
+        </div>
+        <div class="stat-item">
+            <span class="stat-label">Showing:</span>
+            <span class="stat-value" id="visibleCount">0</span>
+        </div>
+    </div>
+
+    <div class="loading" id="loadingMessage">Loading member data...</div>
+
+    <div class="table-container" style="display: none;" id="tableContainer">
+        <table>
+            <thead>
+                <tr>
+                    <th>Member ID</th>
+                    <th>First Name</th>
+                    <th>Last Name</th>
+                    <th>Admit Date</th>
+                    <th>M/F</th>
+                    <th>Bed</th>
+                    <th>DOB</th>
+                    <th>Sober Date</th>
+                    <th>Days Here</th>
+                    <th>Days Sober</th>
+                    <th>Phone</th>
+                    <th>Email</th>
+                    <th>Status</th>
+                </tr>
+            </thead>
+            <tbody id="memberTableBody">
+            </tbody>
+        </table>
+    </div>
+
+    <div class="empty" id="emptyMessage" style="display: none;">
+        No members found matching your filters.
+    </div>
+
+    <script>
+        const API_BASE = 'https://horizon-portal-backend-production-3532.up.railway.app';
+        let allMembers = [];
+
+        // Date formatting helper
+        function formatDate(dateVal) {
+            if (!dateVal) return '';
+            
+            // Handle Excel serial dates
+            if (typeof dateVal === 'number') {
+                const excelEpoch = new Date(1899, 11, 30);
+                const jsDate = new Date(excelEpoch.getTime() + dateVal * 86400000);
+                const month = String(jsDate.getMonth() + 1).padStart(2, '0');
+                const day = String(jsDate.getDate()).padStart(2, '0');
+                const year = jsDate.getFullYear();
+                return `${month}/${day}/${year}`;
+            }
+            
+            // Handle string dates
+            if (typeof dateVal === 'string') {
+                if (dateVal.includes('/')) return dateVal;
+                const d = new Date(dateVal);
+                if (!isNaN(d.getTime())) {
+                    const month = String(d.getMonth() + 1).padStart(2, '0');
+                    const day = String(d.getDate()).padStart(2, '0');
+                    const year = d.getFullYear();
+                    return `${month}/${day}/${year}`;
+                }
+            }
+            
+            return dateVal;
+        }
+
+        // Calculate days between dates
+        function daysBetween(dateVal) {
+            if (!dateVal) return '';
+            
+            let jsDate;
+            if (typeof dateVal === 'number') {
+                const excelEpoch = new Date(1899, 11, 30);
+                jsDate = new Date(excelEpoch.getTime() + dateVal * 86400000);
+            } else {
+                jsDate = new Date(dateVal);
+            }
+            
+            if (isNaN(jsDate.getTime())) return '';
+            
+            const today = new Date();
+            const diffTime = Math.abs(today - jsDate);
+            const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
+            
+            return diffDays;
+        }
+
+        // Get status badge HTML
+        function getStatusBadge(status) {
+            const statusMap = {
+                '1': { label: 'Active', class: 'badge-1' },
+                '2': { label: 'Alumni', class: 'badge-2' },
+                '3': { label: 'Discharged', class: 'badge-3' },
+                '4': { label: 'Staff', class: 'badge-4' },
+                '5': { label: 'Admin', class: 'badge-5' }
+            };
+            const s = statusMap[String(status)] || { label: status, class: 'badge-1' };
+            return `<span class="badge ${s.class}">${s.label}</span>`;
+        }
+
+        // Normalize member field names
+        function normalizeMember(m) {
+            return {
+                id: m.ID || m.id || '',
+                firstName: m['FIRST\r\nNAME'] || m['FIRST NAME'] || m.FIRST_NAME || m.firstName || '',
+                lastName: m['LAST\r\nNAME'] || m['LAST NAME'] || m.LAST_NAME || m.lastName || '',
+                admitDate: m['ADMIT\r\nDATE'] || m['ADMIT DATE'] || m.ADMIT_DATE || m.admitDate || '',
+                gender: m['M/F'] || m.GENDER || m.gender || '',
+                bed: m.BED || m['BED#'] || m.bed || '',
+                dob: m.DOB || m.dob || '',
+                soberDate: m['SOBER\r\nDATE'] || m['SOBER DATE'] || m.SOBRIETY_DATE || m.soberDate || m.sobrietyDate || '',
+                phone: m.PHONE || m['PHONE NUMBER'] || m.phone || '',
+                email: m.EMAIL || m.email || '',
+                status: m.STATU || m.STATUS || m.status || '1'
+            };
+        }
+
+        // Load members from API
+        async function loadMembers() {
+            try {
+                const response = await fetch(`${API_BASE}/api/members`);
+                if (!response.ok) throw new Error('Failed to fetch members');
+                
+                const data = await response.json();
+                allMembers = data.map(normalizeMember);
+                
+                renderTable();
+                updateStats();
+                
+                document.getElementById('loadingMessage').style.display = 'none';
+                document.getElementById('tableContainer').style.display = 'block';
+            } catch (error) {
+                console.error('Error loading members:', error);
+                document.getElementById('loadingMessage').innerHTML = 
+                    '<div style="color: #e53e3e;">❌ Error loading member data. Please try again later.</div>';
+            }
+        }
+
+        // Render table
+        function renderTable() {
+            const tbody = document.getElementById('memberTableBody');
+            const filteredMembers = getFilteredMembers();
+            
+            if (filteredMembers.length === 0) {
+                tbody.innerHTML = '';
+                document.getElementById('tableContainer').style.display = 'none';
+                document.getElementById('emptyMessage').style.display = 'block';
+                return;
+            }
+            
+            document.getElementById('tableContainer').style.display = 'block';
+            document.getElementById('emptyMessage').style.display = 'none';
+            
+            tbody.innerHTML = filteredMembers.map(m => {
+                const daysHere = daysBetween(m.admitDate);
+                const daysSober = daysBetween(m.soberDate);
+                
+                return `
+                    <tr>
+                        <td><strong>${m.id}</strong></td>
+                        <td>${m.firstName}</td>
+                        <td>${m.lastName}</td>
+                        <td>${formatDate(m.admitDate)}</td>
+                        <td>${m.gender}</td>
+                        <td>${m.bed}</td>
+                        <td>${formatDate(m.dob)}</td>
+                        <td>${formatDate(m.soberDate)}</td>
+                        <td>${daysHere ? daysHere + ' days' : ''}</td>
+                        <td>${daysSober ? daysSober + ' days' : ''}</td>
+                        <td>${m.phone}</td>
+                        <td>${m.email}</td>
+                        <td>${getStatusBadge(m.status)}</td>
+                    </tr>
+                `;
+            }).join('');
+        }
+
+        // Get filtered members based on current filters
+        function getFilteredMembers() {
+            const searchTerm = document.getElementById('searchInput').value.toLowerCase();
+            const statusFilter = document.getElementById('statusFilter').value;
+            const genderFilter = document.getElementById('genderFilter').value;
+            
+            return allMembers.filter(m => {
+                // Status filter
+                if (statusFilter !== 'all' && String(m.status) !== statusFilter) {
+                    return false;
+                }
+                
+                // Gender filter
+                if (genderFilter !== 'all') {
+                    const gender = String(m.gender).toUpperCase();
+                    if (!gender.startsWith(genderFilter)) {
+                        return false;
+                    }
+                }
+                
+                // Search filter
+                if (searchTerm) {
+                    const searchableText = [
+                        m.id,
+                        m.firstName,
+                        m.lastName,
+                        m.bed,
+                        m.phone,
+                        m.email
+                    ].join(' ').toLowerCase();
+                    
+                    if (!searchableText.includes(searchTerm)) {
+                        return false;
+                    }
+                }
+                
+                return true;
+            });
+        }
+
+        // Filter table based on current selections
+        function filterTable() {
+            renderTable();
+            updateStats();
+        }
+
+        // Update statistics
+        function updateStats() {
+            const filtered = getFilteredMembers();
+            document.getElementById('totalCount').textContent = allMembers.length;
+            document.getElementById('visibleCount').textContent = filtered.length;
+        }
+
+        // Load on page load
+        document.addEventListener('DOMContentLoaded', loadMembers);
+    </script>
+</body>
+</html>

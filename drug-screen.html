@@ -538,13 +538,25 @@
                     <input type="time" id="testTime" name="testTime" required>
                 </div>
                 <div class="form-group">
-                    <label for="testType">Test Type *</label>
-                    <select id="testType" name="testType" required>
-                        <option value="">Select test type...</option>
-                        <option value="urine">Urine Test</option>
-                        <option value="saliva">Saliva Test</option>
-                        <option value="blood">Blood Test</option>
-                    </select>
+                    <label>Test Type(s) *</label>
+                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 10px; margin-top: 8px;">
+                        <div style="display: flex; align-items: center; gap: 8px;">
+                            <input type="checkbox" id="testTypeUrine" name="testType" value="urine" onchange="updateSectionVisibility()">
+                            <label for="testTypeUrine" style="margin: 0; font-weight: normal;">Urine Test</label>
+                        </div>
+                        <div style="display: flex; align-items: center; gap: 8px;">
+                            <input type="checkbox" id="testTypeSaliva" name="testType" value="saliva" onchange="updateSectionVisibility()">
+                            <label for="testTypeSaliva" style="margin: 0; font-weight: normal;">Saliva Test</label>
+                        </div>
+                        <div style="display: flex; align-items: center; gap: 8px;">
+                            <input type="checkbox" id="testTypeBlood" name="testType" value="blood" onchange="updateSectionVisibility()">
+                            <label for="testTypeBlood" style="margin: 0; font-weight: normal;">Blood Test</label>
+                        </div>
+                        <div style="display: flex; align-items: center; gap: 8px;">
+                            <input type="checkbox" id="testTypeBreathalyzer" name="testType" value="breathalyzer" onchange="updateSectionVisibility()">
+                            <label for="testTypeBreathalyzer" style="margin: 0; font-weight: normal;">Breathalyzer</label>
+                        </div>
+                    </div>
                 </div>
                 <div class="form-group">
                     <label for="staffName">Staff Member Conducting Test *</label>
@@ -580,8 +592,8 @@
                 </div>
             </div>
 
-            <div class="form-section">
-                <h2>Test Results</h2>
+            <div class="form-section" id="uaResultsSection" style="display: none;">
+                <h2>UA Test Results</h2>
                 <div class="substance-grid">
                     <div class="substance-item">
                         <span>THC</span>
@@ -765,8 +777,8 @@
                     </div>                </div>
             </div>
 
-            <div class="form-section">
-                <h2>Breathalyzer</h2>
+            <div class="form-section" id="bacResultsSection" style="display: none;">
+                <h2>Breathalyzer Results</h2>
                 <div style="display: flex; gap: 20px; align-items: end; flex-wrap: wrap;">
                     <div class="substance-item" style="max-width: 400px; margin-bottom: 0;">
                         <span>ALCOH</span>
@@ -827,7 +839,7 @@
                         <button type="button" class="btn-clear" onclick="clearSignature('staffSignature')">Clear</button>
                     </div>
                     <div class="signature-box">
-                        <label for="memberSignature">Member Signature *</label>
+                        <label for="memberSignature">Member Signature (Optional)</label>
                         <canvas id="memberSignature" class="signature-canvas" width="400" height="150"></canvas>
                         <button type="button" class="btn-clear" onclick="clearSignature('memberSignature')">Clear</button>
                     </div>
@@ -934,6 +946,22 @@
             return null;
         }
 
+        // Function to update visibility of UA and BAC sections
+        function updateSectionVisibility() {
+            const urine = document.getElementById('testTypeUrine').checked;
+            const saliva = document.getElementById('testTypeSaliva').checked;
+            const blood = document.getElementById('testTypeBlood').checked;
+            const breathalyzer = document.getElementById('testTypeBreathalyzer').checked;
+            
+            // Show UA results if any UA test type is checked
+            const uaSection = document.getElementById('uaResultsSection');
+            uaSection.style.display = (urine || saliva || blood) ? 'block' : 'none';
+            
+            // Show BAC results if breathalyzer is checked
+            const bacSection = document.getElementById('bacResultsSection');
+            bacSection.style.display = breathalyzer ? 'block' : 'none';
+        }
+
         // Set default date and time to now
         document.addEventListener('DOMContentLoaded', () => {
             const now = new Date();
@@ -943,6 +971,9 @@
             // Initialize signature pads
             initSignaturePad('staffSignature');
             initSignaturePad('memberSignature');
+            
+            // Initialize section visibility
+            updateSectionVisibility();
         });
 
         document.getElementById('drugScreenForm').addEventListener('submit', async (e) => {
@@ -951,12 +982,20 @@
             const statusDiv = document.getElementById('statusMessage');
             const submitBtn = e.target.querySelector('button[type="submit"]');
             
-            // Validate signatures
+            // Validate staff signature only
             const staffSig = getSignatureData('staffSignature');
-            const memberSig = getSignatureData('memberSignature');
             
-            if (!staffSig || !memberSig) {
-                statusDiv.textContent = '✗ Please provide both staff and member signatures';
+            if (!staffSig) {
+                statusDiv.textContent = '✗ Please provide staff signature';
+                statusDiv.className = 'status-message error';
+                statusDiv.style.display = 'block';
+                return;
+            }
+            
+            // Validate at least one test type is selected
+            const testTypes = document.querySelectorAll('input[name="testType"]:checked');
+            if (testTypes.length === 0) {
+                statusDiv.textContent = '✗ Please select at least one test type';
                 statusDiv.className = 'status-message error';
                 statusDiv.style.display = 'block';
                 return;
@@ -969,12 +1008,19 @@
 
             try {
                 const formData = new FormData(e.target);
+                
+                // Collect all checked test types
+                const testTypes = Array.from(document.querySelectorAll('input[name="testType"]:checked'))
+                    .map(cb => cb.value);
+                
+                const memberSig = getSignatureData('memberSignature');
+                
                 const data = {
                     memberId: formData.get('memberId'),
                     memberName: formData.get('memberName'),
                     testDate: formData.get('testDate'),
                     testTime: formData.get('testTime'),
-                    testType: formData.get('testType'),
+                    testTypes: testTypes,
                     staffName: formData.get('staffName'),
                     observed: formData.get('observed'),
                     tempChecked: formData.get('tempChecked'),
@@ -999,7 +1045,7 @@
                     notes: formData.get('notes'),
                     actionTaken: formData.get('actionTaken'),
                     staffSignature: staffSig,
-                    memberSignature: memberSig,
+                    memberSignature: memberSig || null,
                     timestamp: new Date().toISOString()
                 };
 
