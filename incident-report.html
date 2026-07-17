@@ -1,363 +1,1147 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Incident Report – Horizon House</title>
-  <style>
-    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-
-    body {
-      font-family: Arial, sans-serif;
-      font-size: 15px;
-      background: #f0f2f8;
-      color: #1a1a2e;
-      min-height: 100vh;
-    }
-
-    /* ── Header ── */
-    .page-header {
-      background: linear-gradient(135deg, #1a1a2e 0%, #1a3a5c 100%);
-      color: white;
-      padding: 18px 28px;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      box-shadow: 0 2px 12px rgba(0,0,0,0.3);
-    }
-    .page-header .org { font-size: 1.25rem; font-weight: 800; letter-spacing: .4px; }
-    .page-header .sub { font-size: 11px; opacity: .75; margin-top: 2px; font-style: italic; }
-    .back-link {
-      color: rgba(255,255,255,.8);
-      text-decoration: none;
-      font-size: 13px;
-      font-weight: 600;
-      border: 1px solid rgba(255,255,255,.3);
-      border-radius: 6px;
-      padding: 6px 14px;
-      transition: background .15s;
-    }
-    .back-link:hover { background: rgba(255,255,255,.12); }
-
-    /* ── Card ── */
-    .card {
-      background: white;
-      border-radius: 14px;
-      box-shadow: 0 4px 24px rgba(0,0,0,.10);
-      max-width: 720px;
-      margin: 32px auto;
-      padding: 36px 40px;
-    }
-    .card h2 {
-      font-size: 1.35rem;
-      font-weight: 800;
-      color: #1a1a2e;
-      margin-bottom: 6px;
-      display: flex;
-      align-items: center;
-      gap: 10px;
-    }
-    .card .subtitle {
-      font-size: 12.5px;
-      color: #888;
-      margin-bottom: 28px;
-      padding-bottom: 18px;
-      border-bottom: 1px solid #eee;
-    }
-
-    /* ── Form layout ── */
-    .form-grid {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 18px 24px;
-    }
-    .form-group { display: flex; flex-direction: column; gap: 5px; }
-    .form-group.full { grid-column: 1 / -1; }
-
-    label {
-      font-size: 12.5px;
-      font-weight: 700;
-      color: #444;
-      letter-spacing: .2px;
-      text-transform: uppercase;
-    }
-    input[type="text"],
-    input[type="datetime-local"],
-    select,
-    textarea {
-      width: 100%;
-      padding: 10px 12px;
-      border: 1px solid #d0d5e0;
-      border-radius: 7px;
-      font-size: 14px;
-      font-family: inherit;
-      color: #1a1a2e;
-      background: #fafbfd;
-      transition: border-color .15s, box-shadow .15s;
-    }
-    input:focus, select:focus, textarea:focus {
-      outline: none;
-      border-color: #4a7fd4;
-      box-shadow: 0 0 0 3px rgba(74,127,212,.15);
-      background: #fff;
-    }
-    textarea { resize: vertical; }
-
-    /* ── Section label ── */
-    .section-label {
-      grid-column: 1 / -1;
-      font-size: 11px;
-      font-weight: 700;
-      letter-spacing: 1px;
-      color: #aaa;
-      text-transform: uppercase;
-      margin-top: 6px;
-      padding-bottom: 6px;
-      border-bottom: 1px solid #f0f0f0;
-    }
-
-    /* ── Buttons ── */
-    .btn-row {
-      grid-column: 1 / -1;
-      display: flex;
-      gap: 12px;
-      margin-top: 10px;
-      flex-wrap: wrap;
-    }
-    .btn {
-      padding: 12px 28px;
-      border: none;
-      border-radius: 8px;
-      font-size: 14px;
-      font-weight: 700;
-      cursor: pointer;
-      transition: opacity .15s, transform .1s;
-    }
-    .btn:hover { opacity: .88; }
-    .btn:active { transform: scale(.98); }
-    .btn-primary { background: #1a1a2e; color: white; flex: 1; }
-    .btn-secondary { background: #e8eaf0; color: #1a1a2e; }
-    .btn-print { background: #4a7fd4; color: white; }
-
-    /* ── Toast / status ── */
-    #statusMsg {
-      grid-column: 1 / -1;
-      display: none;
-      border-radius: 8px;
-      padding: 14px 18px;
-      font-size: 14px;
-      font-weight: 600;
-    }
-    #statusMsg.success { background: #d4edda; color: #155724; border: 1px solid #c3e6cb; }
-    #statusMsg.error   { background: #f8d7da; color: #721c24; border: 1px solid #f5c6cb; }
-
-    /* ── Required star ── */
-    .req { color: #dc3545; margin-left: 2px; }
-
-    /* ── Print styles ── */
-    @media print {
-      body { background: white; font-size: 12px; }
-      .page-header { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
-      .card { box-shadow: none; margin: 0; padding: 20px; max-width: 100%; border-radius: 0; }
-      .btn-row, .back-link { display: none !important; }
-      input, select, textarea {
-        border: 1px solid #ccc !important;
-        background: white !important;
-        box-shadow: none !important;
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Horizon House – Digital Incident Report Form</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<script src="https://unpkg.com/lucide@latest" defer></script>
+<script src="https://cdn.jsdelivr.net/npm/jspdf@2.5.1/dist/jspdf.umd.min.js"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+<script>
+tailwind.config = {
+  theme: {
+    extend: {
+      fontFamily: { sans: ['Inter', 'sans-serif'] },
+      colors: {
+        navy: { 50:'#f0f4f8', 100:'#d9e2ec', 200:'#bcccdc', 300:'#9fb3c8', 400:'#829ab1', 500:'#627d98', 600:'#486581', 700:'#334e68', 800:'#243b53', 900:'#1e3a5f', 950:'#102a43' },
+        clinical: { bg:'#f8fafc', card:'#ffffff', border:'#e2e8f0', muted:'#94a3b8' },
+        success: { light:'#dcfce7', DEFAULT:'#16a34a', dark:'#15803d' },
+        danger: { light:'#fef2f2', DEFAULT:'#dc2626', dark:'#b91c1c' },
+        info: { light:'#eff6ff', DEFAULT:'#3b82f6', dark:'#2563eb' }
       }
-      .section-label { color: #555 !important; }
     }
-
-    @media (max-width: 560px) {
-      .card { margin: 16px; padding: 22px 18px; }
-      .form-grid { grid-template-columns: 1fr; }
-      .form-group.full { grid-column: 1; }
-      .section-label { grid-column: 1; }
-      .btn-row { grid-column: 1; }
-    }
-  </style>
+  }
+};
+</script>
+<style>
+:root { --navy: #1e3a5f; --navy-dark: #102a43; --navy-light: #243b53; --bg: #f8fafc; --card: #ffffff; --border: #e2e8f0; --red: #dc2626; --green: #16a34a; }
+* { box-sizing: border-box; }
+body { font-family: 'Inter', sans-serif; background: var(--bg); color: #1e293b; }
+.section-card { background: var(--card); border-radius: 12px; box-shadow: 0 1px 3px rgba(0,0,0,0.06), 0 1px 2px rgba(0,0,0,0.04); border: 1px solid var(--border); }
+.section-header { border-left: 4px solid var(--navy); padding: 12px 16px; font-weight: 700; color: var(--navy); font-size: 1.05rem; display: flex; align-items: center; gap: 8px; }
+.section-header .check-icon { color: var(--green); display: none; }
+.section-header.complete .check-icon { display: inline-flex; }
+.required-star { color: var(--red); margin-left: 2px; }
+input[type="text"], input[type="email"], input[type="date"], input[type="time"], input[type="number"], select, textarea {
+  width: 100%; border: 1px solid var(--border); border-radius: 8px; padding: 8px 12px; font-size: 0.875rem;
+  font-family: 'Inter', sans-serif; transition: border-color 0.2s, box-shadow 0.2s; background: #fff;
+}
+input:focus, select:focus, textarea:focus { outline: none; border-color: var(--navy); box-shadow: 0 0 0 3px rgba(30,58,95,0.1); }
+input.error-field, select.error-field, textarea.error-field { border-color: var(--red); box-shadow: 0 0 0 3px rgba(220,38,38,0.1); }
+label { font-size: 0.8125rem; font-weight: 500; color: #334155; display: block; margin-bottom: 4px; }
+.checkbox-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
+.checkbox-grid label { display: flex; align-items: center; gap: 6px; font-weight: 400; cursor: pointer; padding: 6px 8px; border-radius: 6px; transition: background 0.15s; }
+.checkbox-grid label:hover { background: #f1f5f9; }
+.checkbox-grid-2col { display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px; }
+.checkbox-grid-2col label { display: flex; align-items: center; gap: 6px; font-weight: 400; cursor: pointer; padding: 6px 8px; border-radius: 6px; transition: background 0.15s; }
+.checkbox-grid-2col label:hover { background: #f1f5f9; }
+.radio-group { display: flex; gap: 16px; align-items: center; }
+.radio-group label { display: flex; align-items: center; gap: 6px; font-weight: 400; cursor: pointer; margin-bottom: 0; }
+.btn { padding: 10px 20px; border-radius: 8px; font-weight: 600; font-size: 0.875rem; cursor: pointer; border: none; transition: all 0.2s; display: inline-flex; align-items: center; gap: 6px; }
+.btn-primary { background: var(--navy); color: #fff; }
+.btn-primary:hover { background: var(--navy-dark); }
+.btn-secondary { background: #e2e8f0; color: #334155; }
+.btn-secondary:hover { background: #cbd5e1; }
+.btn-danger { background: var(--red); color: #fff; }
+.btn-danger:hover { background: #b91c1c; }
+.btn-success { background: var(--green); color: #fff; }
+.btn-success:hover { background: #15803d; }
+.conditional-field { display: none; margin-top: 8px; padding: 12px; background: #f8fafc; border-radius: 8px; border: 1px solid var(--border); }
+.conditional-field.visible { display: block; }
+.signature-canvas { border: 2px dashed var(--border); border-radius: 8px; cursor: crosshair; touch-action: none; background: #fefefe; }
+.signature-canvas:hover { border-color: var(--navy); }
+.toast { position: fixed; top: 20px; right: 20px; padding: 14px 20px; border-radius: 10px; color: #fff; font-weight: 600; font-size: 0.875rem; z-index: 9999; transform: translateX(120%); transition: transform 0.3s ease; box-shadow: 0 4px 12px rgba(0,0,0,0.15); }
+.toast.show { transform: translateX(0); }
+.upload-zone { border: 2px dashed var(--border); border-radius: 10px; padding: 32px; text-align: center; transition: all 0.2s; cursor: pointer; }
+.upload-zone:hover, .upload-zone.dragover { border-color: var(--navy); background: rgba(30,58,95,0.03); }
+.sticky-bar { position: sticky; bottom: 0; z-index: 50; background: #fff; border-top: 1px solid var(--border); padding: 12px 24px; box-shadow: 0 -2px 10px rgba(0,0,0,0.06); }
+.collapsible-content { max-height: 500px; overflow: hidden; transition: max-height 0.3s ease; }
+.collapsible-content.collapsed { max-height: 0; }
+.error-banner { background: #fef2f2; border: 1px solid #fecaca; color: #991b1b; padding: 12px 16px; border-radius: 8px; font-size: 0.875rem; font-weight: 500; display: none; align-items: center; gap: 8px; }
+.error-banner.visible { display: flex; }
+@media (max-width: 767px) {
+  .checkbox-grid { grid-template-columns: repeat(2, 1fr); }
+  .checkbox-grid-2col { grid-template-columns: 1fr; }
+  .sticky-bar { padding: 10px 12px; }
+  .sticky-bar .btn { padding: 8px 12px; font-size: 0.75rem; }
+}
+@media (max-width: 480px) {
+  .checkbox-grid { grid-template-columns: 1fr; }
+}
+@media print {
+  .sticky-bar, .no-print { display: none !important; }
+  .section-card { break-inside: avoid; box-shadow: none; border: 1px solid #ccc; }
+  body { background: #fff; }
+  .collapsible-content.collapsed { max-height: none; }
+}
+</style>
 </head>
-<body>
+<body data-id="0" class="min-h-screen pb-24">
+<app-icon data-id="1" hidden data-icon="clipboard-list" data-palette="Blue"></app-icon>
 
-<header class="page-header">
-  <div>
-    <div class="org">Horizon House</div>
-    <div class="sub">Staff Portal – Incident Report</div>
+<!-- HEADER -->
+<header data-id="2" id="main-header-h7x2" class="bg-navy-900 text-white px-4 md:px-8 py-3">
+  <div data-id="3" class="max-w-5xl mx-auto flex flex-col md:flex-row md:items-center md:justify-between gap-1">
+    <div data-id="4">
+      <h1 data-id="5" class="text-lg md:text-xl font-bold tracking-tight">Horizon House Sober Living LLC</h1>
+      <p data-id="6" class="text-xs md:text-sm text-navy-200">Cathedral City, CA &nbsp;|&nbsp; Operators: Marshall &amp; Elizabeth Richter</p>
+    </div>
+    <div class="flex items-center gap-4 mt-1 md:mt-0">
+      <div data-id="7" id="live-clock-d4k1" class="text-xs md:text-sm text-navy-200 font-medium tabular-nums"></div>
+      <a href="/staff-dashboard.html" class="no-print text-xs font-semibold border border-white/30 rounded-lg px-3 py-1.5 text-white/80 hover:bg-white/10 transition-colors" style="white-space:nowrap;">← Dashboard</a>
+    </div>
   </div>
-  <a href="/staff-dashboard.html" class="back-link">← Dashboard</a>
 </header>
 
-<div class="card">
-  <h2>🚨 Incident Report</h2>
-  <p class="subtitle">Complete all required fields (<span class="req">*</span>) and submit. A copy can be printed after submission.</p>
-
-  <form id="incidentForm" autocomplete="off">
-    <div class="form-grid">
-
-      <div class="section-label">Incident Details</div>
-
-      <div class="form-group">
-        <label for="incidentDate">Date &amp; Time of Incident <span class="req">*</span></label>
-        <input type="datetime-local" id="incidentDate" name="incidentDate" required>
-      </div>
-
-      <div class="form-group">
-        <label for="location">Location <span class="req">*</span></label>
-        <input type="text" id="location" name="location" placeholder="e.g. Women's House – Living Room" required>
-      </div>
-
-      <div class="form-group full">
-        <label for="incidentType">Incident Type <span class="req">*</span></label>
-        <select id="incidentType" name="incidentType" required>
-          <option value="">— Select one —</option>
-          <option>Behavioral</option>
-          <option>Medical</option>
-          <option>Property Damage</option>
-          <option>Policy Violation</option>
-          <option>Relapse / Substance Use</option>
-          <option>Altercation</option>
-          <option>Other</option>
-        </select>
-      </div>
-
-      <div class="section-label">People Involved</div>
-
-      <div class="form-group">
-        <label for="staffName">Reporting Staff Member <span class="req">*</span></label>
-        <input type="text" id="staffName" name="staffName" required>
-      </div>
-
-      <div class="form-group">
-        <label for="residentName">Resident(s) Involved <span class="req">*</span></label>
-        <input type="text" id="residentName" name="residentName" placeholder="Full name(s)" required>
-      </div>
-
-      <div class="form-group full">
-        <label for="witnesses">Witnesses</label>
-        <input type="text" id="witnesses" name="witnesses" placeholder="Names separated by commas (leave blank if none)">
-      </div>
-
-      <div class="section-label">Description</div>
-
-      <div class="form-group full">
-        <label for="description">Description of Incident <span class="req">*</span></label>
-        <textarea id="description" name="description" rows="5" placeholder="Describe what happened, in chronological order…" required></textarea>
-      </div>
-
-      <div class="form-group full">
-        <label for="actionsTaken">Actions Taken <span class="req">*</span></label>
-        <textarea id="actionsTaken" name="actionsTaken" rows="4" placeholder="What steps were taken immediately following the incident?" required></textarea>
-      </div>
-
-      <div class="section-label">Follow‑Up</div>
-
-      <div class="form-group full">
-        <label for="followUp">Follow‑Up Required? <span class="req">*</span></label>
-        <select id="followUp" name="followUp" required>
-          <option value="">— Select one —</option>
-          <option value="No">No – Resolved</option>
-          <option value="Yes – Staff">Yes – Staff Follow‑Up</option>
-          <option value="Yes – Medical">Yes – Medical Attention</option>
-          <option value="Yes – Admin Review">Yes – Admin Review</option>
-          <option value="Yes – 911 / Emergency Services">Yes – 911 / Emergency Services</option>
-        </select>
-      </div>
-
-      <div id="statusMsg"></div>
-
-      <div class="btn-row">
-        <button type="submit" class="btn btn-primary">📤 Submit Report</button>
-        <button type="button" class="btn btn-secondary" onclick="resetForm()">Clear</button>
-        <button type="button" class="btn btn-print" id="printBtn" style="display:none;" onclick="window.print()">🖨️ Print / Save PDF</button>
-      </div>
-
-    </div>
-  </form>
+<!-- TITLE BANNER -->
+<div data-id="8" id="title-banner-r8m3" class="bg-gradient-to-r from-navy-900 via-navy-800 to-navy-600 text-white text-center py-5 md:py-6">
+  <h2 data-id="9" class="text-2xl md:text-3xl font-bold tracking-wide">INCIDENT REPORT</h2>
+  <div data-id="10" class="mt-2 flex flex-col md:flex-row items-center justify-center gap-2 md:gap-6 text-sm">
+    <span data-id="11" class="bg-white/15 px-4 py-1 rounded-full font-semibold tabular-nums" id="form-id-q2w9"></span>
+    <span data-id="12" class="text-navy-200 text-xs" id="report-opened-z5t3"></span>
+  </div>
 </div>
 
+<!-- ERROR BANNER -->
+<div data-id="13" class="max-w-5xl mx-auto px-4 md:px-6 mt-4">
+  <div data-id="14" id="error-banner-k3j1" class="error-banner">
+    <i data-id="15" data-lucide="alert-triangle" class="w-5 h-5 flex-shrink-0"></i>
+    <span data-id="16" id="error-count-text-p9r2"></span>
+  </div>
+</div>
+
+<main data-id="17" class="max-w-5xl mx-auto px-4 md:px-6 py-6 space-y-6">
+
+<!-- STAFF AUTO-FILL PANEL -->
+<section data-id="18" class="section-card" id="staff-panel-a1b2">
+  <div data-id="19" class="section-header flex justify-between items-center cursor-pointer" id="staff-toggle-c3d4">
+    <div data-id="20" class="flex items-center gap-2">
+      <i data-id="21" data-lucide="user-check" class="w-5 h-5"></i>
+      <span data-id="22">Reporting Staff – Auto-Fill</span>
+    </div>
+    <i data-id="23" data-lucide="chevron-up" class="w-5 h-5 transition-transform" id="staff-chevron-e5f6"></i>
+  </div>
+  <div data-id="24" class="collapsible-content p-4 md:p-6" id="staff-content-g7h8">
+    <div data-id="25" class="grid grid-cols-1 md:grid-cols-3 gap-4">
+      <div data-id="26">
+        <label data-id="27" for="staff-name-i9j0">Staff Name</label>
+        <input data-id="28" type="text" id="staff-name-i9j0" placeholder="Full name" />
+      </div>
+      <div data-id="29">
+        <label data-id="30" for="staff-role-k1l2">Staff Role/Title</label>
+        <select data-id="31" id="staff-role-k1l2">
+          <option data-id="32" value="">Select role…</option>
+          <option data-id="33">House Manager</option>
+          <option data-id="34">Shift Staff</option>
+          <option data-id="35">On-Call Staff</option>
+          <option data-id="36">Administrator</option>
+          <option data-id="37">Other</option>
+        </select>
+      </div>
+      <div data-id="38">
+        <label data-id="39" for="staff-email-m3n4">Staff Email</label>
+        <input data-id="40" type="email" id="staff-email-m3n4" placeholder="email@example.com" />
+      </div>
+    </div>
+    <div data-id="41" class="mt-4">
+      <button data-id="42" class="btn btn-secondary" id="save-default-btn-o5p6">
+        <i data-id="43" data-lucide="save" class="w-4 h-4"></i> Save as My Default
+      </button>
+    </div>
+  </div>
+</section>
+
+<!-- SECTION 1: INCIDENT INFORMATION -->
+<section data-id="44" class="section-card" id="section1-q7r8">
+  <div data-id="45" class="section-header" id="sec1-header-s9t0">
+    <span data-id="46" class="bg-navy-900 text-white text-xs font-bold w-6 h-6 rounded-full flex items-center justify-center">1</span>
+    <span data-id="47">Incident Information</span>
+    <span data-id="48" class="check-icon"><i data-id="49" data-lucide="check-circle-2" class="w-5 h-5"></i></span>
+  </div>
+  <div data-id="50" class="p-4 md:p-6 space-y-5">
+    <div data-id="51" class="grid grid-cols-1 md:grid-cols-3 gap-4">
+      <div data-id="52">
+        <label data-id="53" for="incident-date-u1v2">Date of Incident <span data-id="54" class="required-star">*</span></label>
+        <input data-id="55" type="date" id="incident-date-u1v2" required />
+      </div>
+      <div data-id="56">
+        <label data-id="57" for="incident-time-w3x4">Time of Incident <span data-id="58" class="required-star">*</span></label>
+        <input data-id="59" type="time" id="incident-time-w3x4" required />
+      </div>
+      <div data-id="60">
+        <label data-id="61" for="incident-location-y5z6">Location of Incident <span data-id="62" class="required-star">*</span></label>
+        <input data-id="63" type="text" id="incident-location-y5z6" placeholder="e.g., Common Area, Room 4, Front Yard" required />
+      </div>
+    </div>
+
+    <div data-id="64">
+      <label data-id="65">Type of Incident <span data-id="66" class="required-star">*</span> <span data-id="67" class="text-xs text-clinical-muted font-normal">(select all that apply)</span></label>
+      <div data-id="68" class="checkbox-grid mt-1" id="incident-types-a7b8">
+        <label data-id="69"><input data-id="70" type="checkbox" value="Medical Emergency" class="incident-type-cb" /> Medical Emergency</label>
+        <label data-id="71"><input data-id="72" type="checkbox" value="Physical Altercation" class="incident-type-cb" /> Physical Altercation</label>
+        <label data-id="73"><input data-id="74" type="checkbox" value="Property Damage" class="incident-type-cb" /> Property Damage</label>
+        <label data-id="75"><input data-id="76" type="checkbox" value="Substance Use / Relapse" class="incident-type-cb" /> Substance Use / Relapse</label>
+        <label data-id="77"><input data-id="78" type="checkbox" value="Verbal Altercation" class="incident-type-cb" /> Verbal Altercation</label>
+        <label data-id="79"><input data-id="80" type="checkbox" value="Elopement / AWOL" class="incident-type-cb" /> Elopement / AWOL</label>
+        <label data-id="81"><input data-id="82" type="checkbox" value="Theft" class="incident-type-cb" /> Theft</label>
+        <label data-id="83"><input data-id="84" type="checkbox" value="Unauthorized Visitor" class="incident-type-cb" /> Unauthorized Visitor</label>
+        <label data-id="85"><input data-id="86" type="checkbox" value="Self-Harm Concern" class="incident-type-cb" /> Self-Harm Concern</label>
+        <label data-id="87"><input data-id="88" type="checkbox" value="Medication Incident" class="incident-type-cb" /> Medication Incident</label>
+        <label data-id="89"><input data-id="90" type="checkbox" value="Fire / Safety Hazard" class="incident-type-cb" /> Fire / Safety Hazard</label>
+        <label data-id="91"><input data-id="92" type="checkbox" value="Other" class="incident-type-cb" id="incident-type-other-cb-c9d0" /> Other</label>
+      </div>
+      <div data-id="93" class="conditional-field" id="incident-type-other-field-e1f2">
+        <label data-id="94" for="incident-type-other-text-g3h4">Describe other type:</label>
+        <input data-id="95" type="text" id="incident-type-other-text-g3h4" placeholder="Describe…" />
+      </div>
+    </div>
+
+    <!-- Law Enforcement -->
+    <div data-id="96">
+      <label data-id="97">Law enforcement contacted? <span data-id="98" class="required-star">*</span></label>
+      <div data-id="99" class="radio-group mt-1">
+        <label data-id="100"><input data-id="101" type="radio" name="law-enforcement" value="Yes" class="law-enforcement-radio" /> Yes</label>
+        <label data-id="102"><input data-id="103" type="radio" name="law-enforcement" value="No" class="law-enforcement-radio" /> No</label>
+      </div>
+      <div data-id="104" class="conditional-field" id="law-enforcement-details-i5j6">
+        <div data-id="105" class="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div data-id="106"><label data-id="107" for="law-agency-k7l8">Agency Name</label><input data-id="108" type="text" id="law-agency-k7l8" /></div>
+          <div data-id="109"><label data-id="110" for="law-report-m9n0">Report Number</label><input data-id="111" type="text" id="law-report-m9n0" /></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- EMS -->
+    <div data-id="112">
+      <label data-id="113">EMS contacted?</label>
+      <div data-id="114" class="radio-group mt-1">
+        <label data-id="115"><input data-id="116" type="radio" name="ems" value="Yes" class="ems-radio" /> Yes</label>
+        <label data-id="117"><input data-id="118" type="radio" name="ems" value="No" class="ems-radio" /> No</label>
+      </div>
+      <div data-id="119" class="conditional-field" id="ems-details-o1p2">
+        <div data-id="120"><label data-id="121" for="ems-agency-q3r4">Agency/Unit</label><input data-id="122" type="text" id="ems-agency-q3r4" /></div>
+      </div>
+    </div>
+
+    <!-- Member transported -->
+    <div data-id="123">
+      <label data-id="124">Member transported?</label>
+      <div data-id="125" class="radio-group mt-1">
+        <label data-id="126"><input data-id="127" type="radio" name="transported" value="Yes" class="transported-radio" /> Yes</label>
+        <label data-id="128"><input data-id="129" type="radio" name="transported" value="No" class="transported-radio" /> No</label>
+      </div>
+      <div data-id="130" class="conditional-field" id="transported-details-s5t6">
+        <div data-id="131"><label data-id="132" for="transport-dest-u7v8">Destination</label><input data-id="133" type="text" id="transport-dest-u7v8" /></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- SECTION 2: MEMBERS INVOLVED -->
+<section data-id="134" class="section-card" id="section2-w9x0">
+  <div data-id="135" class="section-header" id="sec2-header-y1z2">
+    <span data-id="136" class="bg-navy-900 text-white text-xs font-bold w-6 h-6 rounded-full flex items-center justify-center">2</span>
+    <span data-id="137">Member(s) Involved</span>
+    <span data-id="138" class="check-icon"><i data-id="139" data-lucide="check-circle-2" class="w-5 h-5"></i></span>
+  </div>
+  <div data-id="140" class="p-4 md:p-6">
+    <div data-id="141" id="residents-container-a3b4" class="space-y-4"></div>
+    <button data-id="142" class="btn btn-secondary mt-4" id="add-resident-btn-c5d6">
+      <i data-id="143" data-lucide="plus-circle" class="w-4 h-4"></i> Add Member
+    </button>
+    <p data-id="144" class="text-xs text-clinical-muted mt-1">Maximum 3 members</p>
+  </div>
+</section>
+
+<!-- SECTION 3: WITNESSES -->
+<section data-id="145" class="section-card" id="section3-e7f8">
+  <div data-id="146" class="section-header" id="sec3-header-g9h0">
+    <span data-id="147" class="bg-navy-900 text-white text-xs font-bold w-6 h-6 rounded-full flex items-center justify-center">3</span>
+    <span data-id="148">Witnesses / Others Present</span>
+    <span data-id="149" class="check-icon"><i data-id="150" data-lucide="check-circle-2" class="w-5 h-5"></i></span>
+  </div>
+  <div data-id="151" class="p-4 md:p-6">
+    <div data-id="152" class="overflow-x-auto">
+      <table data-id="153" class="w-full text-sm" id="witness-table-i1j2">
+        <thead data-id="154">
+          <tr data-id="155" class="text-left text-xs text-clinical-muted uppercase tracking-wide">
+            <th data-id="156" class="pb-2 pr-2">Full Name</th>
+            <th data-id="157" class="pb-2 pr-2">Role</th>
+            <th data-id="158" class="pb-2 pr-2">Contact / Room #</th>
+            <th data-id="159" class="pb-2 w-10"></th>
+          </tr>
+        </thead>
+        <tbody data-id="160" id="witness-tbody-k3l4"></tbody>
+      </table>
+    </div>
+    <button data-id="161" class="btn btn-secondary mt-3" id="add-witness-btn-m5n6">
+      <i data-id="162" data-lucide="plus-circle" class="w-4 h-4"></i> Add Witness
+    </button>
+  </div>
+</section>
+
+<!-- SECTION 4: INCIDENT NARRATIVE -->
+<section data-id="163" class="section-card" id="section4-o7p8">
+  <div data-id="164" class="section-header" id="sec4-header-q9r0">
+    <span data-id="165" class="bg-navy-900 text-white text-xs font-bold w-6 h-6 rounded-full flex items-center justify-center">4</span>
+    <span data-id="166">Incident Narrative</span>
+    <span data-id="167" class="check-icon"><i data-id="168" data-lucide="check-circle-2" class="w-5 h-5"></i></span>
+  </div>
+  <div data-id="169" class="p-4 md:p-6">
+    <label data-id="170" for="narrative-text-s1t2">Describe in detail what occurred — include sequence of events, statements made, and physical evidence observed. <span data-id="171" class="required-star">*</span></label>
+    <textarea data-id="172" id="narrative-text-s1t2" rows="8" maxlength="2000" style="min-height:200px" required
+      placeholder="Begin with the time you were first made aware of the incident. Describe what you observed, who was involved, what was said, and any physical evidence. Include the sequence of events in chronological order."></textarea>
+    <div data-id="173" class="flex justify-end mt-1">
+      <span data-id="174" class="text-xs tabular-nums" id="char-counter-u3v4"><span data-id="175" id="char-count-w5x6">0</span> / 2,000</span>
+    </div>
+  </div>
+</section>
+
+<!-- SECTION 5: IMMEDIATE ACTIONS TAKEN -->
+<section data-id="176" class="section-card" id="section5-y7z8">
+  <div data-id="177" class="section-header" id="sec5-header-a9b0">
+    <span data-id="178" class="bg-navy-900 text-white text-xs font-bold w-6 h-6 rounded-full flex items-center justify-center">5</span>
+    <span data-id="179">Immediate Actions Taken</span>
+    <span data-id="180" class="check-icon"><i data-id="181" data-lucide="check-circle-2" class="w-5 h-5"></i></span>
+  </div>
+  <div data-id="182" class="p-4 md:p-6 space-y-5">
+    <div data-id="183">
+      <label data-id="184">Actions taken <span data-id="185" class="text-xs text-clinical-muted font-normal">(select all that apply)</span></label>
+      <div data-id="186" class="checkbox-grid-2col mt-1" id="actions-taken-c1d2">
+        <label data-id="187"><input data-id="188" type="checkbox" value="First Aid Administered" class="action-cb" /> First Aid Administered</label>
+        <label data-id="189"><input data-id="190" type="checkbox" value="911 Called" class="action-cb" /> 911 Called</label>
+        <label data-id="191"><input data-id="192" type="checkbox" value="On-Call Supervisor Notified" class="action-cb" /> On-Call Supervisor Notified</label>
+        <label data-id="193"><input data-id="194" type="checkbox" value="Family / Emergency Contact Notified" class="action-cb" /> Family / Emergency Contact Notified</label>
+        <label data-id="195"><input data-id="196" type="checkbox" value="Member Removed from Situation" class="action-cb" /> Member Removed from Situation</label>
+        <label data-id="197"><input data-id="198" type="checkbox" value="Other Members Secured" class="action-cb" /> Other Members Secured</label>
+        <label data-id="199"><input data-id="200" type="checkbox" value="Evidence Preserved" class="action-cb" /> Evidence Preserved</label>
+        <label data-id="201"><input data-id="202" type="checkbox" value="Other" class="action-cb" id="action-other-cb-e3f4" /> Other</label>
+      </div>
+      <div data-id="203" class="conditional-field" id="action-other-field-g5h6">
+        <label data-id="204" for="action-other-text-i7j8">Describe other action:</label>
+        <input data-id="205" type="text" id="action-other-text-i7j8" />
+      </div>
+    </div>
+
+    <div data-id="206">
+      <label data-id="207">On-call supervisor notified?</label>
+      <div data-id="208" class="radio-group mt-1">
+        <label data-id="209"><input data-id="210" type="radio" name="supervisor-notified" value="Yes" class="supervisor-notified-radio" /> Yes</label>
+        <label data-id="211"><input data-id="212" type="radio" name="supervisor-notified" value="No" class="supervisor-notified-radio" /> No</label>
+      </div>
+      <div data-id="213" class="conditional-field" id="supervisor-notified-details-k9l0">
+        <div data-id="214" class="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div data-id="215"><label data-id="216" for="supervisor-name-m1n2">Supervisor Name</label><input data-id="217" type="text" id="supervisor-name-m1n2" /></div>
+          <div data-id="218"><label data-id="219" for="supervisor-time-o3p4">Time Notified</label><input data-id="220" type="time" id="supervisor-time-o3p4" /></div>
+        </div>
+      </div>
+    </div>
+
+    <div data-id="221">
+      <label data-id="222">Family/emergency contact notified?</label>
+      <div data-id="223" class="radio-group mt-1">
+        <label data-id="224"><input data-id="225" type="radio" name="family-notified" value="Yes" class="family-notified-radio" /> Yes</label>
+        <label data-id="226"><input data-id="227" type="radio" name="family-notified" value="No" class="family-notified-radio" /> No</label>
+      </div>
+      <div data-id="228" class="conditional-field" id="family-notified-details-q5r6">
+        <div data-id="229" class="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <div data-id="230"><label data-id="231" for="family-contact-name-s7t8">Contact Name</label><input data-id="232" type="text" id="family-contact-name-s7t8" /></div>
+          <div data-id="233"><label data-id="234" for="family-relationship-u9v0">Relationship</label><input data-id="235" type="text" id="family-relationship-u9v0" /></div>
+          <div data-id="236"><label data-id="237" for="family-time-w1x2">Time Notified</label><input data-id="238" type="time" id="family-time-w1x2" /></div>
+        </div>
+      </div>
+    </div>
+
+    <div data-id="239">
+      <label data-id="240" for="immediate-notes-y3z4">Additional notes on immediate response</label>
+      <textarea data-id="241" id="immediate-notes-y3z4" rows="4" placeholder="Optional – add any additional details about the immediate response…"></textarea>
+    </div>
+  </div>
+</section>
+
+<!-- SECTION 6: FOLLOW-UP ACTIONS -->
+<section data-id="242" class="section-card" id="section6-a5b6">
+  <div data-id="243" class="section-header" id="sec6-header-c7d8">
+    <span data-id="244" class="bg-navy-900 text-white text-xs font-bold w-6 h-6 rounded-full flex items-center justify-center">6</span>
+    <span data-id="245">Follow-Up Actions</span>
+    <span data-id="246" class="check-icon"><i data-id="247" data-lucide="check-circle-2" class="w-5 h-5"></i></span>
+  </div>
+  <div data-id="248" class="p-4 md:p-6 space-y-5">
+    <div data-id="249">
+      <label data-id="250">Planned follow-up <span data-id="251" class="text-xs text-clinical-muted font-normal">(select all that apply)</span></label>
+      <div data-id="252" class="checkbox-grid-2col mt-1" id="followup-types-e9f0">
+        <label data-id="253"><input data-id="254" type="checkbox" value="Incident Review Meeting" class="followup-cb" /> Incident Review Meeting</label>
+        <label data-id="255"><input data-id="256" type="checkbox" value="Member Counseling Referral" class="followup-cb" /> Member Counseling Referral</label>
+        <label data-id="257"><input data-id="258" type="checkbox" value="Licensing Authority Notification" class="followup-cb" /> Licensing Authority Notification</label>
+        <label data-id="259"><input data-id="260" type="checkbox" value="Law Enforcement Follow-Up" class="followup-cb" /> Law Enforcement Follow-Up</label>
+        <label data-id="261"><input data-id="262" type="checkbox" value="Repair / Property Assessment" class="followup-cb" /> Repair / Property Assessment</label>
+        <label data-id="263"><input data-id="264" type="checkbox" value="Staff Retraining" class="followup-cb" /> Staff Retraining</label>
+        <label data-id="265"><input data-id="266" type="checkbox" value="Other" class="followup-cb" id="followup-other-cb-g1h2" /> Other</label>
+      </div>
+      <div data-id="267" class="conditional-field" id="followup-other-field-i3j4">
+        <label data-id="268" for="followup-other-text-k5l6">Describe other:</label>
+        <input data-id="269" type="text" id="followup-other-text-k5l6" />
+      </div>
+    </div>
+    <div data-id="270" class="grid grid-cols-1 md:grid-cols-2 gap-4">
+      <div data-id="271"><label data-id="272" for="followup-target-date-m7n8">Target Completion Date</label><input data-id="273" type="date" id="followup-target-date-m7n8" /></div>
+      <div data-id="274"><label data-id="275" for="followup-assigned-o9p0">Assigned To</label><input data-id="276" type="text" id="followup-assigned-o9p0" placeholder="Name or role" /></div>
+    </div>
+    <div data-id="277">
+      <label data-id="278" for="followup-notes-q1r2">Notes</label>
+      <textarea data-id="279" id="followup-notes-q1r2" rows="3" placeholder="Optional notes…"></textarea>
+    </div>
+  </div>
+</section>
+
+<!-- SECTION 7: SUPERVISOR REVIEW -->
+<section data-id="280" class="section-card" id="section7-s3t4">
+  <div data-id="281" class="section-header" id="sec7-header-u5v6">
+    <span data-id="282" class="bg-navy-900 text-white text-xs font-bold w-6 h-6 rounded-full flex items-center justify-center">7</span>
+    <span data-id="283">Supervisor Review</span>
+    <span data-id="284" class="check-icon"><i data-id="285" data-lucide="check-circle-2" class="w-5 h-5"></i></span>
+  </div>
+  <div data-id="286" class="p-4 md:p-6 space-y-5">
+    <div data-id="287" class="grid grid-cols-1 md:grid-cols-2 gap-4">
+      <div data-id="288"><label data-id="289" for="review-supervisor-name-w7x8">Supervisor Name</label><input data-id="290" type="text" id="review-supervisor-name-w7x8" /></div>
+      <div data-id="291"><label data-id="292" for="review-date-y9z0">Review Date</label><input data-id="293" type="date" id="review-date-y9z0" /></div>
+    </div>
+    <div data-id="294">
+      <label data-id="295" for="review-comments-a1b2">Supervisor Comments</label>
+      <textarea data-id="296" id="review-comments-a1b2" rows="4" placeholder="Review comments…"></textarea>
+    </div>
+    <div data-id="297">
+      <label data-id="298">Reportable to licensing/regulatory agency?</label>
+      <div data-id="299" class="radio-group mt-1">
+        <label data-id="300"><input data-id="301" type="radio" name="reportable" value="Yes" class="reportable-radio" /> Yes</label>
+        <label data-id="302"><input data-id="303" type="radio" name="reportable" value="No" class="reportable-radio" /> No</label>
+      </div>
+      <div data-id="304" class="conditional-field" id="reportable-details-c3d4">
+        <div data-id="305" class="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <div data-id="306"><label data-id="307" for="reportable-agency-e5f6">Agency Name</label><input data-id="308" type="text" id="reportable-agency-e5f6" /></div>
+          <div data-id="309"><label data-id="310" for="reportable-date-g7h8">Date Notified</label><input data-id="311" type="date" id="reportable-date-g7h8" /></div>
+          <div data-id="312"><label data-id="313" for="reportable-by-i9j0">Notified By</label><input data-id="314" type="text" id="reportable-by-i9j0" /></div>
+        </div>
+      </div>
+    </div>
+    <div data-id="315">
+      <label data-id="316">Corrective action plan attached?</label>
+      <div data-id="317" class="radio-group mt-1">
+        <label data-id="318"><input data-id="319" type="radio" name="corrective-plan" value="Yes" /> Yes</label>
+        <label data-id="320"><input data-id="321" type="radio" name="corrective-plan" value="No" /> No</label>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- SECTION 8: ATTACHMENTS -->
+<section data-id="322" class="section-card" id="section8-k1l2">
+  <div data-id="323" class="section-header" id="sec8-header-m3n4">
+    <span data-id="324" class="bg-navy-900 text-white text-xs font-bold w-6 h-6 rounded-full flex items-center justify-center">8</span>
+    <span data-id="325">Attachments</span>
+    <span data-id="326" class="check-icon"><i data-id="327" data-lucide="check-circle-2" class="w-5 h-5"></i></span>
+  </div>
+  <div data-id="328" class="p-4 md:p-6">
+    <div data-id="329" class="upload-zone" id="upload-zone-o5p6">
+      <i data-id="330" data-lucide="upload-cloud" class="w-10 h-10 mx-auto text-clinical-muted mb-2"></i>
+      <p data-id="331" class="font-medium text-sm text-navy-800">Drag &amp; drop files here, or click to browse</p>
+      <p data-id="332" class="text-xs text-clinical-muted mt-1">Attach supporting documents, photos, or evidence (optional)</p>
+      <p data-id="333" class="text-xs text-clinical-muted mt-1">Accepts images, PDFs, and documents</p>
+      <input data-id="334" type="file" id="file-input-q7r8" multiple accept="image/*,.pdf,.doc,.docx,.txt" class="hidden" />
+    </div>
+    <div data-id="335" id="file-list-s9t0" class="mt-3 space-y-2"></div>
+    <p data-id="336" class="text-xs text-clinical-muted mt-2"><i data-id="337" data-lucide="info" class="w-3 h-3 inline"></i> Files are for local reference only and will be listed in the PDF export.</p>
+  </div>
+</section>
+
+<!-- SECTION 9: SIGNATURES -->
+<section data-id="338" class="section-card" id="section9-u1v2">
+  <div data-id="339" class="section-header" id="sec9-header-w3x4">
+    <span data-id="340" class="bg-navy-900 text-white text-xs font-bold w-6 h-6 rounded-full flex items-center justify-center">9</span>
+    <span data-id="341">Signatures</span>
+    <span data-id="342" class="check-icon"><i data-id="343" data-lucide="check-circle-2" class="w-5 h-5"></i></span>
+  </div>
+  <div data-id="344" class="p-4 md:p-6 space-y-6">
+    <!-- Staff Signature -->
+    <div data-id="345">
+      <h3 data-id="346" class="font-semibold text-navy-900 mb-3">Reporting Staff Signature</h3>
+      <div data-id="347" class="border border-clinical-border rounded-lg p-4 bg-clinical-bg">
+        <canvas data-id="348" id="staff-sig-canvas-y5z6" class="signature-canvas w-full" width="700" height="150"></canvas>
+        <div data-id="349" class="flex items-center gap-3 mt-2">
+          <button data-id="350" class="btn btn-secondary text-xs" id="clear-staff-sig-a7b8"><i data-id="351" data-lucide="eraser" class="w-3 h-3"></i> Clear</button>
+        </div>
+        <div data-id="352" class="grid grid-cols-1 md:grid-cols-3 gap-4 mt-4">
+          <div data-id="353"><label data-id="354" for="staff-sig-name-c9d0">Printed Name</label><input data-id="355" type="text" id="staff-sig-name-c9d0" readonly class="bg-gray-50" /></div>
+          <div data-id="356"><label data-id="357" for="staff-sig-role-e1f2">Title / Role</label><input data-id="358" type="text" id="staff-sig-role-e1f2" readonly class="bg-gray-50" /></div>
+          <div data-id="359"><label data-id="360" for="staff-sig-time-g3h4">Submission Timestamp</label><input data-id="361" type="text" id="staff-sig-time-g3h4" readonly class="bg-gray-50 tabular-nums" /></div>
+        </div>
+      </div>
+    </div>
+    <!-- Supervisor Signature -->
+    <div data-id="362">
+      <h3 data-id="363" class="font-semibold text-navy-900 mb-3">Supervisor Signature</h3>
+      <div data-id="364" class="border border-clinical-border rounded-lg p-4 bg-clinical-bg">
+        <canvas data-id="365" id="super-sig-canvas-i5j6" class="signature-canvas w-full" width="700" height="150"></canvas>
+        <div data-id="366" class="flex items-center gap-3 mt-2">
+          <button data-id="367" class="btn btn-secondary text-xs" id="clear-super-sig-k7l8"><i data-id="368" data-lucide="eraser" class="w-3 h-3"></i> Clear</button>
+        </div>
+        <div data-id="369" class="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
+          <div data-id="370"><label data-id="371" for="super-sig-name-m9n0">Supervisor Printed Name</label><input data-id="372" type="text" id="super-sig-name-m9n0" /></div>
+          <div data-id="373"><label data-id="374" for="super-sig-date-o1p2">Date</label><input data-id="375" type="date" id="super-sig-date-o1p2" /></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+</main>
+
+<!-- STICKY ACTION BAR -->
+<div data-id="376" class="sticky-bar no-print">
+  <div data-id="377" class="max-w-5xl mx-auto flex flex-wrap items-center justify-center gap-3">
+    <button data-id="378" class="btn btn-secondary" id="save-draft-btn-q3r4"><i data-id="379" data-lucide="save" class="w-4 h-4"></i> Save Draft</button>
+    <button data-id="380" class="btn btn-danger" id="clear-form-btn-s5t6"><i data-id="381" data-lucide="trash-2" class="w-4 h-4"></i> Clear Form</button>
+    <button data-id="382" class="btn btn-primary" id="export-pdf-btn-u7v8"><i data-id="383" data-lucide="file-down" class="w-4 h-4"></i> Export to PDF</button>
+    <button data-id="384" class="btn btn-success" id="print-form-btn-w9x0"><i data-id="385" data-lucide="printer" class="w-4 h-4"></i> Print Form</button>
+  </div>
+</div>
+
+<!-- TOAST -->
+<div data-id="386" id="toast-y1z2" class="toast"></div>
+
+<!-- FOOTER -->
+<footer data-id="387" class="text-center py-6 mt-4 border-t border-clinical-border bg-white">
+  <p data-id="388" class="text-xs text-clinical-muted font-medium">Horizon House Sober Living LLC &nbsp;|&nbsp; Confidential – For Internal Use Only</p>
+  <p data-id="389" class="text-xs text-clinical-muted mt-1">Retain completed incident reports per applicable California state and licensing requirements.</p>
+  <p data-id="390" class="text-xs text-clinical-muted mt-3">Made by Copilot</p>
+</footer>
+
 <script>
-  const API = 'https://horizon-portal-backend-production-3532.up.railway.app/api/incidents';
+// ========== INIT ICONS ==========
+if (typeof lucide !== "undefined" && typeof lucide.createIcons === "function") {
+  lucide.createIcons();
+}
 
-  // Pre-fill datetime to now
-  (function () {
-    const now = new Date();
-    now.setSeconds(0, 0);
-    const local = new Date(now.getTime() - now.getTimezoneOffset() * 60000)
-      .toISOString().slice(0, 16);
-    document.getElementById('incidentDate').value = local;
-  })();
+// ========== UTILITIES ==========
+function $(id) { return document.getElementById(id); }
+function $$(sel) { return document.querySelectorAll(sel); }
+function formatPDT(date) {
+  return date.toLocaleString('en-US', { timeZone:'America/Los_Angeles', weekday:'long', year:'numeric', month:'long', day:'numeric' })
+    + ' – ' + date.toLocaleString('en-US', { timeZone:'America/Los_Angeles', hour:'2-digit', minute:'2-digit', second:'2-digit', hour12:true }) + ' PDT';
+}
+function todayISO() {
+  const d = new Date(); const o = d.toLocaleString('en-US',{timeZone:'America/Los_Angeles',year:'numeric',month:'2-digit',day:'2-digit'});
+  const [m,dy,y] = o.split('/'); return `${y}-${m}-${dy}`;
+}
+function showToast(msg, color) {
+  const t = $('toast-y1z2'); t.textContent = msg; t.style.background = color || '#1e3a5f';
+  t.classList.add('show'); setTimeout(() => t.classList.remove('show'), 3000);
+}
 
-  document.getElementById('incidentForm').addEventListener('submit', async function (e) {
-    e.preventDefault();
-    const btn = this.querySelector('button[type="submit"]');
-    btn.disabled = true;
-    btn.textContent = '⏳ Submitting…';
+// ========== LIVE CLOCK ==========
+function updateClock() {
+  $('live-clock-d4k1').textContent = formatPDT(new Date());
+}
+updateClock(); setInterval(updateClock, 1000);
 
-    const payload = {
-      staffName:    document.getElementById('staffName').value.trim(),
-      residentName: document.getElementById('residentName').value.trim(),
-      incidentDate: document.getElementById('incidentDate').value,
-      location:     document.getElementById('location').value.trim(),
-      incidentType: document.getElementById('incidentType').value,
-      description:  document.getElementById('description').value.trim(),
-      actionsTaken: document.getElementById('actionsTaken').value.trim(),
-      witnesses:    document.getElementById('witnesses').value.trim(),
-      followUp:     document.getElementById('followUp').value,
-      submittedAt:  new Date().toISOString(),
-    };
+// ========== FORM ID & TIMESTAMP ==========
+const now = new Date();
+const pdtParts = now.toLocaleString('en-US',{timeZone:'America/Los_Angeles',year:'numeric',month:'2-digit',day:'2-digit'}).split('/');
+const formDate = `${pdtParts[2]}${pdtParts[0]}${pdtParts[1]}`;
+const formSuffix = String(Math.floor(1000 + Math.random()*9000));
+const formId = `IR-${formDate}-${formSuffix}`;
+$('form-id-q2w9').textContent = formId;
+$('report-opened-z5t3').textContent = 'Report Opened: ' + formatPDT(now);
 
-    const msg = document.getElementById('statusMsg');
+// Set default dates
+$('review-date-y9z0').value = todayISO();
+$('super-sig-date-o1p2').value = todayISO();
 
-    try {
-      const res = await fetch(API, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(payload),
-      });
+// ========== STAFF PANEL COLLAPSE ==========
+$('staff-toggle-c3d4').addEventListener('click', function() {
+  const content = $('staff-content-g7h8');
+  const chevron = $('staff-chevron-e5f6');
+  content.classList.toggle('collapsed');
+  chevron.style.transform = content.classList.contains('collapsed') ? 'rotate(180deg)' : '';
+});
 
-      if (res.ok) {
-        showStatus('success', '✅ Incident report submitted successfully. Use the Print button to save a copy.');
-        document.getElementById('printBtn').style.display = 'inline-block';
-        btn.textContent = '✅ Submitted';
-      } else {
-        const err = await res.text();
-        showStatus('error', `⚠️ Server error (${res.status}): ${err || 'Unknown error'}. Please print and file manually.`);
-        document.getElementById('printBtn').style.display = 'inline-block';
-        btn.disabled = false;
-        btn.textContent = '📤 Submit Report';
-      }
-    } catch (networkErr) {
-      // No backend endpoint yet — offer print fallback
-      showStatus('error', '⚠️ Could not reach server. Use the Print button to save / file this report manually.');
-      document.getElementById('printBtn').style.display = 'inline-block';
-      btn.disabled = false;
-      btn.textContent = '📤 Submit Report';
+// ========== STAFF AUTO-FILL ==========
+function loadStaffDefaults() {
+  try {
+    const d = JSON.parse(localStorage.getItem('hh_staff_defaults'));
+    if (d) {
+      $('staff-name-i9j0').value = d.name || '';
+      $('staff-role-k1l2').value = d.role || '';
+      $('staff-email-m3n4').value = d.email || '';
+      syncStaffToSignature();
     }
+  } catch(e) {}
+}
+loadStaffDefaults();
+
+$('save-default-btn-o5p6').addEventListener('click', function() {
+  const d = { name: $('staff-name-i9j0').value, role: $('staff-role-k1l2').value, email: $('staff-email-m3n4').value };
+  localStorage.setItem('hh_staff_defaults', JSON.stringify(d));
+  showToast('Staff defaults saved!', '#16a34a');
+});
+
+function syncStaffToSignature() {
+  $('staff-sig-name-c9d0').value = $('staff-name-i9j0').value;
+  $('staff-sig-role-e1f2').value = $('staff-role-k1l2').value;
+  $('staff-sig-time-g3h4').value = formatPDT(new Date());
+}
+$('staff-name-i9j0').addEventListener('input', syncStaffToSignature);
+$('staff-role-k1l2').addEventListener('change', syncStaffToSignature);
+
+// ========== CONDITIONAL FIELDS ==========
+function setupRadioConditional(radioClass, detailsId, triggerVal) {
+  $$(`.${radioClass}`).forEach(r => {
+    r.addEventListener('change', function() {
+      const details = $(detailsId);
+      details.classList.toggle('visible', this.value === triggerVal);
+    });
+  });
+}
+setupRadioConditional('law-enforcement-radio', 'law-enforcement-details-i5j6', 'Yes');
+setupRadioConditional('ems-radio', 'ems-details-o1p2', 'Yes');
+setupRadioConditional('transported-radio', 'transported-details-s5t6', 'Yes');
+setupRadioConditional('supervisor-notified-radio', 'supervisor-notified-details-k9l0', 'Yes');
+setupRadioConditional('family-notified-radio', 'family-notified-details-q5r6', 'Yes');
+setupRadioConditional('reportable-radio', 'reportable-details-c3d4', 'Yes');
+
+// Incident type "Other" checkbox
+$('incident-type-other-cb-c9d0').addEventListener('change', function() {
+  $('incident-type-other-field-e1f2').classList.toggle('visible', this.checked);
+});
+$('action-other-cb-e3f4').addEventListener('change', function() {
+  $('action-other-field-g5h6').classList.toggle('visible', this.checked);
+});
+$('followup-other-cb-g1h2').addEventListener('change', function() {
+  $('followup-other-field-i3j4').classList.toggle('visible', this.checked);
+});
+
+// ========== CHARACTER COUNTER ==========
+$('narrative-text-s1t2').addEventListener('input', function() {
+  const len = this.value.length;
+  $('char-count-w5x6').textContent = len.toLocaleString();
+  $('char-counter-u3v4').style.color = len > 1900 ? '#dc2626' : '#94a3b8';
+});
+
+// ========== DYNAMIC MEMBERS ==========
+let memberCount = 0;
+function addMember() {
+  if (memberCount >= 3) return;
+  memberCount++;
+  const idx = memberCount;
+  const card = document.createElement('div');
+  card.className = 'border border-clinical-border rounded-lg p-4 bg-clinical-bg relative member-card';
+  card.dataset.idx = idx;
+  card.innerHTML = `
+    <div class="flex justify-between items-center mb-3">
+      <h4 class="font-semibold text-sm text-navy-800">Member ${idx}</h4>
+      ${idx > 1 ? '<button class="remove-member-btn text-clinical-muted hover:text-danger text-xs flex items-center gap-1"><i data-lucide="x-circle" class="w-4 h-4"></i> Remove</button>' : ''}
+    </div>
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+      <div><label>Full Name <span class="required-star">*</span></label><input type="text" class="member-name" required placeholder="Full name" /></div>
+      <div><label>Date of Birth</label><input type="date" class="member-dob" /></div>
+      <div><label>Room Assignment</label><input type="text" class="member-room" placeholder="Room #" /></div>
+      <div><label>Move-In Date</label><input type="date" class="member-movein" /></div>
+      <div><label>Gender</label><select class="member-gender"><option value="">Select…</option><option>Male</option><option>Female</option><option>Non-Binary</option><option>Prefer Not to Say</option></select></div>
+      <div><label>Status After Incident <span class="required-star">*</span></label><select class="member-status" required><option value="">Select…</option><option>Remains in Residence</option><option>Voluntarily Left</option><option>Asked to Leave / Discharged</option><option>Hospitalized</option><option>Unknown / Other</option></select></div>
+    </div>`;
+  $('residents-container-a3b4').appendChild(card);
+  if (idx > 1) {
+    card.querySelector('.remove-member-btn').addEventListener('click', function() {
+      card.remove(); memberCount--; renumberMembers();
+      $('add-resident-btn-c5d6').disabled = false;
+    });
+  }
+  if (memberCount >= 3) $('add-resident-btn-c5d6').disabled = true;
+  if (typeof lucide !== "undefined" && typeof lucide.createIcons === "function") lucide.createIcons();
+}
+function renumberMembers() {
+  let i = 0;
+  $$('.member-card').forEach(c => { i++; c.dataset.idx = i; c.querySelector('h4').textContent = `Member ${i}`; });
+  memberCount = i;
+}
+addMember(); // Start with 1
+$('add-resident-btn-c5d6').addEventListener('click', addMember);
+
+// ========== DYNAMIC WITNESSES ==========
+let witnessCount = 0;
+function addWitness() {
+  witnessCount++;
+  const tr = document.createElement('tr');
+  tr.className = 'witness-row';
+  tr.innerHTML = `
+    <td class="pr-2 pb-2"><input type="text" class="witness-name" placeholder="Full name" /></td>
+    <td class="pr-2 pb-2"><select class="witness-role"><option value="">Select…</option><option>Staff</option><option>Member</option><option>Guest</option><option>Other</option></select></td>
+    <td class="pr-2 pb-2"><input type="text" class="witness-contact" placeholder="Contact / Room #" /></td>
+    <td class="pb-2"><button class="remove-witness-btn text-clinical-muted hover:text-danger"><i data-lucide="x-circle" class="w-4 h-4"></i></button></td>`;
+  $('witness-tbody-k3l4').appendChild(tr);
+  tr.querySelector('.remove-witness-btn').addEventListener('click', function() {
+    if ($$('.witness-row').length > 1) { tr.remove(); witnessCount--; }
+  });
+  if (typeof lucide !== "undefined" && typeof lucide.createIcons === "function") lucide.createIcons();
+}
+addWitness();
+$('add-witness-btn-m5n6').addEventListener('click', addWitness);
+
+// ========== FILE UPLOADS ==========
+let uploadedFiles = [];
+const uploadZone = $('upload-zone-o5p6');
+const fileInput = $('file-input-q7r8');
+
+uploadZone.addEventListener('click', () => fileInput.click());
+uploadZone.addEventListener('dragover', (e) => { e.preventDefault(); uploadZone.classList.add('dragover'); });
+uploadZone.addEventListener('dragleave', () => uploadZone.classList.remove('dragover'));
+uploadZone.addEventListener('drop', (e) => { e.preventDefault(); uploadZone.classList.remove('dragover'); handleFiles(e.dataTransfer.files); });
+fileInput.addEventListener('change', () => handleFiles(fileInput.files));
+
+function handleFiles(files) {
+  Array.from(files).forEach(f => {
+    uploadedFiles.push(f);
+    renderFileList();
+  });
+}
+function renderFileList() {
+  const container = $('file-list-s9t0');
+  container.innerHTML = '';
+  uploadedFiles.forEach((f, i) => {
+    const div = document.createElement('div');
+    div.className = 'flex items-center justify-between bg-clinical-bg border border-clinical-border rounded-lg px-3 py-2';
+    const sizeKB = (f.size / 1024).toFixed(1);
+    div.innerHTML = `<div class="flex items-center gap-2"><i data-lucide="file" class="w-4 h-4 text-navy-600"></i><span class="text-sm font-medium truncate max-w-[200px]">${f.name}</span><span class="text-xs text-clinical-muted">${sizeKB} KB</span></div>`;
+    const btn = document.createElement('button');
+    btn.className = 'text-clinical-muted hover:text-danger';
+    btn.innerHTML = '<i data-lucide="x" class="w-4 h-4"></i>';
+    btn.addEventListener('click', () => { uploadedFiles.splice(i, 1); renderFileList(); });
+    div.appendChild(btn);
+    container.appendChild(div);
+  });
+  if (typeof lucide !== "undefined" && typeof lucide.createIcons === "function") lucide.createIcons();
+}
+
+// ========== SIGNATURE PADS ==========
+function initSignaturePad(canvasId) {
+  const canvas = $(canvasId);
+  const ctx = canvas.getContext('2d');
+  let drawing = false, hasSignature = false;
+
+  function resize() {
+    const rect = canvas.parentElement.getBoundingClientRect();
+    const dpr = window.devicePixelRatio || 1;
+    canvas.width = rect.width * dpr;
+    canvas.height = 150 * dpr;
+    canvas.style.width = rect.width + 'px';
+    canvas.style.height = '150px';
+    ctx.scale(dpr, dpr);
+    ctx.lineWidth = 2; ctx.lineCap = 'round'; ctx.strokeStyle = '#1e3a5f';
+  }
+  resize();
+  window.addEventListener('resize', resize);
+
+  function getPos(e) {
+    const r = canvas.getBoundingClientRect();
+    const t = e.touches ? e.touches[0] : e;
+    return { x: t.clientX - r.left, y: t.clientY - r.top };
+  }
+  canvas.addEventListener('mousedown', (e) => { drawing = true; const p = getPos(e); ctx.beginPath(); ctx.moveTo(p.x, p.y); });
+  canvas.addEventListener('mousemove', (e) => { if (!drawing) return; const p = getPos(e); ctx.lineTo(p.x, p.y); ctx.stroke(); hasSignature = true; });
+  canvas.addEventListener('mouseup', () => drawing = false);
+  canvas.addEventListener('mouseleave', () => drawing = false);
+  canvas.addEventListener('touchstart', (e) => { e.preventDefault(); drawing = true; const p = getPos(e); ctx.beginPath(); ctx.moveTo(p.x, p.y); });
+  canvas.addEventListener('touchmove', (e) => { e.preventDefault(); if (!drawing) return; const p = getPos(e); ctx.lineTo(p.x, p.y); ctx.stroke(); hasSignature = true; });
+  canvas.addEventListener('touchend', () => drawing = false);
+
+  return {
+    clear() { ctx.clearRect(0, 0, canvas.width, canvas.height); hasSignature = false; },
+    hasSignature() { return hasSignature; },
+    toDataURL() { return canvas.toDataURL('image/png'); }
+  };
+}
+
+const staffSigPad = initSignaturePad('staff-sig-canvas-y5z6');
+const superSigPad = initSignaturePad('super-sig-canvas-i5j6');
+
+$('clear-staff-sig-a7b8').addEventListener('click', () => staffSigPad.clear());
+$('clear-super-sig-k7l8').addEventListener('click', () => superSigPad.clear());
+
+// ========== VALIDATION ==========
+function validateForm() {
+  let errors = [];
+  // Clear previous
+  $$('.error-field').forEach(f => f.classList.remove('error-field'));
+  $$('.section-header').forEach(h => h.classList.remove('complete'));
+
+  function markError(el, msg) { if(el) el.classList.add('error-field'); errors.push({el, msg}); }
+  function markComplete(headerId) { $(headerId).classList.add('complete'); }
+
+  // Section 1
+  let sec1ok = true;
+  const iDate = $('incident-date-u1v2');
+  const iTime = $('incident-time-w3x4');
+  const iLoc = $('incident-location-y5z6');
+  if (!iDate.value) { markError(iDate, 'Date required'); sec1ok = false; }
+  if (!iTime.value) { markError(iTime, 'Time required'); sec1ok = false; }
+  if (!iLoc.value.trim()) { markError(iLoc, 'Location required'); sec1ok = false; }
+
+  const checkedTypes = $$('.incident-type-cb:checked');
+  if (checkedTypes.length === 0) { sec1ok = false; errors.push({el: $('incident-types-a7b8'), msg:'Incident type required'}); }
+
+  const lawRadio = document.querySelector('input[name="law-enforcement"]:checked');
+  if (!lawRadio) { sec1ok = false; errors.push({el: null, msg:'Law enforcement contacted required'}); }
+
+  if (sec1ok) markComplete('sec1-header-s9t0');
+
+  // Section 2
+  let sec2ok = true;
+  $$('.member-card').forEach(card => {
+    const name = card.querySelector('.member-name');
+    const status = card.querySelector('.member-status');
+    if (!name.value.trim()) { markError(name, 'Member name required'); sec2ok = false; }
+    if (!status.value) { markError(status, 'Status required'); sec2ok = false; }
+  });
+  if (sec2ok) markComplete('sec2-header-y1z2');
+
+  // Section 3 (optional, always complete)
+  markComplete('sec3-header-g9h0');
+
+  // Section 4
+  let sec4ok = true;
+  const narrative = $('narrative-text-s1t2');
+  if (!narrative.value.trim()) { markError(narrative, 'Narrative required'); sec4ok = false; }
+  if (sec4ok) markComplete('sec4-header-q9r0');
+
+  // Section 5 - always mark complete (optional)
+  markComplete('sec5-header-a9b0');
+  // Section 6
+  markComplete('sec6-header-c7d8');
+  // Section 7
+  markComplete('sec7-header-u5v6');
+  // Section 8
+  markComplete('sec8-header-m3n4');
+  // Section 9
+  markComplete('sec9-header-w3x4');
+
+  // Show error banner
+  const banner = $('error-banner-k3j1');
+  if (errors.length > 0) {
+    $('error-count-text-p9r2').textContent = `⚠ ${errors.length} required field${errors.length > 1 ? 's' : ''} need${errors.length === 1 ? 's' : ''} attention`;
+    banner.classList.add('visible');
+    const firstErr = errors[0].el;
+    if (firstErr) firstErr.scrollIntoView({ behavior: 'smooth', block: 'center' });
+  } else {
+    banner.classList.remove('visible');
+  }
+
+  return errors.length === 0;
+}
+
+// Update section check marks on field changes
+function updateSectionChecks() {
+  // Section 1
+  const s1 = $('incident-date-u1v2').value && $('incident-time-w3x4').value && $('incident-location-y5z6').value.trim() && $$('.incident-type-cb:checked').length > 0 && document.querySelector('input[name="law-enforcement"]:checked');
+  $('sec1-header-s9t0').classList.toggle('complete', !!s1);
+  // Section 2
+  let s2 = true;
+  $$('.member-card').forEach(c => {
+    if (!c.querySelector('.member-name').value.trim() || !c.querySelector('.member-status').value) s2 = false;
+  });
+  $('sec2-header-y1z2').classList.toggle('complete', s2);
+  // Section 4
+  $('sec4-header-q9r0').classList.toggle('complete', !!$('narrative-text-s1t2').value.trim());
+}
+document.addEventListener('input', updateSectionChecks);
+document.addEventListener('change', updateSectionChecks);
+
+// ========== SAVE / LOAD DRAFT ==========
+function gatherFormData() {
+  const data = { formId, reportOpened: $('report-opened-z5t3').textContent };
+  // Staff
+  data.staffName = $('staff-name-i9j0').value;
+  data.staffRole = $('staff-role-k1l2').value;
+  data.staffEmail = $('staff-email-m3n4').value;
+  // Section 1
+  data.incidentDate = $('incident-date-u1v2').value;
+  data.incidentTime = $('incident-time-w3x4').value;
+  data.incidentLocation = $('incident-location-y5z6').value;
+  data.incidentTypes = Array.from($$('.incident-type-cb:checked')).map(c => c.value);
+  data.incidentTypeOther = $('incident-type-other-text-g3h4').value;
+  data.lawEnforcement = (document.querySelector('input[name="law-enforcement"]:checked') || {}).value || '';
+  data.lawAgency = $('law-agency-k7l8').value;
+  data.lawReport = $('law-report-m9n0').value;
+  data.ems = (document.querySelector('input[name="ems"]:checked') || {}).value || '';
+  data.emsAgency = $('ems-agency-q3r4').value;
+  data.transported = (document.querySelector('input[name="transported"]:checked') || {}).value || '';
+  data.transportDest = $('transport-dest-u7v8').value;
+  // Section 2 - Members
+  data.members = [];
+  $$('.member-card').forEach(c => {
+    data.members.push({
+      name: c.querySelector('.member-name').value,
+      dob: c.querySelector('.member-dob').value,
+      room: c.querySelector('.member-room').value,
+      movein: c.querySelector('.member-movein').value,
+      gender: c.querySelector('.member-gender').value,
+      status: c.querySelector('.member-status').value
+    });
+  });
+  // Section 3 - Witnesses
+  data.witnesses = [];
+  $$('.witness-row').forEach(r => {
+    data.witnesses.push({
+      name: r.querySelector('.witness-name').value,
+      role: r.querySelector('.witness-role').value,
+      contact: r.querySelector('.witness-contact').value
+    });
+  });
+  // Section 4
+  data.narrative = $('narrative-text-s1t2').value;
+  // Section 5
+  data.actionsTaken = Array.from($$('.action-cb:checked')).map(c => c.value);
+  data.actionOther = $('action-other-text-i7j8').value;
+  data.supervisorNotified = (document.querySelector('input[name="supervisor-notified"]:checked') || {}).value || '';
+  data.supervisorNameAction = $('supervisor-name-m1n2').value;
+  data.supervisorTimeAction = $('supervisor-time-o3p4').value;
+  data.familyNotified = (document.querySelector('input[name="family-notified"]:checked') || {}).value || '';
+  data.familyContactName = $('family-contact-name-s7t8').value;
+  data.familyRelationship = $('family-relationship-u9v0').value;
+  data.familyTime = $('family-time-w1x2').value;
+  data.immediateNotes = $('immediate-notes-y3z4').value;
+  // Section 6
+  data.followupTypes = Array.from($$('.followup-cb:checked')).map(c => c.value);
+  data.followupOther = $('followup-other-text-k5l6').value;
+  data.followupTargetDate = $('followup-target-date-m7n8').value;
+  data.followupAssigned = $('followup-assigned-o9p0').value;
+  data.followupNotes = $('followup-notes-q1r2').value;
+  // Section 7
+  data.reviewSupervisorName = $('review-supervisor-name-w7x8').value;
+  data.reviewDate = $('review-date-y9z0').value;
+  data.reviewComments = $('review-comments-a1b2').value;
+  data.reportable = (document.querySelector('input[name="reportable"]:checked') || {}).value || '';
+  data.reportableAgency = $('reportable-agency-e5f6').value;
+  data.reportableDate = $('reportable-date-g7h8').value;
+  data.reportableBy = $('reportable-by-i9j0').value;
+  data.correctivePlan = (document.querySelector('input[name="corrective-plan"]:checked') || {}).value || '';
+  // Section 8 - file names only
+  data.fileNames = uploadedFiles.map(f => f.name);
+  // Section 9
+  data.superSigName = $('super-sig-name-m9n0').value;
+  data.superSigDate = $('super-sig-date-o1p2').value;
+  return data;
+}
+
+$('save-draft-btn-q3r4').addEventListener('click', function() {
+  const data = gatherFormData();
+  localStorage.setItem('hh_incident_draft', JSON.stringify(data));
+  showToast('Draft saved successfully!', '#16a34a');
+});
+
+// ========== CLEAR FORM ==========
+$('clear-form-btn-s5t6').addEventListener('click', function() {
+  if (confirm('Are you sure you want to clear all form fields? This cannot be undone.')) {
+    $$('input[type="text"], input[type="email"], input[type="date"], input[type="time"], textarea').forEach(el => {
+      if (!el.readOnly) el.value = '';
+    });
+    $$('select').forEach(el => el.selectedIndex = 0);
+    $$('input[type="checkbox"]').forEach(el => el.checked = false);
+    $$('input[type="radio"]').forEach(el => el.checked = false);
+    $$('.conditional-field').forEach(el => el.classList.remove('visible'));
+    staffSigPad.clear(); superSigPad.clear();
+    uploadedFiles = []; renderFileList();
+    $('char-count-w5x6').textContent = '0';
+    $('error-banner-k3j1').classList.remove('visible');
+    $$('.error-field').forEach(f => f.classList.remove('error-field'));
+    $('review-date-y9z0').value = todayISO();
+    $('super-sig-date-o1p2').value = todayISO();
+    updateSectionChecks();
+    showToast('Form cleared', '#627d98');
+  }
+});
+
+// ========== PRINT ==========
+$('print-form-btn-w9x0').addEventListener('click', () => window.print());
+
+// ========== PDF EXPORT ==========
+$('export-pdf-btn-u7v8').addEventListener('click', function() {
+  if (!validateForm()) {
+    showToast('Please complete all required fields before exporting.', '#dc2626');
+    return;
+  }
+
+  const { jsPDF } = window.jspdf;
+  const doc = new jsPDF('p', 'mm', 'letter');
+  const pw = doc.internal.pageSize.getWidth();
+  const ph = doc.internal.pageSize.getHeight();
+  let y = 15;
+  const ml = 18;
+  const mr = pw - 18;
+  const cw = mr - ml;
+
+  function checkPage(needed) {
+    if (y + needed > ph - 25) { addFooter(); doc.addPage(); y = 15; }
+  }
+  function addFooter() {
+    doc.setFontSize(7); doc.setTextColor(150);
+    doc.text('CONFIDENTIAL – HORIZON HOUSE SOBER LIVING LLC', pw/2, ph - 8, {align:'center'});
+    doc.text(`${formId}`, ml, ph - 8);
+    doc.text(`Page ${doc.internal.getNumberOfPages()}`, mr, ph - 8, {align:'right'});
+  }
+  function sectionTitle(title) {
+    checkPage(12);
+    doc.setFillColor(30, 58, 95);
+    doc.rect(ml, y, cw, 7, 'F');
+    doc.setFontSize(10); doc.setTextColor(255);
+    doc.text(title, ml + 3, y + 5);
+    y += 10;
+    doc.setTextColor(30, 58, 95);
+  }
+  function addField(label, value) {
+    checkPage(8);
+    doc.setFontSize(8); doc.setTextColor(100);
+    doc.text(label + ':', ml, y);
+    doc.setFontSize(9); doc.setTextColor(30);
+    const valText = value || '—';
+    const lines = doc.splitTextToSize(valText, cw - 45);
+    doc.text(lines, ml + 45, y);
+    y += Math.max(lines.length * 4, 5) + 1;
+  }
+  function addLongText(label, value) {
+    checkPage(12);
+    doc.setFontSize(8); doc.setTextColor(100);
+    doc.text(label + ':', ml, y); y += 4;
+    doc.setFontSize(9); doc.setTextColor(30);
+    const lines = doc.splitTextToSize(value || '—', cw - 4);
+    lines.forEach(line => { checkPage(5); doc.text(line, ml + 2, y); y += 4; });
+    y += 2;
+  }
+
+  const data = gatherFormData();
+
+  // Header
+  doc.setFillColor(30, 58, 95);
+  doc.rect(0, 0, pw, 28, 'F');
+  doc.setFontSize(14); doc.setTextColor(255);
+  doc.text('HORIZON HOUSE SOBER LIVING LLC', pw/2, 10, {align:'center'});
+  doc.setFontSize(9);
+  doc.text('Cathedral City, CA | Operators: Marshall & Elizabeth Richter', pw/2, 16, {align:'center'});
+  doc.setFontSize(11);
+  doc.text('INCIDENT REPORT', pw/2, 24, {align:'center'});
+  y = 34;
+
+  // Form ID & timestamp
+  doc.setFontSize(9); doc.setTextColor(30, 58, 95);
+  doc.text(`Form ID: ${data.formId}`, ml, y);
+  doc.text(data.reportOpened, mr, y, {align:'right'});
+  y += 4;
+  addField('Staff Name', data.staffName);
+  addField('Staff Role', data.staffRole);
+  addField('Staff Email', data.staffEmail);
+  y += 3;
+
+  // Section 1
+  sectionTitle('1. INCIDENT INFORMATION');
+  addField('Date', data.incidentDate);
+  addField('Time', data.incidentTime);
+  addField('Location', data.incidentLocation);
+  addField('Type(s)', data.incidentTypes.join(', ') + (data.incidentTypeOther ? ` (${data.incidentTypeOther})` : ''));
+  addField('Law Enforcement', data.lawEnforcement + (data.lawAgency ? ` – ${data.lawAgency}` : '') + (data.lawReport ? ` (#${data.lawReport})` : ''));
+  addField('EMS Contacted', data.ems + (data.emsAgency ? ` – ${data.emsAgency}` : ''));
+  addField('Transported', data.transported + (data.transportDest ? ` – ${data.transportDest}` : ''));
+  y += 3;
+
+  // Section 2
+  sectionTitle('2. MEMBER(S) INVOLVED');
+  data.members.forEach((r, i) => {
+    checkPage(30);
+    doc.setFontSize(9); doc.setTextColor(30, 58, 95); doc.text(`Member ${i+1}`, ml, y); y += 5;
+    addField('Name', r.name);
+    addField('DOB', r.dob);
+    addField('Room', r.room);
+    addField('Move-In Date', r.movein);
+    addField('Gender', r.gender);
+    addField('Status', r.status);
+    y += 2;
   });
 
-  function showStatus(type, text) {
-    const msg = document.getElementById('statusMsg');
-    msg.className = type;
-    msg.textContent = text;
-    msg.style.display = 'block';
-    msg.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+  // Section 3
+  sectionTitle('3. WITNESSES / OTHERS PRESENT');
+  data.witnesses.forEach((w, i) => {
+    addField(`Witness ${i+1}`, `${w.name || '—'} (${w.role || '—'}) — ${w.contact || '—'}`);
+  });
+  y += 3;
+
+  // Section 4
+  sectionTitle('4. INCIDENT NARRATIVE');
+  addLongText('Narrative', data.narrative);
+
+  // Section 5
+  sectionTitle('5. IMMEDIATE ACTIONS TAKEN');
+  addField('Actions', data.actionsTaken.join(', ') + (data.actionOther ? ` (${data.actionOther})` : ''));
+  addField('Supervisor Notified', data.supervisorNotified + (data.supervisorNameAction ? ` – ${data.supervisorNameAction}` : '') + (data.supervisorTimeAction ? ` at ${data.supervisorTimeAction}` : ''));
+  addField('Family Notified', data.familyNotified + (data.familyContactName ? ` – ${data.familyContactName}` : '') + (data.familyRelationship ? ` (${data.familyRelationship})` : '') + (data.familyTime ? ` at ${data.familyTime}` : ''));
+  addLongText('Additional Notes', data.immediateNotes);
+
+  // Section 6
+  sectionTitle('6. FOLLOW-UP ACTIONS');
+  addField('Follow-Up', data.followupTypes.join(', ') + (data.followupOther ? ` (${data.followupOther})` : ''));
+  addField('Target Date', data.followupTargetDate);
+  addField('Assigned To', data.followupAssigned);
+  addLongText('Notes', data.followupNotes);
+
+  // Section 7
+  sectionTitle('7. SUPERVISOR REVIEW');
+  addField('Supervisor', data.reviewSupervisorName);
+  addField('Review Date', data.reviewDate);
+  addLongText('Comments', data.reviewComments);
+  addField('Reportable', data.reportable + (data.reportableAgency ? ` – ${data.reportableAgency}` : '') + (data.reportableDate ? ` (${data.reportableDate})` : '') + (data.reportableBy ? ` by ${data.reportableBy}` : ''));
+  addField('Corrective Plan', data.correctivePlan);
+
+  // Section 8
+  sectionTitle('8. ATTACHMENTS');
+  if (data.fileNames.length > 0) {
+    data.fileNames.forEach((fn, i) => addField(`File ${i+1}`, fn));
+  } else {
+    addField('Files', 'None attached');
   }
 
-  function resetForm() {
-    document.getElementById('incidentForm').reset();
-    const msg = document.getElementById('statusMsg');
-    msg.style.display = 'none';
-    document.getElementById('printBtn').style.display = 'none';
-    const btn = document.querySelector('button[type="submit"]');
-    btn.disabled = false;
-    btn.textContent = '📤 Submit Report';
-    // Re-set datetime to now
-    const now = new Date();
-    now.setSeconds(0, 0);
-    const local = new Date(now.getTime() - now.getTimezoneOffset() * 60000)
-      .toISOString().slice(0, 16);
-    document.getElementById('incidentDate').value = local;
+  // Section 9 - Signatures
+  sectionTitle('9. SIGNATURES');
+  addField('Staff Printed Name', data.staffName);
+  addField('Staff Role', data.staffRole);
+  if (staffSigPad.hasSignature()) {
+    checkPage(30);
+    try { doc.addImage(staffSigPad.toDataURL(), 'PNG', ml, y, 60, 20); y += 24; } catch(e) {}
   }
+  addField('Supervisor Name', data.superSigName);
+  addField('Supervisor Date', data.superSigDate);
+  if (superSigPad.hasSignature()) {
+    checkPage(30);
+    try { doc.addImage(superSigPad.toDataURL(), 'PNG', ml, y, 60, 20); y += 24; } catch(e) {}
+  }
+
+  addFooter();
+  const fileName = `IR-${formId}-${data.incidentDate || formDate}.pdf`;
+  doc.save(fileName);
+  showToast('PDF exported: ' + fileName, '#1e3a5f');
+});
+
+// ========== INITIAL SECTION CHECK ==========
+updateSectionChecks();
 </script>
 </body>
 </html>
