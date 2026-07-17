@@ -719,6 +719,13 @@
                 <div class="card-label" style="color:rgba(255,255,255,0.8);">Staff Incident Form</div>
             </a>
 
+            <a href="#" onclick="openIncidentReviewsPanel(); return false;" class="dashboard-card" style="background: linear-gradient(135deg, #92400e 0%, #b45309 100%); color: white;">
+                <div class="card-icon" style="color:white;">📋</div>
+                <div class="card-title" style="color:white;">Incident Reviews</div>
+                <div class="card-count" id="incidentPendingCount" style="font-size:18px;color:rgba(255,255,255,0.9);">-</div>
+                <div class="card-label" style="color:rgba(255,255,255,0.8);">Pending Approval</div>
+            </a>
+
             <a href="/horizon-portal/members/member-status.html" class="dashboard-card" id="signInOutCard">
                 <div class="card-icon">🚪</div>
                 <div class="card-title">Sign In/Out</div>
@@ -1020,6 +1027,17 @@
                         <button id="relapseYesBtn" style="flex:1;padding:11px;background:#dc3545;color:white;border:none;border-radius:6px;font-weight:700;font-size:1rem;cursor:pointer;">Yes – Relapsed</button>
                         <button id="relapseNoBtn" style="flex:1;padding:11px;background:#6c757d;color:white;border:none;border-radius:6px;font-weight:700;font-size:1rem;cursor:pointer;">No – Keep Sober Date</button>
                     </div>
+                </div>
+            </div>
+
+            <!-- Incident Reviews Panel -->
+            <div id="incidentReviewsPanel" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.55);z-index:100000;align-items:flex-start;justify-content:center;overflow-y:auto;padding:30px 10px;">
+                <div style="background:white;border-radius:14px;padding:30px 28px;max-width:800px;width:100%;box-shadow:0 8px 40px rgba(0,0,0,0.22);position:relative;margin:auto;">
+                    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:20px;">
+                        <h2 style="margin:0;font-size:1.3rem;color:#1a1a2e;">📋 Incident Reports — Pending Review</h2>
+                        <span onclick="closeIncidentReviewsPanel()" style="font-size:1.8rem;cursor:pointer;line-height:1;color:#aaa;">&times;</span>
+                    </div>
+                    <div id="irReviewsBody" style="min-height:80px;"></div>
                 </div>
             </div>
 
@@ -1371,6 +1389,101 @@ ${rateSummaryHtml}
                     });
                     window.openMemorandumPanel = openMemorandumPanel;
                     window.closeMemorandumPanel = closeMemorandumPanel;
+
+                    // ========== INCIDENT REVIEWS PANEL ==========
+                    function escIR(s) {
+                        return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+                    }
+                    function fmtIRDate(iso) {
+                        if (!iso) return '—';
+                        return new Date(iso).toLocaleDateString('en-US',{year:'numeric',month:'short',day:'numeric',hour:'2-digit',minute:'2-digit'});
+                    }
+
+                    async function openIncidentReviewsPanel() {
+                        const panel = document.getElementById('incidentReviewsPanel');
+                        panel.style.display = 'flex';
+                        await loadIncidentReviews();
+                    }
+                    function closeIncidentReviewsPanel() {
+                        document.getElementById('incidentReviewsPanel').style.display = 'none';
+                    }
+                    document.getElementById('incidentReviewsPanel').addEventListener('click', function(e) {
+                        if (e.target === this) closeIncidentReviewsPanel();
+                    });
+                    window.openIncidentReviewsPanel = openIncidentReviewsPanel;
+                    window.closeIncidentReviewsPanel = closeIncidentReviewsPanel;
+
+                    async function loadIncidentReviews() {
+                        const body = document.getElementById('irReviewsBody');
+                        body.innerHTML = '<p style="color:#888;text-align:center;padding:20px;">Loading…</p>';
+                        try {
+                            const res = await fetch(API + '/api/incidents?status=pending');
+                            if (!res.ok) throw new Error('HTTP ' + res.status);
+                            const list = await res.json();
+                            if (!Array.isArray(list) || list.length === 0) {
+                                body.innerHTML = '<p style="color:#38a169;text-align:center;padding:20px;font-weight:600;">✅ No pending incidents — all clear.</p>';
+                                return;
+                            }
+                            body.innerHTML = list.map(ir => {
+                                const members = (ir.members||[]).map(m => escIR(m.name || m.id || '—')).join(', ') || '—';
+                                return `<div id="ir-card-${escIR(ir._id)}" style="border:1px solid #e2e8f0;border-radius:10px;padding:16px 18px;margin-bottom:14px;">
+                                    <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:10px;flex-wrap:wrap;">
+                                        <div>
+                                            <div style="font-weight:700;font-size:0.95rem;color:#1a1a2e;">📄 ${escIR(ir.incidentType || ir.type || 'Incident')} — ${fmtIRDate(ir.incidentDate || ir.submittedAt)}</div>
+                                            <div style="font-size:0.82rem;color:#555;margin-top:4px;">Staff: ${escIR(ir.reporterName||ir.staffName||'—')} &nbsp;|&nbsp; Members: ${members}</div>
+                                            <div style="font-size:0.82rem;color:#888;margin-top:2px;">Ref: ${escIR(ir._id||ir.formId||'—')}</div>
+                                        </div>
+                                        <div style="display:flex;gap:8px;flex-wrap:wrap;">
+                                            <button onclick="expandIRDetails('${escIR(ir._id)}')" style="background:#e2e8f0;color:#334155;border:none;padding:7px 14px;border-radius:6px;font-size:0.8rem;font-weight:600;cursor:pointer;">🔍 View Details</button>
+                                            <button onclick="approveIncident('${escIR(ir._id)}')" style="background:#16a34a;color:#fff;border:none;padding:7px 14px;border-radius:6px;font-size:0.8rem;font-weight:600;cursor:pointer;">✅ Approve &amp; File</button>
+                                            <button onclick="returnIncident('${escIR(ir._id)}')" style="background:#dc2626;color:#fff;border:none;padding:7px 14px;border-radius:6px;font-size:0.8rem;font-weight:600;cursor:pointer;">↩ Return</button>
+                                        </div>
+                                    </div>
+                                    <div id="ir-detail-${escIR(ir._id)}" style="display:none;margin-top:12px;padding:12px;background:#f8fafc;border-radius:8px;font-size:0.82rem;color:#334155;white-space:pre-wrap;">${escIR(ir.narrative || ir.description || '(no narrative recorded)')}</div>
+                                </div>`;
+                            }).join('');
+                        } catch(e) {
+                            body.innerHTML = `<p style="color:#dc2626;text-align:center;padding:20px;">⚠️ Could not load incidents: ${escIR(e.message)}.<br><small>The <code>/api/incidents</code> endpoint may not yet be deployed on the backend.</small></p>`;
+                        }
+                    }
+
+                    window.expandIRDetails = function(id) {
+                        const el = document.getElementById('ir-detail-' + id);
+                        if (el) el.style.display = el.style.display === 'none' ? 'block' : 'none';
+                    };
+
+                    window.approveIncident = async function(id) {
+                        if (!confirm('Approve this incident report and file to EMR?')) return;
+                        try {
+                            const res = await fetch(API + '/api/incidents/' + id, {
+                                method: 'PATCH',
+                                headers: {'Content-Type':'application/json'},
+                                body: JSON.stringify({status:'approved', approvedAt: new Date().toISOString()})
+                            });
+                            if (!res.ok) throw new Error('HTTP ' + res.status);
+                            const card = document.getElementById('ir-card-' + id);
+                            if (card) { card.style.opacity = '0.5'; card.innerHTML += '<div style="text-align:center;color:#16a34a;font-weight:700;padding:8px;">✅ Approved &amp; Filed</div>'; }
+                            // Update count badge
+                            const badge = document.getElementById('incidentPendingCount');
+                            if (badge && !isNaN(parseInt(badge.textContent))) badge.textContent = Math.max(0, parseInt(badge.textContent) - 1);
+                        } catch(e) {
+                            alert('Error approving: ' + e.message);
+                        }
+                    };
+
+                    window.returnIncident = async function(id) {
+                        const note = prompt('Reason for returning (optional):') || '';
+                        try {
+                            await fetch(API + '/api/incidents/' + id, {
+                                method: 'PATCH',
+                                headers: {'Content-Type':'application/json'},
+                                body: JSON.stringify({status:'returned', returnNote: note, returnedAt: new Date().toISOString()})
+                            });
+                            const card = document.getElementById('ir-card-' + id);
+                            if (card) { card.style.opacity = '0.5'; card.innerHTML += '<div style="text-align:center;color:#dc2626;font-weight:700;padding:8px;">↩ Returned for Revision</div>'; }
+                        } catch(e) { /* ignore */ }
+                    };
+                    // ========== END INCIDENT REVIEWS ==========
 
                     function escMemo(s) {
                         return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
@@ -3965,6 +4078,17 @@ ${rateSummaryHtml}
                         dischargePendingCard.classList.remove('card-pulse-alert');
                     }
                 }
+
+                // Load pending incident report count
+                try {
+                    const irRes = await fetch(API + '/api/incidents?status=pending');
+                    if (irRes.ok) {
+                        const incidents = await irRes.json();
+                        const cnt = Array.isArray(incidents) ? incidents.length : 0;
+                        const el = document.getElementById('incidentPendingCount');
+                        if (el) el.textContent = cnt;
+                    }
+                } catch(e) { /* backend endpoint not yet available – silently ignore */ }
 
                 document.getElementById('kioskMsgSection').style.display = 'block';
                 renderKioskMessages();
