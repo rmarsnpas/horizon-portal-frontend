@@ -1,0 +1,622 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Guest Liability Waiver & Release - Horizon House</title>
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+      background: #f2f5fa;
+      color: #1f2937;
+      line-height: 1.45;
+      padding: 24px;
+    }
+
+    .container {
+      max-width: 980px;
+      margin: 0 auto;
+      background: #ffffff;
+      border-radius: 14px;
+      box-shadow: 0 16px 40px rgba(15, 23, 42, 0.12);
+      overflow: hidden;
+    }
+
+    .header {
+      background: linear-gradient(120deg, #1f3b6b 0%, #2f5b9c 100%);
+      color: #ffffff;
+      padding: 28px 30px;
+    }
+
+    .header h1 {
+      margin: 0;
+      font-size: 1.8rem;
+      line-height: 1.2;
+    }
+
+    .header p {
+      margin: 12px 0 0;
+      max-width: 900px;
+      font-size: 0.98rem;
+      opacity: 0.96;
+    }
+
+    .body {
+      padding: 30px;
+    }
+
+    .notice {
+      background: #fff7ed;
+      border: 1px solid #fdba74;
+      color: #7c2d12;
+      border-radius: 10px;
+      padding: 14px 16px;
+      margin-bottom: 22px;
+      font-size: 0.95rem;
+    }
+
+    .qr-panel {
+      display: grid;
+      grid-template-columns: 220px 1fr;
+      gap: 18px;
+      align-items: start;
+      background: #eff6ff;
+      border: 1px solid #93c5fd;
+      border-radius: 12px;
+      padding: 14px;
+      margin-bottom: 22px;
+    }
+
+    .qr-image-wrap {
+      background: #ffffff;
+      border: 1px solid #dbeafe;
+      border-radius: 10px;
+      padding: 10px;
+      text-align: center;
+    }
+
+    .qr-image-wrap img {
+      width: 180px;
+      height: 180px;
+      display: block;
+      margin: 0 auto;
+    }
+
+    .qr-tools {
+      display: grid;
+      gap: 10px;
+    }
+
+    .qr-tools .actions {
+      margin-top: 2px;
+    }
+
+    .section {
+      margin-bottom: 26px;
+      border: 1px solid #e5e7eb;
+      border-radius: 12px;
+      padding: 20px;
+      background: #fcfdff;
+    }
+
+    .section h2 {
+      margin: 0 0 16px;
+      font-size: 1.1rem;
+      color: #0f172a;
+      border-bottom: 2px solid #dbe4f3;
+      padding-bottom: 8px;
+    }
+
+    .grid {
+      display: grid;
+      gap: 14px;
+      grid-template-columns: 1fr 1fr;
+    }
+
+    .full {
+      grid-column: 1 / -1;
+    }
+
+    label {
+      display: block;
+      margin-bottom: 6px;
+      font-weight: 600;
+      color: #334155;
+      font-size: 0.94rem;
+    }
+
+    .required {
+      color: #b91c1c;
+    }
+
+    input,
+    textarea,
+    select {
+      width: 100%;
+      border: 1px solid #cbd5e1;
+      border-radius: 8px;
+      padding: 10px 12px;
+      font-size: 0.95rem;
+      font-family: inherit;
+      background: #ffffff;
+    }
+
+    input:focus,
+    textarea:focus,
+    select:focus {
+      outline: none;
+      border-color: #2563eb;
+      box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.15);
+    }
+
+    .radio-row {
+      display: flex;
+      gap: 18px;
+      flex-wrap: wrap;
+      margin-top: 4px;
+    }
+
+    .radio-row label,
+    .check-row label {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      margin: 0;
+      font-weight: 500;
+      cursor: pointer;
+    }
+
+    .radio-row input,
+    .check-row input {
+      width: 18px;
+      height: 18px;
+      margin: 0;
+    }
+
+    .check-row {
+      display: grid;
+      gap: 12px;
+      margin-top: 8px;
+    }
+
+    .statement {
+      background: #f8fafc;
+      border: 1px solid #dbe5f0;
+      border-radius: 10px;
+      padding: 12px 14px;
+      font-size: 0.93rem;
+      color: #334155;
+      margin-bottom: 10px;
+    }
+
+    .minor-wrap {
+      margin-top: 14px;
+      padding: 14px;
+      background: #f8fafc;
+      border: 1px dashed #94a3b8;
+      border-radius: 10px;
+    }
+
+    .hidden {
+      display: none;
+    }
+
+    .actions {
+      display: flex;
+      gap: 12px;
+      flex-wrap: wrap;
+      margin-top: 8px;
+    }
+
+    .btn {
+      border: none;
+      border-radius: 8px;
+      padding: 12px 16px;
+      font-size: 0.95rem;
+      font-weight: 700;
+      cursor: pointer;
+    }
+
+    .btn-primary {
+      background: #1d4ed8;
+      color: #ffffff;
+    }
+
+    .btn-primary:hover {
+      background: #1e40af;
+    }
+
+    .btn-secondary {
+      background: #e2e8f0;
+      color: #1e293b;
+    }
+
+    .status {
+      margin-top: 14px;
+      font-size: 0.92rem;
+      font-weight: 600;
+      color: #1d4ed8;
+      min-height: 1.2em;
+    }
+
+    .small {
+      font-size: 0.83rem;
+      color: #64748b;
+      margin-top: 6px;
+    }
+
+    @media (max-width: 760px) {
+      body {
+        padding: 12px;
+      }
+
+      .body,
+      .header {
+        padding: 18px;
+      }
+
+      .grid {
+        grid-template-columns: 1fr;
+      }
+
+      .qr-panel {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="header">
+      <h1>Horizon House Sober Living - Guest Liability Waiver & Release</h1>
+      <p>
+        All guests must complete this waiver before entering the property or using any amenities, including pools, spas,
+        outdoor areas, and common spaces. Horizon House Sober Living LLC (HHSL) and Horizon Recovery (HR) are housing
+        programs only and do not provide supervision, treatment, or medical services.
+      </p>
+    </div>
+
+    <div class="body">
+      <div class="notice">
+        This form is a legal release. Complete all required fields and acknowledgments before submitting.
+      </div>
+
+      <section class="qr-panel" aria-label="Guest QR code access">
+        <div class="qr-image-wrap">
+          <img id="guestQrImage" alt="QR code for guest waiver form">
+          <div class="small">Guests can scan this code to open the waiver on their phone.</div>
+        </div>
+        <div class="qr-tools">
+          <div>
+            <label for="guestQrLink">QR Link</label>
+            <input id="guestQrLink" type="url" value="https://horizon-house.org/horizon-portal/intake/guest-liability-waiver.html">
+            <div class="small">Set the live URL if needed, then click Update QR.</div>
+          </div>
+          <div class="actions">
+            <button type="button" class="btn btn-primary" id="updateQrBtn">Update QR</button>
+            <button type="button" class="btn btn-secondary" id="copyQrLinkBtn">Copy Link</button>
+            <button type="button" class="btn btn-secondary" id="printQrBtn">Print QR Card</button>
+          </div>
+          <div id="qrStatus" class="status" style="margin-top:0;"></div>
+        </div>
+      </section>
+
+      <form id="guestWaiverForm" novalidate>
+        <section class="section">
+          <h2>SECTION 1 - Guest Information</h2>
+          <div class="grid">
+            <div>
+              <label for="guestName">Guest Name <span class="required">*</span></label>
+              <input id="guestName" name="guestName" type="text" required>
+            </div>
+
+            <div>
+              <label for="phone">Phone Number <span class="required">*</span></label>
+              <input id="phone" name="phone" type="tel" required>
+            </div>
+
+            <div>
+              <label for="email">Email <span class="required">*</span></label>
+              <input id="email" name="email" type="email" required>
+            </div>
+
+            <div>
+              <label for="visitDate">Date of Visit <span class="required">*</span></label>
+              <input id="visitDate" name="visitDate" type="date" required>
+            </div>
+
+            <div class="full">
+              <label for="address">Address <span class="required">*</span></label>
+              <input id="address" name="address" type="text" required>
+            </div>
+
+            <div class="full">
+              <label for="memberVisiting">Member You Are Visiting <span class="required">*</span></label>
+              <input id="memberVisiting" name="memberVisiting" type="text" required>
+            </div>
+          </div>
+        </section>
+
+        <section class="section">
+          <h2>SECTION 2 - If Guest Is a Minor</h2>
+          <label>Is the guest under 18? <span class="required">*</span></label>
+          <div class="radio-row" role="radiogroup" aria-label="Is the guest under 18?">
+            <label for="minorNo">
+              <input id="minorNo" name="isMinor" type="radio" value="No" required>
+              No
+            </label>
+            <label for="minorYes">
+              <input id="minorYes" name="isMinor" type="radio" value="Yes" required>
+              Yes
+            </label>
+          </div>
+
+          <div id="minorFields" class="minor-wrap hidden" aria-live="polite">
+            <div class="grid">
+              <div>
+                <label for="guardianName">Parent/Guardian Name <span class="required">*</span></label>
+                <input id="guardianName" name="guardianName" type="text">
+              </div>
+              <div>
+                <label for="guardianPhone">Parent/Guardian Phone <span class="required">*</span></label>
+                <input id="guardianPhone" name="guardianPhone" type="tel">
+              </div>
+              <div class="full">
+                <label for="guardianEmail">Parent/Guardian Email <span class="required">*</span></label>
+                <input id="guardianEmail" name="guardianEmail" type="email">
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <section class="section">
+          <h2>SECTION 3 - Assumption of Risk</h2>
+          <div class="statement">
+            I understand that use of pools, spas, fitness equipment, and outdoor areas involves inherent risks including
+            slips, falls, drowning, heat-related illness, and other injuries. I voluntarily assume all risks.
+          </div>
+          <div class="check-row">
+            <label for="riskAck">
+              <input id="riskAck" name="riskAck" type="checkbox" required>
+              I acknowledge and agree to the Assumption of Risk statement.
+            </label>
+          </div>
+        </section>
+
+        <section class="section">
+          <h2>SECTION 4 - Release of Liability</h2>
+          <div class="statement">
+            I release and hold harmless Horizon House Sober Living LLC, Horizon Recovery, their owners, staff, members,
+            and affiliates from any liability for injury, illness, death, or property damage arising from my presence or
+            activities on the property, to the fullest extent permitted by California law.
+          </div>
+          <div class="check-row">
+            <label for="releaseAck">
+              <input id="releaseAck" name="releaseAck" type="checkbox" required>
+              I acknowledge and agree to the Release of Liability statement.
+            </label>
+          </div>
+        </section>
+
+        <section class="section">
+          <h2>SECTION 5 - Rules & Responsibilities</h2>
+          <div class="statement">
+            I agree to follow all posted rules, remain respectful, avoid restricted areas, and understand that guests may
+            only use amenities when accompanied by the hosting member.
+          </div>
+          <div class="check-row">
+            <label for="rulesAck">
+              <input id="rulesAck" name="rulesAck" type="checkbox" required>
+              I agree to the rules and responsibilities above.
+            </label>
+            <label id="minorSupervisionWrap" for="minorSupervisionAck" class="hidden">
+              <input id="minorSupervisionAck" name="minorSupervisionAck" type="checkbox">
+              I understand that minors must be supervised by their parent/guardian at all times.
+            </label>
+          </div>
+        </section>
+
+        <section class="section">
+          <h2>SECTION 6 - Emergency Authorization</h2>
+          <div class="statement">
+            I authorize HHSL/HR staff to call emergency services if needed and accept responsibility for any related costs.
+          </div>
+          <div class="check-row">
+            <label for="emergencyAck">
+              <input id="emergencyAck" name="emergencyAck" type="checkbox" required>
+              I acknowledge and agree to the Emergency Authorization statement.
+            </label>
+          </div>
+        </section>
+
+        <section class="section">
+          <h2>SECTION 7 - Digital Signature</h2>
+          <div class="grid">
+            <div>
+              <label for="guestSignature">Guest Signature (typed full name) <span class="required">*</span></label>
+              <input id="guestSignature" name="guestSignature" type="text" required>
+            </div>
+            <div>
+              <label for="signatureDate">Date <span class="required">*</span></label>
+              <input id="signatureDate" name="signatureDate" type="date" required>
+            </div>
+            <div class="full" id="guardianSignatureWrap" style="display:none;">
+              <label for="guardianSignature">Parent/Guardian Signature (if minor) <span class="required">*</span></label>
+              <input id="guardianSignature" name="guardianSignature" type="text">
+            </div>
+          </div>
+          <div class="small">By typing your legal name, you agree this acts as your electronic signature.</div>
+        </section>
+
+        <div class="actions">
+          <button type="submit" class="btn btn-primary">Submit Waiver</button>
+          <button type="reset" class="btn btn-secondary" id="resetBtn">Clear Form</button>
+        </div>
+
+        <div id="formStatus" class="status" aria-live="polite"></div>
+      </form>
+    </div>
+  </div>
+
+  <script>
+    (function () {
+      const form = document.getElementById("guestWaiverForm");
+      const minorYes = document.getElementById("minorYes");
+      const minorNo = document.getElementById("minorNo");
+      const minorFields = document.getElementById("minorFields");
+      const guardianName = document.getElementById("guardianName");
+      const guardianPhone = document.getElementById("guardianPhone");
+      const guardianEmail = document.getElementById("guardianEmail");
+      const guardianSignatureWrap = document.getElementById("guardianSignatureWrap");
+      const guardianSignature = document.getElementById("guardianSignature");
+      const minorSupervisionWrap = document.getElementById("minorSupervisionWrap");
+      const minorSupervisionAck = document.getElementById("minorSupervisionAck");
+      const statusEl = document.getElementById("formStatus");
+      const qrStatusEl = document.getElementById("qrStatus");
+      const resetBtn = document.getElementById("resetBtn");
+      const visitDate = document.getElementById("visitDate");
+      const signatureDate = document.getElementById("signatureDate");
+      const qrImage = document.getElementById("guestQrImage");
+      const qrLinkInput = document.getElementById("guestQrLink");
+      const updateQrBtn = document.getElementById("updateQrBtn");
+      const copyQrLinkBtn = document.getElementById("copyQrLinkBtn");
+      const printQrBtn = document.getElementById("printQrBtn");
+
+      const today = new Date().toISOString().split("T")[0];
+      visitDate.value = today;
+      signatureDate.value = today;
+
+      function getCurrentPageUrl() {
+        return window.location.origin + window.location.pathname;
+      }
+
+      function resolveDefaultQrUrl() {
+        const current = getCurrentPageUrl();
+        if (window.location.protocol === "http:" || window.location.protocol === "https:") {
+          return current;
+        }
+        return "https://horizon-house.org/horizon-portal/intake/guest-liability-waiver.html";
+      }
+
+      function updateQr() {
+        const url = (qrLinkInput.value || "").trim();
+        if (!url) {
+          qrStatusEl.style.color = "#b91c1c";
+          qrStatusEl.textContent = "Enter a valid URL before generating a QR code.";
+          return;
+        }
+        const qrApi = "https://api.qrserver.com/v1/create-qr-code/?size=320x320&data=" + encodeURIComponent(url);
+        qrImage.src = qrApi;
+        qrImage.dataset.targetUrl = url;
+        qrStatusEl.style.color = "#1d4ed8";
+        qrStatusEl.textContent = "QR code updated.";
+      }
+
+      updateQrBtn.addEventListener("click", updateQr);
+
+      copyQrLinkBtn.addEventListener("click", async function () {
+        const url = (qrLinkInput.value || "").trim();
+        if (!url) return;
+        try {
+          await navigator.clipboard.writeText(url);
+          qrStatusEl.style.color = "#166534";
+          qrStatusEl.textContent = "Link copied.";
+        } catch (err) {
+          qrStatusEl.style.color = "#b91c1c";
+          qrStatusEl.textContent = "Could not copy link. Please copy it manually.";
+        }
+      });
+
+      printQrBtn.addEventListener("click", function () {
+        const qrUrl = qrImage.src;
+        const targetUrl = (qrLinkInput.value || "").trim();
+        if (!qrUrl || !targetUrl) return;
+        const w = window.open("", "_blank");
+        if (!w) return;
+        w.document.write(
+          "<!DOCTYPE html><html><head><title>Guest Waiver QR</title><style>" +
+          "body{font-family:Segoe UI,Tahoma,sans-serif;padding:24px;text-align:center;color:#0f172a;}" +
+          "h1{font-size:24px;margin:0 0 8px;} p{margin:0 0 14px;}" +
+          ".card{border:2px solid #1d4ed8;border-radius:14px;display:inline-block;padding:18px 20px;}" +
+          "img{width:280px;height:280px;display:block;margin:8px auto 10px;}" +
+          ".url{font-size:12px;word-break:break-all;color:#334155;max-width:360px;}" +
+          "</style></head><body>" +
+          "<div class='card'><h1>Guest Liability Waiver</h1>" +
+          "<p>Scan to complete on your phone</p>" +
+          "<img src='" + qrUrl + "' alt='Guest waiver QR code'>" +
+          "<div class='url'>" + targetUrl + "</div></div>" +
+          "<script>window.onload=function(){window.print();}<" + "/script></body></html>"
+        );
+        w.document.close();
+      });
+
+      function setMinorRequirements(isMinor) {
+        minorFields.classList.toggle("hidden", !isMinor);
+        guardianSignatureWrap.style.display = isMinor ? "block" : "none";
+        minorSupervisionWrap.classList.toggle("hidden", !isMinor);
+
+        guardianName.required = isMinor;
+        guardianPhone.required = isMinor;
+        guardianEmail.required = isMinor;
+        guardianSignature.required = isMinor;
+        minorSupervisionAck.required = isMinor;
+
+        if (!isMinor) {
+          guardianName.value = "";
+          guardianPhone.value = "";
+          guardianEmail.value = "";
+          guardianSignature.value = "";
+          minorSupervisionAck.checked = false;
+        }
+      }
+
+      minorYes.addEventListener("change", () => setMinorRequirements(true));
+      minorNo.addEventListener("change", () => setMinorRequirements(false));
+
+      form.addEventListener("submit", function (event) {
+        event.preventDefault();
+        statusEl.textContent = "";
+
+        if (!form.checkValidity()) {
+          form.reportValidity();
+          statusEl.style.color = "#b91c1c";
+          statusEl.textContent = "Please complete all required fields and acknowledgments.";
+          return;
+        }
+
+        const data = Object.fromEntries(new FormData(form).entries());
+        data.riskAck = document.getElementById("riskAck").checked;
+        data.releaseAck = document.getElementById("releaseAck").checked;
+        data.rulesAck = document.getElementById("rulesAck").checked;
+        data.minorSupervisionAck = document.getElementById("minorSupervisionAck").checked;
+        data.emergencyAck = document.getElementById("emergencyAck").checked;
+        data.submittedAt = new Date().toISOString();
+
+        // Local fallback save for kiosk/browser use when no backend endpoint is connected.
+        localStorage.setItem("hh_guest_liability_waiver_last", JSON.stringify(data));
+
+        statusEl.style.color = "#166534";
+        statusEl.textContent = "Waiver submitted successfully.";
+      });
+
+      resetBtn.addEventListener("click", function () {
+        setTimeout(function () {
+          statusEl.textContent = "";
+          visitDate.value = today;
+          signatureDate.value = today;
+          setMinorRequirements(false);
+        }, 0);
+      });
+
+      qrLinkInput.value = resolveDefaultQrUrl();
+      updateQr();
+      setMinorRequirements(false);
+    })();
+  </script>
+</body>
+</html>

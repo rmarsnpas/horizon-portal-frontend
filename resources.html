@@ -1,0 +1,396 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Resources | Horizon House Sober Living</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Recovery resources for Horizon House members and families — daily readings, meeting finders, local Coachella Valley resources, crisis hotlines, and online support.">
+  <link rel="canonical" href="https://horizon-house.org/resources.html">
+
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="https://horizon-house.org/resources.html">
+  <meta property="og:title" content="Resources | Horizon House Sober Living">
+  <meta property="og:description" content="Daily readings, meeting finders, crisis hotlines, and local recovery resources for the Coachella Valley.">
+  <meta property="og:image" content="https://horizon-house.org/HH%20logo%20grntree.png">
+
+  <link rel="icon" type="image/png" href="HH%20logo%20grntree.png">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@500;700&family=Nunito:wght@400;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="hope-cloud.css">
+  <style>
+    :root {
+      --slate:#2b3440; --amber:#c98a22; --sand:#f5f1ea; --green:#2e6a4f; --red:#9c2f2f;
+    }
+    *{box-sizing:border-box}
+    body{margin:0;font-family:Nunito,system-ui,-apple-system;line-height:1.6;color:#2b3440;background:var(--sand);overflow-x:hidden}
+    a{color:var(--amber);text-decoration:none}
+    a:focus,button:focus{outline:3px solid var(--amber);outline-offset:2px}
+    header{background:var(--slate);color:hsl(42,84%,60%)}
+    .wrap{max-width:1080px;margin:0 auto;padding:1rem}
+    nav{display:flex;align-items:center;gap:1rem;justify-content:space-between}
+    nav ul{list-style:none;display:flex;gap:.75rem;margin:0;padding:0}
+    nav a{color:#fff;font-weight:600}
+    .cta{background:var(--amber);color:#1d1d1d;padding:.8rem 1.4rem;border-radius:.5rem;border:none;font-weight:700;cursor:pointer;font-size:1.1rem}
+    footer{background:#1f2530;color:#cfd6e6;padding:2rem 0;margin-top:2rem}
+    .sr-only{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0}
+    .section h2{font-family:Inter,system-ui;font-size:1.5rem;margin-bottom:.5rem}
+    .cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:1rem;margin:1rem 0 2rem}
+    .card{background:#fff;padding:1rem;border-radius:.75rem;box-shadow:0 2px 6px rgba(0,0,0,.06)}
+
+    /* Dropdown sub-nav */
+    nav ul li{position:relative;}
+    nav ul li ul.subnav{
+      display:none;position:absolute;top:100%;left:0;
+      background:#1f2530;min-width:220px;
+      border-radius:.4rem;box-shadow:0 6px 18px rgba(0,0,0,.35);
+      padding:.4rem 0;z-index:1100;list-style:none;margin:0;
+    }
+    nav ul li:hover ul.subnav,
+    nav ul li:focus-within ul.subnav{display:block;}
+    nav ul li ul.subnav li a{
+      display:block;padding:.55rem 1.1rem;
+      color:#cfd6e6;font-size:.88rem;font-weight:600;
+      white-space:nowrap;
+    }
+    nav ul li ul.subnav li a:hover{background:rgba(201,138,34,.15);color:#c98a22;}
+    .subnav-badge{
+      display:inline-block;margin-left:.5rem;
+      background:rgba(201,138,34,.2);color:#c98a22;
+      font-size:.68rem;font-weight:700;letter-spacing:.4px;
+      padding:.1rem .45rem;border-radius:2rem;
+      vertical-align:middle;
+    }
+    @media(max-width:768px){
+      nav ul li.expanded ul.subnav{
+        display:block !important;position:static;
+        background:rgba(255,255,255,.05);
+        box-shadow:none;border-radius:.35rem;
+        padding:.25rem 0 .25rem .75rem;margin-top:.25rem;
+      }
+      nav ul li.expanded .subnav-toggle{transform:rotate(180deg);}
+      .subnav-toggle{display:inline-block;background:none;border:none;color:#cfd6e6;cursor:pointer;padding:0 .4rem;font-size:.85rem;vertical-align:middle;transition:transform .2s;}
+    }
+    .subnav-toggle{display:none;}
+
+    /* Hamburger */
+    .hamburger{display:none;background:none;border:none;cursor:pointer;padding:0.5rem;z-index:1001}
+    .hamburger span{display:block;width:25px;height:3px;background:#fff;margin:5px 0;transition:0.3s}
+    .hamburger.active span:nth-child(1){transform:rotate(45deg) translate(7px,7px)}
+    .hamburger.active span:nth-child(2){opacity:0}
+    .hamburger.active span:nth-child(3){transform:rotate(-45deg) translate(7px,-7px)}
+    @media(max-width:768px){
+      .hamburger{display:block}
+      nav ul{
+        display:flex;position:fixed;top:0;right:0;height:100vh;width:250px;
+        background:var(--slate);flex-direction:column;
+        padding:5rem 2rem 2rem;gap:0.5rem;
+        box-shadow:-2px 0 10px rgba(0,0,0,0.3);
+        transform:translateX(100%);transition:transform 0.3s ease;z-index:1000;overflow-y:auto;
+      }
+      nav ul.active{transform:translateX(0)}
+      nav ul li{display:block;}
+      nav ul li a{font-size:1.1rem;display:block;padding:0.5rem 0}
+      nav > .cta{display:none}
+    }
+
+    /* Page hero */
+    .page-hero{
+      background:var(--slate);
+      color:#fff;
+      text-align:center;
+      padding:3rem 1rem 2.5rem;
+    }
+    .page-hero h1{
+      font-family:Inter,system-ui;
+      font-size:2.2rem;
+      margin:.25rem 0 .75rem;
+      color:hsl(42,84%,60%);
+    }
+    .page-hero p{max-width:660px;margin:0 auto;color:#cfd6e6;font-size:1.05rem;}
+    .back-home{display:inline-block;margin-bottom:1rem;color:#cfd6e6;font-size:.9rem;font-weight:600;text-decoration:none;opacity:.8;transition:opacity .2s;}
+    .back-home:hover{opacity:1;color:#c98a22;}
+    .back-home::before{content:'\2190\00a0';}
+
+    /* Section headers */
+    .res-heading{
+      font-family:Inter,system-ui;
+      font-size:1.1rem;
+      color:var(--amber);
+      margin:2rem 0 .6rem;
+    }
+
+    /* Hover cards */
+    .hover-box{transition:all 0.3s ease;cursor:pointer;background:#fff;border-radius:8px;box-shadow:0 2px 4px rgba(0,0,0,0.1)}
+    .hover-box:hover{box-shadow:0 6px 16px rgba(0,0,0,0.15);transform:translateY(-4px)}
+    .hover-text{max-height:0;overflow:hidden;opacity:0;transition:max-height 0.4s ease,opacity 0.3s ease,margin-top 0.3s ease}
+    .hover-box:hover .hover-text{max-height:200px;opacity:1;margin-top:0.5rem}
+    .hover-box:focus-within .hover-text{max-height:200px;opacity:1;margin-top:0.5rem}
+    .hover-box.scroll-active .hover-text{max-height:200px;opacity:1;margin-top:0.5rem}
+  </style>
+</head>
+<body>
+  <a class="sr-only" href="#main">Skip to content</a>
+  <header>
+    <div class="wrap">
+      <nav aria-label="Main">
+        <div>
+          <a href="index.html">
+            <img src="HH logo wht ltrs 626.png" alt="Horizon House logo" style="height:120px;">
+          </a>
+        </div>
+        <button class="hamburger" aria-label="Toggle menu" aria-expanded="false">
+          <span></span><span></span><span></span>
+        </button>
+        <ul>
+          <li><a href="index.html">Home</a></li>
+          <li>
+            <a href="about.html">About</a><button class="subnav-toggle" aria-label="Expand About submenu">&#9662;</button>
+            <ul class="subnav">
+              <li><a href="about.html">About Us</a></li>
+              <li><a href="gallery.html">Gallery</a></li>
+              <li><a href="/brochure-viewer.html">Brochure</a></li>
+              <li><a href="funding.html">Funding</a></li>
+            </ul>
+          </li>
+          <li>
+            <a href="for-professionals.html">For Professionals</a><button class="subnav-toggle" aria-label="Expand For Professionals submenu">&#9662;</button>
+            <ul class="subnav">
+              <li><a href="professionals-portal.html">Professionals Portal <span class="subnav-badge">Coming Soon</span></a></li>
+            </ul>
+          </li>
+          <li>
+            <a href="resources.html" aria-current="page">Resources</a><button class="subnav-toggle" aria-label="Expand Resources submenu">&#9662;</button>
+            <ul class="subnav">
+              <li><a href="resources.html#daily-reading">Daily Readings</a></li>
+              <li><a href="resources.html#find-meetings">Find Meetings</a></li>
+              <li><a href="resources.html#local-resources">Local Resources</a></li>
+              <li><a href="resources.html#house-info">House Info</a></li>
+            </ul>
+          </li>
+          <li><a href="index.html#contact">Contact</a></li>
+          <li><a href="horizon-portal/member-login-fixed.html">Member Portal</a></li>
+        </ul>
+        <button class="cta" onclick="window.location.href='tel:7607660300'">760.766.0300</button>
+      </nav>
+    </div>
+  </header>
+
+  <div class="page-hero">
+    <a href="index.html" class="back-home">Back to Home</a>
+    <h1>Resources</h1>
+    <p>Daily readings, meeting finders, crisis support, and local resources — for members, families, and anyone on the recovery journey.</p>
+  </div>
+
+  <main id="main">
+    <section class="wrap section" aria-label="Recovery resources">
+
+      <h3 class="res-heading" id="daily-reading">📖 Daily Reading</h3>
+      <div class="cards">
+        <a href="https://www.aa.org/daily-reflections" target="_blank" rel="noopener noreferrer" class="card hover-box" style="text-decoration:none;color:inherit;">
+          <strong>📘 AA Daily Reflections</strong>
+          <div class="hover-text" style="font-size:0.9rem;color:#555;">Today's reflection from Alcoholics Anonymous — a daily meditation to start your day grounded.</div>
+        </a>
+        <a id="twentyFourHoursLink" href="#" target="_blank" rel="noopener noreferrer" class="card hover-box" style="text-decoration:none;color:inherit;">
+          <strong>🕐 24 Hours A Day</strong>
+          <div class="hover-text" style="font-size:0.9rem;color:#555;">21 daily recovery readings for today — including 24 Hours A Day, Daily Reflections, Just For Today, As Bill Sees It, and more.</div>
+        </a>
+        <a href="https://www.alcoholicsanonymous.ie/wp-content/uploads/2022/07/SP7-just_for_today.pdf" target="_blank" rel="noopener noreferrer" class="card hover-box" style="text-decoration:none;color:inherit;">
+          <strong>🌅 Just For Today (AA)</strong>
+          <div class="hover-text" style="font-size:0.9rem;color:#555;">The "Just For Today" card from AA — a simple daily commitment to stay sober one day at a time.</div>
+        </a>
+        <a href="https://na.org/daily-meditations/" target="_blank" rel="noopener noreferrer" class="card hover-box" style="text-decoration:none;color:inherit;">
+          <strong>🕊️ Just for Today (NA)</strong>
+          <div class="hover-text" style="font-size:0.9rem;color:#555;">Daily meditation from Narcotics Anonymous — a thought for each day to support your recovery.</div>
+        </a>
+        <a id="livingLifeLinkPub" href="#" target="_blank" rel="noopener noreferrer" class="card hover-box" style="text-decoration:none;color:inherit;">
+          <strong>🌿 Living Life Fully – Daily Meditation</strong>
+          <div class="hover-text" style="font-size:0.9rem;color:#555;">Today's meditation from Living Life Fully — reflections on living with purpose and peace.</div>
+        </a>
+        <a href="https://www.todays-hope.com/todays-sharing.html" target="_blank" rel="noopener noreferrer" class="card hover-box" style="text-decoration:none;color:inherit;">
+          <strong>💜 Al-Anon Daily Reading</strong>
+          <div class="hover-text" style="font-size:0.9rem;color:#555;">Today's sharing from Al-Anon — hope and strength for families affected by alcoholism.</div>
+        </a>
+        <a id="emmetFoxLinkPub" href="#" target="_blank" rel="noopener noreferrer" class="card hover-box" style="text-decoration:none;color:inherit;">
+          <strong>✨ Emmet Fox – Daily Readings</strong>
+          <div class="hover-text" style="font-size:0.9rem;color:#555;">Spiritual daily readings from Emmet Fox — timeless wisdom for inner growth and recovery.</div>
+        </a>
+      </div>
+
+      <h3 class="res-heading" id="find-meetings">🤝 Find Meetings</h3>
+      <div class="cards">
+        <a href="https://www.aa.org/find-aa" target="_blank" rel="noopener noreferrer" class="card hover-box" style="text-decoration:none;color:inherit;">
+          <strong>🔵 Find an AA Meeting</strong>
+          <div class="hover-text" style="font-size:0.9rem;color:#555;">Search for in-person and online AA meetings near you.</div>
+        </a>
+        <a href="https://www.na.org/meetingsearch/" target="_blank" rel="noopener noreferrer" class="card hover-box" style="text-decoration:none;color:inherit;">
+          <strong>🟢 Find an NA Meeting</strong>
+          <div class="hover-text" style="font-size:0.9rem;color:#555;">Narcotics Anonymous meeting finder — search by location or online.</div>
+        </a>
+        <a href="https://www.aa.org/meeting-guide-app" target="_blank" rel="noopener noreferrer" class="card hover-box" style="text-decoration:none;color:inherit;">
+          <strong>📱 Meeting Guide App</strong>
+          <div class="hover-text" style="font-size:0.9rem;color:#555;">Free iOS & Android app from AA for finding local meeting directories.</div>
+        </a>
+        <a href="https://www.smartrecovery.org/community/calendar.php" target="_blank" rel="noopener noreferrer" class="card hover-box" style="text-decoration:none;color:inherit;">
+          <strong>🧠 SMART Recovery</strong>
+          <div class="hover-text" style="font-size:0.9rem;color:#555;">Science-based meetings focused on self-empowerment and coping skills.</div>
+        </a>
+        <a href="https://ca.org/meetings/" target="_blank" rel="noopener noreferrer" class="card hover-box" style="text-decoration:none;color:inherit;">
+          <strong>🤍 Cocaine Anonymous (CA)</strong>
+          <div class="hover-text" style="font-size:0.9rem;color:#555;">Find CA meetings near you — includes meeting directories, apps, and online options.</div>
+        </a>
+        <a href="https://www.crystalmeth.org/" target="_blank" rel="noopener noreferrer" class="card hover-box" style="text-decoration:none;color:inherit;">
+          <strong>💠 Crystal Meth Anonymous (CMA)</strong>
+          <div class="hover-text" style="font-size:0.9rem;color:#555;">Find CMA meetings and resources for those recovering from crystal meth addiction.</div>
+        </a>
+        <a href="https://al-anon.org/" target="_blank" rel="noopener noreferrer" class="card hover-box" style="text-decoration:none;color:inherit;">
+          <strong>🤝 Al-Anon Family Groups</strong>
+          <div class="hover-text" style="font-size:0.9rem;color:#555;">Support for families and friends of people with a drinking problem — meetings and resources worldwide.</div>
+        </a>
+      </div>
+
+      <h3 class="res-heading" id="local-resources">📍 Local Resources</h3>
+      <div class="cards">
+        <a href="https://up2riverside.org/resources/" target="_blank" rel="noopener noreferrer" class="card hover-box" style="text-decoration:none;color:inherit;">
+          <strong>🏘️ UP2Riverside Resources</strong>
+          <div class="hover-text" style="font-size:0.9rem;color:#555;">Local Riverside community resources for mental health, substance use, housing, and more.</div>
+        </a>
+        <a href="community.html" class="card hover-box" style="text-decoration:none;color:inherit;">
+          <strong>🗺️ Local Meeting Directories</strong>
+          <div class="hover-text" style="font-size:0.9rem;color:#555;">Community meeting directories for the Coachella Valley area.</div>
+        </a>
+        <a href="https://www.ruhealth.org/behavioral-health/housing" target="_blank" rel="noopener noreferrer" class="card hover-box" style="text-decoration:none;color:inherit;">
+          <strong>🏥 RUHS Behavioral Health Housing</strong>
+          <div class="hover-text" style="font-size:0.9rem;color:#555;">Riverside University Health System housing resources for those in behavioral health recovery.</div>
+        </a>
+      </div>
+
+      <h3 class="res-heading">🆘 Crisis &amp; Hotlines</h3>
+      <div class="cards">
+        <a href="https://www.samhsa.gov/find-help/helplines/national-helpline" target="_blank" rel="noopener noreferrer" class="card hover-box" style="text-decoration:none;color:inherit;">
+          <strong>📞 SAMHSA Helpline</strong>
+          <div class="hover-text" style="font-size:0.9rem;color:#555;">1-800-662-4357 — Free, confidential, 24/7 treatment referral and information.</div>
+        </a>
+        <a href="tel:988" class="card hover-box" style="text-decoration:none;color:inherit;">
+          <strong>🆘 988 Crisis Lifeline</strong>
+          <div class="hover-text" style="font-size:0.9rem;color:#555;">Call or text 988 any time — mental health and crisis support available 24/7.</div>
+        </a>
+        <a href="https://www.ruhealth.org/mental-health-urgent-cares" target="_blank" rel="noopener noreferrer" class="card hover-box" style="text-decoration:none;color:inherit;">
+          <strong>🏥 CARES – Mental Health Crisis</strong>
+          <div class="hover-text" style="font-size:0.9rem;color:#555;">Riverside County's walk-in mental health urgent care centers — open 24/7, no appointment needed.</div>
+        </a>
+      </div>
+
+      <h3 class="res-heading">🌐 Online Support</h3>
+      <div class="cards">
+        <a href="https://www.intherooms.com" target="_blank" rel="noopener noreferrer" class="card hover-box" style="text-decoration:none;color:inherit;">
+          <strong>💬 In The Rooms</strong>
+          <div class="hover-text" style="font-size:0.9rem;color:#555;">Free online recovery meetings and community — AA, NA, Al-Anon, and more.</div>
+        </a>
+        <a href="https://www.reddit.com/r/stopdrinking/" target="_blank" rel="noopener noreferrer" class="card hover-box" style="text-decoration:none;color:inherit;">
+          <strong>🙌 r/stopdrinking</strong>
+          <div class="hover-text" style="font-size:0.9rem;color:#555;">Supportive online community with daily check-ins and encouragement. No judgement.</div>
+        </a>
+      </div>
+
+      <h3 class="res-heading" id="house-info">🏠 Horizon House Info</h3>
+      <div class="cards">
+        <a href="what-to-bring.html" class="card hover-box" style="text-decoration:none;color:inherit;">
+          <strong>🎒 What to Bring</strong>
+          <div class="hover-text" style="font-size:0.9rem;color:#555;">A checklist of what to bring when joining Horizon House.</div>
+        </a>
+        <a href="house-standards.html" class="card hover-box" style="text-decoration:none;color:inherit;">
+          <strong>📋 House Standards</strong>
+          <div class="hover-text" style="font-size:0.9rem;color:#555;">Program rules and expectations for all Horizon House members.</div>
+        </a>
+      </div>
+
+    </section>
+  </main>
+
+  <footer role="contentinfo">
+    <div class="wrap">
+      <p><strong>Horizon House</strong> — Structured, caring sober living</p>
+      <div style="display:flex;justify-content:flex-start;align-items:center;flex-wrap:wrap;gap:2rem;margin-bottom:0.25rem;">
+        <div>
+          <p style="margin:0;">28321 Horizon Rd.<br>Cathedral City, CA 92234</p>
+        </div>
+        <div style="display:flex;align-items:center;gap:0.5rem;padding-right:50px;margin-left:35%;">
+          <img src="iehp-logo.png" alt="IEHP" style="height:45px;object-fit:contain;background:#fff;border-radius:4px;padding:3px;">
+          <a href="https://www.ruhealth.org/behavioral-health/housing" target="_blank" rel="noopener noreferrer"><img src="ruhs-logo.png" alt="RUHS" style="height:45px;object-fit:contain;background:#fff;border-radius:4px;padding:3px;"></a>
+        </div>
+      </div>
+      <p style="margin:0;">© <span id="y"></span> Horizon House. All rights reserved.</p>
+      <a href="privacy.html" style="color:#91aef3;text-decoration:underline;">Privacy</a> •
+      <a href="accessibility.html" style="color:#97b0eb;text-decoration:underline;">Accessibility</a>
+    </div>
+  </footer>
+
+  <script>
+    document.getElementById('y').textContent = new Date().getFullYear();
+
+    // Dynamic daily reading links
+    (function() {
+      var months = ['jan','feb','mar','apr','may','jun','jul','aug','sep','oct','nov','dec'];
+      var fullMonths = ['january','february','march','april','may','june','july','august','september','october','november','december'];
+      var d = new Date();
+      var slug = 'med' + months[d.getMonth()] + d.getDate();
+      document.getElementById('livingLifeLinkPub').href = 'https://www.livinglifefully.com/meditations/' + slug + '.htm';
+      document.getElementById('emmetFoxLinkPub').href = 'https://www.emmetfox.org/daily-readings/' + fullMonths[d.getMonth()];
+      document.getElementById('twentyFourHoursLink').href = 'https://www.justfortodaymeditations.com/daily-recovery-readings-' + fullMonths[d.getMonth()] + '-' + d.getDate() + '/';
+    })();
+
+    // Hamburger menu
+    const hamburger = document.querySelector('.hamburger');
+    const navMenu = document.querySelector('nav ul');
+    hamburger.addEventListener('click', () => {
+      hamburger.classList.toggle('active');
+      navMenu.classList.toggle('active');
+      const isExpanded = hamburger.getAttribute('aria-expanded') === 'true';
+      hamburger.setAttribute('aria-expanded', !isExpanded);
+      if (!navMenu.classList.contains('active')) {
+        document.querySelectorAll('nav ul li.expanded').forEach(el => el.classList.remove('expanded'));
+      }
+    });
+    document.querySelectorAll('nav ul li a').forEach(link => {
+      link.addEventListener('click', () => {
+        hamburger.classList.remove('active');
+        navMenu.classList.remove('active');
+        hamburger.setAttribute('aria-expanded', 'false');
+        document.querySelectorAll('nav ul li.expanded').forEach(el => el.classList.remove('expanded'));
+      });
+    });
+    document.addEventListener('click', (e) => {
+      if (!e.target.closest('nav')) {
+        hamburger.classList.remove('active');
+        navMenu.classList.remove('active');
+        hamburger.setAttribute('aria-expanded', 'false');
+        document.querySelectorAll('nav ul li.expanded').forEach(el => el.classList.remove('expanded'));
+      }
+    });
+    // Mobile subnav expand/collapse
+    document.querySelectorAll('.subnav-toggle').forEach(toggle => {
+      toggle.addEventListener('click', e => {
+        e.stopPropagation();
+        const li = toggle.closest('li');
+        const wasExpanded = li.classList.contains('expanded');
+        document.querySelectorAll('nav ul li.expanded').forEach(el => el.classList.remove('expanded'));
+        if (!wasExpanded) li.classList.add('expanded');
+      });
+    });
+
+    // Mobile scroll-activate hover cards
+    if (window.innerWidth <= 768) {
+      const observer = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+          if (entry.isIntersecting) {
+            entry.target.classList.add('scroll-active');
+          } else {
+            entry.target.classList.remove('scroll-active');
+          }
+        });
+      }, { threshold: 0.5 });
+      document.querySelectorAll('.hover-box').forEach(el => observer.observe(el));
+    }
+  </script>
+</body>
+</html>

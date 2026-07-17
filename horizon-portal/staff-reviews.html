@@ -1,0 +1,703 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Application Reviews - Horizon House</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        .header {
+            background: white;
+            padding: 20px 30px;
+            border-radius: 12px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+            margin-bottom: 30px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .header h1 {
+            color: #2d3748;
+            font-size: 28px;
+        }
+
+        .btn-back {
+            padding: 10px 20px;
+            background: #667eea;
+            color: white;
+            text-decoration: none;
+            border-radius: 6px;
+            font-weight: 600;
+            transition: background 0.2s;
+        }
+
+        .btn-back:hover {
+            background: #5568d3;
+        }
+
+        .loading {
+            background: white;
+            padding: 40px;
+            border-radius: 12px;
+            text-align: center;
+            color: #718096;
+            font-size: 18px;
+        }
+
+        .applications-grid {
+            display: grid;
+            gap: 20px;
+        }
+
+        .application-card {
+            background: white;
+            padding: 25px;
+            border-radius: 12px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+            border-left: 5px solid #667eea;
+        }
+
+        .application-card.reviewed {
+            border-left-color: #48bb78;
+            opacity: 0.8;
+        }
+
+        .app-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 20px;
+        }
+
+        .app-info h3 {
+            color: #2d3748;
+            font-size: 22px;
+            margin-bottom: 5px;
+        }
+
+        .app-meta {
+            color: #718096;
+            font-size: 14px;
+            margin-top: 5px;
+        }
+
+        .app-status {
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 14px;
+            font-weight: 600;
+        }
+
+        .app-status.pending {
+            background: #fef3c7;
+            color: #92400e;
+        }
+
+        .app-status.reviewed {
+            background: #d1fae5;
+            color: #065f46;
+        }
+
+        .app-details {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .detail-item {
+            padding: 12px;
+            background: #f7fafc;
+            border-radius: 8px;
+        }
+
+        .detail-label {
+            color: #718096;
+            font-size: 13px;
+            font-weight: 600;
+            margin-bottom: 4px;
+        }
+
+        .detail-value {
+            color: #2d3748;
+            font-size: 15px;
+        }
+
+        .app-actions {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 6px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .btn-view {
+            background: #667eea;
+            color: white;
+        }
+
+        .btn-view:hover {
+            background: #5568d3;
+        }
+
+        .btn-pdf {
+            background: #e53e3e;
+            color: white;
+        }
+
+        .btn-pdf:hover {
+            background: #c53030;
+        }
+
+        .btn-approve {
+            background: #48bb78;
+            color: white;
+        }
+
+        .btn-approve:hover {
+            background: #38a169;
+        }
+
+        .btn-deny {
+            background: #e53e3e;
+            color: white;
+        }
+
+        .btn-deny:hover {
+            background: #c53030;
+        }
+
+        .empty-state {
+            background: white;
+            padding: 60px 40px;
+            border-radius: 12px;
+            text-align: center;
+        }
+
+        .empty-state h2 {
+            color: #2d3748;
+            margin-bottom: 10px;
+        }
+
+        .empty-state p {
+            color: #718096;
+            font-size: 16px;
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.5);
+        }
+
+        .modal-content {
+            background-color: white;
+            margin: 5% auto;
+            padding: 30px;
+            border-radius: 12px;
+            width: 90%;
+            max-width: 800px;
+            max-height: 80vh;
+            overflow-y: auto;
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 2px solid #e2e8f0;
+        }
+
+        .close {
+            color: #718096;
+            font-size: 32px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+        .close:hover {
+            color: #2d3748;
+        }
+
+        .filter-tabs {
+            background: white;
+            padding: 15px 20px;
+            border-radius: 12px;
+            margin-bottom: 20px;
+            display: flex;
+            gap: 10px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+        }
+
+        .filter-tab {
+            padding: 10px 20px;
+            border: 2px solid #e2e8f0;
+            background: white;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.2s;
+        }
+
+        .filter-tab:hover {
+            border-color: #667eea;
+        }
+
+        .filter-tab.active {
+            background: #667eea;
+            color: white;
+            border-color: #667eea;
+        }
+
+        .btn-print {
+            padding: 12px 24px;
+            background: #48bb78;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            font-size: 16px;
+            margin-right: 10px;
+            transition: background 0.2s;
+        }
+
+        .btn-print:hover {
+            background: #38a169;
+        }
+
+        /* Print styles */
+        @media print {
+            body {
+                background: white !important;
+                padding: 0 !important;
+                margin: 0 !important;
+            }
+            .container, .header, .filter-tabs, .loading, .applications-grid, #noResults {
+                display: none !important;
+            }
+            .modal {
+                display: block !important;
+                position: static !important;
+                background: none !important;
+            }
+            .modal-content {
+                position: static !important;
+                margin: 0 !important;
+                padding: 20px !important;
+                width: 100% !important;
+                max-width: 100% !important;
+                max-height: none !important;
+                overflow: visible !important;
+                box-shadow: none !important;
+                border-radius: 0 !important;
+            }
+            .modal-header {
+                border-bottom: 2px solid #000;
+            }
+            .close, .btn-print {
+                display: none !important;
+            }
+            h3 {
+                page-break-after: avoid;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>📋 Application Reviews</h1>
+            <a href="/staff-dashboard.html" class="btn-back">← Back to Dashboard</a>
+        </div>
+
+        <div class="filter-tabs">
+            <button class="filter-tab active" onclick="filterApplications('pending')">⏳ Pending</button>
+            <button class="filter-tab" onclick="filterApplications('approved')">✓ Approved</button>
+            <button class="filter-tab" onclick="filterApplications('rejected')">✗ Rejected</button>
+            <button class="filter-tab" onclick="filterApplications('all')">📋 All</button>
+        </div>
+
+        <div id="loading" class="loading">Loading applications...</div>
+
+        <div id="applicationsContainer" class="applications-grid" style="display: none;"></div>
+
+        <div id="emptyState" class="empty-state" style="display: none;">
+            <h2>✅ All caught up!</h2>
+            <p>No pending applications at this time.</p>
+        </div>
+    </div>
+
+    <!-- Application Detail Modal -->
+    <div id="appModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 id="modalTitle">Application Details</h2>
+                <span class="close" onclick="closeModal()">&times;</span>
+            </div>
+            <div style="margin-bottom: 20px;">
+                <button class="btn-print" onclick="printApplication()">🖨️ Print / Save PDF</button>
+            </div>
+            <div id="modalBody"></div>
+        </div>
+    </div>
+
+    <script>
+        const API_BASE = 'https://horizon-portal-backend-production-3532.up.railway.app';
+        let allApplications = [];
+        let currentFilter = 'pending';
+
+        async function loadApplications() {
+            try {
+                // Load all applications from the JSON file
+                const response = await fetch(`${API_BASE}/api/allApplications`);
+                allApplications = await response.json();
+
+                document.getElementById('loading').style.display = 'none';
+                displayFilteredApplications();
+            } catch (error) {
+                console.error('Error loading applications:', error);
+                document.getElementById('loading').textContent = '❌ Error loading applications';
+            }
+        }
+
+        function filterApplications(filter) {
+            currentFilter = filter;
+            
+            // Update active tab
+            document.querySelectorAll('.filter-tab').forEach(tab => {
+                tab.classList.remove('active');
+            });
+            event.target.classList.add('active');
+            
+            displayFilteredApplications();
+        }
+
+        function displayFilteredApplications() {
+            const container = document.getElementById('applicationsContainer');
+            const emptyState = document.getElementById('emptyState');
+            
+            container.innerHTML = '';
+            
+            let filtered = allApplications;
+            if (currentFilter !== 'all') {
+                filtered = allApplications.filter(app => {
+                    if (currentFilter === 'pending') {
+                        return app.status !== 'approved' && app.status !== 'rejected';
+                    }
+                    return app.status === currentFilter;
+                });
+            }
+
+            if (filtered.length === 0) {
+                container.style.display = 'none';
+                emptyState.style.display = 'block';
+                emptyState.querySelector('h2').textContent = `No ${currentFilter} applications`;
+                emptyState.querySelector('p').textContent = currentFilter === 'pending' 
+                    ? 'No pending applications at this time.'
+                    : `No ${currentFilter} applications found.`;
+            } else {
+                container.style.display = 'grid';
+                emptyState.style.display = 'none';
+                
+                filtered.forEach(app => {
+                    const globalIdx = allApplications.indexOf(app);
+                    container.appendChild(createApplicationCard(app, globalIdx));
+                });
+            }
+        }
+
+        function createApplicationCard(app, idx) {
+            const card = document.createElement('div');
+            card.className = `application-card ${app.status === 'reviewed' ? 'reviewed' : ''}`;
+            
+            // Access nested data object
+            const data = app.data || app.formData || app;
+            const submittedDate = (app.timestamp || app.submittedAt) ? (() => {
+                const d = new Date(app.timestamp || app.submittedAt);
+                if (Number.isNaN(d.getTime())) return 'N/A';
+                const mm = String(d.getMonth() + 1).padStart(2, '0');
+                const dd = String(d.getDate()).padStart(2, '0');
+                const yyyy = String(d.getFullYear());
+                return `${mm}-${dd}-${yyyy}`;
+            })() : 'N/A';
+            
+            card.innerHTML = `
+                <div class="app-header">
+                    <div class="app-info">
+                        <h3>${data.first_name || ''} ${data.last_name || ''}</h3>
+                        <div class="app-meta">
+                            📅 Submitted: ${submittedDate} | 📧 ${data.email || 'No email'}
+                        </div>
+                    </div>
+                    <span class="app-status ${app.status === 'reviewed' ? 'reviewed' : 'pending'}">
+                        ${app.status === 'reviewed' ? '✓ Reviewed' : '⏳ Pending'}
+                    </span>
+                </div>
+
+                <div class="app-details">
+                    <div class="detail-item">
+                        <div class="detail-label">📞 Phone</div>
+                        <div class="detail-value">${data.phone || 'Not provided'}</div>
+                    </div>
+                    <div class="detail-item">
+                        <div class="detail-label">🎂 Date of Birth</div>
+                        <div class="detail-value">${data.dob || 'Not provided'}</div>
+                    </div>
+                    <div class="detail-item">
+                        <div class="detail-label">🏠 Current Living</div>
+                        <div class="detail-value">${data.address || 'Not provided'}</div>
+                    </div>
+                    <div class="detail-item">
+                        <div class="detail-label">💼 Employment</div>
+                        <div class="detail-value">${data.job === 'yes' ? 'Yes' : data.job === 'no' ? 'No' : 'Not provided'}</div>
+                    </div>
+                </div>
+
+                <div class="app-actions">
+                    <button class="btn btn-view" onclick="viewApplication(${idx})">👁️ View Full Application</button>
+                    ${(app.pdfPath || data.pdf_path) ? `<a class="btn btn-pdf" href="${API_BASE}${app.pdfPath || data.pdf_path}" target="_blank" rel="noopener noreferrer">📄 View PDF</a>` : ''}
+                    ${app.status !== 'approved' ? `<button class="btn btn-approve" onclick="updateStatus(${idx}, 'approved')">✓ Approve</button>` : ''}
+                    ${app.status !== 'rejected' ? `<button class="btn btn-deny" onclick="updateStatus(${idx}, 'rejected')">✗ Deny</button>` : ''}
+                </div>
+            `;
+            
+            return card;
+        }
+
+        function viewApplication(idx) {
+            const app = allApplications[idx];
+            if (!app) return;
+
+            // Access nested data object (some apps have data nested in .data or .formData property)
+            const data = app.data || app.formData || app;
+
+            // Format date helper
+            function formatDate(dateStr) {
+                if (!dateStr) return 'Not provided';
+                const date = new Date(dateStr + 'T00:00:00');
+                if (isNaN(date.getTime())) return dateStr;
+                const month = String(date.getMonth() + 1).padStart(2, '0');
+                const day = String(date.getDate()).padStart(2, '0');
+                const year = date.getFullYear();
+                return `${month}-${day}-${year}`;
+            }
+
+            document.getElementById('modalTitle').textContent = `${data.first_name || ''} ${data.last_name || ''} - Application`;
+            
+            const modalBody = document.getElementById('modalBody');
+            const pdfUrl = (app.pdfPath || data.pdf_path) ? `${API_BASE}${app.pdfPath || data.pdf_path}` : null;
+            modalBody.innerHTML = `
+                <div style="display: grid; gap: 20px;">
+                    ${pdfUrl ? `<div style="background:#fff5f5;border:2px solid #fc8181;border-radius:8px;padding:16px;display:flex;align-items:center;gap:12px;">
+                        <span style="font-size:1.5rem;">📄</span>
+                        <div>
+                            <strong style="color:#c53030;">PDF Application Attached</strong><br>
+                            <a href="${pdfUrl}" target="_blank" rel="noopener noreferrer" style="color:#e53e3e;font-weight:600;">Open PDF in new tab →</a>
+                        </div>
+                    </div>` : ''}
+                    <div>
+                        <h3 style="color: #2d3748; margin-bottom: 10px;">📋 Personal Information</h3>
+                        <div style="display: grid; gap: 10px;">
+                            <p><strong>First Name:</strong> ${data.first_name || 'Not provided'}</p>
+                            <p><strong>Last Name:</strong> ${data.last_name || 'Not provided'}</p>
+                            <p><strong>Email:</strong> ${data.email || 'Not provided'}</p>
+                            <p><strong>Phone:</strong> ${data.phone || 'Not provided'}</p>
+                            <p><strong>DOB:</strong> ${formatDate(data.dob)}</p>
+                            <p><strong>Address:</strong> ${data.address || 'Not provided'}</p>
+                            <p><strong>Gender:</strong> ${data.gender || 'Not provided'}</p>
+                            <p><strong>SSN:</strong> ${data.ssn || 'Not provided'}</p>
+                            <p><strong>DL Number:</strong> ${data.dl_number || 'Not provided'}</p>
+                            <p><strong>DL State:</strong> ${data.dl_state || 'Not provided'}</p>
+                            <p><strong>DL Expiration:</strong> ${data.dl_expiration || 'Not provided'}</p>
+                            <p><strong>Has Vehicle:</strong> ${data.has_vehicle === 'yes' ? 'Yes' : data.has_vehicle === 'no' ? 'No' : 'Not provided'}</p>
+                            ${data.vehicle ? `<p><strong>Vehicle:</strong> ${data.vehicle}</p>` : ''}
+                            ${data.license_plate ? `<p><strong>License Plate:</strong> ${data.license_plate}</p>` : ''}
+                            ${data.plate_state ? `<p><strong>Plate State:</strong> ${data.plate_state}</p>` : ''}
+                            ${data.registration_expires ? `<p><strong>Registration Expires:</strong> ${formatDate(data.registration_expires)}</p>` : ''}
+                            <p><strong>Desired Move-In:</strong> ${formatDate(data.move_in)}</p>
+                        </div>
+                    </div>
+
+                    <div>
+                        <h3 style="color: #2d3748; margin-bottom: 10px;">🏠 Current Situation</h3>
+                        <div style="display: grid; gap: 10px;">
+                            <p><strong>Why Seeking Sober Living:</strong> ${data.seeking_reason || 'Not provided'}</p>
+                            <p><strong>Referred By:</strong> ${data.referred_by || 'Not provided'}</p>
+                            <p><strong>Referral Phone:</strong> ${data.referral_phone || 'Not provided'}</p>
+                            <p><strong>Employed:</strong> ${data.job === 'yes' ? 'Yes' : data.job === 'no' ? 'No' : 'Not provided'}</p>
+                            ${data.job_where ? `<p><strong>Job Location:</strong> ${data.job_where}</p>` : ''}
+                            ${data.job_schedule ? `<p><strong>Work Schedule:</strong> ${data.job_schedule}</p>` : ''}
+                            <p><strong>Have Sponsor:</strong> ${data.sponsor === 'yes' ? 'Yes' : data.sponsor === 'no' ? 'No' : 'Not provided'}</p>
+                            ${data.willing_sponsor ? `<p><strong>Willing to Get Sponsor:</strong> ${data.willing_sponsor === 'yes' ? 'Yes' : 'No'}</p>` : ''}
+                        </div>
+                    </div>
+
+                    <div>
+                        <h3 style="color: #2d3748; margin-bottom: 10px;">🏥 Treatment & Recovery</h3>
+                        <div style="display: grid; gap: 10px;">
+                            <p><strong>Completed Detox:</strong> ${data.detox === 'yes' ? 'Yes' : 'No'}</p>
+                            <p><strong>Inpatient Treatment:</strong> ${data.inpatient === 'yes' ? 'Yes' : 'No'}</p>
+                            ${data.inpatient_days ? `<p><strong>Days in Treatment:</strong> ${data.inpatient_days}</p>` : ''}
+                            ${data.facility ? `<p><strong>Facility Name:</strong> ${data.facility}</p>` : ''}
+                            ${data.discharge_date ? `<p><strong>Discharge Date:</strong> ${formatDate(data.discharge_date)}</p>` : ''}
+                            <p><strong>Attending IOP:</strong> ${data.iop === 'yes' ? 'Yes' : 'No'}</p>
+                            ${data.iop_where ? `<p><strong>IOP Location:</strong> ${data.iop_where}</p>` : ''}
+                            ${data.iop_schedule ? `<p><strong>IOP Schedule:</strong> ${data.iop_schedule}</p>` : ''}
+                            <p><strong>Sobriety Date:</strong> ${formatDate(data.sobriety_date)}</p>
+                            <p><strong>Primary Substance:</strong> ${data.drugs || 'Not provided'}</p>
+                        </div>
+                    </div>
+
+                    <div>
+                        <h3 style="color: #2d3748; margin-bottom: 10px;">🏘️ Sober Living History</h3>
+                        <div style="display: grid; gap: 10px;">
+                            <p><strong>First Time in Sober Living:</strong> ${data.first_sober_living === 'yes' ? 'Yes' : 'No'}</p>
+                            ${data.previous_sober_living_count ? `<p><strong>Previous Times:</strong> ${data.previous_sober_living_count}</p>` : ''}
+                            <p><strong>Ever Asked to Leave:</strong> ${data.asked_to_leave === 'yes' ? 'Yes' : 'No'}</p>
+                            ${data.asked_to_leave_explanation ? `<p><strong>Explanation:</strong> ${data.asked_to_leave_explanation}</p>` : ''}
+                        </div>
+                    </div>
+
+                    <div>
+                        <h3 style="color: #2d3748; margin-bottom: 10px;">⚖️ Legal Status</h3>
+                        <div style="display: grid; gap: 10px;">
+                            <p><strong>PC 290 (Sex Offender Registry):</strong> ${data.pc290 === 'yes' ? 'Yes' : 'No'}</p>
+                            <p><strong>On Probation/Parole:</strong> ${data.probation === 'yes' ? 'Yes' : 'No'}</p>
+                            <p><strong>Legal Issues Pending:</strong> ${data.legal_pending === 'yes' ? 'Yes' : 'No'}</p>
+                            ${data.legal_details ? `<p><strong>Legal Details:</strong> ${data.legal_details}</p>` : ''}
+                        </div>
+                    </div>
+
+                    <div>
+                        <h3 style="color: #2d3748; margin-bottom: 10px;">💊 Medical Information</h3>
+                        <div style="display: grid; gap: 10px;">
+                            <p><strong>Current Medications:</strong> ${data.medications || 'None reported'}</p>
+                            <p><strong>Medical Conditions:</strong> ${data.medical || 'None reported'}</p>
+                        </div>
+                    </div>
+
+                    <div>
+                        <h3 style="color: #2d3748; margin-bottom: 10px;">🏠 House Responsibilities</h3>
+                        <div style="display: grid; gap: 10px;">
+                            <p><strong>Willing to Do Daily Chores:</strong> ${data.chores === 'yes' ? 'Yes' : data.chores === 'no' ? 'No' : 'Not answered'}</p>
+                            <p><strong>Willing to Follow Structured Schedule:</strong> ${data.structured_schedule === 'yes' ? 'Yes' : data.structured_schedule === 'no' ? 'No' : 'Not answered'}</p>
+                        </div>
+                    </div>
+
+                    <div>
+                        <h3 style="color: #2d3748; margin-bottom: 10px;">✍️ Signature & Submission</h3>
+                        <div style="display: grid; gap: 10px;">
+                            ${data.signature ? `
+                                <div style="margin-bottom: 15px;">
+                                    <strong>Signature:</strong>
+                                    <div style="border: 2px solid #e2e8f0; border-radius: 8px; padding: 15px; background: white; margin-top: 8px; text-align: center;">
+                                        <img src="${data.signature}" alt="Applicant Signature" style="max-width: 100%; max-height: 100px; display: block; margin: 0 auto;">
+                                    </div>
+                                    <p style="font-size: 13px; color: #718096; margin-top: 5px;"><em>Signed via ${data.signature_method || 'electronic signature'}</em></p>
+                                </div>
+                            ` : '<p><strong>Signature:</strong> Not signed</p>'}
+                            <p><strong>Signature Date:</strong> ${formatDate(data.signature_date)}</p>
+                            <p><strong>Submitted:</strong> ${formatDate(data.submitted_date)}</p>
+                            <p><strong>Application Status:</strong> ${app.status || 'Pending'}</p>
+                        </div>
+                    </div>
+                </div>
+            `;
+            
+            document.getElementById('appModal').style.display = 'block';
+        }
+
+        function closeModal() {
+            document.getElementById('appModal').style.display = 'none';
+        }
+
+        function printApplication() {
+            window.print();
+        }
+
+        async function updateStatus(idx, status) {
+            const app = allApplications[idx];
+            if (!app) return;
+            const id = app.id;
+            if (!confirm(`Are you sure you want to ${status} this application?`)) return;
+
+            try {
+                const endpoint = status === 'approved' ? '/api/approveApplication' : '/api/rejectApplication';
+                const body = status === 'approved' 
+                    ? { applicationId: id, columnMapping: {} }
+                    : { applicationId: id, reason: 'Denied by staff' };
+
+                const response = await fetch(`${API_BASE}${endpoint}`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(body)
+                });
+
+                if (response.ok) {
+                    alert(`Application ${status} successfully!`);
+                    
+                    // If approved, prompt to create OneDrive folder
+                    if (status === 'approved') {
+                        const createFolder = confirm('Would you like to create a member folder in OneDrive now?\n\nClick OK to open OneDrive, then manually create a folder for this member.');
+                        if (createFolder) {
+                            window.open('https://1drv.ms/f/c/1fc3c145164f810c/IgD658L2wTWLTbPMukq5fC8lASklrtgz5802-I3Yb7Ml0NM?e=etDVFy', '_blank');
+                        }
+                    }
+                    
+                    location.reload();
+                } else {
+                    const result = await response.json();
+                    alert('Error: ' + (result.error || 'Unknown error'));
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                alert('Error updating application status');
+            }
+        }
+
+        // Close modal when clicking outside
+        window.onclick = function(event) {
+            const modal = document.getElementById('appModal');
+            if (event.target == modal) {
+                closeModal();
+            }
+        }
+
+        // Load applications on page load
+        loadApplications();
+    </script>
+</body>
+</html>

@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Release of Information Submissions - Horizon House</title>
+  <link rel="stylesheet" href="staff-intake-agreements.css">
+</head>
+<body>
+  <div class="container">
+    <h1>Release of Information Submissions</h1>
+    <div id="submissions"></div>
+  </div>
+  <script>
+    const API_URL = 'https://horizon-portal-backend-production-3532.up.railway.app';
+    async function loadSubmissions() {
+      const res = await fetch(`${API_URL}/api/intake/release-of-information`);
+      const data = await res.json();
+      document.getElementById('submissions').innerHTML = data.length ? data.map(a => `<div class='submission'>${a.memberInfo?.firstName || ''} ${a.memberInfo?.lastName || ''} - ${a.signatureDate || ''}</div>`).join('') : '<p>No submissions yet.</p>';
+    }
+    loadSubmissions();
+  </script>
+</body>
+</html>

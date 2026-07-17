@@ -1,0 +1,370 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Horizon House Sober Living | Palm Desert & Coachella Valley Recovery Housing</title>
+<meta name="description" content="Horizon House offers safe, structured sober living homes in Cathedral City and Coachella Valley. His House and Her House provide peer-driven accountability, compassionate support, and comfortable recovery housing. Call (760) 766-0300.">
+<link rel="icon" type="image/png" href="HH%20logo%20grntree.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@500;700&family=Nunito:wght@400;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --primary: #1f3b4d;
+    --amber: #d4a017;
+    --sand: #f7f5f0;
+    --white: #ffffff;
+    --text: #2f2f2f;
+    --green: #2e6a4f;
+    --red: #9c2f2f;
+    --shadow: 0 2px 8px rgba(0,0,0,0.08);
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: Nunito, system-ui, sans-serif; background: var(--sand); color: var(--text); line-height: 1.6; }
+  a { color: var(--amber); text-decoration: none; }
+  a:focus, button:focus { outline: 3px solid var(--amber); outline-offset: 2px; }
+
+  /* Header */
+  header { background: var(--white); border-bottom: 1px solid #e0dbd3; position: sticky; top: 0; z-index: 100; box-shadow: var(--shadow); }
+  .wrap { max-width: 1080px; margin: 0 auto; padding: 0 1.25rem; }
+  nav { display: flex; align-items: center; justify-content: space-between; padding: 0.75rem 0; gap: 1rem; }
+  nav .logo img { height: 70px; }
+  nav ul { list-style: none; display: flex; gap: 0.5rem; }
+  nav ul a { color: var(--primary); font-weight: 600; padding: 0.4rem 0.7rem; border-radius: 6px; font-size: 0.95rem; transition: background 0.2s; }
+  nav ul a:hover { background: var(--sand); }
+  .btn-call { background: var(--amber); color: var(--white); padding: 0.65rem 1.3rem; border-radius: 8px; font-weight: 700; font-size: 1rem; border: none; cursor: pointer; white-space: nowrap; transition: background 0.2s; }
+  .btn-call:hover { background: #b88910; }
+  .hamburger { display: none; background: none; border: none; cursor: pointer; padding: 0.5rem; }
+  .hamburger span { display: block; width: 25px; height: 3px; background: var(--primary); margin: 5px 0; transition: 0.3s; }
+  .hamburger.active span:nth-child(1) { transform: rotate(45deg) translate(7px,7px); }
+  .hamburger.active span:nth-child(2) { opacity: 0; }
+  .hamburger.active span:nth-child(3) { transform: rotate(-45deg) translate(7px,-7px); }
+
+  /* Banner */
+  .banner { background: linear-gradient(90deg,#ff9800,#ff5722,#ff9800); color: #fff; padding: 0.5rem 0.75rem; text-align: center; font-weight: 600; font-size: 0.92rem; overflow: hidden; white-space: nowrap; }
+  .banner-text { display: inline-block; animation: slide 22s linear infinite; }
+  @keyframes slide { 0%{transform:translateX(100%)} 100%{transform:translateX(-100%)} }
+
+  /* Hero */
+  .hero { background: linear-gradient(to bottom, var(--white), var(--sand)); padding: 3.5rem 1.25rem; text-align: center; }
+  .hero img.hero-photo { max-width: 100%; border-radius: 12px; margin: 1.5rem 0; box-shadow: var(--shadow); }
+  .hero h1 { font-family: Inter, system-ui; font-size: 2.4rem; color: var(--primary); margin-bottom: 0.75rem; }
+  .hero p { font-size: 1.15rem; max-width: 680px; margin: 0 auto 1.25rem; color: #555; }
+  .trust { display: flex; flex-wrap: wrap; gap: 0.6rem; justify-content: center; font-weight: 600; color: var(--primary); font-size: 1rem; margin-top: 1rem; }
+  .trust span { background: var(--white); padding: 0.4rem 1rem; border-radius: 20px; box-shadow: var(--shadow); }
+
+  /* CTA buttons */
+  .cta-row { display: flex; flex-wrap: wrap; gap: 1rem; justify-content: center; margin: 2rem 0; }
+  .btn-primary { background: var(--primary); color: #fff; padding: 1rem 2.2rem; border-radius: 8px; font-weight: 700; font-size: 1.1rem; transition: background 0.2s, transform 0.2s; display: inline-block; }
+  .btn-primary:hover { background: #162d3c; transform: translateY(-2px); color: #fff; }
+  .btn-secondary { background: var(--amber); color: #fff; padding: 1rem 2.2rem; border-radius: 8px; font-weight: 700; font-size: 1.1rem; transition: background 0.2s, transform 0.2s; display: inline-block; }
+  .btn-secondary:hover { background: #b88910; transform: translateY(-2px); color: #fff; }
+
+  /* Sections */
+  section { padding: 3rem 1.25rem; }
+  .section-inner { max-width: 960px; margin: 0 auto; }
+  h2 { font-family: Inter, system-ui; font-size: 1.9rem; color: var(--primary); margin-bottom: 0.75rem; }
+  h3 { font-family: Inter, system-ui; font-size: 1.4rem; color: var(--primary); margin-bottom: 0.5rem; }
+
+  /* Feature grid */
+  .feature-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(210px, 1fr)); gap: 1.25rem; margin-top: 1.75rem; }
+  .feature-card { background: var(--white); border-radius: 12px; padding: 1.5rem; text-align: center; box-shadow: var(--shadow); transition: transform 0.2s, box-shadow 0.2s; }
+  .feature-card:hover { transform: translateY(-4px); box-shadow: 0 6px 18px rgba(0,0,0,0.12); }
+  .feature-card .icon { font-size: 2.2rem; margin-bottom: 0.6rem; }
+  .feature-card p { font-size: 0.95rem; color: #555; margin-top: 0.4rem; }
+
+  /* Houses */
+  .houses { background: var(--white); }
+  .house-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; margin-top: 1.5rem; text-align: center; }
+  .house-card { background: var(--sand); border-radius: 12px; padding: 1.5rem; box-shadow: var(--shadow); }
+  .house-card h3 { color: var(--amber); }
+  .house-card p { font-size: 0.95rem; color: #555; margin-top: 0.4rem; }
+
+  /* Admissions */
+  .admissions { background: var(--sand); }
+  ol.steps { margin-top: 1rem; padding-left: 1.4rem; }
+  ol.steps li { margin-bottom: 0.6rem; font-size: 1rem; }
+  ol.steps li strong { color: var(--primary); }
+
+  /* Resources */
+  .resources { background: var(--white); }
+  ul.res-list { margin-top: 1rem; padding-left: 1.4rem; }
+  ul.res-list li { margin-bottom: 0.5rem; }
+
+  /* Contact */
+  .contact-section { background: var(--sand); }
+  .contact-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 2.5rem; align-items: start; margin-top: 1.5rem; }
+  .contact-info p { margin-bottom: 0.6rem; line-height: 1.8; }
+  form { display: grid; gap: 0.75rem; }
+  label { font-weight: 600; font-size: 0.9rem; color: var(--primary); }
+  input, textarea, select { padding: 0.65rem 0.85rem; border: 1.5px solid #d0cac2; border-radius: 8px; font-size: 1rem; font-family: inherit; width: 100%; transition: border-color 0.2s; }
+  input:focus, textarea:focus { border-color: var(--amber); outline: none; }
+  textarea { resize: vertical; min-height: 100px; }
+  .btn-submit { background: var(--primary); color: #fff; padding: 0.85rem 2rem; border-radius: 8px; font-weight: 700; font-size: 1rem; border: none; cursor: pointer; width: 100%; transition: background 0.2s; }
+  .btn-submit:hover { background: #162d3c; }
+  #contact-status { font-weight: 600; margin-top: 0.5rem; min-height: 1.4rem; }
+
+  /* Footer */
+  footer { background: #1a2330; color: #c8d4e8; padding: 2.5rem 1.25rem; margin-top: 1rem; }
+  footer .wrap { max-width: 1080px; margin: 0 auto; }
+  footer p { margin-bottom: 0.4rem; font-size: 0.95rem; }
+  footer a { color: #91aef3; text-decoration: underline; }
+
+  /* Float button */
+  .float-btn { position: fixed; bottom: 28px; right: 28px; z-index: 999; background: var(--primary); color: #fff; padding: 0.9rem 1.8rem; border-radius: 12px; font-weight: 700; font-size: 1.05rem; box-shadow: 0 4px 18px rgba(31,59,77,0.25); transition: background 0.2s, transform 0.2s; }
+  .float-btn:hover { background: var(--amber); color: #fff; transform: translateY(-2px); }
+
+  /* Responsive */
+  @media (max-width: 768px) {
+    .hamburger { display: block; }
+    nav ul { position: fixed; top: 0; right: -100%; height: 100vh; width: 260px; background: var(--primary); flex-direction: column; padding: 5rem 2rem 2rem; gap: 1.2rem; box-shadow: -2px 0 10px rgba(0,0,0,0.2); transition: right 0.3s; z-index: 200; }
+    nav ul.active { right: 0; }
+    nav ul a { color: #fff; font-size: 1.05rem; }
+    .house-grid { grid-template-columns: 1fr; }
+    .contact-grid { grid-template-columns: 1fr; }
+    .hero h1 { font-size: 1.7rem; }
+    .btn-call { display: none; }
+    .float-btn { right: 12px; left: 12px; bottom: 14px; text-align: center; }
+  }
+  @media (max-width: 640px) {
+    .banner { font-size: 0.75rem; padding: 0.3rem 0.5rem; }
+    .hero { padding: 2.5rem 1rem; }
+  }
+  .sr-only { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0,0,0,0); }
+</style>
+  <link rel="stylesheet" href="hope-cloud.css">
+</head>
+<body>
+<a class="sr-only" href="#main">Skip to content</a>
+
+<header>
+  <div class="wrap">
+    <nav aria-label="Main">
+      <div class="logo"><img src="HH logo grntree.png" alt="Horizon House logo"></div>
+      <button class="hamburger" aria-label="Toggle menu" aria-expanded="false">
+        <span></span><span></span><span></span>
+      </button>
+      <ul id="nav-menu">
+        <li><a href="#">Home</a></li>
+        <li><a href="gallery.html">Gallery</a></li>
+        <li><a href="brochure-viewer.html">Brochure</a></li>
+        <li><a href="resources.html">Resources</a></li>
+        <li><a href="#contact">Contact</a></li>
+        <li><a href="staff-dashboard.html">Staff Portal</a></li>
+        <li><a href="horizon-portal/member-login-fixed.html">Member Portal</a></li>
+      </ul>
+      <button class="btn-call" onclick="window.location='tel:7607660300'">760.766.0300</button>
+    </nav>
+  </div>
+</header>
+
+<div class="banner">
+  <span class="banner-text">Check back here often — this website is a work in progress and pages are being added and updated regularly.</span>
+</div>
+
+<main id="main">
+
+  <!-- Hero -->
+  <section class="hero">
+    <div class="section-inner">
+      <img src="sunrise1.jpg" alt="Sunrise over the desert" class="hero-photo">
+      <h1>A safe, structured path to sober living and community</h1>
+      <p>We offer clear policies, respectful accountability, and a supportive environment so you can focus on recovery—one steady day at a time.</p>
+      <div class="cta-row">
+        <a href="why-sober-living-matters.html" class="btn-primary">Why Sober Living Matters</a>
+        <a href="what-makes-us-different.html" class="btn-secondary">The Horizon House Difference</a>
+      </div>
+      <div class="trust" aria-label="Trust highlights">
+        <span>Peer-driven growth</span>
+        <span>Accountability &amp; guidance</span>
+        <span>Safety &amp; support</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- What Makes Us Different -->
+  <section style="background:#f3f7fb;">
+    <div class="section-inner">
+      <h2 style="text-align:center;">What Makes Us Different</h2>
+      <p style="text-align:center;color:#555;font-style:italic;margin:0.5rem auto 1.5rem;max-width:700px;">First and foremost, we care — and we've been there. We focus on compassionate guidance toward positive behavioral change.</p>
+      <div class="feature-grid">
+        <div class="feature-card">
+          <div class="icon">??</div>
+          <strong>We care, we understand.</strong>
+          <p>Our team knows recovery firsthand and leads with empathy, not judgment.</p>
+        </div>
+        <div class="feature-card">
+          <div class="icon">??</div>
+          <strong>Compassion over punishment.</strong>
+          <p>Supportive accountability that redirects, keeping the focus on growth.</p>
+        </div>
+        <div class="feature-card">
+          <div class="icon">??</div>
+          <strong>Structure that supports you.</strong>
+          <p>Daily routines, house meetings, and clear expectations help build momentum and stability.</p>
+        </div>
+        <div class="feature-card">
+          <div class="icon">???</div>
+          <strong>Spacious living.</strong>
+          <p>Well-maintained, spacious accommodations — no bunk beds. Comfort that feels like home.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Our Mission -->
+  <section class="houses">
+    <div class="section-inner">
+      <h2>Our Mission</h2>
+      <p>We believe structure and compassion can coexist. Our team blends building safety expertise with recovery-minded care to create a place where people feel safe, respected, and supported.</p>
+      <p style="margin-top:0.75rem;"><strong>Two Houses, One Mission:</strong> Horizon House operates two separate facilities — <strong>His House</strong> and <strong>Her House</strong>. This structure provides comfortable, focused environments where members can concentrate on their recovery journey with supportive peers.</p>
+      <img src="houses.jpg" alt="Horizon Houses" style="max-width:100%;border-radius:12px;margin:1.5rem 0;box-shadow:0 2px 8px rgba(0,0,0,0.08);">
+      <div class="house-grid">
+        <div class="house-card">
+          <h3>His House</h3>
+          <p>Men's sober living residence<br><strong>Marshall:</strong> (626) 616-7273</p>
+        </div>
+        <div class="house-card">
+          <h3>Her House</h3>
+          <p>Women's sober living residence<br><strong>Liz:</strong> (818) 916-2214</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Admissions -->
+  <section class="admissions" id="admissions">
+    <div class="section-inner">
+      <h2>Admissions Process Made Clear</h2>
+      <ol class="steps">
+        <li><strong>Inquiry:</strong> Send a message or call.</li>
+        <li><strong>Intro call:</strong> Quick conversation to align needs and fit.</li>
+        <li><strong>Tour:</strong> In-person or virtual.</li>
+        <li><strong>Intake:</strong> Agreements and orientation.</li>
+      </ol>
+    </div>
+  </section>
+
+  <!-- Resources -->
+  <section class="resources" id="resources">
+    <div class="section-inner">
+      <h2>Resources</h2>
+      <ul class="res-list">
+        <li><strong>Guide:</strong> Preparing for sober living (Coming soon)</li>
+        <li><a href="what-to-bring.html">What to Bring</a></li>
+        <li><a href="house-standards.html">House Standards: Program rules &amp; expectations</a></li>
+        <li><a href="community.html">Community: Local meeting directories</a></li>
+        <li><a href="https://www.aa.org/meeting-guide-app">iOS &amp; Android App for local meeting directories</a></li>
+      </ul>
+    </div>
+  </section>
+
+  <!-- Contact -->
+  <section class="contact-section" id="contact">
+    <div class="section-inner">
+      <h2>Contact Us</h2>
+      <div class="contact-grid">
+        <div class="contact-info">
+          <p><strong>Phone:</strong> (760) 766-0300</p>
+          <p><strong>Email:</strong> info@horizon-house.org</p>
+          <p><strong>Her House — Liz:</strong> (818) 916-2214</p>
+          <p><strong>His House — Marshall:</strong> (626) 616-7273</p>
+          <p style="margin-top:1rem;color:#555;">Call or email with questions, to start your application, or fill out the short form and we will be in touch shortly.</p>
+        </div>
+        <form id="contact-form">
+          <label for="cn">Name</label>
+          <input id="cn" name="name" type="text" required>
+          <label for="ce">Email</label>
+          <input id="ce" name="email" type="email" required>
+          <label for="cp">Phone</label>
+          <input id="cp" name="phone" type="tel" placeholder="(760) 555-1234">
+          <label for="cm">Message</label>
+          <textarea id="cm" name="message" rows="4" required></textarea>
+          <button type="submit" class="btn-submit">Send Message</button>
+          <div id="contact-status"></div>
+        </form>
+      </div>
+    </div>
+  </section>
+
+</main>
+
+<footer>
+  <div class="wrap">
+    <p><strong>Horizon House</strong> — Structured, caring sober living</p>
+    <p>28321 Horizon Rd., Cathedral City, CA 92234</p>
+    <p style="margin-top:0.75rem;">
+      <a href="privacy.html">Privacy</a> &bull;
+      <a href="accessibility.html">Accessibility</a>
+    </p>
+    <p style="margin-top:0.5rem;font-size:0.85rem;color:#8899bb;">&copy; <span id="yr"></span> Horizon House. All rights reserved.</p>
+  </div>
+</footer>
+
+<a href="application-v2.html" class="float-btn">Apply Now</a>
+
+<script>
+  document.getElementById('yr').textContent = new Date().getFullYear();
+
+  // Hamburger
+  const ham = document.querySelector('.hamburger');
+  const menu = document.getElementById('nav-menu');
+  ham.addEventListener('click', () => {
+    ham.classList.toggle('active');
+    menu.classList.toggle('active');
+    ham.setAttribute('aria-expanded', ham.classList.contains('active'));
+  });
+  document.querySelectorAll('#nav-menu a').forEach(a => {
+    a.addEventListener('click', () => {
+      ham.classList.remove('active');
+      menu.classList.remove('active');
+      ham.setAttribute('aria-expanded', 'false');
+    });
+  });
+  document.addEventListener('click', e => {
+    if (!e.target.closest('nav')) {
+      ham.classList.remove('active');
+      menu.classList.remove('active');
+      ham.setAttribute('aria-expanded', 'false');
+    }
+  });
+
+  // Contact form
+  document.getElementById('contact-form').addEventListener('submit', async e => {
+    e.preventDefault();
+    const st = document.getElementById('contact-status');
+    const btn = e.target.querySelector('button[type="submit"]');
+    st.textContent = 'Sending...';
+    st.style.color = '#2e6a4f';
+    btn.disabled = true;
+    try {
+      const res = await fetch('https://horizon-portal-backend-production-3532.up.railway.app/api/contactForm', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          name: document.getElementById('cn').value,
+          email: document.getElementById('ce').value,
+          phone: document.getElementById('cp').value,
+          message: document.getElementById('cm').value
+        })
+      });
+      const data = await res.json();
+      if (res.ok) {
+        st.textContent = data.message || 'Thank you! We will be in touch soon.';
+        st.style.color = '#2e6a4f';
+        e.target.reset();
+      } else {
+        st.textContent = 'Error: ' + (data.error || 'Failed to send.');
+        st.style.color = '#9c2f2f';
+        btn.disabled = false;
+      }
+    } catch (err) {
+      st.textContent = 'Connection error. Please try again.';
+      st.style.color = '#9c2f2f';
+      btn.disabled = false;
+    }
+  });
+</script>
+<script src="hope-cloud.js"></script>
+</body>
+</html>

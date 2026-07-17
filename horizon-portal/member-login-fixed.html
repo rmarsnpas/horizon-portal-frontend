@@ -1,0 +1,348 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Horizon House Member Login</title>
+    <style>
+        :root {
+            --hh-primary: #F58634;
+            --hh-gold: #E1C462;
+            --hh-green: #94A880;
+            --hh-bg: #FFF8F3;
+            --hh-card: #FFF8F3;
+            --hh-text: #222;
+        }
+        body {
+            font-family: Arial, sans-serif;
+            background-color: var(--hh-bg);
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+
+        .login-container {
+            background: var(--hh-card);
+            padding: 40px;
+            border-radius: 10px;
+            width: 100%;
+            max-width: 420px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, .1);
+            position: relative;
+        }
+
+        .login-close-btn {
+            position: absolute;
+            top: 12px;
+            right: 16px;
+            background: none;
+            border: none;
+            font-size: 1.6rem;
+            line-height: 1;
+            color: #aaa;
+            cursor: pointer;
+            padding: 0;
+            width: auto;
+        }
+
+        .login-close-btn:hover {
+            color: var(--hh-primary);
+            background: none;
+        }
+
+        h1 {
+            text-align: center;
+            color: var(--hh-primary);
+            margin-bottom: 10px;
+        }
+
+        p.subtitle {
+            text-align: center;
+            color: var(--hh-green);
+            margin-bottom: 30px;
+            font-size: 15px;
+        }
+
+        label {
+            font-weight: 700;
+            color: var(--hh-primary);
+            display: block;
+            margin-bottom: 8px;
+        }
+
+        input[type="text"],
+        input[type="password"] {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid var(--hh-gold);
+            border-radius: 6px;
+            font-size: 16px;
+            margin-bottom: 20px;
+        }
+
+        .pin-input {
+            font-family: monospace;
+            letter-spacing: 4px;
+        }
+
+        button {
+            width: 100%;
+            padding: 14px;
+            background-color: var(--hh-primary);
+            color: #fff;
+            border: none;
+            border-radius: 6px;
+            font-size: 17px;
+            cursor: pointer;
+        }
+
+        button:hover {
+            background-color: var(--hh-gold);
+        }
+
+        .error-message {
+            color: var(--hh-primary);
+            background: #ffe6e6;
+            padding: 10px;
+            border-radius: 6px;
+            margin-bottom: 15px;
+            display: none;
+        }
+
+        .help-text {
+            text-align: center;
+            margin-top: 20px;
+            font-size: 14px;
+            color: var(--hh-green);
+        }
+    </style>
+</head>
+
+<body>
+    <div class="login-container">
+        <button class="login-close-btn" onclick="history.back()" title="Cancel">&times;</button>
+        <h1>Horizon House</h1>
+        <p class="subtitle">Member Portal Login</p>
+        <div id="error" class="error-message" role="alert" aria-live="assertive"></div>
+
+        <!-- STEP 1: MEMBER ID -->
+        <div id="step1">
+            <label for="memberID">Enter Your Member ID</label>
+            <input type="text" id="memberID" placeholder="Example: 1234" required>
+            <button type="button" onclick="verifyID()">Continue</button>
+        </div>
+
+        <!-- STEP 2: ENTER PIN -->
+        <div id="enterPin" style="display:none;">
+            <label for="pinInput">Enter Your PIN</label>
+            <input type="text" id="pinInput" class="pin-input" maxlength="20" placeholder="Your PIN" autocomplete="new-password">
+            <button type="button" onclick="verifyPin()">Continue</button>
+        </div>
+
+        <!-- STEP 2b: CREATE PIN (first-time) -->
+        <div id="createPinStep" style="display:none;">
+            <label>Create a PIN</label>
+            <p style="font-size:13px;color:#555;margin:0 0 8px">You don't have a PIN yet. Choose a 4–6 digit PIN to use for future logins.</p>
+            <input type="text" id="newPin1" class="pin-input" maxlength="20" placeholder="Choose PIN" autocomplete="new-password">
+            <input type="text" id="newPin2" class="pin-input" maxlength="20" placeholder="Confirm PIN" autocomplete="new-password" style="margin-top:8px">
+            <button type="button" onclick="createPin()">Save PIN &amp; Continue</button>
+        </div>
+
+        <!-- STEP 3: STAFF/ADMIN PASSWORD -->
+        <div id="staffPw" style="display:none;">
+            <label for="staffPassword">Enter Staff/Admin Password</label>
+            <input type="password" id="staffPassword" placeholder="Password">
+            <button type="button" onclick="verifyStaffPassword()">Continue</button>
+        </div>
+
+        <p class="help-text">Need help? Contact your House Manager.</p>
+    </div>
+
+    <script>
+        console.log('Member Login Page - Version 1.30.2026.1243');
+        let userRecord = null;
+
+        function showError(msg) {
+            const err = document.getElementById('error');
+            err.textContent = msg;
+            err.style.display = 'block';
+        }
+
+        function clearError() {
+            const err = document.getElementById('error');
+            err.textContent = '';
+            err.style.display = 'none';
+        }
+
+        // STEP 1 — VERIFY MEMBER ID (calls backend)
+        async function verifyID() {
+            clearError();
+            const id = document.getElementById('memberID').value.trim();
+            if (!id) { showError('Please enter a Member ID.'); return; }
+
+            try {
+                // const res = await fetch(`http://localhost:3001/api/getMember?id=${encodeURIComponent(id)}`);
+                const res = await fetch(`https://horizon-portal-backend-production-3532.up.railway.app/api/getMember?id=${encodeURIComponent(id)}`);
+                if (!res.ok) throw new Error('Lookup failed');
+                const data = await res.json();
+                if (!data) {
+                    showError('Member ID not found.');
+                    return;
+                }
+
+                // Map backend fields to local record
+                userRecord = {
+                    MemberID: data.ID,
+                    AccessCode: Number(data.STATU) || 1,
+                    PIN: data.PIN || '',
+                    StaffPW: data.StaffPW || '',
+                    FIRST_NAME: data.FIRST_NAME,
+                    LAST_NAME: data.LAST_NAME,
+                    EMAIL: data.EMAIL
+                };
+
+                // Block status code 0 (inactive/discharged)
+                if (userRecord.AccessCode === 0) {
+                    showError('Access denied. Account inactive.');
+                    return;
+                }
+
+                document.getElementById('step1').style.display = 'none';
+
+                // Status 5 (admin): skip PIN, go straight to password
+                if (userRecord.AccessCode === 5) {
+                    document.getElementById('staffPw').style.display = 'block';
+                    return;
+                }
+
+                // Check if PIN exists — if not, let them create one
+                if (!userRecord.PIN) {
+                    document.getElementById('createPinStep').style.display = 'block';
+                    document.getElementById('newPin1').focus();
+                    return;
+                }
+
+                document.getElementById('enterPin').style.display = 'block';
+            } catch (err) {
+                console.error(err);
+                showError('Unable to contact the verification server.');
+            }
+        }
+
+        // STEP 2b — CREATE PIN (first-time setup)
+        async function createPin() {
+            clearError();
+            const pin1 = document.getElementById('newPin1').value.trim();
+            const pin2 = document.getElementById('newPin2').value.trim();
+            if (!pin1 || pin1.length < 4) { showError('PIN must be at least 4 characters.'); return; }
+            if (pin1 !== pin2) { showError('PINs do not match.'); return; }
+            if (!userRecord) { showError('Session expired. Please reload and try again.'); return; }
+
+            try {
+                const res = await fetch('https://horizon-portal-backend-production-3532.up.railway.app/api/savePin', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ id: String(userRecord.MemberID).trim(), pin: pin1 })
+                });
+                const json = await res.json();
+                if (!res.ok) throw new Error(json.error || 'Save failed');
+            } catch(e) {
+                showError('Could not save PIN. Please try again or contact staff.');
+                return;
+            }
+
+            userRecord.PIN = pin1;
+            document.getElementById('createPinStep').style.display = 'none';
+            // Continue same flow as successful PIN verify
+            if (userRecord.AccessCode >= 4) {
+                document.getElementById('staffPw').style.display = 'block';
+            } else if ([1,2,3].includes(userRecord.AccessCode)) {
+                routeUser();
+            } else {
+                showError('Access denied.');
+            }
+        }
+
+        // STEP 2 — VERIFY PIN
+        function verifyPin() {
+            clearError();
+            const pin = document.getElementById('pinInput').value.trim();
+            
+            if (!pin || pin.length < 4) { showError('Enter your PIN.'); return; }
+            if (!userRecord) { showError('User record missing.'); return; }
+            
+            // Convert both to strings for comparison
+            if (pin !== String(userRecord.PIN)) {
+                showError('Incorrect PIN.');
+                return;
+            }
+            
+            document.getElementById('enterPin').style.display = 'none';
+            if (userRecord.AccessCode >= 4) {
+                document.getElementById('staffPw').style.display = 'block';
+            } else if ([1,2,3].includes(userRecord.AccessCode)) {
+                routeUser();
+            } else {
+                showError('Access denied.');
+            }
+        }
+
+        // STEP 3 — STAFF/ADMIN PASSWORD
+        async function verifyStaffPassword() {
+            clearError();
+            const pw = document.getElementById('staffPassword').value;
+            if (!userRecord || !userRecord.MemberID) { showError('Missing member record.'); return; }
+            try {
+                // const res = await fetch('http://localhost:3001/api/verifyStaff', {
+                const res = await fetch('https://horizon-portal-backend-production-3532.up.railway.app/api/verifyStaff', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ id: String(userRecord.MemberID).trim(), pw })
+                });
+                if (res.status === 404) { showError('Member not found.'); return; }
+                const json = await res.json();
+                if (json.ok) { routeUser(); return; }
+                if (json.reason === 'no_staff_pw') {
+                    // save the staff password now
+                    const saveBody = { id: String(userRecord.MemberID).trim(), pin: userRecord.PIN || '', staffPw: pw };
+                    // const r2 = await fetch('http://localhost:3001/api/savePin', {
+                    const r2 = await fetch('https://horizon-portal-backend-production-3532.up.railway.app/api/savePin', {
+                        method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(saveBody)
+                    });
+                    const j2 = await r2.json();
+                    if (!r2.ok) throw new Error(j2.error || 'Save failed');
+                    routeUser();
+                    return;
+                }
+                showError('Incorrect staff/admin password.');
+            } catch (err) {
+                console.error(err);
+                showError(err.message || 'Unable to verify staff password');
+            }
+        }
+
+        // FINAL ROUTING
+        function routeUser() {
+            localStorage.setItem('memberId', userRecord.MemberID);
+            localStorage.setItem('memberFirstName', userRecord.FIRST_NAME || '');
+            localStorage.setItem('memberLastName', userRecord.LAST_NAME || '');
+            localStorage.setItem('memberEmail', userRecord.EMAIL || '');
+            localStorage.setItem('memberAccessCode', String(userRecord.AccessCode || ''));
+            console.log('AccessCode:', userRecord.AccessCode);
+            if ([1,2,4,5].includes(userRecord.AccessCode)) {
+                window.location.href = 'members/dashboard.html';
+            } else if (userRecord.AccessCode === 3) {
+                // Discharged members: invoices + payment history only
+                window.location.href = 'members/invoices.html';
+            } else {
+                showError('Access denied.');
+            }
+        }
+    </script>
+</body>
+
+</html>

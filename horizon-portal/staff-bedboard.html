@@ -1,0 +1,561 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bedboard - Horizon House</title>
+    <style>
+        :root {
+            --hh-primary: #F58634;
+            --hh-gold: #E1C462;
+            --hh-green: #94A880;
+            --hh-bg: #FFF8F3;
+            --hh-card: #FFF8F3;
+            --hh-text: #222;
+        }
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: var(--hh-bg);
+            padding: 20px;
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        .header {
+            background: var(--hh-card);
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+            margin-bottom: 30px;
+            text-align: center;
+        }
+
+        .header h1 {
+            color: var(--hh-primary);
+            font-size: 36px;
+            margin-bottom: 10px;
+        }
+
+        .header p {
+            color: var(--hh-green);
+            font-size: 18px;
+        }
+
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-bottom: 30px;
+        }
+
+        .stat-card {
+            background: var(--hh-card);
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            text-align: center;
+        }
+
+        .stat-card .number {
+            font-size: 32px;
+            font-weight: bold;
+            color: var(--hh-primary);
+            margin-bottom: 5px;
+        }
+
+        .stat-card .label {
+            color: var(--hh-green);
+            font-size: 14px;
+        }
+
+        .filters {
+            background: var(--hh-card);
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            margin-bottom: 20px;
+            display: flex;
+            gap: 15px;
+            flex-wrap: wrap;
+            align-items: center;
+        }
+
+        .filters label {
+            font-weight: 600;
+            color: var(--hh-primary);
+        }
+
+        .filters select, .filters input {
+            padding: 8px 12px;
+            border: 1px solid var(--hh-gold);
+            border-radius: 5px;
+            font-size: 14px;
+        }
+
+        .house-section {
+            background: var(--hh-card);
+            padding: 25px;
+            border-radius: 15px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+            margin-bottom: 25px;
+        }
+
+        .house-header {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 3px solid var(--hh-primary);
+        }
+
+        .house-header h2 {
+            color: var(--hh-primary);
+            font-size: 28px;
+        }
+
+        .house-header .count {
+            background: var(--hh-primary);
+            color: #fff;
+            padding: 5px 15px;
+            border-radius: 20px;
+            font-size: 14px;
+            font-weight: 600;
+        }
+
+        .bedboard-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+            gap: 20px;
+        }
+
+        .bed-card {
+            background: linear-gradient(135deg, var(--hh-card) 0%, var(--hh-gold) 100%);
+            border-radius: 10px;
+            padding: 20px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+            transition: transform 0.2s, box-shadow 0.2s;
+            border: 2px solid transparent;
+        }
+
+        .bed-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 4px 20px rgba(0,0,0,0.15);
+            border-color: var(--hh-primary);
+        }
+
+        .bed-card.occupied {
+            background: linear-gradient(135deg, #fff 0%, var(--hh-green) 100%);
+        }
+
+        .bed-card.empty {
+            background: linear-gradient(135deg, #fafafa 0%, #e0e0e0 100%);
+            opacity: 0.7;
+        }
+
+        .bed-number {
+            background: var(--hh-primary);
+            color: #fff;
+            padding: 8px 15px;
+            border-radius: 20px;
+            font-weight: bold;
+            font-size: 18px;
+            display: inline-block;
+            margin-bottom: 15px;
+        }
+
+        .bed-card.empty .bed-number {
+            background: var(--hh-gold);
+        }
+
+        .member-name {
+            font-size: 20px;
+            font-weight: bold;
+            color: var(--hh-text);
+            margin-bottom: 12px;
+        }
+
+        .member-info {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .info-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 14px;
+        }
+
+        .info-label {
+            font-weight: 600;
+            color: var(--hh-green);
+            min-width: 100px;
+        }
+
+        .info-value {
+            color: var(--hh-text);
+            font-family: 'Courier New', monospace;
+        }
+
+        .empty-message {
+            color: var(--hh-gold);
+            font-style: italic;
+            text-align: center;
+            padding: 20px;
+        }
+
+        .print-btn {
+            background: var(--hh-primary);
+            color: #fff;
+            border: none;
+            padding: 12px 30px;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            box-shadow: 0 2px 10px rgba(102, 126, 234, 0.3);
+            transition: all 0.3s;
+        }
+
+        .print-btn:hover {
+            background: var(--hh-gold);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+        }
+
+        @media print {
+            body {
+                background: white;
+                padding: 0;
+            }
+
+            .filters, .print-btn {
+                display: none;
+            }
+
+            .bed-card {
+                break-inside: avoid;
+            }
+        }
+
+        .loading {
+            text-align: center;
+            padding: 50px;
+            font-size: 18px;
+            color: white;
+        }
+
+        .error {
+            background: #ffebee;
+            color: var(--hh-primary);
+            padding: 20px;
+            border-radius: 10px;
+            margin: 20px 0;
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🏠 Horizon House Bedboard</h1>
+            <p>Current Bed Assignments & Member Information</p>
+            <p style="font-size: 14px; color: #999; margin-top: 10px;">
+                Updated: <span id="lastUpdated"></span>
+            </p>
+        </div>
+
+        <div class="stats">
+            <div class="stat-card">
+                <div class="number" id="totalBeds">-</div>
+                <div class="label">Total Beds</div>
+            </div>
+            <div class="stat-card">
+                <div class="number" id="occupiedBeds">-</div>
+                <div class="label">Occupied</div>
+            </div>
+            <div class="stat-card">
+                <div class="number" id="emptyBeds">-</div>
+                <div class="label">Available</div>
+            </div>
+            <div class="stat-card">
+                <div class="number" id="occupancyRate">-</div>
+                <div class="label">Occupancy Rate</div>
+            </div>
+        </div>
+
+        <div class="filters">
+            <label for="houseFilter">Filter by House:</label>
+            <select id="houseFilter" onchange="filterBedboard()">
+                <option value="all">All Houses</option>
+                <option value="men">Men's House</option>
+                <option value="women">Women's House</option>
+            </select>
+
+            <label for="statusFilter">Filter by Status:</label>
+            <select id="statusFilter" onchange="filterBedboard()">
+                <option value="all">All Statuses</option>
+                <option value="1">Status 1 (Active)</option>
+                <option value="2">Alumni</option>
+                <option value="3">Status 3</option>
+            </select>
+
+            <label for="searchInput">Search:</label>
+            <input type="text" id="searchInput" placeholder="Name, ID, Bed..." onkeyup="filterBedboard()">
+
+            <button class="print-btn" onclick="window.print()">🖨️ Print Bedboard</button>
+        </div>
+
+        <div id="loadingMessage" class="loading">Loading bedboard data...</div>
+        <div id="errorMessage" class="error" style="display: none;"></div>
+
+        <div id="mensHouse" class="house-section" style="display: none;">
+            <div class="house-header">
+                <h2>👨 Men's House</h2>
+                <span class="count" id="mensCount">0 residents</span>
+            </div>
+            <div id="mensGrid" class="bedboard-grid"></div>
+        </div>
+
+        <div id="womensHouse" class="house-section" style="display: none;">
+            <div class="house-header">
+                <h2>👩 Women's House</h2>
+                <span class="count" id="womensCount">0 residents</span>
+            </div>
+            <div id="womensGrid" class="bedboard-grid"></div>
+        </div>
+    </div>
+
+    <script>
+        const API_BASE = 'https://horizon-portal-backend-production-3532.up.railway.app';
+        // const API_BASE = 'http://localhost:3001';
+
+        let allMembers = [];
+        let allBeds = [];
+
+        // Convert Excel serial date to readable date
+        function excelDateToJS(serial) {
+            if (!serial || serial === '' || serial === 'not') return '-';
+            if (typeof serial === 'string' && serial.includes('/')) return serial;
+            
+            const excelEpoch = new Date(1899, 11, 30);
+            const jsDate = new Date(excelEpoch.getTime() + serial * 86400000);
+            
+            const month = String(jsDate.getMonth() + 1).padStart(2, '0');
+            const day = String(jsDate.getDate()).padStart(2, '0');
+            const year = jsDate.getFullYear();
+            
+            return `${month}/${day}/${year}`;
+        }
+
+        // Calculate days between dates
+        function calculateDaysSober(soberDate) {
+            if (!soberDate || soberDate === '' || soberDate === 'not') return '-';
+            
+            let jsDate;
+            if (typeof soberDate === 'number') {
+                const excelEpoch = new Date(1899, 11, 30);
+                jsDate = new Date(excelEpoch.getTime() + soberDate * 86400000);
+            } else {
+                jsDate = new Date(soberDate);
+            }
+            
+            const today = new Date();
+            const diffTime = Math.abs(today - jsDate);
+            const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
+            
+            return diffDays + ' days';
+        }
+
+        // Load member data
+        async function loadBedboard() {
+            try {
+                const response = await fetch(`${API_BASE}/api/members`);
+                if (!response.ok) throw new Error('Failed to fetch members');
+                
+                allMembers = await response.json();
+                console.log('Loaded members:', allMembers.length);
+                
+                // Filter active members: status 1/2 with a bed, or staff (4/5) flagged inCensus
+                const activeMembers = allMembers.filter(m => {
+                    const status = String(m.STATUS || m.STATU || m.status || '').trim();
+                    const bed = m.BED || m['BED#'] || m.bed || '';
+                    const isResident = (status === '1' || status === '2') && bed;
+                    const isStaffInCensus = status === '4' && m.inCensus === true && bed;
+                    return isResident || isStaffInCensus;
+                });
+                
+                console.log('Active members with beds:', activeMembers.length);
+                
+                // Group by house based on gender
+                const menMembers = activeMembers.filter(m => {
+                    const gender = (m['M/F'] || m.GENDER || '').toString().toUpperCase();
+                    return gender === 'M' || gender.startsWith('M');
+                });
+                
+                const womenMembers = activeMembers.filter(m => {
+                    const gender = (m['M/F'] || m.GENDER || '').toString().toUpperCase();
+                    return gender === 'F' || gender.startsWith('F');
+                });
+                
+                console.log('Men:', menMembers.length, 'Women:', womenMembers.length);
+                
+                renderBedboard(menMembers, womenMembers);
+                updateStats(menMembers, womenMembers);
+                
+                document.getElementById('loadingMessage').style.display = 'none';
+                document.getElementById('lastUpdated').textContent = new Date().toLocaleString();
+                
+            } catch (error) {
+                console.error('Error loading bedboard:', error);
+                document.getElementById('loadingMessage').style.display = 'none';
+                const errorEl = document.getElementById('errorMessage');
+                errorEl.textContent = 'Error loading bedboard data. Please try again later.';
+                errorEl.style.display = 'block';
+            }
+        }
+
+        // Render bedboard
+        function renderBedboard(menMembers, womenMembers) {
+            const mensGrid = document.getElementById('mensGrid');
+            const womensGrid = document.getElementById('womensGrid');
+            
+            mensGrid.innerHTML = renderHouse(menMembers);
+            womensGrid.innerHTML = renderHouse(womenMembers);
+            
+            document.getElementById('mensHouse').style.display = menMembers.length > 0 ? 'block' : 'none';
+            document.getElementById('womensHouse').style.display = womenMembers.length > 0 ? 'block' : 'none';
+            
+            document.getElementById('mensCount').textContent = `${menMembers.length} residents`;
+            document.getElementById('womensCount').textContent = `${womenMembers.length} residents`;
+        }
+
+        // Render house members
+        function renderHouse(members) {
+            if (members.length === 0) {
+                return '<div class="empty-message">No residents assigned</div>';
+            }
+            
+            // Sort members by bed number
+            const sortedMembers = [...members].sort((a, b) => {
+                const bedA = (a.BED || a['BED#'] || '').toString();
+                const bedB = (b.BED || b['BED#'] || '').toString();
+                return bedA.localeCompare(bedB, undefined, { numeric: true });
+            });
+            
+            return sortedMembers.map(member => {
+                const memberId = member.ID || '';
+                const firstName = member['FIRST\r\nNAME'] || member['FIRST\nNAME'] || member['FIRST NAME'] || '';
+                const lastName = member['LAST\r\nNAME'] || member['LAST\nNAME'] || member['LAST NAME'] || '';
+                const fullName = `${firstName} ${lastName}`.trim();
+                const nickname = member['NIC NAME'] || member.nickname || '';
+                const bed = member.BED || member['BED#'] || '-';
+                const phone = member.PHONE || member['PHONE NUMBER'] || '-';
+                const dob = member.DOB || '-';
+                const admitDate = excelDateToJS(member['ADMIT\r\nDATE'] || member['ADMIT\nDATE'] || member['ADMIT DATE'] || member.ADMIT_DATE);
+                const soberDateRaw = member['SOBER\r\nDATE'] || member['SOBER\nDATE'] || member['SOBER DATE'] || member.SOBRIETY_DATE || '';
+                const soberDate = excelDateToJS(soberDateRaw);
+                const daysSober = calculateDaysSober(soberDateRaw);
+                
+                return `
+                    <div class="bed-card occupied" data-bed="${bed}" data-name="${fullName}" data-id="${memberId}">
+                        <div class="bed-number">Bed ${bed}</div>
+                        <div class="member-name">${fullName}${nickname ? ` <span style="font-size:0.85em;font-weight:normal;opacity:0.85;">(${nickname})</span>` : ''}</div>
+                        <div class="member-info">
+                            <div class="info-row">
+                                <span class="info-label">Member ID:</span>
+                                <span class="info-value">${memberId}</span>
+                            </div>
+                            <div class="info-row">
+                                <span class="info-label">DOB:</span>
+                                <span class="info-value">${dob}</span>
+                            </div>
+                            <div class="info-row">
+                                <span class="info-label">Phone:</span>
+                                <span class="info-value">${phone}</span>
+                            </div>
+                            <div class="info-row">
+                                <span class="info-label">Admit Date:</span>
+                                <span class="info-value">${admitDate}</span>
+                            </div>
+                            <div class="info-row">
+                                <span class="info-label">Sober Date:</span>
+                                <span class="info-value">${soberDate}</span>
+                            </div>
+                            <div class="info-row">
+                                <span class="info-label">Days Sober:</span>
+                                <span class="info-value" style="color: #2e7d32; font-weight: bold;">${daysSober}</span>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        // Update statistics
+        function updateStats(menMembers, womenMembers) {
+            const totalOccupied = menMembers.length + womenMembers.length;
+            const totalBeds = 31; // Adjust based on actual capacity
+            const emptyBeds = totalBeds - totalOccupied;
+            const occupancyRate = totalBeds > 0 ? Math.round((totalOccupied / totalBeds) * 100) : 0;
+            
+            document.getElementById('totalBeds').textContent = totalBeds;
+            document.getElementById('occupiedBeds').textContent = totalOccupied;
+            document.getElementById('emptyBeds').textContent = emptyBeds;
+            document.getElementById('occupancyRate').textContent = occupancyRate + '%';
+        }
+
+        // Filter bedboard
+        function filterBedboard() {
+            const houseFilter = document.getElementById('houseFilter').value;
+            const statusFilter = document.getElementById('statusFilter').value;
+            const searchTerm = document.getElementById('searchInput').value.toLowerCase();
+            
+            // Show/hide houses based on filter
+            if (houseFilter === 'all' || houseFilter === 'men') {
+                document.getElementById('mensHouse').style.display = 'block';
+            } else {
+                document.getElementById('mensHouse').style.display = 'none';
+            }
+            
+            if (houseFilter === 'all' || houseFilter === 'women') {
+                document.getElementById('womensHouse').style.display = 'block';
+            } else {
+                document.getElementById('womensHouse').style.display = 'none';
+            }
+            
+            // Filter by search term
+            const allCards = document.querySelectorAll('.bed-card');
+            allCards.forEach(card => {
+                const name = (card.dataset.name || '').toLowerCase();
+                const id = (card.dataset.id || '').toLowerCase();
+                const bed = (card.dataset.bed || '').toLowerCase();
+                
+                const matchesSearch = !searchTerm || name.includes(searchTerm) || 
+                                     id.includes(searchTerm) || bed.includes(searchTerm);
+                
+                if (matchesSearch) {
+                    card.style.display = 'block';
+                } else {
+                    card.style.display = 'none';
+                }
+            });
+        }
+
+        // Load on page load
+        document.addEventListener('DOMContentLoaded', loadBedboard);
+    </script>
+</body>
+</html>

@@ -1,0 +1,255 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Memorandums &#x2013; Horizon House</title>
+    <style>
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: #FFF8F3; margin: 0; min-height: 100vh; }
+        header { background: #F58634; color: #fff; padding: 18px 24px; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 10px; }
+        header h1 { font-size: 20px; margin: 0; }
+        .btn-back { background: rgba(255,255,255,0.2); color: #fff; border: 1px solid rgba(255,255,255,0.4); padding: 8px 16px; border-radius: 6px; font-size: 14px; font-weight: 600; cursor: pointer; text-decoration: none; }
+        .btn-back:hover { background: rgba(255,255,255,0.35); }
+        .container { max-width: 760px; margin: 36px auto; padding: 0 20px 60px; }
+        .page-title { font-size: 1.4rem; font-weight: 700; color: #2b3440; margin-bottom: 6px; }
+        .page-sub { color: #888; font-size: 0.93rem; margin-bottom: 28px; }
+
+        /* Memo card */
+        .memo-card {
+            background: #fff;
+            border-radius: 12px;
+            box-shadow: 0 2px 12px rgba(0,0,0,0.07);
+            border: 1px solid #ede0d4;
+            margin-bottom: 24px;
+            overflow: hidden;
+        }
+        .memo-header {
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+            color: #fff;
+            padding: 16px 22px 12px;
+        }
+        .memo-label {
+            font-size: 10px;
+            font-weight: 700;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            color: #F58634;
+            margin-bottom: 6px;
+        }
+        .memo-title { font-size: 1.15rem; font-weight: 700; margin: 0 0 8px; }
+        .memo-meta { font-size: 12px; color: rgba(255,255,255,0.65); display: flex; gap: 18px; flex-wrap: wrap; }
+        .memo-body {
+            padding: 20px 22px 22px;
+            font-size: 0.95rem;
+            color: #2b3440;
+            line-height: 1.7;
+            white-space: pre-wrap;
+        }
+        .memo-footer {
+            padding: 10px 22px 14px;
+            border-top: 1px solid #f0e8df;
+            font-size: 12px;
+            color: #999;
+            text-align: right;
+        }
+
+        /* Acknowledgment section */
+        .ack-section {
+            padding: 16px 22px;
+            border-top: 2px solid #1a1a2e;
+            background: #f5f4ff;
+        }
+        .ack-needed-box {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+        .ack-notice {
+            font-size: 13px;
+            font-weight: 600;
+            color: #4a4a8a;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .btn-ack {
+            background: #1a1a2e;
+            color: #fff;
+            border: none;
+            padding: 13px 24px;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 700;
+            cursor: pointer;
+            letter-spacing: 0.02em;
+            transition: background 0.15s;
+            text-align: left;
+            line-height: 1.4;
+        }
+        .btn-ack:hover:not(:disabled) { background: #2d2d5a; }
+        .btn-ack:disabled { background: #aaa; cursor: not-allowed; }
+        .ack-done-box {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            background: #d4edda;
+            border: 1px solid #b8dfc6;
+            border-radius: 8px;
+            padding: 12px 18px;
+            color: #155724;
+            font-weight: 700;
+            font-size: 14px;
+        }
+        .ack-done-box .ack-icon { font-size: 22px; }
+
+        .empty-state { text-align: center; padding: 60px 20px; color: #bbb; }
+        .empty-state .icon { font-size: 3rem; margin-bottom: 12px; }
+        .loading { text-align: center; padding: 60px 20px; color: #aaa; }
+    </style>
+</head>
+<body>
+
+<header>
+    <h1>&#128203; Management Memorandums</h1>
+    <a class="btn-back" href="dashboard.html">&#8592; Dashboard</a>
+</header>
+
+<div class="container">
+    <div class="page-title">Memorandums from Management</div>
+    <div class="page-sub">Official communications posted by Horizon House management.</div>
+    <div id="memoContainer"><div class="loading">Loading&#8230;</div></div>
+</div>
+
+<script>
+    const API = 'https://horizon-portal-backend-production-3532.up.railway.app';
+    const memberId   = localStorage.getItem('memberId') || '';
+    const memberName = ((localStorage.getItem('memberFirstName') || '') + ' ' + (localStorage.getItem('memberLastName') || '')).trim() || memberId;
+
+    if (!memberId) {
+        window.location.href = 'dashboard.html';
+    }
+
+    function fmtDate(iso) {
+        const d = new Date(iso);
+        return d.toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' });
+    }
+
+    function escHtml(s) {
+        return String(s || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+    }
+
+    async function loadMemos() {
+        const container = document.getElementById('memoContainer');
+        localStorage.setItem('memoLastVisit', Date.now().toString());
+
+        try {
+            const res = await fetch(`${API}/api/memorandums`);
+            const memos = await res.json();
+            if (!Array.isArray(memos) || memos.length === 0) {
+                container.innerHTML = '<div class="empty-state"><div class="icon">&#128269;</div><p>No memorandums have been posted yet.</p></div>';
+                return;
+            }
+
+            // Filter memos addressed to this member
+            const memberStatus = String(localStorage.getItem('memberAccessCode') || '1');
+            function memoIsForMe(m) {
+                const r = m.recipients;
+                if (!r || r.type === 'all') return true;
+                if (r.type === 'status1') return memberStatus === '1';
+                if (r.type === 'status2') return memberStatus === '2';
+                if (r.type === 'individual') return (r.memberIds || []).map(String).includes(String(memberId));
+                return true;
+            }
+            const visibleMemos = memos.filter(memoIsForMe);
+            if (!visibleMemos.length) {
+                container.innerHTML = '<div class="empty-state"><div class="icon">&#128269;</div><p>No memorandums addressed to you at this time.</p></div>';
+                return;
+            }
+
+            container.innerHTML = visibleMemos.map(m => {
+                const alreadyAcked = (m.acknowledgments || []).some(a => String(a.memberId) === String(memberId));
+                let ackSection = '';
+                if (m.requireAck) {
+                    if (alreadyAcked) {
+                        ackSection = `
+                            <div class="ack-section">
+                                <div class="ack-done-box">
+                                    <span class="ack-icon">&#10003;</span>
+                                    <span>You have acknowledged this memorandum.</span>
+                                </div>
+                            </div>`;
+                    } else {
+                        ackSection = `
+                            <div class="ack-section">
+                                <div class="ack-needed-box">
+                                    <div class="ack-notice">&#9888; This memorandum requires your acknowledgment.</div>
+                                    <button class="btn-ack" id="ack-${escHtml(m.id)}" onclick="acknowledgeMemo('${escHtml(m.id)}')">
+                                        &#10003;&nbsp; I Have Read and Understand This Memorandum
+                                    </button>
+                                </div>
+                            </div>`;
+                    }
+                }
+                return `
+                <div class="memo-card" id="memo-${escHtml(m.id)}">
+                    <div class="memo-header">
+                        <div class="memo-label">Memorandum${m.requireAck ? ' &nbsp;&middot;&nbsp; Acknowledgment Required' : ''}</div>
+                        <div class="memo-title">${escHtml(m.title)}</div>
+                        <div class="memo-meta">
+                            <span>&#128197; ${fmtDate(m.timestamp)}</span>
+                            <span>&#9999;&#65039; ${escHtml(m.from)}</span>
+                        </div>
+                    </div>
+                    <div class="memo-body">${escHtml(m.body)}</div>
+                    ${ackSection}
+                    <div class="memo-footer">Posted ${fmtDate(m.timestamp)}</div>
+                </div>`;
+            }).join('');
+
+            // Fire view-tracking for each visible memo (fire-and-forget)
+            visibleMemos.forEach(m => {
+                fetch(`${API}/api/memorandums/${m.id}/view`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ memberId, memberName })
+                }).catch(() => {});
+            });
+
+        } catch (e) {
+            container.innerHTML = '<div class="empty-state"><div class="icon">&#9888;</div><p>Could not load memorandums. Please try again later.</p></div>';
+        }
+    }
+
+    async function acknowledgeMemo(memoId) {
+        const btn = document.getElementById('ack-' + memoId);
+        if (btn) { btn.disabled = true; btn.textContent = 'Submitting\u2026'; }
+        try {
+            const res = await fetch(`${API}/api/memorandums/${memoId}/acknowledge`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ memberId, memberName })
+            });
+            const data = await res.json();
+            if (data.success) {
+                const ackNeedBox = btn ? btn.closest('.ack-needed-box') : null;
+                if (ackNeedBox) {
+                    ackNeedBox.innerHTML = `
+                        <div class="ack-done-box">
+                            <span class="ack-icon">&#10003;</span>
+                            <span>You have acknowledged this memorandum.</span>
+                        </div>`;
+                }
+            } else {
+                if (btn) { btn.disabled = false; btn.textContent = '\u2713\u00A0 I Have Read and Understand This Memorandum'; }
+            }
+        } catch (e) {
+            if (btn) { btn.disabled = false; btn.textContent = '\u2713\u00A0 I Have Read and Understand This Memorandum'; }
+            alert('Network error. Please try again.');
+        }
+    }
+    window.acknowledgeMemo = acknowledgeMemo;
+
+    loadMemos();
+</script>
+</body>
+</html>

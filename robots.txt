@@ -1,0 +1,11 @@
+# Horizon House Robots.txt
+User-agent: *
+Allow: /
+
+# Disallow private/internal pages
+Disallow: /staff-dashboard.html
+Disallow: /horizon-portal/
+Disallow: /test/
+
+# Sitemap location
+Sitemap: https://horizon-house.org/sitemap.xml

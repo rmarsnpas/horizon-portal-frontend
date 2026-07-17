@@ -1,0 +1,259 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>24 Hours A Day – Horizon House</title>
+  <style>
+    :root { --hh-primary: #F58634; --hh-bg: #FFF8F3; }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: var(--hh-bg); min-height: 100vh; }
+    header { background: var(--hh-primary); color: #fff; padding: 18px 24px; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 10px; }
+    header h1 { font-size: 20px; }
+    .btn-back { background: rgba(255,255,255,0.2); color: #fff; border: 1px solid rgba(255,255,255,0.4); padding: 8px 16px; border-radius: 6px; font-size: 14px; font-weight: 600; text-decoration: none; }
+    .btn-back:hover { background: rgba(255,255,255,0.35); }
+    .container { max-width: 780px; margin: 0 auto; padding: 28px 20px 60px; }
+
+    /* Date nav bar */
+    .date-nav { display: flex; align-items: center; justify-content: center; gap: 12px; margin-bottom: 28px; flex-wrap: wrap; }
+    .date-nav button { background: #F58634; color: #fff; border: none; padding: 10px 18px; border-radius: 8px; font-size: 15px; font-weight: 700; cursor: pointer; transition: background 0.15s; }
+    .date-nav button:hover { background: #c95f00; }
+    .date-nav select { padding: 10px 14px; border: 2px solid #f0e8df; border-radius: 8px; font-size: 15px; font-family: inherit; background: #fff; color: #2b3440; cursor: pointer; appearance: none; -webkit-appearance: none; }
+    .date-nav select:focus { outline: none; border-color: #F58634; }
+
+    /* Reading card */
+    .reading-card { background: #fff; border-radius: 16px; box-shadow: 0 3px 16px rgba(0,0,0,0.09); padding: 32px 36px; border: 1px solid #f0e8df; }
+    .reading-date { font-size: 13px; font-weight: 700; color: #F58634; text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 24px; }
+    .reading-section { margin-bottom: 28px; }
+    .reading-section:last-child { margin-bottom: 0; }
+    .section-title { font-size: 16px; font-weight: 800; color: #2b3440; margin-bottom: 12px; display: flex; align-items: center; gap: 8px; }
+    .section-text p { font-size: 15px; line-height: 1.75; color: #4a5568; margin-bottom: 10px; }
+    .section-text p:last-child { margin-bottom: 0; }
+    .section-thought { border-left: 4px solid #F58634; padding-left: 16px; }
+    .section-meditation { border-left: 4px solid #667eea; padding-left: 16px; }
+    .section-prayer { border-left: 4px solid #38a169; padding-left: 16px; }
+    .section-title.thought-title { color: #c95f00; }
+    .section-title.med-title { color: #4c51bf; }
+    .section-title.prayer-title { color: #276749; }
+
+    /* States */
+    .loading-state, .error-state { text-align: center; padding: 60px 24px; color: #718096; }
+    .loading-state .spinner { font-size: 40px; animation: spin 1s linear infinite; display: inline-block; margin-bottom: 16px; }
+    @keyframes spin { to { transform: rotate(360deg); } }
+    .error-state p { margin-bottom: 18px; font-size: 15px; }
+    .btn-external { display: inline-block; background: #F58634; color: #fff; text-decoration: none; padding: 10px 20px; border-radius: 8px; font-weight: 700; font-size: 14px; }
+    .btn-external:hover { background: #c95f00; }
+
+    /* Bottom buttons */
+    .bottom-bar { display: flex; gap: 14px; justify-content: center; flex-wrap: wrap; margin-top: 32px; }
+    .btn-resources { background: #fff; color: #F58634; border: 2px solid #F58634; padding: 12px 24px; border-radius: 8px; font-weight: 700; font-size: 15px; text-decoration: none; }
+    .btn-resources:hover { background: #FFF8F3; }
+    .btn-source { background: #edf2f7; color: #4a5568; padding: 12px 24px; border-radius: 8px; font-weight: 600; font-size: 14px; text-decoration: none; }
+    .btn-source:hover { background: #e2e8f0; }
+
+    @media (max-width: 600px) {
+      .reading-card { padding: 22px 18px; }
+      .date-nav button { padding: 9px 14px; font-size: 14px; }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>🕐 24 Hours A Day</h1>
+    <a href="recovery-resources.html" class="btn-back">← Back to Resources</a>
+  </header>
+
+  <div class="container">
+    <div class="date-nav">
+      <button onclick="shiftDay(-1)">&#9664; Prev</button>
+      <select id="monthPicker" onchange="onSelectChange()">
+        <option value="0">January</option>
+        <option value="1">February</option>
+        <option value="2">March</option>
+        <option value="3">April</option>
+        <option value="4">May</option>
+        <option value="5">June</option>
+        <option value="6">July</option>
+        <option value="7">August</option>
+        <option value="8">September</option>
+        <option value="9">October</option>
+        <option value="10">November</option>
+        <option value="11">December</option>
+      </select>
+      <select id="dayPicker" onchange="onSelectChange()">
+        <option value="1">1</option><option value="2">2</option><option value="3">3</option><option value="4">4</option><option value="5">5</option><option value="6">6</option><option value="7">7</option><option value="8">8</option><option value="9">9</option><option value="10">10</option><option value="11">11</option><option value="12">12</option><option value="13">13</option><option value="14">14</option><option value="15">15</option><option value="16">16</option><option value="17">17</option><option value="18">18</option><option value="19">19</option><option value="20">20</option><option value="21">21</option><option value="22">22</option><option value="23">23</option><option value="24">24</option><option value="25">25</option><option value="26">26</option><option value="27">27</option><option value="28">28</option><option value="29">29</option><option value="30">30</option><option value="31">31</option>
+      </select>
+      <button onclick="shiftDay(1)">Next &#9654;</button>
+    </div>
+
+    <div id="readingArea">
+      <div class="loading-state">
+        <div class="spinner">⏳</div>
+        <p>Loading today's reading…</p>
+      </div>
+    </div>
+
+    <div class="bottom-bar">
+      <a href="recovery-resources.html" class="btn-resources">← Back to Resources</a>
+      <a href="https://saddlebackclub.com/Twenty-Four-Hours-365.html" target="_blank" rel="noopener noreferrer" class="btn-source">View Full Book ↗</a>
+    </div>
+  </div>
+
+  <script>
+    let cachedText = null;
+    let currentDate = new Date();
+
+    // Month prefixes as they appear in the source text
+    const MONTH_PREFIXES = ['JAN','FEB','MAR','APR','MAY','JUN','JUL','AUG','SEP','OCT','NOV','Dec'];
+
+    // ---- Init ----------------------------------------------------------------
+    const monthPicker = document.getElementById('monthPicker');
+    const dayPicker = document.getElementById('dayPicker');
+    monthPicker.value = currentDate.getMonth();
+    dayPicker.value = currentDate.getDate();
+    fetchAndDisplay(currentDate);
+
+    // ---- Date helpers --------------------------------------------------------
+    function setSelects(d) {
+      monthPicker.value = d.getMonth();
+      dayPicker.value = d.getDate();
+    }
+
+    function fromSelects() {
+      const m = parseInt(monthPicker.value, 10);
+      const day = parseInt(dayPicker.value, 10);
+      return new Date(currentDate.getFullYear(), m, day);
+    }
+
+    function shiftDay(delta) {
+      const d = new Date(currentDate);
+      d.setDate(d.getDate() + delta);
+      currentDate = d;
+      setSelects(d);
+      displayReading(d);
+    }
+
+    function onSelectChange() {
+      currentDate = fromSelects();
+      displayReading(currentDate);
+    }
+
+    // ---- Fetch ---------------------------------------------------------------
+    async function fetchAndDisplay(date) {
+      showLoading();
+      try {
+        if (!cachedText) {
+          const url = 'https://saddlebackclub.com/Twenty-Four-Hours-365.html';
+          const proxy = 'https://api.allorigins.win/get?url=' + encodeURIComponent(url);
+          const res = await fetch(proxy);
+          if (!res.ok) throw new Error('proxy error');
+          const json = await res.json();
+          const parser = new DOMParser();
+          const doc = parser.parseFromString(json.contents, 'text/html');
+          // Collapse whitespace sequences but preserve newlines
+          cachedText = (doc.body.innerText || doc.body.textContent || '').replace(/\r\n/g, '\n');
+        }
+        displayReading(date);
+      } catch (e) {
+        showError();
+      }
+    }
+
+    // ---- Display -------------------------------------------------------------
+    function displayReading(date) {
+      if (!cachedText) { fetchAndDisplay(date); return; }
+
+      const mo = MONTH_PREFIXES[date.getMonth()];
+      const day = date.getDate();
+      const dayZ = String(day).padStart(2, '0');
+
+      // Build candidate search strings (handle Dec edge case & zero-padding variance)
+      const isDecember = date.getMonth() === 11;
+      const candidates = isDecember
+        ? [`Dec December ${dayZ}`, `Dec December ${day}`]
+        : [`${mo} ${dayZ}`, `${mo} ${day}—`, `${mo} ${day} `];
+
+      let startIdx = -1;
+      for (const c of candidates) {
+        const idx = cachedText.indexOf(c);
+        if (idx !== -1) { startIdx = idx; break; }
+      }
+
+      if (startIdx === -1) { showNotFound(date); return; }
+
+      // Find next *** separator to mark the end of this entry
+      const endIdx = cachedText.indexOf('***', startIdx + 10);
+      const raw = (endIdx !== -1 ? cachedText.slice(startIdx, endIdx) : cachedText.slice(startIdx, startIdx + 3000)).trim();
+
+      renderReading(raw, date);
+    }
+
+    function escape(s) {
+      return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+    }
+
+    function renderReading(raw, date) {
+      const lines = raw.split('\n').map(l => l.trim()).filter(l => l.length > 0);
+
+      const medIdx = lines.findIndex(l => l === 'Meditation for the Day' || l.startsWith('Meditation for the Day'));
+      const prayIdx = lines.findIndex(l => l === 'Prayer for the Day' || l.startsWith('Prayer for the Day'));
+
+      const headerLine = lines[0];
+      const thoughtLines = lines.slice(1, medIdx > 0 ? medIdx : lines.length);
+      const medLines = medIdx > 0 ? lines.slice(medIdx + 1, prayIdx > 0 ? prayIdx : lines.length) : [];
+      const prayLines = prayIdx > 0 ? lines.slice(prayIdx + 1) : [];
+
+      const dateLabel = date.toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' });
+
+      const thoughtHtml = thoughtLines.map(l => `<p>${escape(l)}</p>`).join('');
+      const medHtml = medLines.map(l => `<p>${escape(l)}</p>`).join('');
+      const prayHtml = prayLines.map(l => `<p>${escape(l)}</p>`).join('');
+
+      document.getElementById('readingArea').innerHTML = `
+        <div class="reading-card">
+          <div class="reading-date">${escape(dateLabel)}</div>
+
+          <div class="reading-section">
+            <div class="section-title thought-title">💭 Thought for the Day</div>
+            <div class="section-text section-thought">${thoughtHtml}</div>
+          </div>
+
+          ${medHtml ? `<div class="reading-section">
+            <div class="section-title med-title">🧘 Meditation for the Day</div>
+            <div class="section-text section-meditation">${medHtml}</div>
+          </div>` : ''}
+
+          ${prayHtml ? `<div class="reading-section">
+            <div class="section-title prayer-title">🙏 Prayer for the Day</div>
+            <div class="section-text section-prayer">${prayHtml}</div>
+          </div>` : ''}
+        </div>`;
+    }
+
+    // ---- States --------------------------------------------------------------
+    function showLoading() {
+      document.getElementById('readingArea').innerHTML = `
+        <div class="loading-state">
+          <div class="spinner">⏳</div>
+          <p>Loading today's reading…</p>
+        </div>`;
+    }
+
+    function showError() {
+      document.getElementById('readingArea').innerHTML = `
+        <div class="error-state">
+          <p>Could not load the reading right now. Please check your connection or visit the source site.</p>
+          <a href="https://saddlebackclub.com/Twenty-Four-Hours-365.html" target="_blank" rel="noopener noreferrer" class="btn-external">Open Full Book ↗</a>
+        </div>`;
+    }
+
+    function showNotFound(date) {
+      const dateLabel = date.toLocaleDateString('en-US', { month: 'long', day: 'numeric' });
+      document.getElementById('readingArea').innerHTML = `
+        <div class="error-state">
+          <p>No reading found for <strong>${escape(dateLabel)}</strong>. Try another day using the arrows above.</p>
+        </div>`;
+    }
+  </script>
+</body>
+</html>

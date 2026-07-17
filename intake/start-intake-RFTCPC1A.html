@@ -1,0 +1,311 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Start Intake Process - Horizon House</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 600px;
+            width: 100%;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 50px 40px;
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 42px;
+            margin-bottom: 15px;
+        }
+
+        .header p {
+            font-size: 20px;
+            opacity: 0.95;
+        }
+
+        .content {
+            padding: 50px 40px;
+        }
+
+        .info-box {
+            background: #eef2ff;
+            border-left: 4px solid #667eea;
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 30px;
+        }
+
+        .info-box h3 {
+            color: #4338ca;
+            margin-bottom: 10px;
+            font-size: 18px;
+        }
+
+        .info-box p {
+            color: #4338ca;
+            line-height: 1.6;
+            font-size: 15px;
+        }
+
+        .form-group {
+            margin-bottom: 25px;
+        }
+
+        .form-group label {
+            display: block;
+            color: #2d3748;
+            font-weight: 600;
+            margin-bottom: 10px;
+            font-size: 18px;
+        }
+
+        .form-group input {
+            width: 100%;
+            padding: 18px;
+            border: 2px solid #e2e8f0;
+            border-radius: 12px;
+            font-size: 20px;
+            font-family: inherit;
+            transition: border-color 0.2s;
+            text-align: center;
+            font-weight: 600;
+        }
+
+        .form-group input:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        .required {
+            color: #e53e3e;
+        }
+
+        .btn-primary {
+            width: 100%;
+            padding: 20px;
+            background: #667eea;
+            color: white;
+            border: none;
+            border-radius: 12px;
+            font-size: 20px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .btn-primary:hover {
+            background: #5568d3;
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(102, 126, 234, 0.4);
+        }
+
+        .btn-primary:disabled {
+            background: #cbd5e0;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 20px;
+            display: none;
+        }
+
+        .loading-spinner {
+            border: 4px solid #e2e8f0;
+            border-top: 4px solid #667eea;
+            border-radius: 50%;
+            width: 50px;
+            height: 50px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 15px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .error-message {
+            background: #fff5f5;
+            color: #c53030;
+            padding: 15px;
+            border-radius: 8px;
+            margin-top: 15px;
+            display: none;
+            border-left: 4px solid #e53e3e;
+        }
+
+        .forms-list {
+            background: #f7fafc;
+            padding: 20px;
+            border-radius: 8px;
+            margin-top: 30px;
+        }
+
+        .forms-list h3 {
+            color: #2d3748;
+            margin-bottom: 15px;
+            font-size: 16px;
+        }
+
+        .forms-list ol {
+            margin-left: 20px;
+            color: #4a5568;
+            line-height: 2;
+        }
+
+        .forms-list li {
+            font-size: 15px;
+        }
+
+        @media (max-width: 768px) {
+            .header h1 {
+                font-size: 32px;
+            }
+            .content {
+                padding: 30px 25px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🏠 New Member Intake</h1>
+            <p>Begin the intake process</p>
+        </div>
+
+        <div class="content">
+            <div class="info-box">
+                <h3>📋 Staff Instructions</h3>
+                <p>Enter the Member ID from the members.xlsx spreadsheet. This will auto-populate member information across all intake forms.</p>
+            </div>
+
+            <form id="startIntakeForm">
+                <div class="form-group">
+                    <label>Member ID <span class="required">*</span></label>
+                    <input 
+                        type="text" 
+                        id="memberId" 
+                        placeholder="Enter Member ID" 
+                        required
+                        autocomplete="off"
+                        pattern="[0-9]+"
+                        title="Please enter a numeric Member ID"
+                    >
+                </div>
+
+                <button type="submit" class="btn-primary" id="startButton">
+                    Start Intake Process →
+                </button>
+
+                <div class="loading" id="loading">
+                    <div class="loading-spinner"></div>
+                    <p style="color: #4a5568;">Loading member information...</p>
+                </div>
+
+                <div class="error-message" id="errorMessage"></div>
+            </form>
+
+            <div class="forms-list">
+                <h3>📄 Forms to Complete (6 total):</h3>
+                <ol>
+                    <li>Member Agreement (24 house rules)</li>
+                    <li>Licensee Agreement (no tenancy rights)</li>
+                    <li>Release of Information</li>
+                    <li>Emergency Contact Information</li>
+                    <li>Facilities Liability Release</li>
+                    <li>Personal Property Release</li>
+                </ol>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const API_URL = 'https://horizon-portal-backend-production-3532.up.railway.app';
+
+        document.getElementById('startIntakeForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+
+            const memberId = document.getElementById('memberId').value.trim();
+            const startButton = document.getElementById('startButton');
+            const loading = document.getElementById('loading');
+            const errorMessage = document.getElementById('errorMessage');
+
+            // Hide error, show loading
+            errorMessage.style.display = 'none';
+            startButton.disabled = true;
+            loading.style.display = 'block';
+
+            try {
+                // Fetch member data from backend
+                const response = await fetch(`${API_URL}/api/members/${memberId}`);
+                
+                if (!response.ok) {
+                    throw new Error('Member not found');
+                }
+
+                const memberData = await response.json();
+
+                // Store member data in sessionStorage for use across forms
+                const intakeData = {
+                    memberId: memberId,
+                    firstName: memberData['First Name'] || memberData.firstName || '',
+                    lastName: memberData['Last Name'] || memberData.lastName || '',
+                    dateOfBirth: memberData['Date of Birth'] || memberData.dob || '',
+                    phone: memberData['Phone'] || memberData.phone || '',
+                    admissionDate: memberData['Admission Date'] || new Date().toISOString().split('T')[0],
+                    roomAssignment: memberData['Room'] || memberData.room || '',
+                    monthlyFee: memberData['Monthly Fee'] || memberData.fee || '$800',
+                    startedAt: new Date().toISOString()
+                };
+
+                sessionStorage.setItem('intakeData', JSON.stringify(intakeData));
+                sessionStorage.setItem('intakeProgress', JSON.stringify({
+                    currentForm: 1,
+                    completedForms: []
+                }));
+
+                // Redirect to first form
+                window.location.href = 'member-agreement.html?intake=true';
+
+            } catch (error) {
+                console.error('Error loading member:', error);
+                errorMessage.textContent = `Error: Member ID "${memberId}" not found. Please verify the ID and try again.`;
+                errorMessage.style.display = 'block';
+                startButton.disabled = false;
+                loading.style.display = 'none';
+            }
+        });
+
+        // Auto-focus on member ID input
+        document.getElementById('memberId').focus();
+    </script>
+</body>
+</html>
