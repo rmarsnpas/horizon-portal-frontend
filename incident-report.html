@@ -1,0 +1,363 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Incident Report – Horizon House</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: Arial, sans-serif;
+      font-size: 15px;
+      background: #f0f2f8;
+      color: #1a1a2e;
+      min-height: 100vh;
+    }
+
+    /* ── Header ── */
+    .page-header {
+      background: linear-gradient(135deg, #1a1a2e 0%, #1a3a5c 100%);
+      color: white;
+      padding: 18px 28px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      box-shadow: 0 2px 12px rgba(0,0,0,0.3);
+    }
+    .page-header .org { font-size: 1.25rem; font-weight: 800; letter-spacing: .4px; }
+    .page-header .sub { font-size: 11px; opacity: .75; margin-top: 2px; font-style: italic; }
+    .back-link {
+      color: rgba(255,255,255,.8);
+      text-decoration: none;
+      font-size: 13px;
+      font-weight: 600;
+      border: 1px solid rgba(255,255,255,.3);
+      border-radius: 6px;
+      padding: 6px 14px;
+      transition: background .15s;
+    }
+    .back-link:hover { background: rgba(255,255,255,.12); }
+
+    /* ── Card ── */
+    .card {
+      background: white;
+      border-radius: 14px;
+      box-shadow: 0 4px 24px rgba(0,0,0,.10);
+      max-width: 720px;
+      margin: 32px auto;
+      padding: 36px 40px;
+    }
+    .card h2 {
+      font-size: 1.35rem;
+      font-weight: 800;
+      color: #1a1a2e;
+      margin-bottom: 6px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .card .subtitle {
+      font-size: 12.5px;
+      color: #888;
+      margin-bottom: 28px;
+      padding-bottom: 18px;
+      border-bottom: 1px solid #eee;
+    }
+
+    /* ── Form layout ── */
+    .form-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 18px 24px;
+    }
+    .form-group { display: flex; flex-direction: column; gap: 5px; }
+    .form-group.full { grid-column: 1 / -1; }
+
+    label {
+      font-size: 12.5px;
+      font-weight: 700;
+      color: #444;
+      letter-spacing: .2px;
+      text-transform: uppercase;
+    }
+    input[type="text"],
+    input[type="datetime-local"],
+    select,
+    textarea {
+      width: 100%;
+      padding: 10px 12px;
+      border: 1px solid #d0d5e0;
+      border-radius: 7px;
+      font-size: 14px;
+      font-family: inherit;
+      color: #1a1a2e;
+      background: #fafbfd;
+      transition: border-color .15s, box-shadow .15s;
+    }
+    input:focus, select:focus, textarea:focus {
+      outline: none;
+      border-color: #4a7fd4;
+      box-shadow: 0 0 0 3px rgba(74,127,212,.15);
+      background: #fff;
+    }
+    textarea { resize: vertical; }
+
+    /* ── Section label ── */
+    .section-label {
+      grid-column: 1 / -1;
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 1px;
+      color: #aaa;
+      text-transform: uppercase;
+      margin-top: 6px;
+      padding-bottom: 6px;
+      border-bottom: 1px solid #f0f0f0;
+    }
+
+    /* ── Buttons ── */
+    .btn-row {
+      grid-column: 1 / -1;
+      display: flex;
+      gap: 12px;
+      margin-top: 10px;
+      flex-wrap: wrap;
+    }
+    .btn {
+      padding: 12px 28px;
+      border: none;
+      border-radius: 8px;
+      font-size: 14px;
+      font-weight: 700;
+      cursor: pointer;
+      transition: opacity .15s, transform .1s;
+    }
+    .btn:hover { opacity: .88; }
+    .btn:active { transform: scale(.98); }
+    .btn-primary { background: #1a1a2e; color: white; flex: 1; }
+    .btn-secondary { background: #e8eaf0; color: #1a1a2e; }
+    .btn-print { background: #4a7fd4; color: white; }
+
+    /* ── Toast / status ── */
+    #statusMsg {
+      grid-column: 1 / -1;
+      display: none;
+      border-radius: 8px;
+      padding: 14px 18px;
+      font-size: 14px;
+      font-weight: 600;
+    }
+    #statusMsg.success { background: #d4edda; color: #155724; border: 1px solid #c3e6cb; }
+    #statusMsg.error   { background: #f8d7da; color: #721c24; border: 1px solid #f5c6cb; }
+
+    /* ── Required star ── */
+    .req { color: #dc3545; margin-left: 2px; }
+
+    /* ── Print styles ── */
+    @media print {
+      body { background: white; font-size: 12px; }
+      .page-header { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+      .card { box-shadow: none; margin: 0; padding: 20px; max-width: 100%; border-radius: 0; }
+      .btn-row, .back-link { display: none !important; }
+      input, select, textarea {
+        border: 1px solid #ccc !important;
+        background: white !important;
+        box-shadow: none !important;
+      }
+      .section-label { color: #555 !important; }
+    }
+
+    @media (max-width: 560px) {
+      .card { margin: 16px; padding: 22px 18px; }
+      .form-grid { grid-template-columns: 1fr; }
+      .form-group.full { grid-column: 1; }
+      .section-label { grid-column: 1; }
+      .btn-row { grid-column: 1; }
+    }
+  </style>
+</head>
+<body>
+
+<header class="page-header">
+  <div>
+    <div class="org">Horizon House</div>
+    <div class="sub">Staff Portal – Incident Report</div>
+  </div>
+  <a href="/staff-dashboard.html" class="back-link">← Dashboard</a>
+</header>
+
+<div class="card">
+  <h2>🚨 Incident Report</h2>
+  <p class="subtitle">Complete all required fields (<span class="req">*</span>) and submit. A copy can be printed after submission.</p>
+
+  <form id="incidentForm" autocomplete="off">
+    <div class="form-grid">
+
+      <div class="section-label">Incident Details</div>
+
+      <div class="form-group">
+        <label for="incidentDate">Date &amp; Time of Incident <span class="req">*</span></label>
+        <input type="datetime-local" id="incidentDate" name="incidentDate" required>
+      </div>
+
+      <div class="form-group">
+        <label for="location">Location <span class="req">*</span></label>
+        <input type="text" id="location" name="location" placeholder="e.g. Women's House – Living Room" required>
+      </div>
+
+      <div class="form-group full">
+        <label for="incidentType">Incident Type <span class="req">*</span></label>
+        <select id="incidentType" name="incidentType" required>
+          <option value="">— Select one —</option>
+          <option>Behavioral</option>
+          <option>Medical</option>
+          <option>Property Damage</option>
+          <option>Policy Violation</option>
+          <option>Relapse / Substance Use</option>
+          <option>Altercation</option>
+          <option>Other</option>
+        </select>
+      </div>
+
+      <div class="section-label">People Involved</div>
+
+      <div class="form-group">
+        <label for="staffName">Reporting Staff Member <span class="req">*</span></label>
+        <input type="text" id="staffName" name="staffName" required>
+      </div>
+
+      <div class="form-group">
+        <label for="residentName">Resident(s) Involved <span class="req">*</span></label>
+        <input type="text" id="residentName" name="residentName" placeholder="Full name(s)" required>
+      </div>
+
+      <div class="form-group full">
+        <label for="witnesses">Witnesses</label>
+        <input type="text" id="witnesses" name="witnesses" placeholder="Names separated by commas (leave blank if none)">
+      </div>
+
+      <div class="section-label">Description</div>
+
+      <div class="form-group full">
+        <label for="description">Description of Incident <span class="req">*</span></label>
+        <textarea id="description" name="description" rows="5" placeholder="Describe what happened, in chronological order…" required></textarea>
+      </div>
+
+      <div class="form-group full">
+        <label for="actionsTaken">Actions Taken <span class="req">*</span></label>
+        <textarea id="actionsTaken" name="actionsTaken" rows="4" placeholder="What steps were taken immediately following the incident?" required></textarea>
+      </div>
+
+      <div class="section-label">Follow‑Up</div>
+
+      <div class="form-group full">
+        <label for="followUp">Follow‑Up Required? <span class="req">*</span></label>
+        <select id="followUp" name="followUp" required>
+          <option value="">— Select one —</option>
+          <option value="No">No – Resolved</option>
+          <option value="Yes – Staff">Yes – Staff Follow‑Up</option>
+          <option value="Yes – Medical">Yes – Medical Attention</option>
+          <option value="Yes – Admin Review">Yes – Admin Review</option>
+          <option value="Yes – 911 / Emergency Services">Yes – 911 / Emergency Services</option>
+        </select>
+      </div>
+
+      <div id="statusMsg"></div>
+
+      <div class="btn-row">
+        <button type="submit" class="btn btn-primary">📤 Submit Report</button>
+        <button type="button" class="btn btn-secondary" onclick="resetForm()">Clear</button>
+        <button type="button" class="btn btn-print" id="printBtn" style="display:none;" onclick="window.print()">🖨️ Print / Save PDF</button>
+      </div>
+
+    </div>
+  </form>
+</div>
+
+<script>
+  const API = 'https://horizon-portal-backend-production-3532.up.railway.app/api/incidents';
+
+  // Pre-fill datetime to now
+  (function () {
+    const now = new Date();
+    now.setSeconds(0, 0);
+    const local = new Date(now.getTime() - now.getTimezoneOffset() * 60000)
+      .toISOString().slice(0, 16);
+    document.getElementById('incidentDate').value = local;
+  })();
+
+  document.getElementById('incidentForm').addEventListener('submit', async function (e) {
+    e.preventDefault();
+    const btn = this.querySelector('button[type="submit"]');
+    btn.disabled = true;
+    btn.textContent = '⏳ Submitting…';
+
+    const payload = {
+      staffName:    document.getElementById('staffName').value.trim(),
+      residentName: document.getElementById('residentName').value.trim(),
+      incidentDate: document.getElementById('incidentDate').value,
+      location:     document.getElementById('location').value.trim(),
+      incidentType: document.getElementById('incidentType').value,
+      description:  document.getElementById('description').value.trim(),
+      actionsTaken: document.getElementById('actionsTaken').value.trim(),
+      witnesses:    document.getElementById('witnesses').value.trim(),
+      followUp:     document.getElementById('followUp').value,
+      submittedAt:  new Date().toISOString(),
+    };
+
+    const msg = document.getElementById('statusMsg');
+
+    try {
+      const res = await fetch(API, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload),
+      });
+
+      if (res.ok) {
+        showStatus('success', '✅ Incident report submitted successfully. Use the Print button to save a copy.');
+        document.getElementById('printBtn').style.display = 'inline-block';
+        btn.textContent = '✅ Submitted';
+      } else {
+        const err = await res.text();
+        showStatus('error', `⚠️ Server error (${res.status}): ${err || 'Unknown error'}. Please print and file manually.`);
+        document.getElementById('printBtn').style.display = 'inline-block';
+        btn.disabled = false;
+        btn.textContent = '📤 Submit Report';
+      }
+    } catch (networkErr) {
+      // No backend endpoint yet — offer print fallback
+      showStatus('error', '⚠️ Could not reach server. Use the Print button to save / file this report manually.');
+      document.getElementById('printBtn').style.display = 'inline-block';
+      btn.disabled = false;
+      btn.textContent = '📤 Submit Report';
+    }
+  });
+
+  function showStatus(type, text) {
+    const msg = document.getElementById('statusMsg');
+    msg.className = type;
+    msg.textContent = text;
+    msg.style.display = 'block';
+    msg.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+  }
+
+  function resetForm() {
+    document.getElementById('incidentForm').reset();
+    const msg = document.getElementById('statusMsg');
+    msg.style.display = 'none';
+    document.getElementById('printBtn').style.display = 'none';
+    const btn = document.querySelector('button[type="submit"]');
+    btn.disabled = false;
+    btn.textContent = '📤 Submit Report';
+    // Re-set datetime to now
+    const now = new Date();
+    now.setSeconds(0, 0);
+    const local = new Date(now.getTime() - now.getTimezoneOffset() * 60000)
+      .toISOString().slice(0, 16);
+    document.getElementById('incidentDate').value = local;
+  }
+</script>
+</body>
+</html>
