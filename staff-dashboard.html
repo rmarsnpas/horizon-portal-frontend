@@ -1417,7 +1417,7 @@ ${rateSummaryHtml}
                         const body = document.getElementById('irReviewsBody');
                         body.innerHTML = '<p style="color:#888;text-align:center;padding:20px;">Loading…</p>';
                         try {
-                            const res = await fetch(API + '/api/incidents?status=pending');
+                            const res = await fetch(API_BASE + '/api/incidents?status=pending');
                             if (!res.ok) throw new Error('HTTP ' + res.status);
                             const list = await res.json();
                             if (!Array.isArray(list) || list.length === 0) {
@@ -1455,7 +1455,7 @@ ${rateSummaryHtml}
                     window.approveIncident = async function(id) {
                         if (!confirm('Approve this incident report and file to EMR?')) return;
                         try {
-                            const res = await fetch(API + '/api/incidents/' + id, {
+                            const res = await fetch(API_BASE + '/api/incidents/' + id, {
                                 method: 'PATCH',
                                 headers: {'Content-Type':'application/json'},
                                 body: JSON.stringify({status:'approved', approvedAt: new Date().toISOString()})
@@ -1474,7 +1474,7 @@ ${rateSummaryHtml}
                     window.returnIncident = async function(id) {
                         const note = prompt('Reason for returning (optional):') || '';
                         try {
-                            await fetch(API + '/api/incidents/' + id, {
+                            await fetch(API_BASE + '/api/incidents/' + id, {
                                 method: 'PATCH',
                                 headers: {'Content-Type':'application/json'},
                                 body: JSON.stringify({status:'returned', returnNote: note, returnedAt: new Date().toISOString()})
@@ -4081,7 +4081,7 @@ ${rateSummaryHtml}
 
                 // Load pending incident report count
                 try {
-                    const irRes = await fetch(API + '/api/incidents?status=pending');
+                    const irRes = await fetch(API_BASE + '/api/incidents?status=pending');
                     if (irRes.ok) {
                         const incidents = await irRes.json();
                         const cnt = Array.isArray(incidents) ? incidents.length : 0;
