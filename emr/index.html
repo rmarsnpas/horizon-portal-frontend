@@ -835,18 +835,36 @@ async function markSaved(docId, btn) {
 // ── Preview ───────────────────────────────────────────────────────────────────
 function previewDocCached(cacheKey) {
   const cached = _emrViewCache[cacheKey];
-  if (!cached) return;
+  if (!cached) { alert('Could not load document — please refresh the page and try again.'); return; }
   const d = cached.doc;
-  // Use GCS URL directly when available; otherwise go through backend serve route
   const url = d.gcsUrl || `${API}/member-documents/file/${encodeURIComponent(d.filename)}`;
   _previewDoc = { docId: d.id, isPdf: d.isPdf };
   document.getElementById('previewTitle').textContent = (d.docType || '') + ' — ' + (d.originalName || d.filename);
   document.getElementById('btnSaveRec').style.display = d.savedToRecord ? 'none' : '';
-  if (d.isPdf) {
-    document.getElementById('previewContent').innerHTML = `<iframe src="${url}" title="${esc(d.originalName)}" style="width:80vw;height:75vh;border:none;border-radius:6px;"></iframe>`;
+
+  const mime = (d.mimeType || '').toLowerCase();
+  const fname = (d.filename || '').toLowerCase();
+  const isPdf = d.isPdf || mime === 'application/pdf' || fname.endsWith('.pdf');
+  const isImage = mime.startsWith('image/') || /\.(jpg|jpeg|png|gif|webp|bmp|heic)$/.test(fname);
+  const isVideo = mime.startsWith('video/') || /\.(mp4|mov|avi|mkv|mts|m4v|wmv)$/.test(fname);
+  const openLink = `<div style="text-align:center;margin-top:10px;"><a href="${url}" target="_blank" rel="noopener noreferrer" style="color:#2b6cb0;font-size:0.85rem;">🔗 Open in new tab</a></div>`;
+
+  let inner;
+  if (isPdf) {
+    inner = `<iframe src="${url}" title="${esc(d.originalName)}" style="width:80vw;height:75vh;border:none;border-radius:6px;"></iframe>${openLink}`;
+  } else if (isImage) {
+    inner = `<img src="${url}" alt="${esc(d.originalName)}" style="max-width:100%;max-height:72vh;display:block;margin:0 auto;">${openLink}`;
+  } else if (isVideo) {
+    inner = `<video controls style="max-width:100%;max-height:72vh;display:block;margin:0 auto;border-radius:6px;"><source src="${url}" type="${esc(mime || 'video/mp4')}">Your browser does not support this video format.</video>${openLink}`;
   } else {
-    document.getElementById('previewContent').innerHTML = `<img src="${url}" alt="${esc(d.originalName)}" style="max-width:100%;max-height:75vh;display:block;margin:0 auto;">`;
+    inner = `<div style="text-align:center;padding:40px 20px;">
+      <div style="font-size:3rem;margin-bottom:12px;">📎</div>
+      <div style="color:#4a5568;margin-bottom:20px;font-size:1rem;">${esc(d.originalName || d.filename)}</div>
+      <a href="${url}" download="${esc(d.originalName || d.filename)}" class="btn-view" style="display:inline-block;padding:10px 24px;text-decoration:none;margin:4px;">⬇ Download File</a>
+      <a href="${url}" target="_blank" rel="noopener noreferrer" class="btn-view" style="display:inline-block;padding:10px 24px;text-decoration:none;margin:4px;background:#2b6cb0;">🔗 Open in New Tab</a>
+    </div>`;
   }
+  document.getElementById('previewContent').innerHTML = inner;
   document.getElementById('previewOverlay').style.display = 'flex';
   document.body.style.overflow = 'hidden';
 }
