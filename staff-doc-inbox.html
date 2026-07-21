@@ -1,0 +1,437 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Document Inbox – Horizon House</title>
+<style>
+:root {
+  --primary: #F58634;
+  --green: #2d6a4f;
+  --green-light: #40916c;
+  --bg: #f4f6f9;
+  --white: #fff;
+  --border: #e2e8f0;
+  --text: #2d3748;
+  --muted: #718096;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; }
+
+/* ── Login ── */
+#loginScreen { display:flex; align-items:center; justify-content:center; min-height:100vh; background:linear-gradient(135deg, var(--green) 0%, #1b4332 100%); }
+.login-box { background:#fff; border-radius:14px; padding:40px 36px; width:100%; max-width:400px; box-shadow:0 8px 40px rgba(0,0,0,0.2); }
+.login-box h1 { color:var(--green); font-size:1.5rem; margin-bottom:6px; }
+.login-box p { color:var(--muted); font-size:14px; margin-bottom:28px; }
+.form-row { margin-bottom:16px; }
+.form-row label { display:block; font-weight:600; font-size:13px; margin-bottom:6px; }
+.form-row input { width:100%; padding:11px 14px; border:1px solid var(--border); border-radius:7px; font-size:15px; }
+.btn-primary { width:100%; padding:13px; background:var(--green); color:#fff; border:none; border-radius:7px; font-size:16px; font-weight:700; cursor:pointer; }
+.btn-primary:hover { background:var(--green-light); }
+#loginError { color:#e53e3e; font-size:13px; margin-top:10px; display:none; }
+
+/* ── App Shell ── */
+#appShell { display:none; }
+.top-bar { background:var(--green); color:#fff; padding:14px 24px; display:flex; align-items:center; justify-content:space-between; gap:10px; flex-wrap:wrap; }
+.top-bar h1 { font-size:1.15rem; font-weight:700; }
+.btn-sm { padding:7px 14px; border:none; border-radius:6px; cursor:pointer; font-weight:600; font-size:13px; }
+.btn-logout { background:rgba(255,255,255,0.2); color:#fff; }
+.btn-logout:hover { background:rgba(255,255,255,0.35); }
+
+.main { max-width: 1100px; margin: 0 auto; padding: 24px 16px; }
+
+/* ── Drop Zone ── */
+.drop-zone {
+  border: 3px dashed var(--green);
+  border-radius: 14px;
+  background: #fff;
+  padding: 48px 24px;
+  text-align: center;
+  cursor: pointer;
+  transition: background 0.2s, border-color 0.2s;
+  margin-bottom: 24px;
+}
+.drop-zone.drag-over { background: #e6f4ee; border-color: var(--green-light); }
+.drop-zone h2 { font-size: 1.3rem; color: var(--green); margin-bottom: 8px; }
+.drop-zone p { color: var(--muted); font-size: 14px; margin-bottom: 16px; }
+.dz-hint { font-size: 12px; color: var(--muted); margin-top: 10px; }
+.btn-browse { background: var(--green); color: #fff; border: none; border-radius: 8px; padding: 11px 28px; font-size: 15px; font-weight: 700; cursor: pointer; }
+.btn-browse:hover { background: var(--green-light); }
+
+/* ── Instructions box ── */
+.instructions { background: #fffbea; border: 1px solid #f6e05e; border-radius: 10px; padding: 14px 18px; margin-bottom: 24px; font-size: 13px; color: #744210; line-height: 1.6; }
+.instructions strong { color: #744210; }
+
+/* ── Review Table ── */
+#reviewSection { display: none; }
+.review-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px; flex-wrap: wrap; gap: 10px; }
+.review-header h2 { font-size: 1.1rem; font-weight: 700; }
+.btn-upload-all { background: var(--green); color: #fff; border: none; border-radius: 8px; padding: 11px 28px; font-weight: 700; cursor: pointer; font-size: 15px; }
+.btn-upload-all:disabled { background: #a0aec0; cursor: not-allowed; }
+.btn-upload-all:hover:not(:disabled) { background: var(--green-light); }
+.btn-clear { background: #e2e8f0; color: #4a5568; border: none; border-radius: 8px; padding: 11px 20px; font-weight: 600; cursor: pointer; font-size: 14px; }
+
+table.inbox-table { width: 100%; border-collapse: collapse; background: #fff; border-radius: 10px; overflow: hidden; box-shadow: 0 1px 4px rgba(0,0,0,0.07); }
+.inbox-table th { background: var(--green); color: #fff; padding: 10px 12px; font-size: 13px; font-weight: 600; text-align: left; white-space: nowrap; }
+.inbox-table td { padding: 10px 12px; border-bottom: 1px solid var(--border); font-size: 13px; vertical-align: middle; }
+.inbox-table tr:last-child td { border-bottom: none; }
+.inbox-table tr.row-done td { background: #f0fff4; }
+.inbox-table tr.row-error td { background: #fff5f5; }
+.inbox-table tr.row-skip td { opacity: 0.45; }
+
+.inbox-table input[type=text],
+.inbox-table select { padding: 6px 10px; border: 1px solid var(--border); border-radius: 6px; font-size: 13px; }
+.inbox-table input[type=text] { width: 80px; }
+.inbox-table select { min-width: 150px; }
+
+.member-preview { font-size: 12px; color: var(--green); font-weight: 600; margin-top: 3px; }
+.member-preview.unknown { color: #e53e3e; }
+
+.status-badge { display: inline-block; padding: 3px 10px; border-radius: 20px; font-size: 12px; font-weight: 700; }
+.status-badge.pending  { background: #ebf4ff; color: #2b6cb0; }
+.status-badge.uploading { background: #fffbea; color: #744210; }
+.status-badge.done    { background: #c6f6d5; color: #22543d; }
+.status-badge.error   { background: #fed7d7; color: #c53030; }
+.status-badge.skipped { background: #e2e8f0; color: #4a5568; }
+
+.row-actions { display: flex; gap: 6px; align-items: center; }
+.btn-skip { background: none; border: 1px solid var(--border); border-radius: 5px; padding: 4px 10px; font-size: 12px; cursor: pointer; color: var(--muted); }
+.btn-skip:hover { background: #f7fafc; }
+
+.summary-bar { background: #fff; border-radius: 10px; padding: 14px 20px; margin-top: 20px; display: flex; gap: 24px; align-items: center; font-size: 14px; border: 1px solid var(--border); }
+.summary-bar span { font-weight: 700; }
+</style>
+</head>
+<body>
+
+<!-- ── Login ── -->
+<div id="loginScreen">
+  <div class="login-box">
+    <h1>📥 Document Inbox</h1>
+    <p>Staff login required</p>
+    <div class="form-row">
+      <label>Member ID</label>
+      <input id="loginId" type="text" placeholder="Your staff ID" autocomplete="username">
+    </div>
+    <div class="form-row">
+      <label>Staff Password</label>
+      <input id="loginPw" type="password" placeholder="Staff password" autocomplete="current-password">
+    </div>
+    <button class="btn-primary" onclick="doLogin()">Sign In</button>
+    <div id="loginError"></div>
+  </div>
+</div>
+
+<!-- ── App Shell ── -->
+<div id="appShell">
+  <div class="top-bar">
+    <h1>📥 Document Inbox — Horizon House</h1>
+    <div style="display:flex;gap:10px;align-items:center;">
+      <span id="staffName" style="font-size:13px;opacity:0.85;"></span>
+      <a href="../emr/" class="btn-sm btn-logout">📂 File Cabinet</a>
+      <button class="btn-sm btn-logout" onclick="doLogout()">Sign Out</button>
+    </div>
+  </div>
+
+  <div class="main">
+
+    <div class="instructions">
+      <strong>How to use this inbox:</strong><br>
+      Name your scanned files or documents with the <strong>member ID number</strong> anywhere in the filename — for example:
+      <code style="background:#fef3c7;padding:1px 5px;border-radius:3px;">0133_intake_agreement.pdf</code>&nbsp; or &nbsp;
+      <code style="background:#fef3c7;padding:1px 5px;border-radius:3px;">160 Darren drug screen.pdf</code><br>
+      Then drop them below. The member ID will be detected automatically. Review and adjust if needed, then click <strong>Upload All</strong>.
+    </div>
+
+    <!-- Drop Zone -->
+    <div class="drop-zone" id="dropZone" onclick="document.getElementById('fileInput').click()">
+      <h2>📁 Drop files here</h2>
+      <p>Drag & drop scanned documents, letters, or any files from your scanner or OneDrive folder</p>
+      <button class="btn-browse" onclick="event.stopPropagation(); document.getElementById('fileInput').click()">Browse Files</button>
+      <div class="dz-hint">Accepts PDF, images, Word docs, videos — multiple files at once</div>
+    </div>
+    <input type="file" id="fileInput" multiple accept="*/*" style="display:none" onchange="handleFiles(this.files)">
+
+    <!-- Review Section -->
+    <div id="reviewSection">
+      <div class="review-header">
+        <h2 id="reviewTitle">Review Files</h2>
+        <div style="display:flex;gap:10px;flex-wrap:wrap;">
+          <button class="btn-clear" onclick="clearAll()">✕ Clear All</button>
+          <button class="btn-upload-all" id="btnUploadAll" onclick="uploadAll()">⬆ Upload All</button>
+        </div>
+      </div>
+      <table class="inbox-table">
+        <thead>
+          <tr>
+            <th style="width:28px;"></th>
+            <th>Filename</th>
+            <th style="width:110px;">Member ID</th>
+            <th style="width:200px;">Detected Member</th>
+            <th style="width:180px;">Doc Type</th>
+            <th style="width:100px;">Status</th>
+            <th style="width:80px;"></th>
+          </tr>
+        </thead>
+        <tbody id="reviewBody"></tbody>
+      </table>
+      <div class="summary-bar" id="summaryBar" style="display:none;">
+        <div>Total: <span id="sumTotal">0</span></div>
+        <div style="color:#2d6a4f;">✅ Uploaded: <span id="sumDone">0</span></div>
+        <div style="color:#e53e3e;">❌ Failed: <span id="sumError">0</span></div>
+        <div style="color:#718096;">⏭ Skipped: <span id="sumSkip">0</span></div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<script>
+const API = 'https://horizon-portal-backend-production-3532.up.railway.app/api';
+
+// ── Auth ──────────────────────────────────────────────────────────────────────
+let _session = null;
+
+async function doLogin() {
+  const id = document.getElementById('loginId').value.trim();
+  const pw = document.getElementById('loginPw').value.trim();
+  const errEl = document.getElementById('loginError');
+  errEl.style.display = 'none';
+  if (!id || !pw) { showErr('Enter your member ID and staff password.'); return; }
+  try {
+    const r = await fetch(`${API}/members`);
+    const members = await r.json();
+    const m = members.find(x => String(x.ID || x.id || x['MEMBER ID'] || '').trim() === id);
+    if (!m) { showErr('Member ID not found.'); return; }
+    const status = String(m.STATUS || m.status || m.STATU || '').trim();
+    const staffPw = String(m['STAFF PW'] || m.staffPw || m.staffPassword || '').trim();
+    if (!staffPw || pw !== staffPw) { showErr('Incorrect staff password.'); return; }
+    if (!['4','5'].includes(status)) { showErr('Staff access required.'); return; }
+    _session = { id, name: ((m.FIRST || m.first || '') + ' ' + (m.LAST || m.last || '')).trim(), members };
+    document.getElementById('loginScreen').style.display = 'none';
+    document.getElementById('appShell').style.display = 'block';
+    document.getElementById('staffName').textContent = _session.name;
+  } catch(e) { showErr('Could not connect to server. Try again.'); }
+}
+
+function showErr(msg) {
+  const el = document.getElementById('loginError');
+  el.textContent = msg;
+  el.style.display = 'block';
+}
+
+function doLogout() {
+  _session = null;
+  document.getElementById('loginScreen').style.display = 'flex';
+  document.getElementById('appShell').style.display = 'none';
+  document.getElementById('loginId').value = '';
+  document.getElementById('loginPw').value = '';
+  clearAll();
+}
+
+document.getElementById('loginPw').addEventListener('keydown', e => { if (e.key === 'Enter') doLogin(); });
+
+// ── Member lookup ─────────────────────────────────────────────────────────────
+function findMemberById(rawId) {
+  if (!_session || !rawId) return null;
+  const id = String(rawId).trim().replace(/^0+/, ''); // normalize: strip leading zeros for comparison
+  return _session.members.find(m => {
+    const mid = String(m.ID || m.id || m['MEMBER ID'] || '').trim().replace(/^0+/, '');
+    return mid === id;
+  }) || null;
+}
+
+function memberName(m) {
+  if (!m) return null;
+  const f = m.FIRST || m.first || m['FIRST NAME'] || '';
+  const l = m.LAST || m.last || m['LAST NAME'] || '';
+  return (f + ' ' + l).trim() || null;
+}
+
+// ── Parse member ID from filename ─────────────────────────────────────────────
+function parseMemberId(filename) {
+  // Strip extension
+  const base = filename.replace(/\.[^.]+$/, '');
+  // Look for 2-4 digit sequences (member IDs are typically 2-4 digits)
+  const matches = base.match(/\b(\d{2,4})\b/g);
+  if (!matches) return '';
+  // Prefer the first match that resolves to a known member
+  for (const m of matches) {
+    if (findMemberById(m)) return m;
+  }
+  // Fall back to first numeric match
+  return matches[0] || '';
+}
+
+// ── File rows state ───────────────────────────────────────────────────────────
+let _rows = []; // { file, memberId, status: 'pending'|'uploading'|'done'|'error'|'skipped', message }
+
+const DOC_TYPES = [
+  'General', 'Letter', 'Agreement', 'Release of Information', 'ID / License',
+  'Insurance Card', 'Drug Screen', 'Incident Report', 'Medical Record',
+  'Court Document', 'Property Form', 'Camera Footage', 'Application', 'Other'
+];
+
+function handleFiles(files) {
+  const newFiles = Array.from(files);
+  newFiles.forEach(f => {
+    const detectedId = parseMemberId(f.name);
+    _rows.push({ file: f, memberId: detectedId, docType: guessDocType(f.name), status: 'pending', message: '' });
+  });
+  renderTable();
+  document.getElementById('reviewSection').style.display = 'block';
+  document.getElementById('fileInput').value = '';
+}
+
+function guessDocType(filename) {
+  const lower = filename.toLowerCase();
+  if (/agree|agreement|contract/.test(lower)) return 'Agreement';
+  if (/letter|ltr/.test(lower)) return 'Letter';
+  if (/roi|release/.test(lower)) return 'Release of Information';
+  if (/drug.?screen|ua\b|urinalysis/.test(lower)) return 'Drug Screen';
+  if (/incident|report/.test(lower)) return 'Incident Report';
+  if (/id|license|passport/.test(lower)) return 'ID / License';
+  if (/insurance|card/.test(lower)) return 'Insurance Card';
+  if (/cam|footage|video|mp4|mov|avi|mkv/.test(lower)) return 'Camera Footage';
+  if (/court|probation|parole/.test(lower)) return 'Court Document';
+  if (/property|storage/.test(lower)) return 'Property Form';
+  if (/application|app\b/.test(lower)) return 'Application';
+  if (/medical|med\b|rx|prescription/.test(lower)) return 'Medical Record';
+  return 'General';
+}
+
+function esc(s) { return String(s || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+
+function renderTable() {
+  const tbody = document.getElementById('reviewBody');
+  tbody.innerHTML = _rows.map((row, i) => {
+    const member = findMemberById(row.memberId);
+    const mName = memberName(member);
+    const rowClass = row.status === 'done' ? 'row-done' : row.status === 'error' ? 'row-error' : row.status === 'skipped' ? 'row-skip' : '';
+    const isDone = ['done','error','skipped'].includes(row.status);
+
+    const typeOptions = DOC_TYPES.map(t => `<option value="${t}" ${row.docType===t?'selected':''}>${t}</option>`).join('');
+
+    return `<tr class="${rowClass}" id="row-${i}">
+      <td style="text-align:center;color:${mName?'#2d6a4f':'#e53e3e'};font-size:16px;">${mName ? '✔' : (row.memberId ? '?' : '—')}</td>
+      <td style="max-width:260px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;" title="${esc(row.file.name)}">
+        ${esc(row.file.name)}<br>
+        <span style="font-size:11px;color:var(--muted);">${(row.file.size/1024).toFixed(1)} KB</span>
+      </td>
+      <td>
+        ${isDone ? `<strong>${esc(row.memberId||'—')}</strong>` : `<input type="text" value="${esc(row.memberId)}" placeholder="ID" onchange="updateMemberId(${i},this.value)" oninput="updateMemberId(${i},this.value)">`}
+        <div class="member-preview ${mName?'':'unknown'}">${mName || (row.memberId ? '⚠ Not found' : '')}</div>
+      </td>
+      <td>${mName ? `<strong>${esc(mName)}</strong><br><span style="font-size:11px;color:var(--muted);">ID: ${esc(row.memberId)}</span>` : '<span style="color:#a0aec0;font-size:13px;">—</span>'}</td>
+      <td>${isDone ? esc(row.docType) : `<select onchange="_rows[${i}].docType=this.value">${typeOptions}</select>`}</td>
+      <td><span class="status-badge ${row.status}">${row.status === 'pending' ? 'Ready' : row.status === 'uploading' ? 'Uploading…' : row.status === 'done' ? '✅ Done' : row.status === 'error' ? '❌ Failed' : '⏭ Skipped'}</span>
+        ${row.message ? `<div style="font-size:11px;color:#e53e3e;margin-top:2px;">${esc(row.message)}</div>` : ''}
+      </td>
+      <td class="row-actions">
+        ${!isDone ? `<button class="btn-skip" onclick="skipRow(${i})">${row.status==='skipped'?'Undo':'Skip'}</button>` : ''}
+      </td>
+    </tr>`;
+  }).join('');
+
+  const pendingCount = _rows.filter(r => r.status === 'pending').length;
+  document.getElementById('reviewTitle').textContent = `Review ${_rows.length} File${_rows.length !== 1 ? 's' : ''}`;
+  document.getElementById('btnUploadAll').disabled = pendingCount === 0;
+  document.getElementById('btnUploadAll').textContent = `⬆ Upload ${pendingCount > 0 ? pendingCount + ' File' + (pendingCount!==1?'s':'') : 'All'}`;
+  updateSummary();
+}
+
+function updateMemberId(i, val) {
+  _rows[i].memberId = val.trim();
+  const member = findMemberById(_rows[i].memberId);
+  const mName = memberName(member);
+  // Update the preview cell in place without full re-render (avoid losing focus)
+  const row = document.getElementById('row-' + i);
+  if (!row) return;
+  const cells = row.querySelectorAll('td');
+  // Cell 0: checkmark
+  cells[0].style.color = mName ? '#2d6a4f' : (val ? '#e53e3e' : 'inherit');
+  cells[0].textContent = mName ? '✔' : (val ? '?' : '—');
+  // Cell 2 preview
+  const preview = cells[2].querySelector('.member-preview');
+  if (preview) { preview.textContent = mName || (val ? '⚠ Not found' : ''); preview.className = 'member-preview ' + (mName ? '' : 'unknown'); }
+  // Cell 3 member name
+  cells[3].innerHTML = mName ? `<strong>${esc(mName)}</strong><br><span style="font-size:11px;color:var(--muted);">ID: ${esc(val)}</span>` : '<span style="color:#a0aec0;font-size:13px;">—</span>';
+}
+
+function skipRow(i) {
+  _rows[i].status = _rows[i].status === 'skipped' ? 'pending' : 'skipped';
+  renderTable();
+}
+
+function clearAll() {
+  _rows = [];
+  document.getElementById('reviewSection').style.display = 'none';
+  document.getElementById('reviewBody').innerHTML = '';
+}
+
+function updateSummary() {
+  const done  = _rows.filter(r => r.status === 'done').length;
+  const error = _rows.filter(r => r.status === 'error').length;
+  const skip  = _rows.filter(r => r.status === 'skipped').length;
+  document.getElementById('sumTotal').textContent = _rows.length;
+  document.getElementById('sumDone').textContent  = done;
+  document.getElementById('sumError').textContent = error;
+  document.getElementById('sumSkip').textContent  = skip;
+  document.getElementById('summaryBar').style.display = _rows.length ? 'flex' : 'none';
+}
+
+async function uploadAll() {
+  const pending = _rows.filter(r => r.status === 'pending');
+  if (!pending.length) return;
+  document.getElementById('btnUploadAll').disabled = true;
+
+  for (let i = 0; i < _rows.length; i++) {
+    const row = _rows[i];
+    if (row.status !== 'pending') continue;
+    const member = findMemberById(row.memberId);
+    if (!member) {
+      row.status = 'error';
+      row.message = 'Member ID not found';
+      renderTable();
+      continue;
+    }
+
+    row.status = 'uploading';
+    renderTable();
+
+    try {
+      const fd = new FormData();
+      fd.append('document', row.file);
+      fd.append('memberId', String(member.ID || member.id || member['MEMBER ID'] || row.memberId).trim());
+      fd.append('memberName', memberName(member) || '');
+      fd.append('docType', row.docType || 'General');
+      fd.append('notes', row.file.name);
+      const res = await fetch(`${API}/member-documents/upload`, { method: 'POST', body: fd });
+      if (!res.ok) {
+        const j = await res.json().catch(() => ({}));
+        throw new Error(j.error || 'Upload failed');
+      }
+      row.status = 'done';
+      row.message = '';
+    } catch(e) {
+      row.status = 'error';
+      row.message = e.message;
+    }
+    renderTable();
+  }
+
+  document.getElementById('btnUploadAll').disabled = false;
+}
+
+// ── Drag & drop ───────────────────────────────────────────────────────────────
+const dz = document.getElementById('dropZone');
+dz.addEventListener('dragover', e => { e.preventDefault(); dz.classList.add('drag-over'); });
+dz.addEventListener('dragleave', () => dz.classList.remove('drag-over'));
+dz.addEventListener('drop', e => {
+  e.preventDefault();
+  dz.classList.remove('drag-over');
+  if (e.dataTransfer.files.length) handleFiles(e.dataTransfer.files);
+});
+</script>
+</body>
+</html>
