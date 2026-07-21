@@ -469,6 +469,7 @@ async function openMemberFile(memberId) {
 }
 
 function renderMemberFile(data) {
+  _emrViewCacheIdx = 0; _emrViewCache = {}; // reset once before all sections render
   const { member, docs, drugScreens, passes, meetingCards, intakeForms, submittedForms, applications, incidentReports, signInOutRecords, medLogs } = data;
   const { first, last, full } = getMemberName(member);
   const initials = (first[0] || '') + (last[0] || '');
@@ -595,7 +596,6 @@ function _cacheItem(obj) {
 }
 
 function renderIntakeForms(forms) {
-  _emrViewCacheIdx = 0; _emrViewCache = {};
   const sections = [
     { key: 'agreements', label: 'Member Agreement',        icon: '📜' },
     { key: 'licensee',   label: 'Licensee Agreement',      icon: '📜' },
