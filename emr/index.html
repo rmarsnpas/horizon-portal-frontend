@@ -263,6 +263,35 @@ body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; b
   </div>
 </div>
 
+<!-- Medication Log Modal -->
+<div id="medLogModal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.55);z-index:10001;align-items:center;justify-content:center;">
+  <div style="background:#fff;border-radius:14px;padding:28px 32px;max-width:480px;width:95%;box-shadow:0 8px 40px rgba(0,0,0,0.22);">
+    <h2 style="font-size:1.1rem;font-weight:800;color:#2d3748;margin:0 0 18px;">💊 Log Medication</h2>
+    <div style="display:grid;gap:12px;">
+      <div><label style="font-weight:600;font-size:13px;display:block;margin-bottom:4px;">Medication Name <span style="color:#e53e3e;">*</span></label><input id="mlMed" type="text" placeholder="e.g. Metformin" style="width:100%;padding:9px 12px;border:1px solid #e2e8f0;border-radius:6px;font-size:14px;"></div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">
+        <div><label style="font-weight:600;font-size:13px;display:block;margin-bottom:4px;">Dosage</label><input id="mlDose" type="text" placeholder="e.g. 500mg" style="width:100%;padding:9px 12px;border:1px solid #e2e8f0;border-radius:6px;font-size:14px;"></div>
+        <div><label style="font-weight:600;font-size:13px;display:block;margin-bottom:4px;">Route</label>
+          <select id="mlRoute" style="width:100%;padding:9px 12px;border:1px solid #e2e8f0;border-radius:6px;font-size:14px;">
+            <option value="Oral">Oral</option><option value="Topical">Topical</option><option value="Injection">Injection</option><option value="Inhaled">Inhaled</option><option value="Sublingual">Sublingual</option><option value="Other">Other</option>
+          </select>
+        </div>
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">
+        <div><label style="font-weight:600;font-size:13px;display:block;margin-bottom:4px;">Date</label><input id="mlDate" type="date" style="width:100%;padding:9px 12px;border:1px solid #e2e8f0;border-radius:6px;font-size:14px;"></div>
+        <div><label style="font-weight:600;font-size:13px;display:block;margin-bottom:4px;">Time</label><input id="mlTime" type="time" style="width:100%;padding:9px 12px;border:1px solid #e2e8f0;border-radius:6px;font-size:14px;"></div>
+      </div>
+      <div><label style="font-weight:600;font-size:13px;display:block;margin-bottom:4px;">Administered By</label><input id="mlBy" type="text" placeholder="Staff name" style="width:100%;padding:9px 12px;border:1px solid #e2e8f0;border-radius:6px;font-size:14px;"></div>
+      <div><label style="font-weight:600;font-size:13px;display:block;margin-bottom:4px;">Notes</label><textarea id="mlNotes" rows="2" placeholder="Optional notes…" style="width:100%;padding:9px 12px;border:1px solid #e2e8f0;border-radius:6px;font-size:14px;resize:vertical;"></textarea></div>
+    </div>
+    <div id="mlError" style="color:#e53e3e;font-size:13px;margin-top:8px;display:none;"></div>
+    <div style="display:flex;gap:10px;justify-content:flex-end;margin-top:18px;">
+      <button onclick="closeMedLogModal()" style="background:#e2e8f0;color:#4a5568;border:none;padding:10px 20px;border-radius:7px;font-weight:700;cursor:pointer;">Cancel</button>
+      <button onclick="submitMedLog()" id="mlSubmitBtn" style="background:#7c3aed;color:#fff;border:none;padding:10px 22px;border-radius:7px;font-weight:700;cursor:pointer;">Save Entry</button>
+    </div>
+  </div>
+</div>
+
 <!-- Profile Card Overlay -->
 <div id="profileOverlay" style="display:none;">
   <div class="profile-card">
@@ -440,7 +469,7 @@ async function openMemberFile(memberId) {
 }
 
 function renderMemberFile(data) {
-  const { member, docs, drugScreens, passes, meetingCards, intakeForms, submittedForms, applications } = data;
+  const { member, docs, drugScreens, passes, meetingCards, intakeForms, submittedForms, applications, incidentReports, signInOutRecords, medLogs } = data;
   const { first, last, full } = getMemberName(member);
   const initials = (first[0] || '') + (last[0] || '');
   const s = String(member.STATUS || member.status || member.STATU || '').trim();
@@ -452,7 +481,7 @@ function renderMemberFile(data) {
 
   // Total form count
   const intakeCount = Object.values(intakeForms || {}).reduce((t, arr) => t + (arr||[]).length, 0);
-  const totalDocs = (docs||[]).length + (meetingCards||[]).length + (submittedForms||[]).length + intakeCount + (applications||[]).length;
+  const totalDocs = (docs||[]).length + (meetingCards||[]).length + (submittedForms||[]).length + intakeCount + (applications||[]).length + (incidentReports||[]).length + (signInOutRecords||[]).length + (medLogs||[]).length;
 
   const html = `
     <div class="member-header">
@@ -496,7 +525,8 @@ function renderMemberFile(data) {
       <button class="btn-upload-file" id="upSubmitBtn" onclick="doUpload()" disabled style="background:#2d6a4f;">⬆️ Upload</button>
       <div id="uploadStatusBar"></div>
     </div>
-    <div style="text-align:right;margin-bottom:12px;">
+    <div style="text-align:right;margin-bottom:12px;display:flex;gap:8px;justify-content:flex-end;">
+      <button class="btn-upload-file" onclick="openMedLogModal()" style="background:#7c3aed;font-size:13px;">💊 Log Medication</button>
       <button class="btn-upload-file" onclick="openImport()" style="background:#1a4f3a;font-size:13px;">📥 Save Records to File</button>
     </div>
 
@@ -505,6 +535,9 @@ function renderMemberFile(data) {
     ${sectionCard('🧪 Drug Screens', drugScreens, renderDrugScreens(drugScreens))}
     ${sectionCard('🌙 Overnight Passes', passes, renderPasses(passes))}
     ${sectionCard('🪪 Meeting Cards', meetingCards, renderMeetingCards(meetingCards))}
+    ${sectionCard('🚨 Incident Reports', incidentReports, renderIncidentReports(incidentReports))}
+    ${sectionCard('🚪 Sign In / Out Records', signInOutRecords, renderSignInOut(signInOutRecords))}
+    ${sectionCard('💊 Medication Log', medLogs, renderMedLog(medLogs))}
     ${sectionCard('📝 Application', applications, renderApplications(applications))}
     ${sectionCard('📄 Submitted Forms', submittedForms, renderSubmittedForms(submittedForms))}
   `;
@@ -653,6 +686,83 @@ function renderSubmittedForms(forms) {
         <td><button class="btn-view" onclick="viewIntakeForm('${key}')">View</button></td>
       </tr>`;
     }).join('') + `</tbody></table>`;
+}
+
+function renderIncidentReports(reports) {
+  if (!reports || !reports.length) return emptyRow('No incident reports on file');
+  return `<table class="file-table"><thead><tr><th>Date</th><th>Types</th><th>Location</th><th>Reported By</th><th>Status</th><th></th></tr></thead><tbody>` +
+    reports.map(r => {
+      const key = _cacheItem({ incident: r });
+      const types = (r.incidentTypes || []).join(', ') || '—';
+      return `<tr>
+        <td style="white-space:nowrap;">${fmtDate(r.incidentDate || r.submittedAt)}</td>
+        <td style="max-width:180px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;" title="${esc(types)}">${esc(types)}</td>
+        <td style="max-width:140px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${esc(r.incidentLocation || '—')}</td>
+        <td>${esc(r.staffName || '—')}</td>
+        <td><span class="badge ${r.status === 'pending' ? 'badge-orange' : 'badge-green'}">${esc(r.status || 'submitted')}</span></td>
+        <td><button class="btn-view" onclick="viewIncidentReport('${key}')">View</button></td>
+      </tr>`;
+    }).join('') + `</tbody></table>`;
+}
+
+function renderSignInOut(records) {
+  if (!records || !records.length) return emptyRow('No sign in/out records on file');
+  return `<table class="file-table"><thead><tr><th>Date</th><th>Out</th><th>Destination</th><th>Est. Return</th><th>In</th><th>Curfew</th></tr></thead><tbody>` +
+    records.map(r => `<tr>
+      <td style="white-space:nowrap;">${fmtDate(r.date)}</td>
+      <td style="white-space:nowrap;">${esc(r.timeOut || '—')}</td>
+      <td style="max-width:160px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${esc(r.destination || '—')}</td>
+      <td style="white-space:nowrap;">${esc(r.estimatedReturn || '—')}</td>
+      <td style="white-space:nowrap;">${r.timeIn ? esc(r.timeIn) : '<span style="color:#94a3b8;">Out</span>'}</td>
+      <td>${r.timeIn ? `<span class="badge ${r.curfewViolation ? 'badge-orange' : 'badge-green'}">${r.curfewViolation ? '⚠ Violation' : '✔ On Time'}</span>` : '—'}</td>
+    </tr>`).join('') + `</tbody></table>`;
+}
+
+function viewIncidentReport(cacheKey) {
+  const cached = _emrViewCache[cacheKey];
+  if (!cached) return;
+  const r = cached.incident;
+  document.getElementById('previewTitle').textContent = 'Incident Report — ' + (r.incidentDate || '') + (r.incidentLocation ? ' @ ' + r.incidentLocation : '');
+  document.getElementById('btnSaveRec').style.display = 'none';
+  _previewDoc = null;
+  const row = (l, v) => v ? `<div class="fd-row"><span class="fd-label">${l}</span><span class="fd-val">${esc(String(v))}</span></div>` : '';
+  const html = `<div class="form-detail">
+    <h3>Report Info</h3>
+    ${row('Reported By', r.staffName)}${row('Role', r.staffRole)}${row('Date', r.incidentDate)}${row('Time', r.incidentTime)}${row('Location', r.incidentLocation)}
+    ${row('Incident Types', (r.incidentTypes||[]).join(', '))}${row('Status', r.status)}
+    <h3>Involved Members</h3>
+    ${(r.members||[]).length ? (r.members||[]).map(m => `<div class="fd-row"><span class="fd-val">${esc(m.name||'')} — Room ${esc(m.room||'?')} — ${esc(m.status||'')}</span></div>`).join('') : '<div style="color:#888;padding:6px 0;">None listed</div>'}
+    <h3>Narrative</h3>
+    <div style="background:#f8fafb;border-radius:6px;padding:12px 16px;font-size:13.5px;line-height:1.7;white-space:pre-wrap;">${esc(r.narrative || '—')}</div>
+    <h3>Actions Taken</h3>
+    ${row('Actions', (r.actionsTaken||[]).join(', ') || '—')}
+    ${row('Supervisor Notified', r.supervisorNotified)}${row('Supervisor', r.supervisorNameAction)}
+    ${row('Family Notified', r.familyNotified)}${row('Family Contact', r.familyContactName)}
+    <h3>Follow-Up</h3>
+    ${row('Follow-Up Types', (r.followupTypes||[]).join(', ') || '—')}
+    ${row('Assigned To', r.followupAssigned)}${row('Target Date', r.followupTargetDate)}
+    ${ (r.followupTypes||[]).includes('Case Worker Contacted') ? row('Case Worker', r.caseWorkerName) + row('Phone', r.caseWorkerPhone) + row('Disposition', r.caseWorkerDisposition) : '' }
+    ${row('Notes', r.followupNotes)}
+    <h3>Supervisor Review</h3>
+    ${row('Reviewed By', r.reviewSupervisorName)}${row('Review Date', r.reviewDate)}${row('Comments', r.reviewComments)}${row('Reportable', r.reportable)}
+    ${r.fileNames && r.fileNames.length ? `<h3>Attachments</h3><div class="fd-row"><span class="fd-val">${r.fileNames.map(n => esc(n)).join(', ')}</span></div>` : ''}
+  </div>`;
+  document.getElementById('previewContent').innerHTML = html;
+  document.getElementById('previewOverlay').style.display = 'flex';
+  document.body.style.overflow = 'hidden';
+}
+
+function renderMedLog(logs) {
+  if (!logs || !logs.length) return emptyRow('No medication log entries on file');
+  return `<table class="file-table"><thead><tr><th>Date / Time</th><th>Medication</th><th>Dose</th><th>Route</th><th>Given By</th><th>Notes</th></tr></thead><tbody>` +
+    logs.map(e => `<tr>
+      <td style="white-space:nowrap;">${fmtDate(e.administeredAt || e.createdAt)}</td>
+      <td style="font-weight:600;">${esc(e.medication || '—')}</td>
+      <td>${esc(e.dosage || '—')}</td>
+      <td>${esc(e.route || '—')}</td>
+      <td>${esc(e.administeredBy || '—')}</td>
+      <td style="max-width:200px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${esc(e.notes || '')}</td>
+    </tr>`).join('') + `</tbody></table>`;
 }
 
 function emptyRow(msg) {
@@ -886,6 +996,68 @@ function closePreview() {
   document.getElementById('btnSaveRec').style.display = '';
   _previewDoc = null;
   document.body.style.overflow = '';
+}
+
+function closePreview() {
+  document.getElementById('previewOverlay').style.display = 'none';
+  document.getElementById('previewContent').innerHTML = '';
+  document.getElementById('btnSaveRec').style.display = '';
+  _previewDoc = null;
+  document.body.style.overflow = '';
+}
+
+// ── Medication Log Modal ───────────────────────────────────────────────────────
+function openMedLogModal() {
+  if (!_currentMemberId) return;
+  const today = new Date().toISOString().split('T')[0];
+  const now = new Date().toTimeString().slice(0,5);
+  document.getElementById('mlMed').value = '';
+  document.getElementById('mlDose').value = '';
+  document.getElementById('mlRoute').value = 'Oral';
+  document.getElementById('mlDate').value = today;
+  document.getElementById('mlTime').value = now;
+  document.getElementById('mlBy').value = '';
+  document.getElementById('mlNotes').value = '';
+  document.getElementById('mlError').style.display = 'none';
+  document.getElementById('medLogModal').style.display = 'flex';
+}
+function closeMedLogModal() {
+  document.getElementById('medLogModal').style.display = 'none';
+}
+async function submitMedLog() {
+  const med = document.getElementById('mlMed').value.trim();
+  if (!med) { document.getElementById('mlError').textContent = 'Medication name is required.'; document.getElementById('mlError').style.display = 'block'; return; }
+  const btn = document.getElementById('mlSubmitBtn');
+  btn.disabled = true; btn.textContent = 'Saving…';
+  const member = _allMembers.find(m => String(m.ID||m.id||'') === String(_currentMemberId));
+  const { full } = getMemberName(member || {});
+  const dateVal = document.getElementById('mlDate').value;
+  const timeVal = document.getElementById('mlTime').value;
+  const administeredAt = dateVal ? (dateVal + (timeVal ? 'T' + timeVal + ':00' : 'T00:00:00')) : new Date().toISOString();
+  try {
+    const res = await fetch(`${API}/med-logs`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        memberId: _currentMemberId,
+        memberName: full,
+        medication: med,
+        dosage: document.getElementById('mlDose').value.trim(),
+        route: document.getElementById('mlRoute').value,
+        administeredAt,
+        administeredBy: document.getElementById('mlBy').value.trim(),
+        notes: document.getElementById('mlNotes').value.trim()
+      })
+    });
+    if (!res.ok) throw new Error();
+    closeMedLogModal();
+    openMemberFile(_currentMemberId); // refresh
+  } catch {
+    document.getElementById('mlError').textContent = 'Failed to save. Please try again.';
+    document.getElementById('mlError').style.display = 'block';
+  } finally {
+    btn.disabled = false; btn.textContent = 'Save Entry';
+  }
 }
 
 function printPreview() {
