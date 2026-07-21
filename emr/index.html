@@ -281,7 +281,7 @@ body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; b
         <div><label style="font-weight:600;font-size:13px;display:block;margin-bottom:4px;">Date</label><input id="mlDate" type="date" style="width:100%;padding:9px 12px;border:1px solid #e2e8f0;border-radius:6px;font-size:14px;"></div>
         <div><label style="font-weight:600;font-size:13px;display:block;margin-bottom:4px;">Time</label><input id="mlTime" type="time" style="width:100%;padding:9px 12px;border:1px solid #e2e8f0;border-radius:6px;font-size:14px;"></div>
       </div>
-      <div><label style="font-weight:600;font-size:13px;display:block;margin-bottom:4px;">Administered By</label><input id="mlBy" type="text" placeholder="Staff name" style="width:100%;padding:9px 12px;border:1px solid #e2e8f0;border-radius:6px;font-size:14px;"></div>
+      <div><label style="font-weight:600;font-size:13px;display:block;margin-bottom:4px;">Verified By</label><input id="mlBy" type="text" placeholder="Staff name" style="width:100%;padding:9px 12px;border:1px solid #e2e8f0;border-radius:6px;font-size:14px;"></div>
       <div><label style="font-weight:600;font-size:13px;display:block;margin-bottom:4px;">Notes</label><textarea id="mlNotes" rows="2" placeholder="Optional notes…" style="width:100%;padding:9px 12px;border:1px solid #e2e8f0;border-radius:6px;font-size:14px;resize:vertical;"></textarea></div>
     </div>
     <div id="mlError" style="color:#e53e3e;font-size:13px;margin-top:8px;display:none;"></div>
@@ -754,13 +754,13 @@ function viewIncidentReport(cacheKey) {
 
 function renderMedLog(logs) {
   if (!logs || !logs.length) return emptyRow('No medication log entries on file');
-  return `<table class="file-table"><thead><tr><th>Date / Time</th><th>Medication</th><th>Dose</th><th>Route</th><th>Given By</th><th>Notes</th></tr></thead><tbody>` +
+  return `<table class="file-table"><thead><tr><th>Date / Time</th><th>Medication</th><th>Dose</th><th>Route</th><th>Verified By</th><th>Notes</th></tr></thead><tbody>` +
     logs.map(e => `<tr>
       <td style="white-space:nowrap;">${fmtDate(e.administeredAt || e.createdAt)}</td>
       <td style="font-weight:600;">${esc(e.medication || '—')}</td>
       <td>${esc(e.dosage || '—')}</td>
       <td>${esc(e.route || '—')}</td>
-      <td>${esc(e.administeredBy || '—')}</td>
+      <td>${esc(e.verifiedBy || e.administeredBy || '—')}</td>
       <td style="max-width:200px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${esc(e.notes || '')}</td>
     </tr>`).join('') + `</tbody></table>`;
 }
@@ -1063,7 +1063,7 @@ async function submitMedLog() {
         dosage: document.getElementById('mlDose').value.trim(),
         route: document.getElementById('mlRoute').value,
         administeredAt,
-        administeredBy: document.getElementById('mlBy').value.trim(),
+        verifiedBy: document.getElementById('mlBy').value.trim(),
         notes: document.getElementById('mlNotes').value.trim()
       })
     });
