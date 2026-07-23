@@ -3,20 +3,66 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Facilities Liability Release Submissions - Horizon House</title>
+  <title>Guest Waiver Submissions - Horizon House</title>
   <link rel="stylesheet" href="staff-intake-agreements.css">
+  <style>
+    table { width:100%; border-collapse:collapse; margin-top:1rem; }
+    th, td { border:1px solid #ccc; padding:0.5rem 0.75rem; text-align:left; font-size:0.9rem; }
+    th { background:#f0f0f0; }
+    tr:nth-child(even) { background:#fafafa; }
+    .badge { display:inline-block; padding:2px 8px; border-radius:12px; font-size:0.78rem; background:#d1e7dd; color:#0a3622; }
+    .badge.minor { background:#fff3cd; color:#664d03; }
+  </style>
 </head>
 <body>
   <div class="container">
-    <h1>Facilities Liability Release Submissions</h1>
+    <h1>Guest Waiver Submissions</h1>
+    <p id="count" style="color:#666;"></p>
     <div id="submissions"></div>
   </div>
   <script>
     const API_URL = 'https://horizon-portal-backend-production-3532.up.railway.app';
     async function loadSubmissions() {
-      const res = await fetch(`${API_URL}/api/intake/release-of-liability`);
-      const data = await res.json();
-      document.getElementById('submissions').innerHTML = data.length ? data.map(a => `<div class='submission'>${a.participantInfo?.firstName || ''} ${a.participantInfo?.lastName || ''} - ${a.signatureDate || ''}</div>`).join('') : '<p>No submissions yet.</p>';
+      try {
+        const res = await fetch(`${API_URL}/api/waivers`);
+        const data = await res.json();
+        document.getElementById('count').textContent = `${data.length} submission${data.length !== 1 ? 's' : ''}`;
+        if (!data.length) {
+          document.getElementById('submissions').innerHTML = '<p>No submissions yet.</p>';
+          return;
+        }
+        const sorted = [...data].sort((a, b) => new Date(b.submittedAt) - new Date(a.submittedAt));
+        document.getElementById('submissions').innerHTML = `
+          <table>
+            <thead><tr>
+              <th>Submitted</th>
+              <th>Guest Name</th>
+              <th>Phone</th>
+              <th>Email</th>
+              <th>Visiting</th>
+              <th>Date of Visit</th>
+              <th>Signed As</th>
+              <th>Minor?</th>
+            </tr></thead>
+            <tbody>${sorted.map(w => `
+              <tr>
+                <td>${new Date(w.submittedAt).toLocaleString()}</td>
+                <td>${w.guest_name || ''}</td>
+                <td>${w.phone || ''}</td>
+                <td>${w.email || ''}</td>
+                <td>${w.member || ''}</td>
+                <td>${w.visit_date || ''}</td>
+                <td>${w.guest_signature || ''}</td>
+                <td>${w.is_minor === 'yes'
+                  ? '<span class="badge minor">Minor – ' + (w.guardian_name || 'Guardian n/a') + '</span>'
+                  : '<span class="badge">Adult</span>'
+                }</td>
+              </tr>`).join('')}
+            </tbody>
+          </table>`;
+      } catch (err) {
+        document.getElementById('submissions').innerHTML = '<p style="color:red;">Error loading submissions.</p>';
+      }
     }
     loadSubmissions();
   </script>

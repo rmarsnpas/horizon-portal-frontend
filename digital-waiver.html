@@ -92,10 +92,12 @@
     <input type="date" name="signed_date" required>
   </label><br><br>
 
-  <button type="submit">Submit Waiver</button>
+  <button type="submit" id="submit-btn">Submit Waiver</button>
 </form>
 
 <script>
+  const API_URL = 'https://horizon-portal-backend-production-3532.up.railway.app';
+
   const minorCheckbox = document.querySelector('input[name="is_minor"]');
   const minorFields = document.getElementById('minor-fields');
   const minorRule = document.getElementById('minor-rule');
@@ -104,5 +106,37 @@
     const show = minorCheckbox.checked;
     minorFields.style.display = show ? 'block' : 'none';
     minorRule.style.display = show ? 'block' : 'none';
+  });
+
+  document.getElementById('hhsl-waiver').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const form = e.target;
+    const btn = document.getElementById('submit-btn');
+    btn.disabled = true;
+    btn.textContent = 'Submitting…';
+
+    const data = {};
+    new FormData(form).forEach((val, key) => { data[key] = val; });
+    data.is_minor = minorCheckbox.checked ? 'yes' : 'no';
+
+    try {
+      const res = await fetch(`${API_URL}/api/waivers`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(data)
+      });
+      const result = await res.json();
+      if (result.success) {
+        form.style.display = 'none';
+        document.body.insertAdjacentHTML('beforeend',
+          '<p style="font-family:sans-serif;text-align:center;padding:2rem;font-size:1.2rem;">✅ Waiver submitted successfully. Thank you!</p>');
+      } else {
+        throw new Error(result.error || 'Submission failed');
+      }
+    } catch (err) {
+      alert('There was an error submitting your waiver. Please try again or ask staff for help.');
+      btn.disabled = false;
+      btn.textContent = 'Submit Waiver';
+    }
   });
 </script>
