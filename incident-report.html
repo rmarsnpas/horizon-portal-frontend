@@ -101,9 +101,17 @@ label { font-size: 0.8125rem; font-weight: 500; color: #334155; display: block; 
 }
 @media print {
   .sticky-bar, .no-print { display: none !important; }
-  .section-card { break-inside: avoid; box-shadow: none; border: 1px solid #ccc; }
-  body { background: #fff; }
+  .section-card { break-inside: avoid; box-shadow: none; border: 1px solid #ccc; margin-bottom: 8px !important; }
+  body { background: #fff; font-size: 11px; }
   .collapsible-content.collapsed { max-height: none; }
+  .section-header { padding: 8px 12px; font-size: 0.9rem; }
+  .p-4, .p-6, .md\\:p-6 { padding: 12px !important; }
+  .space-y-5 > * + * { margin-top: 12px !important; }
+  .gap-4 { gap: 8px !important; }
+  textarea { min-height: auto !important; }
+  label { font-size: 0.75rem; margin-bottom: 2px; }
+  input, select, textarea { padding: 4px 8px; font-size: 0.75rem; }
+  .ai-check-btn, .ai-feedback { display: none !important; }
 }
 </style>
 </head>
@@ -227,43 +235,54 @@ label { font-size: 0.8125rem; font-weight: 500; color: #334155; display: block; 
       </div>
     </div>
 
-    <!-- Law Enforcement -->
-    <div data-id="96">
-      <label data-id="97">Law enforcement contacted? <span data-id="98" class="required-star">*</span></label>
-      <div data-id="99" class="radio-group mt-1">
-        <label data-id="100"><input data-id="101" type="radio" name="law-enforcement" value="Yes" class="law-enforcement-radio" /> Yes</label>
-        <label data-id="102"><input data-id="103" type="radio" name="law-enforcement" value="No" class="law-enforcement-radio" /> No</label>
+    <!-- Law Enforcement, EMS, Transported - Inline -->
+    <div data-id="96" class="grid grid-cols-1 md:grid-cols-3 gap-4">
+      <div>
+        <label data-id="97" class="block mb-1">Law enforcement contacted? <span data-id="98" class="required-star">*</span></label>
+        <div data-id="99" class="radio-group">
+          <label data-id="100"><input data-id="101" type="radio" name="law-enforcement" value="Yes" class="law-enforcement-radio" /> Yes</label>
+          <label data-id="102"><input data-id="103" type="radio" name="law-enforcement" value="No" class="law-enforcement-radio" /> No</label>
+        </div>
       </div>
-      <div data-id="104" class="conditional-field" id="law-enforcement-details-i5j6">
-        <div data-id="105" class="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <div data-id="106"><label data-id="107" for="law-agency-k7l8">Agency Name</label><input data-id="108" type="text" id="law-agency-k7l8" /></div>
-          <div data-id="109"><label data-id="110" for="law-report-m9n0">Report Number</label><input data-id="111" type="text" id="law-report-m9n0" /></div>
+      <div>
+        <label data-id="113" class="block mb-1">EMS contacted?</label>
+        <div data-id="114" class="radio-group">
+          <label data-id="115"><input data-id="116" type="radio" name="ems" value="Yes" class="ems-radio" /> Yes</label>
+          <label data-id="117"><input data-id="118" type="radio" name="ems" value="No" class="ems-radio" /> No</label>
+        </div>
+      </div>
+      <div>
+        <label data-id="124" class="block mb-1">Member transported?</label>
+        <div data-id="125" class="radio-group">
+          <label data-id="126"><input data-id="127" type="radio" name="transported" value="Yes" class="transported-radio" /> Yes</label>
+          <label data-id="128"><input data-id="129" type="radio" name="transported" value="No" class="transported-radio" /> No</label>
         </div>
       </div>
     </div>
-
-    <!-- EMS -->
-    <div data-id="112">
-      <label data-id="113">EMS contacted?</label>
-      <div data-id="114" class="radio-group mt-1">
-        <label data-id="115"><input data-id="116" type="radio" name="ems" value="Yes" class="ems-radio" /> Yes</label>
-        <label data-id="117"><input data-id="118" type="radio" name="ems" value="No" class="ems-radio" /> No</label>
-      </div>
-      <div data-id="119" class="conditional-field" id="ems-details-o1p2">
-        <div data-id="120"><label data-id="121" for="ems-agency-q3r4">Agency/Unit</label><input data-id="122" type="text" id="ems-agency-q3r4" /></div>
+    <!-- Conditional Details for Law Enforcement -->
+    <div data-id="104" class="conditional-field" id="law-enforcement-details-i5j6">
+      <div data-id="105" class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div data-id="106"><label data-id="107" for="law-agency-k7l8">Agency Name</label><input data-id="108" type="text" id="law-agency-k7l8" /></div>
+        <div data-id="109"><label data-id="110" for="law-report-m9n0">Report Number</label><input data-id="111" type="text" id="law-report-m9n0" /></div>
       </div>
     </div>
 
-    <!-- Member transported -->
-    <div data-id="123">
-      <label data-id="124">Member transported?</label>
-      <div data-id="125" class="radio-group mt-1">
-        <label data-id="126"><input data-id="127" type="radio" name="transported" value="Yes" class="transported-radio" /> Yes</label>
-        <label data-id="128"><input data-id="129" type="radio" name="transported" value="No" class="transported-radio" /> No</label>
-      </div>
-      <div data-id="130" class="conditional-field" id="transported-details-s5t6">
-        <div data-id="131"><label data-id="132" for="transport-dest-u7v8">Destination</label><input data-id="133" type="text" id="transport-dest-u7v8" /></div>
-      </div>
+    <!-- Conditional Details for EMS -->
+    <div data-id="119" class="conditional-field" id="ems-details-o1p2">
+      <div data-id="120"><label data-id="121" for="ems-agency-q3r4">Agency/Unit</label><input data-id="122" type="text" id="ems-agency-q3r4" /></div>
+    </div>
+
+    <!-- Conditional Details for Transport -->
+    <div data-id="130" class="conditional-field" id="transported-details-s5t6">
+      <div data-id="131"><label data-id="132" for="transport-dest-u7v8">Destination</label><input data-id="133" type="text" id="transport-dest-u7v8" /></div>
+    </div>
+
+    <!-- Camera Recording -->
+    <div data-id="camera-check" class="mt-4">
+      <label class="inline-flex items-center gap-2 cursor-pointer">
+        <input type="checkbox" id="camera-recorded-cb" class="w-4 h-4" />
+        <span class="font-medium">Was incident recorded on camera?</span>
+      </label>
     </div>
   </div>
 </section>
@@ -359,32 +378,36 @@ label { font-size: 0.8125rem; font-weight: 500; color: #334155; display: block; 
       </div>
     </div>
 
-    <div data-id="206">
-      <label data-id="207">On-call supervisor notified?</label>
-      <div data-id="208" class="radio-group mt-1">
-        <label data-id="209"><input data-id="210" type="radio" name="supervisor-notified" value="Yes" class="supervisor-notified-radio" /> Yes</label>
-        <label data-id="211"><input data-id="212" type="radio" name="supervisor-notified" value="No" class="supervisor-notified-radio" /> No</label>
+    <div data-id="206" class="grid grid-cols-1 md:grid-cols-2 gap-4">
+      <div>
+        <label data-id="207" class="block mb-1">On-call supervisor notified?</label>
+        <div data-id="208" class="radio-group">
+          <label data-id="209"><input data-id="210" type="radio" name="supervisor-notified" value="Yes" class="supervisor-notified-radio" /> Yes</label>
+          <label data-id="211"><input data-id="212" type="radio" name="supervisor-notified" value="No" class="supervisor-notified-radio" /> No</label>
+        </div>
       </div>
-      <div data-id="213" class="conditional-field" id="supervisor-notified-details-k9l0">
-        <div data-id="214" class="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <div data-id="215"><label data-id="216" for="supervisor-name-m1n2">Supervisor Name</label><input data-id="217" type="text" id="supervisor-name-m1n2" /></div>
-          <div data-id="218"><label data-id="219" for="supervisor-time-o3p4">Time Notified</label><input data-id="220" type="time" id="supervisor-time-o3p4" /></div>
+      <div>
+        <label data-id="222" class="block mb-1">Family/emergency contact notified?</label>
+        <div data-id="223" class="radio-group">
+          <label data-id="224"><input data-id="225" type="radio" name="family-notified" value="Yes" class="family-notified-radio" /> Yes</label>
+          <label data-id="226"><input data-id="227" type="radio" name="family-notified" value="No" class="family-notified-radio" /> No</label>
         </div>
       </div>
     </div>
-
-    <div data-id="221">
-      <label data-id="222">Family/emergency contact notified?</label>
-      <div data-id="223" class="radio-group mt-1">
-        <label data-id="224"><input data-id="225" type="radio" name="family-notified" value="Yes" class="family-notified-radio" /> Yes</label>
-        <label data-id="226"><input data-id="227" type="radio" name="family-notified" value="No" class="family-notified-radio" /> No</label>
+    <!-- Conditional Details for Supervisor Notified -->
+    <div data-id="213" class="conditional-field" id="supervisor-notified-details-k9l0">
+      <div data-id="214" class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div data-id="215"><label data-id="216" for="supervisor-name-m1n2">Supervisor Name</label><input data-id="217" type="text" id="supervisor-name-m1n2" /></div>
+        <div data-id="218"><label data-id="219" for="supervisor-time-o3p4">Time Notified</label><input data-id="220" type="time" id="supervisor-time-o3p4" /></div>
       </div>
-      <div data-id="228" class="conditional-field" id="family-notified-details-q5r6">
-        <div data-id="229" class="grid grid-cols-1 md:grid-cols-3 gap-4">
-          <div data-id="230"><label data-id="231" for="family-contact-name-s7t8">Contact Name</label><input data-id="232" type="text" id="family-contact-name-s7t8" /></div>
-          <div data-id="233"><label data-id="234" for="family-relationship-u9v0">Relationship</label><input data-id="235" type="text" id="family-relationship-u9v0" /></div>
-          <div data-id="236"><label data-id="237" for="family-time-w1x2">Time Notified</label><input data-id="238" type="time" id="family-time-w1x2" /></div>
-        </div>
+    </div>
+
+    <!-- Conditional Details for Family Notified -->
+    <div data-id="228" class="conditional-field" id="family-notified-details-q5r6">
+      <div data-id="229" class="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <div data-id="230"><label data-id="231" for="family-contact-name-s7t8">Contact Name</label><input data-id="232" type="text" id="family-contact-name-s7t8" /></div>
+        <div data-id="233"><label data-id="234" for="family-relationship-u9v0">Relationship</label><input data-id="235" type="text" id="family-relationship-u9v0" /></div>
+        <div data-id="236"><label data-id="237" for="family-time-w1x2">Time Notified</label><input data-id="238" type="time" id="family-time-w1x2" /></div>
       </div>
     </div>
 
@@ -462,25 +485,28 @@ label { font-size: 0.8125rem; font-weight: 500; color: #334155; display: block; 
       </div>
       <div id="comments-feedback" class="ai-feedback"></div>
     </div>
-    <div data-id="297">
-      <label data-id="298">Reportable to licensing/regulatory agency?</label>
-      <div data-id="299" class="radio-group mt-1">
-        <label data-id="300"><input data-id="301" type="radio" name="reportable" value="Yes" class="reportable-radio" /> Yes</label>
-        <label data-id="302"><input data-id="303" type="radio" name="reportable" value="No" class="reportable-radio" /> No</label>
+    <div data-id="297" class="grid grid-cols-1 md:grid-cols-2 gap-4">
+      <div>
+        <label data-id="298" class="block mb-1">Reportable to licensing/regulatory agency?</label>
+        <div data-id="299" class="radio-group">
+          <label data-id="300"><input data-id="301" type="radio" name="reportable" value="Yes" class="reportable-radio" /> Yes</label>
+          <label data-id="302"><input data-id="303" type="radio" name="reportable" value="No" class="reportable-radio" /> No</label>
+        </div>
       </div>
+      <div>
+        <label data-id="316" class="block mb-1">Corrective action plan attached?</label>
+        <div data-id="317" class="radio-group">
+          <label data-id="318"><input data-id="319" type="radio" name="corrective-action" value="Yes" class="corrective-action-radio" /> Yes</label>
+          <label data-id="320"><input data-id="321" type="radio" name="corrective-action" value="No" class="corrective-action-radio" /> No</label>
+        </div>
+      </div>
+    </div>
       <div data-id="304" class="conditional-field" id="reportable-details-c3d4">
         <div data-id="305" class="grid grid-cols-1 md:grid-cols-3 gap-4">
           <div data-id="306"><label data-id="307" for="reportable-agency-e5f6">Agency Name</label><input data-id="308" type="text" id="reportable-agency-e5f6" /></div>
           <div data-id="309"><label data-id="310" for="reportable-date-g7h8">Date Notified</label><input data-id="311" type="date" id="reportable-date-g7h8" /></div>
           <div data-id="312"><label data-id="313" for="reportable-by-i9j0">Notified By</label><input data-id="314" type="text" id="reportable-by-i9j0" /></div>
         </div>
-      </div>
-    </div>
-    <div data-id="315">
-      <label data-id="316">Corrective action plan attached?</label>
-      <div data-id="317" class="radio-group mt-1">
-        <label data-id="318"><input data-id="319" type="radio" name="corrective-plan" value="Yes" /> Yes</label>
-        <label data-id="320"><input data-id="321" type="radio" name="corrective-plan" value="No" /> No</label>
       </div>
     </div>
   </div>
@@ -1089,6 +1115,7 @@ function gatherFormData() {
   data.emsAgency = $('ems-agency-q3r4').value;
   data.transported = (document.querySelector('input[name="transported"]:checked') || {}).value || '';
   data.transportDest = $('transport-dest-u7v8').value;
+  data.cameraRecorded = $('camera-recorded-cb').checked;
   // Section 2 - Members
   data.members = [];
   $$('.member-card').forEach(c => {
@@ -1250,6 +1277,7 @@ function restoreFormData(d) {
   setRadio('law-enforcement', d.lawEnforcement); set('law-agency-k7l8', d.lawAgency); set('law-report-m9n0', d.lawReport);
   setRadio('ems', d.ems); set('ems-agency-q3r4', d.emsAgency);
   setRadio('transported', d.transported); set('transport-dest-u7v8', d.transportDest);
+  if (d.cameraRecorded) { const cb = $('camera-recorded-cb'); if (cb) cb.checked = true; }
   set('narrative-text-s1t2', d.narrative);
   if (d.actionsTaken) d.actionsTaken.forEach(v => { const cb = document.querySelector(`.action-cb[value="${v}"]`); if (cb) cb.checked = true; });
   set('action-other-text-i7j8', d.actionOther);
@@ -1388,6 +1416,7 @@ $('export-pdf-btn-u7v8').addEventListener('click', function() {
   addField('Law Enforcement', data.lawEnforcement + (data.lawAgency ? ` – ${data.lawAgency}` : '') + (data.lawReport ? ` (#${data.lawReport})` : ''));
   addField('EMS Contacted', data.ems + (data.emsAgency ? ` – ${data.emsAgency}` : ''));
   addField('Transported', data.transported + (data.transportDest ? ` – ${data.transportDest}` : ''));
+  addField('Recorded on Camera', data.cameraRecorded ? 'Yes' : 'No');
   y += 3;
 
   // Section 2
