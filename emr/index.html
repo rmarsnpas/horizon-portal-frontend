@@ -625,13 +625,19 @@ function renderIntakeForms(forms) {
 
 function renderDrugScreens(screens) {
   if (!screens || !screens.length) return emptyRow('No drug screens on file');
-  return `<table class="file-table"><thead><tr><th>Date</th><th>Result</th><th>Tested By</th><th>Notes</th></tr></thead><tbody>` +
-    screens.slice().reverse().map(s => `<tr>
-      <td style="white-space:nowrap;">${fmtDate(s.testDate || s.submittedAt || s.createdAt)}</td>
-      <td><span class="badge ${s.result === 'negative' || s.result === 'Negative' ? 'badge-green' : 'badge-orange'}">${esc(s.result || '—')}</span></td>
-      <td>${esc(s.testedBy || s.staffName || '—')}</td>
-      <td style="max-width:180px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${esc(s.notes || '—')}</td>
-    </tr>`).join('') + `</tbody></table>`;
+  return `<table class="file-table"><thead><tr><th>Date</th><th>Result</th><th>Tested By</th><th>Notes</th><th></th></tr></thead><tbody>` +
+    screens.slice().reverse().map(s => {
+      const key = _cacheItem({ screen: s });
+      const overall = s.result || s.overallResult || '—';
+      const isNeg = overall.toLowerCase() === 'negative';
+      return `<tr>
+        <td style="white-space:nowrap;">${fmtDate(s.testDate || s.submittedAt || s.createdAt)}</td>
+        <td><span class="badge ${isNeg ? 'badge-green' : 'badge-orange'}">${esc(overall)}</span></td>
+        <td>${esc(s.testedBy || s.staffName || '—')}</td>
+        <td style="max-width:180px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${esc(s.notes || '—')}</td>
+        <td><button class="btn-view" onclick="viewDrugScreen('${key}')">View</button></td>
+      </tr>`;
+    }).join('') + `</tbody></table>`;
 }
 
 function renderPasses(passes) {
@@ -952,6 +958,63 @@ function buildFormDetailHtml(formType, d) {
   return `<div class="form-detail">${sections.join('')}</div>`;
 }
 
+// ── Drug Screen Detail View ───────────────────────────────────────────────────
+function viewDrugScreen(cacheKey) {
+  const cached = _emrViewCache[cacheKey];
+  if (!cached) return;
+  const s = cached.screen;
+  const overall = s.result || s.overallResult || '—';
+  const isNeg = overall.toLowerCase() === 'negative';
+  document.getElementById('previewTitle').textContent = '🧪 Drug Screen — ' + fmtDate(s.testDate || s.submittedAt || s.createdAt);
+  document.getElementById('btnSaveRec').style.display = 'none';
+  _previewDoc = null;
+
+  const substanceNames = {
+    thc:'THC', cocaine:'COC', opiates:'MOP/OPI 300', amphetamines:'AMP',
+    methamphetamine:'mAMP', benzodiazepines:'BZO', fentanyl:'FENT',
+    barbiturates:'BAR', mdma:'MDMA', methadone:'MTD', oxycodone:'OXY',
+    pcp:'PCP', tca:'TCA', alcohol:'ALCOH'
+  };
+  const row = (l, v) => v ? `<div class="fd-row"><span class="fd-label">${l}</span><span class="fd-val">${esc(String(v))}</span></div>` : '';
+
+  let resultsHtml = '';
+  if (s.results && typeof s.results === 'object') {
+    resultsHtml = `<h3>Substance Results</h3>
+      <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(155px,1fr));gap:6px;margin-bottom:12px;">
+        ${Object.entries(s.results).map(([sub, res]) => {
+          const pos = res === 'positive';
+          return `<div style="display:flex;justify-content:space-between;align-items:center;padding:5px 10px;border-radius:6px;font-size:12.5px;font-weight:600;background:${pos?'#fff5f5':'#f0faf4'};border:1px solid ${pos?'#fc8181':'#68d391'};color:${pos?'#c53030':'#276749'};">
+            <span>${substanceNames[sub] || sub.toUpperCase()}</span>
+            <span>${pos ? '⚠️ POS' : '✓ NEG'}</span>
+          </div>`;
+        }).join('')}
+      </div>`;
+  }
+
+  const sigHtml = (s.staffSignature || s.memberSignature) ? `<h3>Signatures</h3>
+    <div style="display:flex;gap:20px;flex-wrap:wrap;margin-bottom:8px;">
+      ${s.staffSignature ? `<div style="text-align:center;"><div style="font-size:12px;color:#718096;margin-bottom:4px;">Staff</div><img src="${s.staffSignature}" style="max-width:180px;border:1px solid #e2e8f0;border-radius:4px;"></div>` : ''}
+      ${s.memberSignature ? `<div style="text-align:center;"><div style="font-size:12px;color:#718096;margin-bottom:4px;">Member</div><img src="${s.memberSignature}" style="max-width:180px;border:1px solid #e2e8f0;border-radius:4px;"></div>` : ''}
+    </div>` : '';
+
+  const html = `<div class="form-detail">
+    <h3>Test Info</h3>
+    <div style="display:inline-block;padding:4px 16px;border-radius:20px;font-size:13px;font-weight:700;background:${isNeg?'#c6f6d5':'#fed7d7'};color:${isNeg?'#276749':'#c53030'};margin-bottom:10px;">${isNeg?'✓ NEGATIVE':'⚠️ POSITIVE'}</div>
+    ${row('Test Date', fmtDate(s.testDate || s.submittedAt || s.createdAt))}
+    ${row('Test Time', s.testTime)}
+    ${row('Tested By', s.testedBy || s.staffName)}
+    ${row('Member', s.memberName)}
+    ${s.bac ? row('BAC', s.bac) : ''}
+    ${row('Notes', s.notes)}
+    ${resultsHtml}
+    ${sigHtml}
+  </div>`;
+
+  document.getElementById('previewContent').innerHTML = html;
+  document.getElementById('previewOverlay').style.display = 'flex';
+  document.body.style.overflow = 'hidden';
+}
+
 // ── Meeting Card Detail View ──────────────────────────────────────────────────
 function viewMeetingCard(cacheKey) {
   const cached = _emrViewCache[cacheKey];
@@ -961,26 +1024,31 @@ function viewMeetingCard(cacheKey) {
   document.getElementById('btnSaveRec').style.display = 'none';
   _previewDoc = null;
 
-  const row = (label, val) => val ? `<div class="mc-row"><span class="mc-label">${label}</span><span class="mc-val">${esc(String(val))}</span></div>` : '';
-  let html = `<div class="mc-detail-card">
+  const row = (l, v) => v ? `<div class="fd-row"><span class="fd-label">${l}</span><span class="fd-val">${esc(String(v))}</span></div>` : '';
+  const statusColor = c.status === 'approved' ? '#276749' : c.status === 'rejected' ? '#c53030' : '#744210';
+  const statusBg   = c.status === 'approved' ? '#c6f6d5' : c.status === 'rejected' ? '#fed7d7' : '#fefcbf';
+
+  let html = `<div class="form-detail">
+    <h3>Meeting Details</h3>
     ${row('Member', c.memberName || c.residentName)}
     ${row('Meeting Name', c.meetingName)}
     ${row('Meeting Type', c.meetingType)}
     ${row('Meeting Date', fmtDate(c.meetingDate))}
-    ${row('Submitted', fmtDate(c.submittedAt))}
+    ${row('Location', c.location || c.meetingLocation)}
     ${row('Sponsor Name', c.sponsorName)}
     ${row('Sponsor Phone', c.sponsorPhone)}
-    ${row('Location', c.location || c.meetingLocation)}
     ${row('Notes', c.notes)}
-    ${row('Status', c.status)}
+    <div class="fd-row"><span class="fd-label">Status</span><span class="fd-val"><span style="display:inline-block;padding:2px 12px;border-radius:12px;font-size:12px;font-weight:700;background:${statusBg};color:${statusColor};">${esc(c.status || 'pending')}</span></span></div>
+    ${row('Submitted', fmtDate(c.submittedAt))}
   </div>`;
 
-  if (c.imageFile || c.filename) {
-    const imgUrl = `${API}/meetingCards/image/${encodeURIComponent(c.imageFile || c.filename)}`;
-    html += `<div style="margin-top:12px;text-align:center;">
-      <p style="font-size:12px;color:#718096;margin-bottom:6px;">Attached Image</p>
-      <img src="${imgUrl}" alt="Meeting card" style="max-width:100%;max-height:50vh;border-radius:6px;border:1px solid #e2e8f0;">
-    </div>`;
+  const imgFile = c.imageFile || c.imageUrl || c.filename;
+  if (imgFile) {
+    const imgUrl = imgFile.startsWith('http') || imgFile.startsWith('data:') ? imgFile : `${API}/meetingCards/image/${encodeURIComponent(imgFile)}`;
+    html += `<h3 style="color:#2d6a4f;border-bottom:2px solid #2d6a4f;padding-bottom:4px;margin:14px 0 8px;font-size:1rem;">Attached Card Image</h3>
+      <div style="text-align:center;">
+        <img src="${imgUrl}" alt="Meeting card image" style="max-width:100%;border-radius:6px;border:1px solid #e2e8f0;">
+      </div>`;
   }
 
   document.getElementById('previewContent').innerHTML = html;
