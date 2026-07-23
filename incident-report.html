@@ -1460,11 +1460,7 @@ $('export-pdf-btn-u7v8').addEventListener('click', function() {
 
   // Section 9 - Signatures
   sectionTitle('9. SIGNATURES');
-  addField('Staff Printed Name', data.staffName);
-  addField('Staff Role', data.staffRole);
-    catch(e) {}
-  }
-  addField('Supervisor Name', data.superSigName);
+  addField('Administrator Name', data.superSigName);
   addField('Supervisor Date', data.superSigDate);
   if (superSigPad.hasSignature()) {
     checkPage(30);
