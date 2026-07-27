@@ -900,6 +900,37 @@
                     </div>
                 </div>
             </div>
+
+            <!-- Professionals Database Card -->
+            <div class="dashboard-card" style="background: linear-gradient(135deg, #1e3a52 0%, #0d2236 100%); color: white; display: flex; flex-direction: column; justify-content: space-between;">
+                <div>
+                    <div class="card-icon" style="font-size: 48px;">🏥</div>
+                    <div class="card-title" style="color: white;">Professionals Portal</div>
+                    <div class="card-count" id="prosCount" style="font-size: 28px; color: #c98a22;">-</div>
+                    <div class="card-label" style="color: rgba(255,255,255,0.85);">Registered Professionals</div>
+                </div>
+                <div style="display: flex; flex-direction: column; gap: 8px; margin-top: 15px;">
+                    <button onclick="openProfessionalsPanel()" style="width: 100%; padding: 12px; background: #c98a22; color: #1d1d1d; border: none; border-radius: 6px; cursor: pointer; font-weight: 700; font-size: 15px; box-shadow: 0 2px 8px rgba(0,0,0,0.2);">👁️ Manage Professionals</button>
+                    <a href="/professionals-register.html" target="_blank" style="display:block;padding:10px 0;background:rgba(255,255,255,0.12);color:white;border:1.5px solid rgba(255,255,255,0.3);border-radius:6px;text-align:center;font-weight:700;font-size:13px;text-decoration:none;">+ Register New Professional</a>
+                </div>
+            </div>
+
+            <!-- Professionals Panel -->
+            <div id="professionalsPanel" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.6);z-index:100000;align-items:flex-start;justify-content:center;overflow-y:auto;padding:24px 10px;">
+                <div style="background:white;border-radius:14px;padding:28px 24px;max-width:1000px;width:100%;box-shadow:0 8px 40px rgba(0,0,0,0.3);position:relative;margin:auto;">
+                    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:18px;flex-wrap:wrap;gap:10px;">
+                        <h2 style="margin:0;font-size:1.3rem;color:#1a1a2e;">🏥 Professionals Portal Users</h2>
+                        <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;">
+                            <button onclick="loadProfessionalsList()" style="padding:8px 14px;background:#1e3a52;color:white;border:none;border-radius:6px;font-weight:700;cursor:pointer;font-size:13px;">↻ Refresh</button>
+                            <a href="/professionals-register.html" target="_blank" style="padding:8px 14px;background:#c98a22;color:#1d1d1d;border:none;border-radius:6px;font-weight:700;cursor:pointer;font-size:13px;text-decoration:none;display:inline-block;">+ Add Professional</a>
+                            <span onclick="closeProfessionalsPanel()" style="font-size:1.8rem;cursor:pointer;color:#aaa;line-height:1;padding:0 4px;">&times;</span>
+                        </div>
+                    </div>
+                    <input id="prosSearch" type="text" placeholder="Search by name, email, org…" oninput="filterProfessionalsList()" style="width:100%;padding:9px 12px;border:1px solid #ccc;border-radius:6px;font-size:14px;margin-bottom:14px;">
+                    <div id="prosListWrap" style="font-size:14px;overflow-x:auto;">Loading…</div>
+                </div>
+            </div>
+
             <!-- All Members Modal -->
             <div id="allMembersModal" class="modal" style="display:none;">
                 <div class="modal-content" style="max-width:95vw;height:90vh;margin:2vh auto;padding:20px;display:flex;flex-direction:column;overflow:hidden;">
@@ -2032,7 +2063,43 @@ ${rateSummaryHtml}
                                     `</div>`;
                             })(),
                             // Staff password (shown for status 4/5, or when staffPortalAccess is granted)
-                            `<div id="staffPwSection" style="margin-bottom:10px;${(statusVal==='4'||statusVal==='5'||member.staffPortalAccess)?'':'display:none;'}"><label style='${labelStyle}'>Management Password</label><input name='STAFF_PW' type='text' value="${member.staffPw || ''}" placeholder="Set portal login password" style='${fieldStyle}'><div style="font-size:12px;color:#718096;margin-top:4px;">Password this member uses to log into the Management Portal.</div></div>`,
+                            `<div id="staffPwSection" style="margin-bottom:10px;${(statusVal==='4'||statusVal==='5'||member.staffPortalAccess||member.professionalPortalAccess)?'':'display:none;'}"><label style='${labelStyle}'>Portal Password</label><input name='STAFF_PW' type='text' value="${member.staffPw || ''}" placeholder="Set portal login password" style='${fieldStyle}'><div style="font-size:12px;color:#718096;margin-top:4px;">Password used to log into the Management or Professionals Portal.</div></div>`,
+                            // Professional Portal Access section
+                            `<div id="profPortalSection" style="border:2px solid #c98a22;border-radius:8px;padding:14px;margin-bottom:14px;">`+
+                                `<label style="display:flex;align-items:center;gap:10px;cursor:pointer;font-size:14px;font-weight:600;color:#c98a22;">`+
+                                `<input type="checkbox" name="professionalPortalAccess" id="profPortalAccessChk" ${member.professionalPortalAccess?'checked':''} onchange="window.toggleProfPortalFields(this.checked)" style="width:18px;height:18px;">`+
+                                `<span>&#127973; Grant Professional Portal Access</span></label>`+
+                                `<div style="font-size:12px;color:#718096;margin-top:6px;">For case workers, counselors, RUHS staff, and other referring professionals. Grants restricted portal access to view their linked members' information. Set a Portal Password above.</div>`+
+                                `</div>`,
+                            // Professional portal fields (email/username, org, permissions)
+                            (function() {
+                                const show = !!member.professionalPortalAccess;
+                                const PROF_TABS = [
+                                    { key:'profile',   label:'\uD83D\uDC64 Profile' },
+                                    { key:'sio',       label:'\uD83D\uDEAA Sign In/Out' },
+                                    { key:'ua',        label:'\uD83E\uDDEA UA Results' },
+                                    { key:'incidents', label:'\u26A0\uFE0F Incidents' },
+                                    { key:'docs',      label:'\uD83D\uDCC4 Documents' },
+                                    { key:'messages',  label:'\uD83D\uDCAC Messages' },
+                                ];
+                                const curPerms = Array.isArray(member.professionalPermissions) ? member.professionalPermissions : [];
+                                const permBoxes = PROF_TABS.map(p =>
+                                    `<label style="display:flex;align-items:center;gap:8px;padding:5px 0;cursor:pointer;font-size:14px;">`+
+                                    `<input type="checkbox" name="profperm_${p.key}" value="${p.key}" ${(curPerms.length===0||curPerms.includes(p.key))?'checked':''}>`+
+                                    `<span>${p.label}</span></label>`
+                                ).join('');
+                                return `<div id="profPortalFields" style="margin-bottom:14px;${show?'':'display:none;'}">` +
+                                    `<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:8px;">` +
+                                    `<div><label style='${labelStyle}'>Login Email / Username</label><input name='PROF_EMAIL' type='email' value="${member.professionalEmail||member.email||''}" placeholder="e.g. jsmith@ruhs.org" style='${fieldStyle}'><div style="font-size:11px;color:#718096;margin-top:3px;">Email or username this professional uses to log in.</div></div>` +
+                                    `<div><label style='${labelStyle}'>Organization</label><input name='PROF_ORG' type='text' value="${member.professionalOrg||''}" placeholder="e.g. RUHS, ABC Counseling" style='${fieldStyle}'></div>` +
+                                    `</div>` +
+                                    `<div style="border:1px solid #e2e8f0;border-radius:6px;padding:12px;">` +
+                                    `<div style="font-weight:700;font-size:13px;color:#c98a22;margin-bottom:8px;">Portal Sections Access</div>` +
+                                    `<div style="font-size:12px;color:#718096;margin-bottom:8px;">Check all sections this professional can see. Leave all checked for full access.</div>` +
+                                    `<div style="display:grid;grid-template-columns:1fr 1fr;gap:2px;">${permBoxes}</div>` +
+                                    `</div>` +
+                                    `</div>`;
+                            })(),
                             // Census / bedboard inclusion (shown for status 4)
                             (function() {
                                 const isCensusChecked = member.inCensus === true;
@@ -2124,9 +2191,18 @@ ${rateSummaryHtml}
                             const statusSel = document.querySelector('#staffProfileForm [name="STATUS"]');
                             const val = statusSel ? statusSel.value : '';
                             const spw = document.getElementById('staffPwSection');
-                            if (spw) spw.style.display = (val === '4' || val === '5' || checked) ? 'block' : 'none';
+                            const profChk = document.getElementById('profPortalAccessChk');
+                            const profChecked = profChk ? profChk.checked : false;
+                            if (spw) spw.style.display = (val === '4' || val === '5' || checked || profChecked) ? 'block' : 'none';
                             const sec = document.getElementById('permissionsSection');
                             if (sec) sec.style.display = (val === '4' || checked) ? 'block' : 'none';
+                        };
+                        // Toggle professional portal fields
+                        window.toggleProfPortalFields = function(checked) {
+                            const pf = document.getElementById('profPortalFields');
+                            if (pf) pf.style.display = checked ? 'block' : 'none';
+                            const spw = document.getElementById('staffPwSection');
+                            if (spw && checked) spw.style.display = 'block';
                         };
 
                         // Readmit handler — called from the Readmit button inside the profile modal
@@ -2209,6 +2285,13 @@ ${rateSummaryHtml}
                             billOnDay: form.elements['BILL ON DAY'] ? form.elements['BILL ON DAY'].value : '',
                             HIDE_INVOICES: form.elements['HIDE_INVOICES'] ? (form.elements['HIDE_INVOICES'].value === '1') : false,
                             staffPortalAccess: form.elements['staffPortalAccess'] ? form.elements['staffPortalAccess'].checked : false,
+                            professionalPortalAccess: form.elements['professionalPortalAccess'] ? form.elements['professionalPortalAccess'].checked : false,
+                            professionalEmail: form.elements['PROF_EMAIL'] ? form.elements['PROF_EMAIL'].value : '',
+                            professionalOrg:   form.elements['PROF_ORG']   ? form.elements['PROF_ORG'].value   : '',
+                            professionalPermissions: (() => {
+                                const boxes = form.querySelectorAll('[name^="profperm_"]:checked');
+                                return Array.from(boxes).map(cb => cb.value);
+                            })(),
                             refCaseWorker: form.elements['REF_CASEWORKER'] ? form.elements['REF_CASEWORKER'].value : '',
                             refCwPhone: form.elements['REF_CW_PHONE'] ? form.elements['REF_CW_PHONE'].value : '',
                             notes: form.elements['NOTES'] ? form.elements['NOTES'].value : '',
@@ -4675,6 +4758,167 @@ window.openUploadModal = openUploadModal;
 const MDOC_API = 'https://horizon-portal-backend-production-3532.up.railway.app/api';
 let _allMemberDocs = [];
 let _currentPreviewDoc = null;
+
+/* ── Professionals Panel ─────────────────────────────────────────────────── */
+let _allPros = [];
+
+function openProfessionalsPanel() {
+    document.getElementById('professionalsPanel').style.display = 'flex';
+    document.body.style.overflow = 'hidden';
+    loadProfessionalsList();
+}
+function closeProfessionalsPanel() {
+    document.getElementById('professionalsPanel').style.display = 'none';
+    document.body.style.overflow = '';
+}
+
+async function loadProfessionalsList() {
+    const wrap = document.getElementById('prosListWrap');
+    wrap.innerHTML = 'Loading…';
+    try {
+        const res = await fetch(`${MDOC_API}/members`);
+        const all = await res.json();
+        _allPros = (Array.isArray(all) ? all : []).filter(m => m.professionalPortalAccess);
+
+        // Update badge count
+        const badge = document.getElementById('prosCount');
+        if (badge) badge.textContent = _allPros.length;
+
+        // Also fetch all members to count linked members per pro
+        const linked = {};
+        all.forEach(m => {
+            const cw = (m.refCaseWorker || m.REF_CASEWORKER || '').trim();
+            if (cw) linked[cw] = (linked[cw] || 0) + 1;
+        });
+
+        renderProfessionalsList(_allPros, linked);
+    } catch (e) {
+        wrap.innerHTML = '<p style="color:red">Failed to load professionals. Please try again.</p>';
+    }
+}
+
+function renderProfessionalsList(pros, linked) {
+    const wrap = document.getElementById('prosListWrap');
+    if (!pros.length) {
+        wrap.innerHTML = '<p style="color:#888;text-align:center;padding:32px 0">No professional accounts found. Use "Register New Professional" to add the first one.</p>';
+        return;
+    }
+    wrap.innerHTML = `
+      <table style="width:100%;border-collapse:collapse;min-width:700px">
+        <thead>
+          <tr style="background:#f4f6f9;text-align:left;font-size:12px;text-transform:uppercase;color:#555;letter-spacing:.5px">
+            <th style="padding:10px 12px">Name</th>
+            <th style="padding:10px 12px">Email / Login</th>
+            <th style="padding:10px 12px">Organization</th>
+            <th style="padding:10px 12px">Title</th>
+            <th style="padding:10px 12px;text-align:center">Linked Members</th>
+            <th style="padding:10px 12px;text-align:center">Access</th>
+            <th style="padding:10px 12px">Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          ${pros.map(p => {
+            const id = p.ID || p.id || '';
+            const name = `${p.FIRST_NAME||p.firstName||''} ${p.LAST_NAME||p.lastName||''}`.trim() || '—';
+            const email = p.professionalEmail || p.email || p.EMAIL || '—';
+            const org   = p.professionalOrg || '—';
+            const title = p.professionalTitle || '—';
+            const linkedCount = linked[String(id)] || 0;
+            const active = p.professionalPortalAccess === true || p.professionalPortalAccess === 'true';
+            return `<tr style="border-bottom:1px solid #eee;transition:background .15s" onmouseover="this.style.background='#f8f9ff'" onmouseout="this.style.background=''">
+              <td style="padding:10px 12px;font-weight:700;color:#1a1a2e">${name}</td>
+              <td style="padding:10px 12px;color:#444;font-size:13px">${email}</td>
+              <td style="padding:10px 12px;color:#555;font-size:13px">${org}</td>
+              <td style="padding:10px 12px;color:#555;font-size:13px">${title}</td>
+              <td style="padding:10px 12px;text-align:center">
+                <span style="background:${linkedCount?'#e8f4fd':'#f0f0f0'};color:${linkedCount?'#1e6fa8':'#999'};padding:3px 10px;border-radius:12px;font-size:12px;font-weight:700">${linkedCount}</span>
+              </td>
+              <td style="padding:10px 12px;text-align:center">
+                <span style="background:${active?'#d4edda':'#f8d7da'};color:${active?'#155724':'#721c24'};padding:3px 10px;border-radius:12px;font-size:12px;font-weight:700">${active?'Active':'Revoked'}</span>
+              </td>
+              <td style="padding:10px 12px">
+                <div style="display:flex;gap:5px;flex-wrap:wrap">
+                  <button onclick="window.openEditMemberModalById('${id}')" style="padding:5px 10px;background:#667eea;color:white;border:none;border-radius:4px;cursor:pointer;font-size:12px;font-weight:700">✏️ Edit</button>
+                  <button onclick="proResetPassword('${id}','${name.replace(/'/g,'\\\'')}')" style="padding:5px 10px;background:#f59e0b;color:#1d1d1d;border:none;border-radius:4px;cursor:pointer;font-size:12px;font-weight:700">🔑 Reset PW</button>
+                  <button onclick="proToggleAccess('${id}',${active})" style="padding:5px 10px;background:${active?'#dc3545':'#28a745'};color:white;border:none;border-radius:4px;cursor:pointer;font-size:12px;font-weight:700">${active?'🚫 Revoke':'✅ Enable'}</button>
+                  <button onclick="proDelete('${id}','${name.replace(/'/g,'\\\'')}')" style="padding:5px 10px;background:#6c757d;color:white;border:none;border-radius:4px;cursor:pointer;font-size:12px;font-weight:700">🗑</button>
+                </div>
+              </td>
+            </tr>`;
+          }).join('')}
+        </tbody>
+      </table>`;
+}
+
+function filterProfessionalsList() {
+    const q = (document.getElementById('prosSearch').value || '').toLowerCase();
+    if (!q) { renderProfessionalsList(_allPros, {}); return; }
+    const filtered = _allPros.filter(p => {
+        const name  = ((p.FIRST_NAME||p.firstName||'') + ' ' + (p.LAST_NAME||p.lastName||'')).toLowerCase();
+        const email = (p.professionalEmail || p.email || '').toLowerCase();
+        const org   = (p.professionalOrg || '').toLowerCase();
+        return name.includes(q) || email.includes(q) || org.includes(q);
+    });
+    renderProfessionalsList(filtered, {});
+}
+
+async function proResetPassword(id, name) {
+    const newPw = prompt(`Reset portal password for ${name}:\n\nEnter a new password (min 6 characters), or leave blank to generate one automatically.`);
+    if (newPw === null) return; // cancelled
+    const pw = newPw.trim() || (() => {
+        const c='ABCDEFGHJKLMNPQRSTUVWXYZabcdefghjkmnpqrstuvwxyz23456789';
+        return Array.from({length:8},()=>c[Math.floor(Math.random()*c.length)]).join('');
+    })();
+    if (pw.length < 6) { alert('Password must be at least 6 characters.'); return; }
+    try {
+        const res = await fetch(`${MDOC_API}/updateMember`, {
+            method: 'PATCH', headers: {'Content-Type':'application/json'},
+            body: JSON.stringify({ id, staffPw: pw })
+        });
+        const d = await res.json();
+        if (d.success) alert(`✅ Password reset for ${name}.\n\nNew password: ${pw}\n\nShare this with the professional securely.`);
+        else alert('Error: ' + (d.error || 'Unknown error'));
+    } catch (e) { alert('Could not reach server.'); }
+}
+
+async function proToggleAccess(id, currentlyActive) {
+    const action = currentlyActive ? 'revoke' : 'restore';
+    if (!confirm(`Are you sure you want to ${action} portal access for this professional?`)) return;
+    try {
+        const res = await fetch(`${MDOC_API}/updateMember`, {
+            method: 'PATCH', headers: {'Content-Type':'application/json'},
+            body: JSON.stringify({ id, professionalPortalAccess: !currentlyActive })
+        });
+        const d = await res.json();
+        if (d.success) { await loadProfessionalsList(); }
+        else alert('Error: ' + (d.error || 'Unknown error'));
+    } catch (e) { alert('Could not reach server.'); }
+}
+
+async function proDelete(id, name) {
+    if (!confirm(`Delete professional account for ${name}?\n\nThis cannot be undone.`)) return;
+    try {
+        const res = await fetch(`${MDOC_API}/deleteMember`, {
+            method: 'DELETE', headers: {'Content-Type':'application/json'},
+            body: JSON.stringify({ id })
+        });
+        const d = await res.json();
+        if (d.success || d.removed) { await loadProfessionalsList(); }
+        else alert('Error: ' + (d.error || 'Unknown error'));
+    } catch (e) { alert('Could not reach server.'); }
+}
+
+// Load pros count on dashboard load
+(async function loadProsCount() {
+    try {
+        const res = await fetch('https://horizon-portal-backend-production-3532.up.railway.app/api/members');
+        const all = await res.json();
+        const count = (Array.isArray(all) ? all : []).filter(m => m.professionalPortalAccess).length;
+        const badge = document.getElementById('prosCount');
+        if (badge) badge.textContent = count;
+    } catch {}
+})();
+/* ── End Professionals Panel ─────────────────────────────────────────────── */
 
 function openMemberDocsPanel() {
     const panel = document.getElementById('memberDocsPanel');
