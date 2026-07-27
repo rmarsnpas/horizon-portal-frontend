@@ -1,666 +1,1397 @@
-<!doctype html>
+﻿<!doctype html>
 <html lang="en">
 <head>
   <meta charset="utf-8">
   <title>Professionals Portal | Horizon House Sober Living</title>
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="description" content="The Horizon House Professionals Portal — a secure collaboration hub for referring treatment professionals. Coming soon.">
-  <meta name="robots" content="noindex">
-  <link rel="canonical" href="https://horizon-house.org/professionals-portal.html">
-
+  <meta name="description" content="Secure portal for referring professionals — case workers, counselors, and healthcare providers — to monitor associated member progress.">
+  <meta name="robots" content="noindex,nofollow">
   <link rel="icon" type="image/png" href="HH%20logo%20grntree.png">
   <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@500;700&family=Nunito:wght@400;600&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="hope-cloud.css">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@500;600;700&family=Nunito:wght@400;600;700&display=swap" rel="stylesheet">
   <style>
     :root {
-      --slate:#2b3440; --amber:#c98a22; --sand:#f5f1ea; --green:#2e6a4f; --navy:#0d2236;
+      --bg:#0b1929; --surface:#112236; --surface2:#0d1d31; --border:#1c3a54;
+      --amber:#c98a22; --amber-light:#eab85e; --green:#2e6a4f; --green-light:#3d8f6a;
+      --red:#c0392b; --blue:#2563eb; --text:#e8edf3; --muted:#7a9bb5;
+      --navy:#07111d; --radius:.85rem; --radius-sm:.5rem;
     }
-    *{box-sizing:border-box}
-    body{margin:0;font-family:Nunito,system-ui,-apple-system;line-height:1.6;color:#2b3440;background:#0b1929;overflow-x:hidden}
+    *{box-sizing:border-box;margin:0;padding:0}
+    html{scroll-behavior:smooth}
+    body{font-family:Nunito,system-ui,-apple-system;background:var(--bg);color:var(--text);min-height:100vh;overflow-x:hidden}
     a{color:var(--amber);text-decoration:none}
-    a:focus,button:focus{outline:3px solid var(--amber);outline-offset:2px}
+    a:hover{color:var(--amber-light)}
+    button{font-family:inherit;cursor:pointer}
+    input,select,textarea{font-family:inherit}
+    :focus-visible{outline:2px solid var(--amber);outline-offset:2px}
     .sr-only{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0}
 
-    /* Top bar */
-    .top-bar{
-      background:#07111d;
-      padding:.7rem 1.5rem;
-      display:flex;
-      align-items:center;
-      justify-content:space-between;
-      flex-wrap:wrap;
-      gap:.75rem;
-    }
-    .top-bar-brand{
-      display:flex;align-items:center;gap:.75rem;
-    }
-    .top-bar-brand img{height:52px;}
-    .top-bar-brand span{
-      font-family:Inter,system-ui;
-      font-weight:700;
-      font-size:1rem;
-      color:#fff;
-      line-height:1.2;
-    }
-    .top-bar-brand span small{
-      display:block;
-      font-weight:400;
-      font-size:.75rem;
-      color:#7a9bb5;
-      letter-spacing:.5px;
-      text-transform:uppercase;
-    }
-    .back-link{
-      font-size:.85rem;
-      color:#7a9bb5;
-      font-weight:600;
-      text-decoration:none;
-      display:flex;
-      align-items:center;
-      gap:.35rem;
-    }
-    .back-link:hover{color:#c98a22;}
+    /* Top Bar */
+    .top-bar{background:var(--navy);padding:.65rem 1.5rem;display:flex;align-items:center;justify-content:space-between;gap:1rem;flex-wrap:wrap;border-bottom:1px solid var(--border);position:sticky;top:0;z-index:900}
+    .brand{display:flex;align-items:center;gap:.75rem}
+    .brand img{height:46px}
+    .brand-text{font-family:Inter,system-ui;font-weight:700;font-size:.95rem;color:#fff;line-height:1.2}
+    .brand-text small{display:block;font-weight:400;font-size:.7rem;color:var(--muted);letter-spacing:.5px;text-transform:uppercase}
+    .top-bar-right{display:flex;align-items:center;gap:.75rem}
+    .btn-logout{background:rgba(255,255,255,.08);border:1px solid var(--border);color:var(--muted);padding:.4rem .9rem;border-radius:var(--radius-sm);font-size:.82rem;font-weight:700;transition:all .2s}
+    .btn-logout:hover{background:rgba(255,255,255,.14);color:#fff}
+    #loggedInAs{font-size:.82rem;color:var(--muted)}
 
-    /* Hero */
-    .portal-hero{
-      text-align:center;
-      padding:4.5rem 1.5rem 3rem;
-      position:relative;
-    }
-    .construction-badge{
-      display:inline-flex;
-      align-items:center;
-      gap:.5rem;
-      background:rgba(201,138,34,.15);
-      border:1.5px solid rgba(201,138,34,.5);
-      color:#c98a22;
-      border-radius:2rem;
-      padding:.4rem 1.2rem;
-      font-size:.85rem;
-      font-weight:700;
-      letter-spacing:.8px;
-      text-transform:uppercase;
-      margin-bottom:1.5rem;
-    }
-    .construction-badge .dot{
-      width:8px;height:8px;
-      background:#c98a22;
-      border-radius:50%;
-      animation:pulse 1.6s ease-in-out infinite;
-    }
-    @keyframes pulse{
-      0%,100%{opacity:1;transform:scale(1);}
-      50%{opacity:.4;transform:scale(.7);}
-    }
-    .portal-hero h1{
-      font-family:Inter,system-ui;
-      font-size:2.8rem;
-      color:#fff;
-      margin:.25rem 0 .75rem;
-      line-height:1.15;
-    }
-    .portal-hero h1 span{color:#c98a22;}
-    .portal-hero p{
-      max-width:620px;
-      margin:0 auto 2rem;
-      color:#7a9bb5;
-      font-size:1.08rem;
-    }
+    /* Login */
+    #loginScreen{display:flex;align-items:center;justify-content:center;min-height:calc(100vh - 70px);padding:2rem 1rem}
+    .login-card{background:var(--surface);border:1.5px solid var(--border);border-radius:var(--radius);padding:2.5rem 2rem;max-width:440px;width:100%;box-shadow:0 16px 48px rgba(0,0,0,.45)}
+    .login-logo{text-align:center;margin-bottom:1.5rem}
+    .login-logo img{height:64px}
+    .login-card h1{font-family:Inter,system-ui;font-size:1.5rem;color:#fff;text-align:center;margin-bottom:.35rem}
+    .login-sub{text-align:center;color:var(--muted);font-size:.9rem;margin-bottom:2rem}
+    .form-field{margin-bottom:1.1rem}
+    .form-field label{display:block;font-size:.82rem;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.05em;margin-bottom:.4rem}
+    .form-field input{width:100%;padding:.75rem 1rem;background:#0d1d31;border:1.5px solid var(--border);border-radius:var(--radius-sm);color:#fff;font-size:.95rem;transition:border-color .2s}
+    .form-field input:focus{border-color:var(--amber);outline:none}
+    .form-field input::placeholder{color:#3a5a72}
+    .btn-primary{width:100%;padding:.85rem;background:var(--amber);color:#1d1d1d;border:none;border-radius:var(--radius-sm);font-size:1rem;font-weight:700;transition:background .2s,transform .15s;margin-top:.5rem}
+    .btn-primary:hover{background:var(--amber-light);transform:translateY(-1px)}
+    .btn-primary:disabled{background:#3a5a72;color:#6a8a9a;cursor:not-allowed;transform:none}
+    .login-error{background:rgba(192,57,43,.15);border:1px solid rgba(192,57,43,.4);color:#f87171;border-radius:var(--radius-sm);padding:.65rem 1rem;font-size:.88rem;margin-top:.75rem;display:none}
+    .login-note{text-align:center;color:var(--muted);font-size:.8rem;margin-top:1.5rem;padding-top:1rem;border-top:1px solid var(--border)}
 
-    /* Notify form */
-    .notify-form{
-      display:flex;
-      gap:.6rem;
-      justify-content:center;
-      flex-wrap:wrap;
-      max-width:520px;
-      margin:0 auto 1rem;
-    }
-    .notify-form input{
-      flex:1;
-      min-width:220px;
-      padding:.75rem 1rem;
-      border-radius:.5rem;
-      border:1.5px solid #2a4a63;
-      background:#112236;
-      color:#fff;
-      font-size:.95rem;
-      font-family:Nunito,system-ui;
-    }
-    .notify-form input::placeholder{color:#4a6a85;}
-    .notify-form input:focus{outline:none;border-color:#c98a22;}
-    .notify-form button{
-      padding:.75rem 1.5rem;
-      background:#c98a22;
-      color:#1d1d1d;
-      border:none;
-      border-radius:.5rem;
-      font-weight:700;
-      font-size:.95rem;
-      cursor:pointer;
-      font-family:Nunito,system-ui;
-      transition:background .2s,transform .15s;
-    }
-    .notify-form button:hover{background:#eab85e;transform:translateY(-1px);}
-    #notify-status{font-size:.88rem;color:#7a9bb5;text-align:center;min-height:1.2rem;}
+    /* App shell */
+    #appShell{display:none;padding-bottom:3rem}
+    .app-header{padding:1.5rem 1.75rem 0;display:flex;align-items:flex-start;justify-content:space-between;gap:1rem;flex-wrap:wrap}
+    .app-header h2{font-family:Inter,system-ui;font-size:1.35rem;color:#fff}
+    .app-header p{color:var(--muted);font-size:.88rem;margin-top:.2rem}
+    .back-btn{background:rgba(255,255,255,.07);border:1px solid var(--border);color:var(--muted);padding:.45rem .9rem;border-radius:var(--radius-sm);font-size:.82rem;font-weight:700;display:inline-flex;align-items:center;gap:.4rem;transition:all .2s}
+    .back-btn:hover{background:rgba(255,255,255,.12);color:#fff}
 
-    /* Feature grid */
-    .features-wrap{
-      max-width:1040px;
-      margin:0 auto;
-      padding:0 1.5rem 4rem;
-    }
-    .features-label{
-      text-align:center;
-      color:#3d6580;
-      font-size:.8rem;
-      font-weight:700;
-      letter-spacing:1.2px;
-      text-transform:uppercase;
-      margin-bottom:1.5rem;
-    }
-    .features-grid{
-      display:grid;
-      grid-template-columns:repeat(auto-fit,minmax(280px,1fr));
-      gap:1.25rem;
-      margin-bottom:3rem;
-    }
-    .feature-card{
-      background:#112236;
-      border:1.5px solid #1c3a54;
-      border-radius:.85rem;
-      padding:1.5rem 1.75rem;
-      transition:border-color .2s,transform .2s;
-      position:relative;
-      overflow:hidden;
-    }
-    .feature-card:hover{border-color:#c98a22;transform:translateY(-3px);}
-    .feature-card .card-icon{
-      font-size:1.8rem;
-      margin-bottom:.75rem;
-      display:block;
-    }
-    .feature-card h3{
-      font-family:Inter,system-ui;
-      font-size:1.05rem;
-      color:#fff;
-      margin:0 0 .5rem;
-    }
-    .feature-card p{
-      color:#7a9bb5;
-      font-size:.92rem;
-      margin:0;
-      line-height:1.55;
-    }
-    .feature-card .status-pill{
-      position:absolute;
-      top:1rem;right:1rem;
-      font-size:.68rem;
-      font-weight:700;
-      letter-spacing:.5px;
-      text-transform:uppercase;
-      padding:.2rem .6rem;
-      border-radius:2rem;
-    }
-    .pill-planned{background:rgba(201,138,34,.15);color:#c98a22;border:1px solid rgba(201,138,34,.3);}
-    .pill-priority{background:rgba(46,106,79,.2);color:#4db380;border:1px solid rgba(46,106,79,.4);}
+    /* Members grid */
+    #membersView{padding:1.25rem 1.75rem}
+    .section-label{font-size:.75rem;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:var(--muted);margin-bottom:1rem}
+    .members-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:1rem}
+    .member-card{background:var(--surface);border:1.5px solid var(--border);border-radius:var(--radius);padding:1.35rem 1.5rem;cursor:pointer;transition:all .2s;display:flex;gap:1rem;align-items:flex-start}
+    .member-card:hover{border-color:var(--amber);transform:translateY(-2px);box-shadow:0 8px 24px rgba(0,0,0,.3)}
+    .member-avatar{width:48px;height:48px;border-radius:50%;background:var(--green);color:#fff;display:flex;align-items:center;justify-content:center;font-size:1.15rem;font-weight:700;flex-shrink:0}
+    .member-card-info{flex:1;min-width:0}
+    .member-card-name{font-size:1rem;font-weight:700;color:#fff;margin-bottom:.25rem}
+    .member-card-meta{font-size:.82rem;color:var(--muted);display:flex;gap:.75rem;flex-wrap:wrap}
+    .status-badge{display:inline-flex;align-items:center;gap:.3rem;padding:.18rem .65rem;border-radius:2rem;font-size:.75rem;font-weight:700}
+    .status-badge.active{background:rgba(34,197,94,.15);color:#22c55e}
+    .status-badge.out{background:rgba(245,158,11,.15);color:#f59e0b}
+    .status-badge.inactive{background:rgba(239,68,68,.15);color:#ef4444}
+    .status-badge.alumni{background:rgba(37,99,235,.15);color:#60a5fa}
+    .status-badge.info{background:rgba(37,99,235,.15);color:#60a5fa}
+    .status-badge.pending{background:rgba(156,163,175,.15);color:#9ca3af}
 
-    /* How it will work timeline */
-    .timeline{
-      max-width:760px;
-      margin:0 auto 3.5rem;
-    }
-    .timeline h2{
-      text-align:center;
-      font-family:Inter,system-ui;
-      font-size:1.5rem;
-      color:#fff;
-      margin-bottom:2rem;
-    }
-    .tl-item{
-      display:flex;
-      gap:1.25rem;
-      margin-bottom:1.5rem;
-      align-items:flex-start;
-    }
-    .tl-num{
-      flex-shrink:0;
-      width:36px;height:36px;
-      background:#c98a22;
-      color:#1d1d1d;
-      border-radius:50%;
-      font-weight:700;
-      font-family:Inter,system-ui;
-      display:flex;align-items:center;justify-content:center;
-      font-size:1rem;
-    }
-    .tl-content h4{
-      margin:0 0 .3rem;
-      font-family:Inter,system-ui;
-      font-size:1rem;
-      color:#fff;
-    }
-    .tl-content p{margin:0;color:#7a9bb5;font-size:.92rem;}
+    /* Detail view */
+    #detailView{display:none;padding:0 1.75rem}
+    .detail-header{display:flex;align-items:flex-start;gap:1.25rem;padding:1.25rem 0 1.5rem;flex-wrap:wrap}
+    .detail-avatar{width:64px;height:64px;border-radius:50%;background:var(--green);color:#fff;display:flex;align-items:center;justify-content:center;font-size:1.6rem;font-weight:700;flex-shrink:0}
+    .detail-name{font-family:Inter,system-ui;font-size:1.5rem;font-weight:700;color:#fff}
+    .detail-sub{font-size:.88rem;color:var(--muted);margin-top:.25rem;display:flex;gap:1rem;flex-wrap:wrap;align-items:center}
 
-    /* Mock UI preview */
-    .preview-wrap{
-      max-width:840px;
-      margin:0 auto 3.5rem;
-      text-align:center;
-    }
-    .preview-wrap h2{
-      font-family:Inter,system-ui;
-      font-size:1.5rem;
-      color:#fff;
-      margin-bottom:1.75rem;
-    }
-    .mock-browser{
-      background:#07111d;
-      border:1.5px solid #1c3a54;
-      border-radius:.75rem;
-      overflow:hidden;
-      box-shadow:0 20px 60px rgba(0,0,0,.5);
-    }
-    .mock-toolbar{
-      background:#0f1e2e;
-      padding:.6rem 1rem;
-      display:flex;
-      align-items:center;
-      gap:.5rem;
-      border-bottom:1px solid #1c3a54;
-    }
-    .mock-dot{width:10px;height:10px;border-radius:50%;}
-    .mock-url{
-      flex:1;
-      margin-left:.5rem;
-      background:#07111d;
-      border:1px solid #1c3a54;
-      border-radius:.35rem;
-      padding:.2rem .75rem;
-      font-size:.75rem;
-      color:#3d6580;
-      text-align:left;
-    }
-    .mock-body{padding:1.5rem;}
-    .mock-tabs{
-      display:flex;gap:.5rem;margin-bottom:1.5rem;flex-wrap:wrap;
-    }
-    .mock-tab{
-      padding:.4rem 1rem;
-      border-radius:.4rem;
-      font-size:.8rem;
-      font-weight:700;
-      color:#7a9bb5;
-      background:transparent;
-      border:1px solid #1c3a54;
-    }
-    .mock-tab.active{background:#c98a22;color:#1d1d1d;border-color:#c98a22;}
-    .mock-stat-row{
-      display:grid;
-      grid-template-columns:repeat(auto-fit,minmax(130px,1fr));
-      gap:.75rem;
-      margin-bottom:1.25rem;
-    }
-    .mock-stat{
-      background:#112236;
-      border:1px solid #1c3a54;
-      border-radius:.5rem;
-      padding:.85rem 1rem;
-      text-align:left;
-    }
-    .mock-stat .label{font-size:.68rem;color:#3d6580;text-transform:uppercase;letter-spacing:.5px;font-weight:700;}
-    .mock-stat .value{font-size:1.5rem;font-weight:700;font-family:Inter,system-ui;color:#fff;margin-top:.15rem;}
-    .mock-stat .sub{font-size:.72rem;color:#4db380;}
-    .mock-table-row{
-      display:flex;
-      align-items:center;
-      gap:.75rem;
-      padding:.6rem .75rem;
-      border-radius:.4rem;
-      margin-bottom:.4rem;
-      background:#112236;
-      border:1px solid #1c3a54;
-      font-size:.82rem;
-    }
-    .mock-table-row .name{flex:1;color:#cfd6e6;font-weight:600;}
-    .mock-table-row .house{color:#7a9bb5;font-size:.75rem;min-width:70px;}
-    .mock-table-row .pill{padding:.18rem .6rem;border-radius:2rem;font-size:.68rem;font-weight:700;white-space:nowrap;}
-    .p-active{background:rgba(46,106,79,.25);color:#4db380;}
-    .p-pending{background:rgba(201,138,34,.2);color:#c98a22;}
-    .p-alert{background:rgba(156,47,47,.25);color:#e07070;}
-    .mock-table-row .date{color:#3d6580;font-size:.72rem;min-width:80px;text-align:right;}
+    /* Tabs */
+    .tabs{display:flex;gap:0;border-bottom:2px solid var(--border);margin-bottom:1.5rem;overflow-x:auto;scrollbar-width:none}
+    .tabs::-webkit-scrollbar{display:none}
+    .tab-btn{background:none;border:none;color:var(--muted);font-size:.9rem;font-weight:700;padding:.7rem 1.25rem;border-bottom:3px solid transparent;margin-bottom:-2px;white-space:nowrap;transition:all .2s}
+    .tab-btn:hover{color:#fff}
+    .tab-btn.active{color:var(--amber);border-bottom-color:var(--amber)}
+    .tab-panel{display:none}
+    .tab-panel.active{display:block}
 
-    /* CTA strip */
-    .cta-strip{
-      max-width:840px;
-      margin:0 auto 4rem;
-      background:#112236;
-      border:1.5px solid #1c3a54;
-      border-radius:.85rem;
-      padding:2.25rem 2rem;
-      text-align:center;
+    /* Info cards */
+    .info-card{background:var(--surface);border:1.5px solid var(--border);border-radius:var(--radius);padding:1.35rem 1.5rem;margin-bottom:1rem}
+    .info-card h3{font-family:Inter,system-ui;font-size:.95rem;font-weight:700;color:#fff;margin-bottom:.85rem}
+    .field-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:.85rem}
+    .field-item label{display:block;font-size:.72rem;font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:var(--muted);margin-bottom:.2rem}
+    .field-item span{font-size:.95rem;color:#fff;font-weight:600}
+    .field-item span.empty{color:var(--muted);font-style:italic;font-weight:400}
+
+    /* Table */
+    .data-table-wrap{overflow-x:auto;border-radius:var(--radius-sm);border:1px solid var(--border)}
+    .data-table{width:100%;border-collapse:collapse;font-size:.88rem}
+    .data-table th{background:#0d1d31;color:var(--muted);font-size:.75rem;font-weight:700;text-transform:uppercase;letter-spacing:.05em;padding:.65rem 1rem;text-align:left;white-space:nowrap;border-bottom:1px solid var(--border)}
+    .data-table td{padding:.65rem 1rem;border-bottom:1px solid rgba(28,58,84,.5);color:var(--text);vertical-align:middle}
+    .data-table tr:last-child td{border-bottom:none}
+    .data-table tr:hover td{background:rgba(255,255,255,.03)}
+    .pill{display:inline-block;padding:.18rem .65rem;border-radius:2rem;font-size:.75rem;font-weight:700}
+    .pill.pass{background:rgba(34,197,94,.15);color:#22c55e}
+    .pill.fail{background:rgba(239,68,68,.15);color:#ef4444}
+    .pill.pending{background:rgba(245,158,11,.15);color:#f59e0b}
+    .pill.info{background:rgba(37,99,235,.15);color:#60a5fa}
+    .pill.refusal{background:rgba(168,85,247,.15);color:#c084fc}
+
+    /* Sign in/out */
+    .sio-current{background:rgba(34,197,94,.08);border:1.5px solid rgba(34,197,94,.25);border-radius:var(--radius);padding:1.25rem 1.5rem;margin-bottom:1.25rem;display:flex;align-items:center;gap:1rem}
+    .sio-current.out{background:rgba(245,158,11,.08);border-color:rgba(245,158,11,.25)}
+    .sio-icon{font-size:2rem}
+    .sio-label{font-size:.8rem;font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:var(--muted);margin-bottom:.2rem}
+    .sio-value{font-size:1.1rem;font-weight:700;color:#fff}
+
+    /* Messages */
+    .messages-wrap{display:flex;flex-direction:column;gap:0;height:calc(100vh - 300px);min-height:300px}
+    .messages-thread{flex:1;overflow-y:auto;padding:.75rem;display:flex;flex-direction:column;gap:.75rem;background:var(--surface2);border-radius:var(--radius-sm) var(--radius-sm) 0 0;border:1px solid var(--border);border-bottom:none}
+    .msg{max-width:72%;display:flex;flex-direction:column;gap:.15rem}
+    .msg.mine{align-self:flex-end;align-items:flex-end}
+    .msg.theirs{align-self:flex-start;align-items:flex-start}
+    .msg-bubble{padding:.6rem .9rem;border-radius:1rem;font-size:.92rem;line-height:1.5;word-break:break-word}
+    .msg.mine .msg-bubble{background:var(--green);color:#fff;border-bottom-right-radius:.2rem}
+    .msg.theirs .msg-bubble{background:var(--surface);border:1px solid var(--border);color:var(--text);border-bottom-left-radius:.2rem}
+    .msg-meta{font-size:.72rem;color:var(--muted)}
+    .msg-img{max-width:220px;border-radius:.6rem;cursor:pointer}
+    .compose{display:flex;gap:.6rem;padding:.75rem;background:var(--surface);border:1px solid var(--border);border-radius:0 0 var(--radius-sm) var(--radius-sm);align-items:flex-end}
+    .compose textarea{flex:1;padding:.6rem .85rem;background:var(--surface2);border:1.5px solid var(--border);border-radius:var(--radius-sm);color:#fff;font-size:.92rem;resize:none;min-height:40px;max-height:120px;line-height:1.5;transition:border-color .2s}
+    .compose textarea:focus{border-color:var(--amber);outline:none}
+    .compose textarea::placeholder{color:#3a5a72}
+    .btn-send{background:var(--green);color:#fff;border:none;padding:.6rem .85rem;border-radius:var(--radius-sm);font-weight:700;font-size:.88rem;flex-shrink:0;transition:background .2s}
+    .btn-send:hover{background:var(--green-light)}
+    .btn-attach{background:rgba(255,255,255,.07);border:1px solid var(--border);color:var(--muted);padding:.6rem .75rem;border-radius:var(--radius-sm);font-size:1rem;flex-shrink:0;transition:all .2s}
+    .btn-attach:hover{background:rgba(255,255,255,.12);color:#fff}
+    #attachPreview{font-size:.78rem;color:var(--amber);padding:0 .75rem .4rem}
+
+    /* Document upload */
+    .upload-zone{border:2px dashed var(--border);border-radius:var(--radius);padding:2.5rem 1.5rem;text-align:center;cursor:pointer;transition:all .2s;background:var(--surface2)}
+    .upload-zone:hover,.upload-zone.dragover{border-color:var(--amber);background:rgba(201,138,34,.05)}
+    .upload-zone-icon{font-size:2.5rem;margin-bottom:.75rem}
+    .upload-zone p{color:var(--muted);font-size:.9rem}
+    .upload-zone small{color:var(--muted);font-size:.78rem}
+    .btn-sm{padding:.4rem .85rem;border-radius:var(--radius-sm);font-size:.82rem;font-weight:700;border:none;transition:all .2s}
+    .btn-sm.green{background:var(--green);color:#fff}
+    .btn-sm.green:hover{background:var(--green-light)}
+    .btn-sm.amber{background:var(--amber);color:#1d1d1d}
+    .btn-sm.amber:hover{background:var(--amber-light)}
+    .btn-sm.gray{background:rgba(255,255,255,.09);color:var(--muted);border:1px solid var(--border)}
+    .btn-sm.gray:hover{background:rgba(255,255,255,.15);color:#fff}
+    .doc-item{display:flex;align-items:center;gap:1rem;padding:.85rem 1rem;border-bottom:1px solid rgba(28,58,84,.5);flex-wrap:wrap}
+    .doc-item:last-child{border-bottom:none}
+    .doc-icon{font-size:1.5rem;flex-shrink:0}
+    .doc-info{flex:1;min-width:0}
+    .doc-name{font-weight:700;font-size:.9rem;color:#fff}
+    .doc-meta{font-size:.78rem;color:var(--muted);margin-top:.15rem}
+    .doc-actions{display:flex;gap:.5rem;flex-shrink:0}
+
+    /* Loading / empty */
+    .loading{text-align:center;padding:2.5rem;color:var(--muted)}
+    .loading .spinner{width:32px;height:32px;border:3px solid var(--border);border-top-color:var(--amber);border-radius:50%;animation:spin .8s linear infinite;margin:0 auto 1rem}
+    @keyframes spin{to{transform:rotate(360deg)}}
+    .empty{text-align:center;padding:3rem;color:var(--muted)}
+    .empty-icon{font-size:2.5rem;margin-bottom:.75rem}
+
+    /* Alerts */
+    .alert{padding:.75rem 1.1rem;border-radius:var(--radius-sm);font-size:.88rem;font-weight:600;margin-bottom:.85rem;display:flex;align-items:center;gap:.6rem}
+    .alert.warn{background:rgba(245,158,11,.12);border:1px solid rgba(245,158,11,.3);color:#fbbf24}
+    .alert.error{background:rgba(239,68,68,.12);border:1px solid rgba(239,68,68,.3);color:#f87171}
+    .alert.success{background:rgba(34,197,94,.12);border:1px solid rgba(34,197,94,.3);color:#4ade80}
+    .alert.info{background:rgba(37,99,235,.12);border:1px solid rgba(37,99,235,.3);color:#93c5fd}
+
+    /* Modals */
+    .modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.65);z-index:2000;align-items:center;justify-content:center;padding:1rem}
+    .modal-overlay.open{display:flex}
+    .modal-box{background:var(--surface);border:1.5px solid var(--border);border-radius:var(--radius);padding:1.75rem;max-width:540px;width:100%;max-height:90vh;overflow-y:auto;box-shadow:0 20px 60px rgba(0,0,0,.5)}
+    .modal-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:1.25rem}
+    .modal-header h3{font-family:Inter,system-ui;font-size:1.05rem;font-weight:700;color:#fff}
+    .modal-close{background:none;border:none;color:var(--muted);font-size:1.5rem;line-height:1;padding:.25rem}
+    .modal-close:hover{color:#fff}
+    .form-row{margin-bottom:1rem}
+    .form-row label{display:block;font-size:.8rem;font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:var(--muted);margin-bottom:.4rem}
+    .form-row input,.form-row select,.form-row textarea{width:100%;padding:.7rem .9rem;background:var(--surface2);border:1.5px solid var(--border);border-radius:var(--radius-sm);color:#fff;font-size:.92rem}
+    .form-row input:focus,.form-row select:focus,.form-row textarea:focus{border-color:var(--amber);outline:none}
+    .form-row select option{background:var(--surface2)}
+    .form-row textarea{resize:vertical;min-height:80px}
+
+    /* Incidents */
+    .incident-row{padding:1rem 1.1rem;border-bottom:1px solid rgba(28,58,84,.5);cursor:pointer;transition:background .15s}
+    .incident-row:last-child{border-bottom:none}
+    .incident-row:hover{background:rgba(255,255,255,.03)}
+    .incident-title{font-weight:700;font-size:.9rem;color:#fff;margin-bottom:.25rem}
+    .incident-meta{font-size:.78rem;color:var(--muted);display:flex;gap:.75rem;flex-wrap:wrap}
+
+    @media(max-width:600px){
+      .top-bar{padding:.6rem 1rem}
+      #membersView,.detail-header,.tabs{padding-left:1rem;padding-right:1rem}
+      #detailView{padding:0 1rem}
+      .app-header{padding:1.25rem 1rem 0}
+      .field-grid{grid-template-columns:1fr 1fr}
+      .members-grid{grid-template-columns:1fr}
+      .tab-btn{padding:.65rem .9rem;font-size:.82rem}
+      .msg{max-width:88%}
     }
-    .cta-strip h2{
-      font-family:Inter,system-ui;
-      font-size:1.5rem;
-      color:#fff;
-      margin:0 0 .75rem;
-    }
-    .cta-strip p{color:#7a9bb5;margin:0 0 1.5rem;font-size:.97rem;}
-    .btn-amber{display:inline-block;padding:.8rem 2rem;background:#c98a22;color:#1d1d1d;font-weight:700;font-size:.97rem;border-radius:.5rem;margin:.35rem;transition:background .2s,transform .15s;}
-    .btn-amber:hover{background:#eab85e;transform:translateY(-2px);}
-    .btn-ghost{display:inline-block;padding:.8rem 2rem;background:transparent;color:#7a9bb5;border:1.5px solid #2a4a63;font-weight:700;font-size:.97rem;border-radius:.5rem;margin:.35rem;transition:border-color .2s,color .2s,transform .15s;}
-    .btn-ghost:hover{border-color:#c98a22;color:#c98a22;transform:translateY(-2px);}
   </style>
 </head>
 <body>
-  <a class="sr-only" href="#main">Skip to content</a>
 
-  <div class="top-bar">
-    <div class="top-bar-brand">
-      <img src="HH logo grntree.png" alt="Horizon House logo">
-      <span>
-        Horizon House
-        <small>Professionals Portal</small>
-      </span>
+<!-- Top Bar -->
+<div class="top-bar" id="topBar">
+  <div class="brand">
+    <img src="HH%20logo%20grntree.png" alt="Horizon House logo">
+    <div class="brand-text">
+      Horizon House
+      <small>Professionals Portal</small>
     </div>
-    <a href="for-professionals.html" class="back-link">← For Professionals</a>
+  </div>
+  <div class="top-bar-right" id="topBarRight">
+    <a href="for-professionals.html" class="btn-logout">← For Professionals</a>
+  </div>
+</div>
+
+<!-- Login Screen -->
+<div id="loginScreen">
+  <div class="login-card">
+    <div class="login-logo"><img src="HH%20logo%20grntree.png" alt="Horizon House"></div>
+    <h1>Professionals Login</h1>
+    <p class="login-sub">Secure access for referring case workers, counselors, and healthcare providers.</p>
+    <div class="form-field">
+      <label for="loginId">Email or Username</label>
+      <input type="text" id="loginId" placeholder="Enter your email or username" autocomplete="username">
+    </div>
+    <div class="form-field">
+      <label for="loginPw">Password</label>
+      <input type="password" id="loginPw" placeholder="Enter your password" autocomplete="current-password">
+    </div>
+    <button class="btn-primary" id="loginBtn" onclick="doLogin()">Sign In</button>
+    <div class="login-error" id="loginError"></div>
+    <p class="login-note">
+      Access is granted by Horizon House staff.<br>
+      Contact <a href="mailto:info@horizon-house.org">info@horizon-house.org</a> to request access or reset a password.
+    </p>
+  </div>
+</div>
+
+<!-- App Shell -->
+<div id="appShell">
+
+  <!-- Members List View -->
+  <div id="membersView">
+    <div class="app-header">
+      <div>
+        <h2 id="welcomeHeading">Welcome</h2>
+        <p id="welcomeSub">Your associated members are listed below.</p>
+      </div>
+    </div>
+    <div style="height:1.25rem"></div>
+    <div class="section-label">Associated Members</div>
+    <div id="membersGrid" class="members-grid">
+      <div class="loading"><div class="spinner"></div>Loading members…</div>
+    </div>
   </div>
 
-  <main id="main">
-
-    <!-- Hero -->
-    <div class="portal-hero">
-      <div class="construction-badge">
-        <span class="dot"></span>
-        Under Construction
-      </div>
-      <h1>The <span>Professionals</span> Portal</h1>
-      <p>A secure, dedicated workspace where referring professionals collaborate with Horizon House — track referrals, get real-time updates, and stay connected with your clients' recovery journey.</p>
-      <div class="notify-form">
-        <input type="email" id="notify-email" placeholder="Your work email address" autocomplete="email">
-        <button onclick="handleNotify()">Notify Me at Launch</button>
-      </div>
-      <div id="notify-status"></div>
+  <!-- Member Detail View -->
+  <div id="detailView">
+    <div class="app-header" style="padding-bottom:0">
+      <button class="back-btn" onclick="showMembersView()">← Back to Members</button>
     </div>
 
-    <!-- Features -->
-    <div class="features-wrap">
-
-      <p class="features-label">Planned Features</p>
-      <div class="features-grid">
-
-        <div class="feature-card">
-          <span class="status-pill pill-priority">Priority</span>
-          <span class="card-icon">📋</span>
-          <h3>Online Referral Submission</h3>
-          <p>Submit a referral directly from the portal with client details, insurance info, and clinical notes — no phone tag required.</p>
-        </div>
-
-        <div class="feature-card">
-          <span class="status-pill pill-priority">Priority</span>
-          <span class="card-icon">📡</span>
-          <h3>Real-Time Referral Tracking</h3>
-          <p>See where every referral stands — submitted, under review, admitted, or pending documentation — at a glance.</p>
-        </div>
-
-        <div class="feature-card">
-          <span class="status-pill pill-priority">Priority</span>
-          <span class="card-icon">🏠</span>
-          <h3>Bed Availability Dashboard</h3>
-          <p>Check current openings at His House and Her House before you make a referral call — live availability, updated daily.</p>
-        </div>
-
-        <div class="feature-card">
-          <span class="status-pill pill-planned">Planned</span>
-          <span class="card-icon">💬</span>
-          <h3>Secure Messaging</h3>
-          <p>Communicate directly with Marshall or Liz through an encrypted, HIPAA-conscious messaging thread tied to each client record.</p>
-        </div>
-
-        <div class="feature-card">
-          <span class="status-pill pill-planned">Planned</span>
-          <span class="card-icon">📈</span>
-          <h3>Client Progress Updates</h3>
-          <p>Receive structured progress notes — engagement, attendance, behavioral flags, and milestone check-ins — delivered to your portal or inbox.</p>
-        </div>
-
-        <div class="feature-card">
-          <span class="status-pill pill-planned">Planned</span>
-          <span class="card-icon">📁</span>
-          <h3>Secure Document Sharing</h3>
-          <p>Upload authorizations, clinical summaries, and discharge documents — and receive signed agreements and intake forms — all in one secure place.</p>
-        </div>
-
-        <div class="feature-card">
-          <span class="status-pill pill-planned">Planned</span>
-          <span class="card-icon">🤝</span>
-          <h3>Collaborative Care Planning</h3>
-          <p>Co-author aftercare and step-down plans with the Horizon House team, so the transition from your care to ours is seamless and documented.</p>
-        </div>
-
-        <div class="feature-card">
-          <span class="status-pill pill-planned">Planned</span>
-          <span class="card-icon">🔔</span>
-          <h3>Custom Notification Preferences</h3>
-          <p>Choose how and when you hear from us — instant alerts for critical events, daily digests, or weekly summaries. Your workflow, your way.</p>
-        </div>
-
-        <div class="feature-card">
-          <span class="status-pill pill-planned">Planned</span>
-          <span class="card-icon">📊</span>
-          <h3>Referral History &amp; Outcomes</h3>
-          <p>A full log of every client you've referred — length of stay, completion status, and follow-up notes — to support your own program evaluation.</p>
-        </div>
-
-        <div class="feature-card">
-          <span class="status-pill pill-priority">Priority</span>
-          <span class="card-icon">🧪</span>
-          <h3>Drug Screen Results</h3>
-          <p>View results from your client's random drug screening tests — date, substances tested, and outcome — logged and accessible as they occur.</p>
-        </div>
-
-        <div class="feature-card">
-          <span class="status-pill pill-priority">Priority</span>
-          <span class="card-icon">📅</span>
-          <h3>Meeting Attendance Records</h3>
-          <p>See submitted meeting attendance cards — which meetings were attended, how often, and any gaps — giving you a clear picture of your client's program engagement.</p>
-        </div>
-
-        <div class="feature-card">
-          <span class="status-pill pill-planned">Planned</span>
-          <span class="card-icon">⚠️</span>
-          <h3>Incident Reports</h3>
-          <p>Receive structured reports for any incidents involving your client — behavioral concerns, rule violations, or safety events — documented and shared with you promptly.</p>
-        </div>
-
-        <div class="feature-card">
-          <span class="status-pill pill-priority">Priority</span>
-          <span class="card-icon">🟢</span>
-          <h3>Sign-In / Out Status &amp; Logs</h3>
-          <p>See at a glance whether your client is currently signed in or out — and when their status last changed. Review a full timestamped history of all sign-in and sign-out activity, including patterns, frequency, and any unusual absences.</p>
-        </div>
-
+    <div class="detail-header" id="detailHeader">
+      <div class="detail-avatar" id="detailAvatar"></div>
+      <div>
+        <div class="detail-name" id="detailName"></div>
+        <div class="detail-sub" id="detailSub"></div>
       </div>
-
-      <!-- How it will work -->
-      <div class="timeline">
-        <h2>How It Will Work</h2>
-        <div class="tl-item">
-          <div class="tl-num">1</div>
-          <div class="tl-content">
-            <h4>Request Access</h4>
-            <p>Verified professionals apply for a portal account. We confirm your organization and set up your secure profile.</p>
-          </div>
-        </div>
-        <div class="tl-item">
-          <div class="tl-num">2</div>
-          <div class="tl-content">
-            <h4>Submit a Referral</h4>
-            <p>Fill out a structured referral form with client details, clinical background, and insurance information. Attach documents directly.</p>
-          </div>
-        </div>
-        <div class="tl-item">
-          <div class="tl-num">3</div>
-          <div class="tl-content">
-            <h4>We Review &amp; Respond</h4>
-            <p>Horizon House reviews the referral and responds through the portal — admission approval, questions, or alternative suggestions — typically within 24 hours.</p>
-          </div>
-        </div>
-        <div class="tl-item">
-          <div class="tl-num">4</div>
-          <div class="tl-content">
-            <h4>Track Progress in Real Time</h4>
-            <p>Once your client is admitted, you receive structured updates through your portal dashboard and notification preferences.</p>
-          </div>
-        </div>
-        <div class="tl-item">
-          <div class="tl-num">5</div>
-          <div class="tl-content">
-            <h4>Collaborate on the Care Plan</h4>
-            <p>Use shared care planning tools to coordinate step-downs, aftercare, and long-term goals between your team and ours.</p>
-          </div>
-        </div>
-      </div>
-
-      <!-- Mock UI Preview -->
-      <div class="preview-wrap">
-        <h2>Portal Preview</h2>
-        <div class="mock-browser">
-          <div class="mock-toolbar">
-            <div class="mock-dot" style="background:#e05c5c;"></div>
-            <div class="mock-dot" style="background:#e0a030;"></div>
-            <div class="mock-dot" style="background:#4db380;"></div>
-            <div class="mock-url">horizon-house.org/professionals-portal</div>
-          </div>
-          <div class="mock-body">
-            <div class="mock-tabs">
-              <div class="mock-tab active">Dashboard</div>
-              <div class="mock-tab">Referrals</div>
-              <div class="mock-tab">Sign-In/Out</div>
-              <div class="mock-tab">Messages</div>
-              <div class="mock-tab">Documents</div>
-              <div class="mock-tab">Availability</div>
-            </div>
-            <div class="mock-stat-row">
-              <div class="mock-stat">
-                <div class="label">Active Clients</div>
-                <div class="value">3</div>
-                <div class="sub">↑ 1 this month</div>
-              </div>
-              <div class="mock-stat">
-                <div class="label">Pending Referrals</div>
-                <div class="value">1</div>
-                <div class="sub">Awaiting review</div>
-              </div>
-              <div class="mock-stat">
-                <div class="label">Unread Messages</div>
-                <div class="value">2</div>
-                <div class="sub">From Horizon House</div>
-              </div>
-              <div class="mock-stat">
-                <div class="label">Beds Available</div>
-                <div class="value">2</div>
-                <div class="sub">His House: 1 · Her House: 1</div>
-              </div>
-            </div>
-            <div style="font-size:.72rem;color:#3d6580;text-transform:uppercase;letter-spacing:.8px;font-weight:700;margin-bottom:.5rem;">Recent Client Updates</div>
-            <div class="mock-table-row">
-              <div class="name">J. M.</div>
-              <div class="house">His House</div>
-              <span class="pill p-active">Active</span>
-              <div class="date">Updated today</div>
-            </div>
-            <div class="mock-table-row">
-              <div class="name">S. R.</div>
-              <div class="house">Her House</div>
-              <span class="pill p-active">Active</span>
-              <div class="date">Updated 2d ago</div>
-            </div>
-            <div class="mock-table-row">
-              <div class="name">D. K.</div>
-              <div class="house">His House</div>
-              <span class="pill p-pending">Referral Pending</span>
-              <div class="date">Submitted today</div>
-            </div>
-            <div class="mock-table-row">
-              <div class="name">M. T.</div>
-              <div class="house">Her House</div>
-              <span class="pill p-alert">Needs Attention</span>
-              <div class="date">Flagged today</div>
-            </div>
-            <div style="font-size:.72rem;color:#3d6580;text-transform:uppercase;letter-spacing:.8px;font-weight:700;margin:1rem 0 .5rem;">Current Sign-In / Out Status</div>
-            <div class="mock-table-row">
-              <div class="name">J. M.</div>
-              <div class="house">His House</div>
-              <span class="pill p-active">Signed In</span>
-              <div class="date">Since 8:42 am</div>
-            </div>
-            <div class="mock-table-row">
-              <div class="name">S. R.</div>
-              <div class="house">Her House</div>
-              <span class="pill p-pending">Signed Out</span>
-              <div class="date">Since 11:15 am</div>
-            </div>
-          </div>
-        </div>
-        <p style="color:#3d6580;font-size:.8rem;margin-top:.75rem;">Mockup — names are illustrative only. Actual portal will be HIPAA-conscious and access-controlled.</p>
-      </div>
-
-      <!-- CTA -->
-      <div class="cta-strip">
-        <h2>Be the First to Know</h2>
-        <p>Leave your email to get notified when the portal launches — or reach out now to start collaborating the traditional way.</p>
-        <div class="notify-form" style="margin-bottom:1rem;">
-          <input type="email" id="notify-email-2" placeholder="Your work email address" autocomplete="email">
-          <button onclick="handleNotify2()">Notify Me</button>
-        </div>
-        <div id="notify-status-2" style="font-size:.88rem;color:#7a9bb5;text-align:center;min-height:1.2rem;margin-bottom:1rem;"></div>
-        <a href="for-professionals.html#professional-contact" class="btn-amber">Contact Us Now</a>
-        <a href="for-professionals.html" class="btn-ghost">← Back to For Professionals</a>
-      </div>
-
     </div>
-  </main>
 
-  <script>
-    function handleNotify() {
-      const email = document.getElementById('notify-email').value.trim();
-      const status = document.getElementById('notify-status');
-      if (!email || !email.includes('@')) {
-        status.textContent = 'Please enter a valid email address.';
-        status.style.color = '#e07070';
-        return;
+    <div class="tabs" id="tabBar">
+      <button class="tab-btn active" data-tab="profile"   onclick="switchTab('profile',this)">Profile</button>
+      <button class="tab-btn"        data-tab="sio"       onclick="switchTab('sio',this)">Sign In/Out</button>
+      <button class="tab-btn"        data-tab="ua"        onclick="switchTab('ua',this)">UA Results</button>
+      <button class="tab-btn"        data-tab="incidents" onclick="switchTab('incidents',this)">Incidents</button>
+      <button class="tab-btn"        data-tab="docs"      onclick="switchTab('docs',this)">Documents</button>
+      <button class="tab-btn"        data-tab="messages"  onclick="switchTab('messages',this)">Messages</button>
+    </div>
+
+    <!-- Profile Tab -->
+    <div class="tab-panel active" id="tab-profile">
+      <div class="info-card" id="profileCard">
+        <div class="loading"><div class="spinner"></div>Loading profile…</div>
+      </div>
+    </div>
+
+    <!-- Sign In/Out Tab -->
+    <div class="tab-panel" id="tab-sio">
+      <div id="sioCurrentWrap"></div>
+      <div class="section-label" style="margin-top:.5rem">Sign In/Out History</div>
+      <div class="info-card" style="padding:0;overflow:hidden" id="sioHistoryCard">
+        <div class="loading"><div class="spinner"></div>Loading history…</div>
+      </div>
+    </div>
+
+    <!-- UA Results Tab -->
+    <div class="tab-panel" id="tab-ua">
+      <div class="info-card" style="padding:0;overflow:hidden" id="uaCard">
+        <div class="loading"><div class="spinner"></div>Loading UA results…</div>
+      </div>
+    </div>
+
+    <!-- Incidents Tab -->
+    <div class="tab-panel" id="tab-incidents">
+      <div id="incidentsWrap">
+        <div class="loading"><div class="spinner"></div>Loading incidents…</div>
+      </div>
+    </div>
+
+    <!-- Documents Tab -->
+    <div class="tab-panel" id="tab-docs">
+      <div id="docsAlert"></div>
+      <div class="upload-zone" id="uploadZone"
+           onclick="document.getElementById('docFileInput').click()"
+           ondragover="event.preventDefault();this.classList.add('dragover')"
+           ondragleave="this.classList.remove('dragover')"
+           ondrop="handleDocDrop(event)">
+        <div class="upload-zone-icon">📁</div>
+        <p><strong>Click or drag to upload a document</strong></p>
+        <small>PDF, image files (JPEG, PNG, GIF, WebP) · Max 10 MB</small>
+      </div>
+      <input type="file" id="docFileInput" style="display:none" accept=".pdf,image/*" onchange="handleDocSelect(event)">
+
+      <div id="uploadForm" style="display:none" class="info-card">
+        <h3>Upload Document</h3>
+        <div id="uploadFilePreview" style="font-size:.88rem;color:var(--amber);margin-bottom:.75rem;padding:.5rem .75rem;background:rgba(201,138,34,.08);border-radius:var(--radius-sm)"></div>
+        <div class="form-row">
+          <label>Document Type</label>
+          <select id="uploadDocType">
+            <option value="">Select type…</option>
+            <option value="Clinical Summary">Clinical Summary</option>
+            <option value="Discharge Summary">Discharge Summary</option>
+            <option value="Referral Authorization">Referral Authorization</option>
+            <option value="Treatment Plan">Treatment Plan</option>
+            <option value="Prior Authorization">Prior Authorization</option>
+            <option value="Release of Information">Release of Information</option>
+            <option value="Medical Record">Medical Record</option>
+            <option value="Insurance Card">Insurance Card</option>
+            <option value="ID Document">ID Document</option>
+            <option value="Other">Other</option>
+          </select>
+        </div>
+        <div class="form-row">
+          <label>Notes (optional)</label>
+          <textarea id="uploadNotes" placeholder="Any relevant notes about this document…"></textarea>
+        </div>
+        <div style="display:flex;gap:.6rem;flex-wrap:wrap">
+          <button class="btn-sm green" onclick="submitDocUpload()">Upload Document</button>
+          <button class="btn-sm gray"  onclick="cancelDocUpload()">Cancel</button>
+        </div>
+        <div id="uploadStatus" style="font-size:.85rem;margin-top:.6rem;min-height:1.1rem"></div>
+      </div>
+
+      <div style="height:1.25rem"></div>
+      <div class="section-label">Uploaded Documents</div>
+      <div class="info-card" style="padding:0;overflow:hidden" id="docsListCard">
+        <div class="loading"><div class="spinner"></div>Loading documents…</div>
+      </div>
+    </div>
+
+    <!-- Messages Tab -->
+    <div class="tab-panel" id="tab-messages">
+      <div class="messages-wrap">
+        <div class="messages-thread" id="messagesThread">
+          <div class="loading"><div class="spinner"></div>Loading messages…</div>
+        </div>
+        <div id="attachPreview"></div>
+        <div class="compose">
+          <input type="file" id="msgFileInput" style="display:none" accept="image/*" onchange="handleMsgAttach(event)">
+          <button class="btn-attach" title="Attach image" onclick="document.getElementById('msgFileInput').click()">📎</button>
+          <textarea id="msgInput" placeholder="Type a message to Horizon House staff…" rows="1"
+            onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();sendMessage()}"
+            oninput="this.style.height='auto';this.style.height=Math.min(this.scrollHeight,120)+'px'"></textarea>
+          <button class="btn-send" onclick="sendMessage()">Send</button>
+        </div>
+      </div>
+    </div>
+
+  </div><!-- /detailView -->
+</div><!-- /appShell -->
+
+<!-- Incident Detail Modal -->
+<div class="modal-overlay" id="incidentModal">
+  <div class="modal-box">
+    <div class="modal-header">
+      <h3 id="incidentModalTitle">Incident Report</h3>
+      <button class="modal-close" onclick="closeIncidentModal()">&times;</button>
+    </div>
+    <div id="incidentModalBody"></div>
+  </div>
+</div>
+
+<!-- Account Settings Modal -->
+<div class="modal-overlay" id="settingsModal">
+  <div class="modal-box" style="max-width:420px">
+    <div class="modal-header">
+      <h3>&#9881; Account Settings</h3>
+      <button class="modal-close" onclick="closeSettings()">&times;</button>
+    </div>
+
+    <!-- Account info -->
+    <div id="settingsInfo" style="margin-bottom:1.5rem"></div>
+
+    <!-- Change password -->
+    <div style="border:1.5px solid var(--border);border-radius:var(--radius-sm);padding:1.1rem;background:var(--surface2)">
+      <div style="font-size:.85rem;font-weight:700;color:#fff;margin-bottom:.85rem">&#128274; Change Password</div>
+      <div class="form-row">
+        <label>Current Password</label>
+        <input type="password" id="cpCurrent" placeholder="Enter current password" autocomplete="current-password">
+      </div>
+      <div class="form-row">
+        <label>New Password</label>
+        <input type="password" id="cpNew" placeholder="At least 8 characters" autocomplete="new-password">
+      </div>
+      <div class="form-row" style="margin-bottom:.5rem">
+        <label>Confirm New Password</label>
+        <input type="password" id="cpConfirm" placeholder="Re-enter new password" autocomplete="new-password">
+      </div>
+      <div id="cpStatus" style="font-size:.82rem;min-height:1.1rem;margin-bottom:.75rem"></div>
+      <button class="btn-sm green" onclick="submitPasswordChange()" id="cpBtn" style="width:100%;padding:.6rem">Update Password</button>
+    </div>
+
+    <!-- Accessible sections info -->
+    <div id="settingsPermDisplay" style="margin-top:1.25rem"></div>
+  </div>
+</div>
+
+<!-- Image Lightbox -->
+<div class="modal-overlay" id="lightbox" onclick="document.getElementById('lightbox').classList.remove('open')" style="background:rgba(0,0,0,.9)">
+  <img id="lightboxImg" style="max-width:95vw;max-height:90vh;border-radius:.5rem" alt="">
+</div>
+
+<script>
+/* ============================================================
+   CONFIG
+============================================================ */
+const API = 'https://horizon-portal-backend-production-3532.up.railway.app/api';
+const SESSION_KEY = 'horizonProfAuth';
+
+/* ============================================================
+   STATE
+============================================================ */
+let _prof       = null;
+let _members    = [];
+let _current    = null;
+let _convId     = null;
+let _msgPoll    = null;
+let _pendingFile = null;
+let _msgFile    = null;
+
+/* ============================================================
+   AUTH
+============================================================ */
+async function doLogin() {
+  const input = document.getElementById('loginId').value.trim();
+  const pw    = document.getElementById('loginPw').value;
+  const err   = document.getElementById('loginError');
+  const btn   = document.getElementById('loginBtn');
+  err.style.display = 'none';
+  if (!input || !pw) { showLoginErr('Please enter your email/username and password.'); return; }
+
+  btn.disabled = true; btn.textContent = 'Signing in…';
+  try {
+    // Step 1: Resolve login input to a member record
+    let member = null;
+    let resolvedId = input;
+
+    // Try direct ID lookup first
+    try {
+      const mRes = await fetch(`${API}/getMember?id=${encodeURIComponent(input)}`);
+      if (mRes.ok) {
+        const m = await mRes.json();
+        if (m && m.professionalPortalAccess) { member = m; resolvedId = String(m.ID || m.id || input); }
       }
-      // Store in localStorage as a simple placeholder until backend is wired
-      const list = JSON.parse(localStorage.getItem('portalNotifyList') || '[]');
-      if (!list.includes(email)) list.push(email);
-      localStorage.setItem('portalNotifyList', JSON.stringify(list));
-      status.textContent = '✓ Got it! We\'ll notify you at ' + email + ' when the portal launches.';
-      status.style.color = '#4db380';
-      document.getElementById('notify-email').value = '';
-    }
-    function handleNotify2() {
-      const email = document.getElementById('notify-email-2').value.trim();
-      const status = document.getElementById('notify-status-2');
-      if (!email || !email.includes('@')) {
-        status.textContent = 'Please enter a valid email address.';
-        status.style.color = '#e07070';
-        return;
+    } catch {}
+
+    // If not found by ID, try email/username lookup across member list
+    if (!member) {
+      const allRes = await fetch(`${API}/members`);
+      if (allRes.ok) {
+        const all = await allRes.json();
+        const found = (Array.isArray(all) ? all : []).find(m =>
+          m.professionalPortalAccess && (
+            normStr(m.professionalEmail || '') === normStr(input) ||
+            normStr(m.email || '')             === normStr(input) ||
+            normStr(m.professionalUsername || '') === normStr(input)
+          )
+        );
+        if (found) { member = found; resolvedId = String(found.ID || found.id || input); }
       }
-      const list = JSON.parse(localStorage.getItem('portalNotifyList') || '[]');
-      if (!list.includes(email)) list.push(email);
-      localStorage.setItem('portalNotifyList', JSON.stringify(list));
-      status.textContent = '✓ Got it! We\'ll notify you at ' + email + ' when the portal launches.';
-      status.style.color = '#4db380';
-      document.getElementById('notify-email-2').value = '';
     }
-    // Allow Enter key on inputs
-    ['notify-email','notify-email-2'].forEach((id, i) => {
-      const el = document.getElementById(id);
-      if (el) el.addEventListener('keydown', e => { if (e.key === 'Enter') i === 0 ? handleNotify() : handleNotify2(); });
+
+    if (!member) {
+      showLoginErr('No professional account found for that email or username.');
+      return;
+    }
+
+    // Step 2: Verify password against the resolved member ID
+    const vRes  = await fetch(`${API}/verifyStaff`, {
+      method:'POST', headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({ id: resolvedId, pw })
     });
-  </script>
+    const vData = await vRes.json();
+    if (!vData.ok && vData.reason !== 'no_staff_pw') {
+      showLoginErr('Incorrect password.');
+      return;
+    }
+
+    _prof = member;
+    sessionStorage.setItem(SESSION_KEY, JSON.stringify({ id: resolvedId, member }));
+    startApp();
+  } catch (e) {
+    showLoginErr('Could not reach server. Please try again.');
+  } finally {
+    btn.disabled = false; btn.textContent = 'Sign In';
+  }
+}
+
+function showLoginErr(msg) {
+  const el = document.getElementById('loginError');
+  el.textContent = msg; el.style.display = 'block';
+}
+
+function doLogout() {
+  sessionStorage.removeItem(SESSION_KEY);
+  _prof = null; _members = []; _current = null; _convId = null;
+  clearInterval(_msgPoll); _msgPoll = null;
+  document.getElementById('appShell').style.display = 'none';
+  document.getElementById('loginScreen').style.display = 'flex';
+  document.getElementById('topBarRight').innerHTML =
+    '<a href="for-professionals.html" class="btn-logout">\u2190 For Professionals</a>';
+}
+
+window.addEventListener('DOMContentLoaded', () => {
+  document.getElementById('loginPw').addEventListener('keydown', e => { if (e.key==='Enter') doLogin(); });
+  document.getElementById('loginId').addEventListener('keydown', e => { if (e.key==='Enter') document.getElementById('loginPw').focus(); });
+
+  const saved = sessionStorage.getItem(SESSION_KEY);
+  if (saved) {
+    try {
+      const s = JSON.parse(saved);
+      if (s && s.member) { _prof = s.member; startApp(); return; }
+    } catch {}
+  }
+});
+
+function startApp() {
+  document.getElementById('loginScreen').style.display = 'none';
+  document.getElementById('appShell').style.display  = 'block';
+
+  const fn = mVal(_prof, 'firstName','FIRST_NAME','FIRST\r\nNAME');
+  const ln = mVal(_prof, 'lastName','LAST_NAME','LAST\r\nNAME');
+  const fullName = (fn + ' ' + ln).trim();
+  const org = mVal(_prof,'professionalOrg','organization','org');
+
+  document.getElementById('topBarRight').innerHTML =
+    `<div style="display:flex;flex-direction:column;align-items:flex-end;gap:.1rem;line-height:1.2">
+       <span style="font-size:.82rem;color:#fff;font-weight:700">${esc(fullName || _prof.id || '')}</span>
+       ${org ? `<span style="font-size:.72rem;color:var(--muted)">${esc(org)}</span>` : ''}
+     </div>
+     <button class="btn-logout" title="Account settings" onclick="openSettings()">&#9881; Settings</button>
+     <button class="btn-logout" onclick="doLogout()">Sign Out</button>`;
+
+  document.getElementById('welcomeHeading').textContent = `Welcome${fullName ? ', ' + fn : ''}`;
+  document.getElementById('welcomeSub').textContent = 'Members associated with your account are listed below. Click a member to view their information.';
+
+  // Apply tab permissions — hide tabs not in professionalPermissions
+  applyTabPermissions();
+
+  loadAssociatedMembers();
+}
+
+const ALL_TABS = ['profile','sio','ua','incidents','docs','messages'];
+
+const TAB_LABELS = {
+  profile:'Profile', sio:'Sign In/Out', ua:'UA Results',
+  incidents:'Incidents', docs:'Documents', messages:'Messages'
+};
+
+/* ============================================================
+   SETTINGS MODAL
+============================================================ */
+function openSettings() {
+  if (!_prof) return;
+  const fn       = mVal(_prof,'firstName','FIRST_NAME','FIRST\r\nNAME');
+  const ln       = mVal(_prof,'lastName','LAST_NAME','LAST\r\nNAME');
+  const email    = mVal(_prof,'professionalEmail','email','EMAIL');
+  const org      = mVal(_prof,'professionalOrg','organization','org');
+  const username = mVal(_prof,'professionalUsername','ID','id');
+  const perms    = _prof.professionalPermissions;
+
+  document.getElementById('settingsInfo').innerHTML = `
+    <div class="field-grid">
+      ${fld('Name', (fn+' '+ln).trim())}
+      ${fld('Login / Username', email || username)}
+      ${org ? fld('Organization', org) : ''}
+    </div>`;
+
+  const permDisplay = document.getElementById('settingsPermDisplay');
+  if (Array.isArray(perms) && perms.length) {
+    permDisplay.innerHTML = `
+      <div style="font-size:.82rem;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.05em;margin-bottom:.5rem">Accessible Sections</div>
+      <div style="display:flex;flex-wrap:wrap;gap:.4rem">
+        ${ALL_TABS.map(t =>
+          `<span class="pill ${perms.includes(t)?'pass':'pending'}" style="opacity:${perms.includes(t)?1:.45}">${TAB_LABELS[t]}</span>`
+        ).join('')}
+      </div>
+      <div style="font-size:.75rem;color:var(--muted);margin-top:.5rem">Contact Horizon House staff to update your access.</div>`;
+  } else {
+    permDisplay.innerHTML = `<div class="alert info">&#128275; You have full access to all portal sections.</div>`;
+  }
+
+  // Clear password fields
+  ['cpCurrent','cpNew','cpConfirm'].forEach(id => { document.getElementById(id).value = ''; });
+  document.getElementById('cpStatus').textContent = '';
+  document.getElementById('settingsModal').classList.add('open');
+}
+
+function closeSettings() {
+  document.getElementById('settingsModal').classList.remove('open');
+}
+
+async function submitPasswordChange() {
+  const cur  = document.getElementById('cpCurrent').value;
+  const nw   = document.getElementById('cpNew').value;
+  const cfm  = document.getElementById('cpConfirm').value;
+  const stat = document.getElementById('cpStatus');
+  const btn  = document.getElementById('cpBtn');
+
+  stat.style.color = '#f87171'; stat.textContent = '';
+  if (!cur)              { stat.textContent = '\u26A0\uFE0F Enter your current password.'; return; }
+  if (nw.length < 8)     { stat.textContent = '\u26A0\uFE0F New password must be at least 8 characters.'; return; }
+  if (nw !== cfm)        { stat.textContent = '\u26A0\uFE0F Passwords do not match.'; return; }
+  if (nw === cur)        { stat.textContent = '\u26A0\uFE0F New password must be different from current.'; return; }
+
+  btn.disabled = true; btn.textContent = 'Updating\u2026';
+  const profId = String(_prof.ID || _prof.id || '');
+  try {
+    // 1. Verify current password
+    const vRes  = await fetch(`${API}/verifyStaff`, {
+      method:'POST', headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({ id: profId, pw: cur })
+    });
+    const vData = await vRes.json();
+    if (!vData.ok && vData.reason !== 'no_staff_pw') {
+      stat.textContent = '\u26A0\uFE0F Current password is incorrect.'; return;
+    }
+
+    // 2. Fetch current full member record so we don't overwrite fields
+    const mRes  = await fetch(`${API}/getMember?id=${encodeURIComponent(profId)}`);
+    const full  = await mRes.json();
+    if (!full) throw new Error('Could not fetch member record.');
+
+    // 3. Build PATCH payload — mirror staff-dashboard update shape
+    const payload = Object.assign({}, full, {
+      id:      profId,
+      staffPw: nw
+    });
+
+    const pRes  = await fetch(`${API}/updateMember`, {
+      method:'PATCH', headers:{'Content-Type':'application/json'},
+      body: JSON.stringify(payload)
+    });
+    const pData = await pRes.json();
+    if (!pData.success) throw new Error(pData.error || 'Update failed');
+
+    // 4. Update stored session
+    _prof.staffPw = nw;
+    sessionStorage.setItem(SESSION_KEY, JSON.stringify({ id: profId, member: _prof }));
+
+    stat.style.color = '#4ade80';
+    stat.textContent = '\u2713 Password updated successfully!';
+    ['cpCurrent','cpNew','cpConfirm'].forEach(id => { document.getElementById(id).value = ''; });
+  } catch (e) {
+    stat.textContent = '\u26A0\uFE0F ' + (e.message || 'Failed to update password.');
+  } finally {
+    btn.disabled = false; btn.textContent = 'Update Password';
+  }
+}
+
+function applyTabPermissions() {
+  const perms = _prof.professionalPermissions;
+  // Default: all tabs visible if no permissions set
+  if (!Array.isArray(perms) || perms.length === 0) return;
+
+  ALL_TABS.forEach(tabId => {
+    const btn = document.querySelector(`.tab-btn[data-tab="${tabId}"]`);
+    const panel = document.getElementById(`tab-${tabId}`);
+    if (perms.includes(tabId)) {
+      if (btn) btn.style.display = '';
+      if (panel) panel.style.display = '';
+    } else {
+      if (btn) { btn.style.display = 'none'; }
+      // panels stay hidden by default; no need to change display
+    }
+  });
+
+  // Activate first allowed tab
+  const firstAllowed = ALL_TABS.find(t => perms.includes(t));
+  if (firstAllowed) {
+    const btn = document.querySelector(`.tab-btn[data-tab="${firstAllowed}"]`);
+    if (btn) switchTab(firstAllowed, btn);
+  }
+}
+
+/* ============================================================
+   MEMBERS LIST
+============================================================ */
+async function loadAssociatedMembers() {
+  const grid = document.getElementById('membersGrid');
+  grid.innerHTML = '<div class="loading"><div class="spinner"></div>Loading members\u2026</div>';
+  try {
+    const all    = await apiFetch('/members');
+    const profId = normStr(_prof.ID || _prof.id || '');
+    const pFn    = normStr(mVal(_prof,'firstName','FIRST_NAME','FIRST\r\nNAME'));
+    const pLn    = normStr(mVal(_prof,'lastName','LAST_NAME','LAST\r\nNAME'));
+
+    _members = all.filter(m => {
+      const rcw    = normStr(m.refCaseWorker || m.REF_CASEWORKER || '');
+      const rcw2   = normStr(m.referringProvider || m.referringCounselor || '');
+      const linked = normStr(m.linkedProfessionalId || '');
+      return (
+        linked === profId ||
+        rcw    === profId ||
+        rcw2   === profId ||
+        (pFn && pLn && rcw.includes(pFn) && rcw.includes(pLn))
+      );
+    });
+
+    if (!_members.length) {
+      grid.innerHTML = `<div class="empty" style="grid-column:1/-1">
+        <div class="empty-icon">\uD83D\uDC64</div>
+        <div style="font-weight:700;color:#fff;margin-bottom:.4rem">No associated members found</div>
+        <div>Ask Horizon House staff to link members to your provider account (ID: ${esc(profId)}).</div>
+      </div>`;
+      return;
+    }
+    renderMembersGrid();
+  } catch (e) {
+    grid.innerHTML = '<div class="empty" style="grid-column:1/-1"><div class="alert error">\u26A0\uFE0F Could not load members. Please try again.</div></div>';
+  }
+}
+
+function renderMembersGrid() {
+  const grid = document.getElementById('membersGrid');
+  apiFetch('/signInOut/current').then(sio => {
+    const outIds = new Set((sio?.membersOut || []).map(o => String(o.memberId)));
+    grid.innerHTML = _members.map(m => memberCardHTML(m, outIds)).join('');
+  }).catch(() => {
+    grid.innerHTML = _members.map(m => memberCardHTML(m, new Set())).join('');
+  });
+}
+
+function memberCardHTML(m, outIds) {
+  const fn  = mVal(m,'firstName','FIRST_NAME','FIRST\r\nNAME');
+  const ln  = mVal(m,'lastName','LAST_NAME','LAST\r\nNAME');
+  const name = (fn + ' ' + ln).trim() || 'Unknown';
+  const id  = String(m.ID || m.id || '');
+  const st  = String(m.STATUS || m.status || m.STATU || '').trim();
+  const isOut = outIds.has(id);
+  const { label, cls } = statusBadge(st, isOut);
+  const initials = ((fn[0]||'')+(ln[0]||'')).toUpperCase() || '?';
+  const sdate = mVal(m,'soberDate','SOBER_DATE','SOBER\r\nDATE');
+  return `<div class="member-card" onclick="openMember('${esc(id)}')">
+    <div class="member-avatar" style="background:${avatarColor(name)}">${esc(initials)}</div>
+    <div class="member-card-info">
+      <div class="member-card-name">${esc(name)}</div>
+      <div class="member-card-meta">
+        <span class="status-badge ${cls}">${esc(label)}</span>
+        ${sdate ? `<span>\uD83C\uDF31 ${esc(fmtDate(sdate))}</span>` : ''}
+      </div>
+      <div class="member-card-meta" style="margin-top:.35rem">ID: ${esc(id)}</div>
+    </div>
+  </div>`;
+}
+
+/* ============================================================
+   OPEN MEMBER
+============================================================ */
+async function openMember(memberId) {
+  _current = _members.find(m => String(m.ID||m.id||'') === memberId) || null;
+  if (!_current) return;
+
+  switchTab('profile', document.querySelector('.tab-btn[data-tab="profile"]'));
+  resetPanels();
+
+  const fn = mVal(_current,'firstName','FIRST_NAME','FIRST\r\nNAME');
+  const ln = mVal(_current,'lastName','LAST_NAME','LAST\r\nNAME');
+  const name = (fn + ' ' + ln).trim() || 'Unknown';
+  const st = String(_current.STATUS || _current.status || _current.STATU || '').trim();
+  const initials = ((fn[0]||'')+(ln[0]||'')).toUpperCase() || '?';
+
+  document.getElementById('detailAvatar').style.background = avatarColor(name);
+  document.getElementById('detailAvatar').textContent = initials;
+  document.getElementById('detailName').textContent   = name;
+
+  const { label, cls } = statusBadge(st, false);
+  const sdate = mVal(_current,'soberDate','SOBER_DATE','SOBER\r\nDATE');
+  document.getElementById('detailSub').innerHTML =
+    `<span class="status-badge ${cls}">${esc(label)}</span>` +
+    `<span>ID: ${esc(memberId)}</span>` +
+    (sdate ? `<span>\uD83C\uDF31 Sober: ${esc(fmtDate(sdate))}</span>` : '');
+
+  document.getElementById('membersView').style.display = 'none';
+  document.getElementById('detailView').style.display  = 'block';
+
+  renderProfile();
+}
+
+function showMembersView() {
+  clearInterval(_msgPoll); _msgPoll = null;
+  _current = null; _convId = null;
+  document.getElementById('detailView').style.display  = 'none';
+  document.getElementById('membersView').style.display = 'block';
+}
+
+function resetPanels() {
+  const loading = (txt) => `<div class="loading"><div class="spinner"></div>${txt}\u2026</div>`;
+  document.getElementById('profileCard').innerHTML    = loading('Loading profile');
+  document.getElementById('sioCurrentWrap').innerHTML = '';
+  document.getElementById('sioHistoryCard').innerHTML = loading('Loading history');
+  document.getElementById('uaCard').innerHTML         = loading('Loading UA results');
+  document.getElementById('incidentsWrap').innerHTML  = loading('Loading incidents');
+  document.getElementById('docsListCard').innerHTML   = loading('Loading documents');
+  document.getElementById('messagesThread').innerHTML = loading('Loading messages');
+  document.getElementById('docsAlert').innerHTML      = '';
+  cancelDocUpload();
+  clearMsgAttach();
+  clearInterval(_msgPoll); _msgPoll = null;
+  _convId = null;
+}
+
+/* ============================================================
+   TABS
+============================================================ */
+function switchTab(tabId, btnEl) {
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+  if (btnEl) btnEl.classList.add('active');
+  document.getElementById('tab-' + tabId)?.classList.add('active');
+  const loaders = { profile: renderProfile, sio: loadSIO, ua: loadUA,
+                    incidents: loadIncidents, docs: loadDocs, messages: initMessages };
+  loaders[tabId]?.();
+}
+
+/* ============================================================
+   PROFILE TAB
+============================================================ */
+function renderProfile() {
+  if (!_current) return;
+  const m = _current;
+  const card = document.getElementById('profileCard');
+
+  const fn      = mVal(m,'firstName','FIRST_NAME','FIRST\r\nNAME');
+  const ln      = mVal(m,'lastName','LAST_NAME','LAST\r\nNAME');
+  const dob     = mVal(m,'dob','DOB','dateOfBirth','DATE_OF_BIRTH');
+  const gender  = mVal(m,'gender','M/F','GENDER');
+  const phone   = mVal(m,'phone','PHONE','cellPhone','CELL');
+  const email   = mVal(m,'email','EMAIL');
+  const addr    = mVal(m,'address','ADDRESS','addr');
+  const sdate   = mVal(m,'soberDate','SOBER_DATE','SOBER\r\nDATE');
+  const intake  = mVal(m,'intakeDate','INTAKE_DATE','moveInDate','MOVE_IN_DATE');
+  const refCw   = mVal(m,'refCaseWorker','REF_CASEWORKER');
+  const ins     = mVal(m,'insurance','INSURANCE','insuranceCarrier','INSURANCE_CARRIER');
+  const medId   = mVal(m,'medicaidId','MEDICAID_ID','memberId','MEMBER_ID','medi_cal_id','MEDI_CAL_ID');
+  const bed     = mVal(m,'bed','BED','bedAssignment');
+  const house   = mVal(m,'house','HOUSE','location','LOCATION');
+  const days    = sdate ? calcDaysSober(sdate) : null;
+
+  card.innerHTML = `
+    <h3>Personal Information</h3>
+    <div class="field-grid">
+      ${fld('First Name', fn)} ${fld('Last Name', ln)}
+      ${fld('Date of Birth', dob)} ${fld('Gender', gender)}
+      ${fld('Phone', phone)} ${fld('Email', email)}
+    </div>
+    ${addr ? `<div style="margin-top:.85rem">${fld('Address', addr)}</div>` : ''}
+    <h3 style="margin-top:1.35rem">Residence &amp; Sobriety</h3>
+    <div class="field-grid">
+      ${fld('Sober Date', sdate ? fmtDate(sdate) : '')}
+      ${fld('Days Sober', days !== null ? days + ' days' : '')}
+      ${fld('Intake Date', intake ? fmtDate(intake) : '')}
+      ${fld('House', house)} ${fld('Bed', bed)}
+    </div>
+    <h3 style="margin-top:1.35rem">Insurance &amp; Referring</h3>
+    <div class="field-grid">
+      ${fld('Insurance', ins)} ${fld('Medi-Cal / Member ID', medId)}
+      ${fld('Referring Case Worker', refCw)}
+    </div>`;
+}
+
+function fld(label, val) {
+  return `<div class="field-item"><label>${esc(label)}</label><span class="${val?'':'empty'}">${val ? esc(String(val)) : '\u2014'}</span></div>`;
+}
+
+/* ============================================================
+   SIGN IN/OUT TAB
+============================================================ */
+async function loadSIO() {
+  if (!_current) return;
+  const id = String(_current.ID || _current.id || '');
+
+  const sioWrap = document.getElementById('sioCurrentWrap');
+  sioWrap.innerHTML = '<div class="loading"><div class="spinner"></div></div>';
+  try {
+    const sio   = await apiFetch('/signInOut/current');
+    const entry = (sio?.membersOut || []).find(o => String(o.memberId) === id);
+    if (entry) {
+      sioWrap.innerHTML = `<div class="sio-current out">
+        <div class="sio-icon">\uD83D\uDEAA</div>
+        <div>
+          <div class="sio-label">Currently Signed Out</div>
+          <div class="sio-value">Destination: ${esc(entry.destination || '\u2014')}</div>
+          <div class="sio-label" style="margin-top:.3rem">Out since: ${esc(entry.timeOut || '\u2014')} &middot; ${esc(entry.date || '\u2014')}</div>
+        </div>
+      </div>`;
+    } else {
+      sioWrap.innerHTML = `<div class="sio-current">
+        <div class="sio-icon">\uD83C\uDFE0</div>
+        <div>
+          <div class="sio-label">Current Status</div>
+          <div class="sio-value">On Premises</div>
+        </div>
+      </div>`;
+    }
+  } catch { sioWrap.innerHTML = ''; }
+
+  const histCard = document.getElementById('sioHistoryCard');
+  try {
+    const hist    = await apiFetch('/signInOut/history');
+    const records = (Array.isArray(hist) ? hist : (hist?.history || []))
+      .filter(r => String(r.memberId) === id)
+      .sort((a,b) => new Date(b.signOutTimestamp||b.date) - new Date(a.signOutTimestamp||a.date));
+
+    if (!records.length) {
+      histCard.innerHTML = '<div class="empty"><div class="empty-icon">\uD83D\uDCCB</div><div>No sign in/out history found.</div></div>';
+      return;
+    }
+    histCard.innerHTML = `<div class="data-table-wrap"><table class="data-table">
+      <thead><tr><th>Date</th><th>Time Out</th><th>Destination</th><th>Time In</th><th>Status</th></tr></thead>
+      <tbody>
+        ${records.map(r => `<tr>
+          <td>${esc(r.date||'\u2014')}</td>
+          <td>${esc(r.timeOut||'\u2014')}</td>
+          <td>${esc(r.destination||'\u2014')}</td>
+          <td>${esc(r.timeIn||'\u2014')}</td>
+          <td>${r.curfewViolation ? '<span class="pill fail">Curfew</span>' : r.timeIn ? '<span class="pill pass">Returned</span>' : '<span class="pill pending">Out</span>'}</td>
+        </tr>`).join('')}
+      </tbody>
+    </table></div>`;
+  } catch {
+    histCard.innerHTML = '<div class="empty"><div class="alert error">\u26A0\uFE0F Could not load sign in/out history.</div></div>';
+  }
+}
+
+/* ============================================================
+   UA RESULTS TAB
+============================================================ */
+async function loadUA() {
+  if (!_current) return;
+  const id   = String(_current.ID || _current.id || '');
+  const card = document.getElementById('uaCard');
+  try {
+    const all     = await apiFetch('/drugScreens');
+    const screens = (Array.isArray(all) ? all : [])
+      .filter(s => String(s.memberId||s.id||'') === id)
+      .sort((a,b) => new Date(b.createdAt||b.date||b.testDatetime) - new Date(a.createdAt||a.date||a.testDatetime));
+
+    if (!screens.length) {
+      card.innerHTML = '<div class="empty"><div class="empty-icon">\uD83E\uDDEA</div><div>No UA results found for this member.</div></div>';
+      return;
+    }
+    card.innerHTML = `<div class="data-table-wrap"><table class="data-table">
+      <thead><tr><th>Date</th><th>Reason</th><th>Result</th><th>Substances</th><th>Administered By</th></tr></thead>
+      <tbody>
+        ${screens.map(s => {
+          const pos = s.positive || s.result === 'positive' || s.relapsePositiveTest;
+          const ref = s.refusal  || s.result === 'refusal';
+          const pill = ref ? '<span class="pill refusal">Refusal</span>' : pos ? '<span class="pill fail">Positive</span>' : '<span class="pill pass">Negative</span>';
+          return `<tr>
+            <td>${esc(fmtDate(s.testDatetime||s.date||s.createdAt||''))}</td>
+            <td>${esc(s.drugScreenReason||s.reason||'\u2014')}</td>
+            <td>${pill}</td>
+            <td>${esc(s.substancesDetected||s.substances||(pos?'See notes':'\u2014'))}</td>
+            <td>${esc(s.administeredBy||s.staff||'\u2014')}</td>
+          </tr>`;
+        }).join('')}
+      </tbody>
+    </table></div>`;
+  } catch {
+    card.innerHTML = '<div class="empty"><div class="alert error">\u26A0\uFE0F Could not load UA results.</div></div>';
+  }
+}
+
+/* ============================================================
+   INCIDENTS TAB
+============================================================ */
+async function loadIncidents() {
+  if (!_current) return;
+  const id   = String(_current.ID || _current.id || '');
+  const wrap = document.getElementById('incidentsWrap');
+  try {
+    const all = await apiFetch('/incidents');
+    const incidents = (Array.isArray(all) ? all : [])
+      .filter(ir => {
+        const mbs = ir.members || ir.involvedMembers || [];
+        return mbs.some(mm => String(mm.id||mm.memberId||mm) === id) ||
+               String(ir.memberId||'') === id;
+      })
+      .sort((a,b) => new Date(b.date||b.createdAt) - new Date(a.date||a.createdAt));
+
+    if (!incidents.length) {
+      wrap.innerHTML = '<div class="empty"><div class="empty-icon">\uD83D\uDCCB</div><div>No incident reports found for this member.</div></div>';
+      return;
+    }
+    window._portalIncidents = incidents;
+    wrap.innerHTML = '<div class="info-card" style="padding:0;overflow:hidden">' +
+      incidents.map(ir => {
+        const types   = ir.incidentTypes || ir.type || [];
+        const typeStr = Array.isArray(types) ? types.join(', ') : String(types);
+        return `<div class="incident-row" onclick="openIncidentModal('${esc(ir.id)}')">
+          <div class="incident-title">${esc(typeStr||'Incident Report')}</div>
+          <div class="incident-meta">
+            <span>\uD83D\uDCC5 ${esc(fmtDate(ir.date||ir.createdAt||''))}</span>
+            <span>\uD83D\uDCCD ${esc(ir.location||ir.house||'\u2014')}</span>
+            <span class="pill ${ir.status==='resolved'?'pass':'pending'}">${esc(ir.status||'pending')}</span>
+          </div>
+        </div>`;
+      }).join('') + '</div>';
+  } catch {
+    wrap.innerHTML = '<div class="empty"><div class="alert error">\u26A0\uFE0F Could not load incidents.</div></div>';
+  }
+}
+
+function openIncidentModal(id) {
+  const ir = (window._portalIncidents || []).find(x => x.id === id);
+  if (!ir) return;
+  const types    = Array.isArray(ir.incidentTypes||ir.type) ? (ir.incidentTypes||ir.type).join(', ') : String(ir.incidentTypes||ir.type||'');
+  const mbs      = (ir.members||ir.involvedMembers||[]).map(m => m.name||m.id||m).join(', ');
+  const followup = ir.followUpActions || ir.followupActions || [];
+  document.getElementById('incidentModalTitle').textContent = types || 'Incident Report';
+  document.getElementById('incidentModalBody').innerHTML = `
+    <div class="field-grid" style="margin-bottom:1rem">
+      ${fld('Date', fmtDate(ir.date||ir.createdAt||''))}
+      ${fld('Location', ir.location||ir.house||'\u2014')}
+      ${fld('Status', ir.status||'pending')}
+      ${fld('Reported By', ir.reportedBy||ir.staff||'\u2014')}
+    </div>
+    ${ir.description ? `<div style="margin-bottom:.85rem"><strong style="font-size:.82rem;color:var(--muted);text-transform:uppercase;letter-spacing:.05em">Description</strong><p style="margin-top:.35rem;font-size:.9rem;color:var(--text);line-height:1.6">${esc(ir.description)}</p></div>` : ''}
+    ${mbs ? `<div style="margin-bottom:.85rem"><strong style="font-size:.82rem;color:var(--muted);text-transform:uppercase;letter-spacing:.05em">Involved Members</strong><p style="margin-top:.35rem;font-size:.9rem;color:var(--text)">${esc(mbs)}</p></div>` : ''}
+    ${followup.length ? `<div><strong style="font-size:.82rem;color:var(--muted);text-transform:uppercase;letter-spacing:.05em">Follow-up Actions</strong><ul style="margin:.4rem 0 0 1.1rem;font-size:.9rem;color:var(--text)">${followup.map(a=>`<li>${esc(a)}</li>`).join('')}</ul></div>` : ''}`;
+  document.getElementById('incidentModal').classList.add('open');
+}
+
+function closeIncidentModal() {
+  document.getElementById('incidentModal').classList.remove('open');
+}
+
+/* ============================================================
+   DOCUMENTS TAB
+============================================================ */
+async function loadDocs() {
+  if (!_current) return;
+  const id   = String(_current.ID || _current.id || '');
+  const card = document.getElementById('docsListCard');
+  try {
+    const all  = await apiFetch('/member-documents');
+    const docs = (Array.isArray(all) ? all : [])
+      .filter(d => String(d.memberId) === id)
+      .sort((a,b) => new Date(b.uploadedAt) - new Date(a.uploadedAt));
+
+    if (!docs.length) {
+      card.innerHTML = '<div class="empty"><div class="empty-icon">\uD83D\uDCC2</div><div>No documents on file yet.</div></div>';
+      return;
+    }
+    card.innerHTML = docs.map(d => `
+      <div class="doc-item">
+        <div class="doc-icon">${d.isPdf ? '\uD83D\uDCC4' : '\uD83D\uDDBC\uFE0F'}</div>
+        <div class="doc-info">
+          <div class="doc-name">${esc(d.docType||d.originalName||'Document')}</div>
+          <div class="doc-meta">${esc(d.originalName)} &middot; ${esc(fmtDate(d.uploadedAt))} &middot; ${((d.size||0)/1024).toFixed(1)} KB
+            ${d.uploadedByProfessional ? '<span class="pill info" style="margin-left:.4rem">Uploaded by you</span>' : ''}
+          </div>
+          ${d.notes ? `<div style="font-size:.78rem;color:var(--muted);margin-top:.2rem">${esc(d.notes)}</div>` : ''}
+        </div>
+        <div class="doc-actions">
+          <button class="btn-sm green" onclick="viewDoc('${esc(d.filename||'')}','${esc(d.isPdf?'pdf':'img')}','${esc(d.originalName||'')}')">View</button>
+        </div>
+      </div>`).join('');
+  } catch {
+    card.innerHTML = '<div class="empty"><div class="alert error">\u26A0\uFE0F Could not load documents.</div></div>';
+  }
+}
+
+function handleDocDrop(e) {
+  e.preventDefault();
+  document.getElementById('uploadZone').classList.remove('dragover');
+  const f = e.dataTransfer?.files?.[0];
+  if (f) prepareUpload(f);
+}
+
+function handleDocSelect(e) {
+  const f = e.target.files?.[0];
+  if (f) prepareUpload(f);
+}
+
+function prepareUpload(file) {
+  if (file.size > 10 * 1024 * 1024) {
+    document.getElementById('docsAlert').innerHTML = '<div class="alert warn">\u26A0\uFE0F File exceeds 10 MB limit.</div>';
+    return;
+  }
+  _pendingFile = file;
+  document.getElementById('uploadForm').style.display = 'block';
+  document.getElementById('uploadZone').style.display = 'none';
+  document.getElementById('uploadFilePreview').textContent = '\uD83D\uDCCE ' + file.name + ' (' + (file.size/1024).toFixed(1) + ' KB)';
+  document.getElementById('uploadStatus').textContent = '';
+  document.getElementById('docsAlert').innerHTML = '';
+}
+
+function cancelDocUpload() {
+  _pendingFile = null;
+  document.getElementById('uploadForm').style.display = 'none';
+  document.getElementById('uploadZone').style.display = 'block';
+  document.getElementById('docFileInput').value = '';
+  document.getElementById('uploadDocType').value = '';
+  document.getElementById('uploadNotes').value  = '';
+  document.getElementById('uploadStatus').textContent = '';
+}
+
+async function submitDocUpload() {
+  if (!_pendingFile || !_current) return;
+  const docType = document.getElementById('uploadDocType').value;
+  const statusEl = document.getElementById('uploadStatus');
+  if (!docType) { statusEl.textContent = '\u26A0\uFE0F Please select a document type.'; return; }
+
+  const id    = String(_current.ID || _current.id || '');
+  const fn    = mVal(_current,'firstName','FIRST_NAME','FIRST\r\nNAME');
+  const ln    = mVal(_current,'lastName','LAST_NAME','LAST\r\nNAME');
+  const name  = (fn + ' ' + ln).trim();
+  const notes = document.getElementById('uploadNotes').value.trim();
+  const profId = String(_prof.ID || _prof.id || '');
+
+  const fd = new FormData();
+  fd.append('file',       _pendingFile);
+  fd.append('memberId',   id);
+  fd.append('memberName', name);
+  fd.append('docType',    docType);
+  fd.append('notes',      notes);
+  fd.append('uploadedByProfessional', 'true');
+  fd.append('uploadedById', profId);
+
+  statusEl.style.color = '';
+  statusEl.textContent = '\u23F3 Uploading\u2026';
+  try {
+    const res  = await fetch(`${API}/member-documents/upload`, { method:'POST', body: fd });
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.error || 'Upload failed');
+    statusEl.style.color = '#4ade80';
+    statusEl.textContent = '\u2713 Document uploaded successfully.';
+    setTimeout(() => { cancelDocUpload(); loadDocs(); }, 1500);
+  } catch (e) {
+    statusEl.style.color = '#f87171';
+    statusEl.textContent = '\u26A0\uFE0F ' + (e.message || 'Upload failed. Please try again.');
+  }
+}
+
+function viewDoc(filename, type, name) {
+  if (!filename) return;
+  const url = `${API}/member-documents/file/${encodeURIComponent(filename)}`;
+  if (type === 'pdf') {
+    window.open(url, '_blank', 'noopener');
+  } else {
+    document.getElementById('lightboxImg').src = url;
+    document.getElementById('lightboxImg').alt = name;
+    document.getElementById('lightbox').classList.add('open');
+  }
+}
+
+/* ============================================================
+   MESSAGES TAB
+============================================================ */
+async function initMessages() {
+  if (!_current) return;
+  clearInterval(_msgPoll); _msgPoll = null;
+
+  const membId = String(_current.ID || _current.id || '');
+  const profId = String(_prof.ID    || _prof.id    || '');
+  const fn     = mVal(_current,'firstName','FIRST_NAME','FIRST\r\nNAME');
+  const ln     = mVal(_current,'lastName','LAST_NAME','LAST\r\nNAME');
+  const mName  = (fn + ' ' + ln).trim();
+  const pFn    = mVal(_prof,'firstName','FIRST_NAME','FIRST\r\nNAME');
+  const pLn    = mVal(_prof,'lastName','LAST_NAME','LAST\r\nNAME');
+  const pName  = (pFn + ' ' + pLn).trim() || profId;
+
+  try {
+    const convRes = await apiFetch(`/messages/conversations?memberId=${encodeURIComponent(profId)}`);
+    const convs   = Array.isArray(convRes) ? convRes : [];
+    let conv = convs.find(c => c.linkedMemberId === membId ||
+      (c.name && c.name.includes(membId)));
+
+    if (!conv) {
+      const created = await apiPost('/messages/conversation', {
+        participants: [profId, 'staff'],
+        name: `${mName} \u2014 ${pName}`,
+        linkedMemberId: membId
+      });
+      _convId = created?.id;
+    } else {
+      _convId = conv.id;
+    }
+
+    await loadMessages();
+    _msgPoll = setInterval(loadMessages, 5000);
+  } catch (e) {
+    document.getElementById('messagesThread').innerHTML =
+      `<div class="empty"><div class="alert error">\u26A0\uFE0F Could not load messages. ${esc(e.message||'')}</div></div>`;
+  }
+}
+
+async function loadMessages() {
+  if (!_convId) return;
+  const profId = String(_prof.ID || _prof.id || '');
+  try {
+    const data = await apiFetch(`/messages/${encodeURIComponent(_convId)}?memberId=${encodeURIComponent(profId)}`);
+    const msgs = Array.isArray(data) ? data : (data?.messages || []);
+    renderMessages(msgs, profId);
+  } catch { /* silent on poll */ }
+}
+
+function renderMessages(msgs, myId) {
+  const thread = document.getElementById('messagesThread');
+  if (!msgs.length) {
+    thread.innerHTML = `<div class="empty" style="margin:auto">
+      <div class="empty-icon">\uD83D\uDCAC</div>
+      <div>No messages yet. Send a message to start the conversation with Horizon House staff.</div>
+    </div>`;
+    return;
+  }
+  const atBottom = thread.scrollHeight - thread.scrollTop - thread.clientHeight < 60;
+  thread.innerHTML = msgs.map(m => {
+    const mine = String(m.senderId) === String(myId);
+    const t    = m.timestamp ? new Date(m.timestamp).toLocaleString('en-US',{month:'short',day:'numeric',hour:'numeric',minute:'2-digit'}) : '';
+    const imgSrc = m.imageUrl ? (m.imageUrl.startsWith('http') ? m.imageUrl : `${API}/${m.imageUrl}`) : null;
+    return `<div class="msg ${mine?'mine':'theirs'}">
+      ${!mine ? `<div class="msg-meta">${esc(m.senderName||m.senderId)}</div>` : ''}
+      ${imgSrc
+        ? `<img class="msg-img" src="${esc(imgSrc)}" alt="image" onclick="openLightbox('${esc(imgSrc)}')">`
+        : `<div class="msg-bubble">${esc(m.text||'')}</div>`}
+      <div class="msg-meta">${esc(t)}</div>
+    </div>`;
+  }).join('');
+  if (atBottom) thread.scrollTop = thread.scrollHeight;
+}
+
+async function sendMessage() {
+  if (!_convId || !_current) return;
+  const input  = document.getElementById('msgInput');
+  const text   = input.value.trim();
+  if (!text && !_msgFile) return;
+
+  const profId = String(_prof.ID || _prof.id || '');
+  const pFn    = mVal(_prof,'firstName','FIRST_NAME','FIRST\r\nNAME');
+  const pLn    = mVal(_prof,'lastName','LAST_NAME','LAST\r\nNAME');
+  const pName  = (pFn + ' ' + pLn).trim() || profId;
+
+  input.value = ''; input.style.height = 'auto';
+
+  try {
+    if (_msgFile) {
+      const fd = new FormData();
+      fd.append('image', _msgFile);
+      const upRes  = await fetch(`${API}/messages/upload-image`, { method:'POST', body: fd });
+      const upData = await upRes.json();
+      await apiPost('/messages/send', {
+        conversationId: _convId, senderId: profId, senderName: pName,
+        text: text || '', imageUrl: upData.url || upData.imageUrl || ''
+      });
+      clearMsgAttach();
+    } else {
+      await apiPost('/messages/send', {
+        conversationId: _convId, senderId: profId, senderName: pName, text
+      });
+    }
+    await loadMessages();
+  } catch (e) { console.warn('Send failed', e); }
+}
+
+function handleMsgAttach(e) {
+  const f = e.target.files?.[0];
+  if (!f) return;
+  _msgFile = f;
+  const prev = document.getElementById('attachPreview');
+  prev.textContent = '\uD83D\uDCCE ' + f.name + '  \u2715';
+  prev.onclick     = clearMsgAttach;
+  prev.style.cursor = 'pointer';
+}
+
+function clearMsgAttach() {
+  _msgFile = null;
+  document.getElementById('attachPreview').textContent = '';
+  document.getElementById('msgFileInput').value = '';
+}
+
+function openLightbox(src) {
+  document.getElementById('lightboxImg').src = src;
+  document.getElementById('lightbox').classList.add('open');
+}
+
+/* ============================================================
+   UTILITIES
+============================================================ */
+async function apiFetch(path) {
+  const res = await fetch(API + path);
+  if (!res.ok) throw new Error(`${res.status} ${res.statusText}`);
+  return res.json();
+}
+
+async function apiPost(path, body) {
+  const res = await fetch(API + path, {
+    method: 'POST', headers: {'Content-Type':'application/json'},
+    body: JSON.stringify(body)
+  });
+  if (!res.ok) throw new Error(`POST ${path} ${res.status}`);
+  return res.json();
+}
+
+/** Get first defined value across multiple key names on an object */
+function mVal(obj, ...keys) {
+  for (const k of keys) {
+    const v = obj?.[k];
+    if (v !== undefined && v !== null && v !== '') return String(v);
+  }
+  return '';
+}
+
+function normStr(s) { return String(s||'').trim().toLowerCase(); }
+
+function statusBadge(st, isOut) {
+  if (isOut) return { label:'Signed Out', cls:'out' };
+  switch (st) {
+    case '1': return { label:'Active Resident',   cls:'active'  };
+    case 'H': return { label:'Active (HH)',        cls:'active'  };
+    case 'W': return { label:'Active (Women\'s)',  cls:'active'  };
+    case '2': return { label:'Alumni',             cls:'alumni'  };
+    case '3': return { label:'Discharged',         cls:'inactive'};
+    case '4': return { label:'Staff',              cls:'info'    };
+    case '5': return { label:'Admin',              cls:'info'    };
+    default:  return { label: st || 'Unknown',     cls:'pending' };
+  }
+}
+
+function avatarColor(name) {
+  const palette = ['#2e6a4f','#1d4e89','#7b2d8b','#c0392b','#d35400','#16a085','#2471a3'];
+  let h = 0;
+  for (let i = 0; i < name.length; i++) h = name.charCodeAt(i) + ((h << 5) - h);
+  return palette[Math.abs(h) % palette.length];
+}
+
+function fmtDate(val) {
+  if (!val) return '\u2014';
+  const d = new Date(val);
+  if (isNaN(d.getTime())) return String(val);
+  return d.toLocaleDateString('en-US', { month:'short', day:'numeric', year:'numeric' });
+}
+
+function calcDaysSober(val) {
+  if (!val) return 0;
+  const d = new Date(val);
+  if (isNaN(d.getTime())) return 0;
+  return Math.max(0, Math.floor((Date.now() - d.getTime()) / 86400000));
+}
+
+function esc(str) {
+  return String(str ?? '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+</script>
 </body>
 </html>
