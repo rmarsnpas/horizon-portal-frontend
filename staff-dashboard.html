@@ -2032,43 +2032,7 @@ ${rateSummaryHtml}
                                     `</div>`;
                             })(),
                             // Staff password (shown for status 4/5, or when staffPortalAccess is granted)
-                            `<div id="staffPwSection" style="margin-bottom:10px;${(statusVal==='4'||statusVal==='5'||member.staffPortalAccess||member.professionalPortalAccess)?'':'display:none;'}"><label style='${labelStyle}'>Portal Password</label><input name='STAFF_PW' type='text' value="${member.staffPw || ''}" placeholder="Set portal login password" style='${fieldStyle}'><div style="font-size:12px;color:#718096;margin-top:4px;">Password used to log into the Management or Professionals Portal.</div></div>`,
-                            // Professional Portal Access section
-                            `<div id="profPortalSection" style="border:2px solid #c98a22;border-radius:8px;padding:14px;margin-bottom:14px;">`+
-                                `<label style="display:flex;align-items:center;gap:10px;cursor:pointer;font-size:14px;font-weight:600;color:#c98a22;">`+
-                                `<input type="checkbox" name="professionalPortalAccess" id="profPortalAccessChk" ${member.professionalPortalAccess?'checked':''} onchange="window.toggleProfPortalFields(this.checked)" style="width:18px;height:18px;">`+
-                                `<span>&#127973; Grant Professional Portal Access</span></label>`+
-                                `<div style="font-size:12px;color:#718096;margin-top:6px;">For case workers, counselors, RUHS staff, and other referring professionals. Grants restricted portal access to view their linked members' information. Set a Portal Password above.</div>`+
-                                `</div>`,
-                            // Professional portal fields (email/username, org, permissions)
-                            (function() {
-                                const show = !!member.professionalPortalAccess;
-                                const PROF_TABS = [
-                                    { key:'profile',   label:'\uD83D\uDC64 Profile' },
-                                    { key:'sio',       label:'\uD83D\uDEAA Sign In/Out' },
-                                    { key:'ua',        label:'\uD83E\uDDEA UA Results' },
-                                    { key:'incidents', label:'\u26A0\uFE0F Incidents' },
-                                    { key:'docs',      label:'\uD83D\uDCC4 Documents' },
-                                    { key:'messages',  label:'\uD83D\uDCAC Messages' },
-                                ];
-                                const curPerms = Array.isArray(member.professionalPermissions) ? member.professionalPermissions : [];
-                                const permBoxes = PROF_TABS.map(p =>
-                                    `<label style="display:flex;align-items:center;gap:8px;padding:5px 0;cursor:pointer;font-size:14px;">`+
-                                    `<input type="checkbox" name="profperm_${p.key}" value="${p.key}" ${(curPerms.length===0||curPerms.includes(p.key))?'checked':''}>`+
-                                    `<span>${p.label}</span></label>`
-                                ).join('');
-                                return `<div id="profPortalFields" style="margin-bottom:14px;${show?'':'display:none;'}">` +
-                                    `<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:8px;">` +
-                                    `<div><label style='${labelStyle}'>Login Email / Username</label><input name='PROF_EMAIL' type='email' value="${member.professionalEmail||member.email||''}" placeholder="e.g. jsmith@ruhs.org" style='${fieldStyle}'><div style="font-size:11px;color:#718096;margin-top:3px;">Email or username this professional uses to log in.</div></div>` +
-                                    `<div><label style='${labelStyle}'>Organization</label><input name='PROF_ORG' type='text' value="${member.professionalOrg||''}" placeholder="e.g. RUHS, ABC Counseling" style='${fieldStyle}'></div>` +
-                                    `</div>` +
-                                    `<div style="border:1px solid #e2e8f0;border-radius:6px;padding:12px;">` +
-                                    `<div style="font-weight:700;font-size:13px;color:#c98a22;margin-bottom:8px;">Portal Sections Access</div>` +
-                                    `<div style="font-size:12px;color:#718096;margin-bottom:8px;">Check all sections this professional can see. Leave all checked for full access.</div>` +
-                                    `<div style="display:grid;grid-template-columns:1fr 1fr;gap:2px;">${permBoxes}</div>` +
-                                    `</div>` +
-                                    `</div>`;
-                            })(),
+                            `<div id="staffPwSection" style="margin-bottom:10px;${(statusVal==='4'||statusVal==='5'||member.staffPortalAccess)?'':'display:none;'}"><label style='${labelStyle}'>Management Password</label><input name='STAFF_PW' type='text' value="${member.staffPw || ''}" placeholder="Set portal login password" style='${fieldStyle}'><div style="font-size:12px;color:#718096;margin-top:4px;">Password this member uses to log into the Management Portal.</div></div>`,
                             // Census / bedboard inclusion (shown for status 4)
                             (function() {
                                 const isCensusChecked = member.inCensus === true;
@@ -2160,18 +2124,9 @@ ${rateSummaryHtml}
                             const statusSel = document.querySelector('#staffProfileForm [name="STATUS"]');
                             const val = statusSel ? statusSel.value : '';
                             const spw = document.getElementById('staffPwSection');
-                            const profChk = document.getElementById('profPortalAccessChk');
-                            const profChecked = profChk ? profChk.checked : false;
-                            if (spw) spw.style.display = (val === '4' || val === '5' || checked || profChecked) ? 'block' : 'none';
+                            if (spw) spw.style.display = (val === '4' || val === '5' || checked) ? 'block' : 'none';
                             const sec = document.getElementById('permissionsSection');
                             if (sec) sec.style.display = (val === '4' || checked) ? 'block' : 'none';
-                        };
-                        // Toggle professional portal fields
-                        window.toggleProfPortalFields = function(checked) {
-                            const pf = document.getElementById('profPortalFields');
-                            if (pf) pf.style.display = checked ? 'block' : 'none';
-                            const spw = document.getElementById('staffPwSection');
-                            if (spw && checked) spw.style.display = 'block';
                         };
 
                         // Readmit handler — called from the Readmit button inside the profile modal
@@ -2254,13 +2209,6 @@ ${rateSummaryHtml}
                             billOnDay: form.elements['BILL ON DAY'] ? form.elements['BILL ON DAY'].value : '',
                             HIDE_INVOICES: form.elements['HIDE_INVOICES'] ? (form.elements['HIDE_INVOICES'].value === '1') : false,
                             staffPortalAccess: form.elements['staffPortalAccess'] ? form.elements['staffPortalAccess'].checked : false,
-                            professionalPortalAccess: form.elements['professionalPortalAccess'] ? form.elements['professionalPortalAccess'].checked : false,
-                            professionalEmail: form.elements['PROF_EMAIL'] ? form.elements['PROF_EMAIL'].value : '',
-                            professionalOrg:   form.elements['PROF_ORG']   ? form.elements['PROF_ORG'].value   : '',
-                            professionalPermissions: (() => {
-                                const boxes = form.querySelectorAll('[name^="profperm_"]:checked');
-                                return Array.from(boxes).map(cb => cb.value);
-                            })(),
                             refCaseWorker: form.elements['REF_CASEWORKER'] ? form.elements['REF_CASEWORKER'].value : '',
                             refCwPhone: form.elements['REF_CW_PHONE'] ? form.elements['REF_CW_PHONE'].value : '',
                             notes: form.elements['NOTES'] ? form.elements['NOTES'].value : '',

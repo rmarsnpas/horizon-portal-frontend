@@ -249,8 +249,29 @@
     <button class="btn-primary" id="loginBtn" onclick="doLogin()">Sign In</button>
     <div class="login-error" id="loginError"></div>
     <p class="login-note">
-      Access is granted by Horizon House staff.<br>
-      Contact <a href="mailto:info@horizon-house.org">info@horizon-house.org</a> to request access or reset a password.
+      Don't have an account?
+      <a href="professionals-register.html" style="color:var(--amber);font-weight:700;">Request Access</a><br><br>
+      Need help? Contact <a href="mailto:info@horizon-house.org">info@horizon-house.org</a>
+    </p>
+  </div>
+</div>
+
+<!-- MFA Screen -->
+<div id="mfaScreen" style="display:none;align-items:center;justify-content:center;min-height:calc(100vh - 70px);padding:2rem 1rem">
+  <div class="login-card" style="max-width:400px">
+    <div class="login-logo"><img src="HH%20logo%20grntree.png" alt="Horizon House"></div>
+    <h1 style="font-size:1.35rem">Verification Required</h1>
+    <p class="login-sub">A 6-digit code has been sent to your email. Enter it below.</p>
+    <div class="form-field">
+      <label for="mfaCode">Verification Code</label>
+      <input type="text" id="mfaCode" placeholder="_ _ _ _ _ _" maxlength="6" autocomplete="one-time-code"
+             inputmode="numeric" style="font-size:1.6rem;letter-spacing:6px;text-align:center;font-weight:700">
+    </div>
+    <button class="btn-primary" id="mfaBtn" onclick="doVerifyMfa()">Verify</button>
+    <div class="login-error" id="mfaError"></div>
+    <p class="login-note" style="margin-top:1rem">
+      <a href="#" onclick="doResendMfa(event)" style="color:var(--amber)">Resend code</a> &nbsp;·&nbsp;
+      <a href="#" onclick="cancelMfa(event)">Back to sign in</a>
     </p>
   </div>
 </div>
@@ -466,6 +487,9 @@ let _convId     = null;
 let _msgPoll    = null;
 let _pendingFile = null;
 let _msgFile    = null;
+let _mfaMember  = null;  // member pending MFA verification
+let _mfaId      = null;  // resolved ID for that member
+let _mfaEmail   = null;  // email MFA code was sent to
 
 /* ============================================================
    AUTH
@@ -473,9 +497,8 @@ let _msgFile    = null;
 async function doLogin() {
   const input = document.getElementById('loginId').value.trim();
   const pw    = document.getElementById('loginPw').value;
-  const err   = document.getElementById('loginError');
   const btn   = document.getElementById('loginBtn');
-  err.style.display = 'none';
+  document.getElementById('loginError').style.display = 'none';
   if (!input || !pw) { showLoginErr('Please enter your email/username and password.'); return; }
 
   btn.disabled = true; btn.textContent = 'Signing in…';
@@ -514,7 +537,7 @@ async function doLogin() {
       return;
     }
 
-    // Step 2: Verify password against the resolved member ID
+    // Step 2: Verify password
     const vRes  = await fetch(`${API}/verifyStaff`, {
       method:'POST', headers:{'Content-Type':'application/json'},
       body: JSON.stringify({ id: resolvedId, pw })
@@ -525,14 +548,104 @@ async function doLogin() {
       return;
     }
 
-    _prof = member;
-    sessionStorage.setItem(SESSION_KEY, JSON.stringify({ id: resolvedId, member }));
-    startApp();
+    // Step 3: Send MFA code
+    const profEmail = (member.professionalEmail || member.email || member.EMAIL || '').trim();
+    if (!profEmail) {
+      // No email on file — skip MFA and go straight in
+      _prof = member;
+      sessionStorage.setItem(SESSION_KEY, JSON.stringify({ id: resolvedId, member }));
+      startApp();
+      return;
+    }
+
+    _mfaMember = member;
+    _mfaId     = resolvedId;
+    _mfaEmail  = profEmail;
+
+    const mfaRes = await fetch(`${API}/professionals/send-mfa`, {
+      method: 'POST', headers: {'Content-Type':'application/json'},
+      body: JSON.stringify({ email: profEmail })
+    });
+    const mfaData = await mfaRes.json();
+    if (!mfaData.ok) {
+      showLoginErr('Could not send verification code. Please try again.');
+      return;
+    }
+
+    // Dev mode: show code in console for testing
+    if (mfaData._devCode) console.log('[DEV] MFA code:', mfaData._devCode);
+
+    // Show MFA screen
+    document.getElementById('loginScreen').style.display = 'none';
+    const mfaScreen = document.getElementById('mfaScreen');
+    mfaScreen.style.display = 'flex';
+    document.getElementById('mfaCode').value = '';
+    document.getElementById('mfaError').style.display = 'none';
+    setTimeout(() => document.getElementById('mfaCode').focus(), 100);
+
   } catch (e) {
     showLoginErr('Could not reach server. Please try again.');
   } finally {
     btn.disabled = false; btn.textContent = 'Sign In';
   }
+}
+
+async function doVerifyMfa() {
+  const code = document.getElementById('mfaCode').value.trim();
+  const btn  = document.getElementById('mfaBtn');
+  const err  = document.getElementById('mfaError');
+  err.style.display = 'none';
+  if (!code || code.length < 6) { showMfaErr('Please enter the 6-digit code.'); return; }
+
+  btn.disabled = true; btn.textContent = 'Verifying…';
+  try {
+    const res  = await fetch(`${API}/professionals/verify-mfa`, {
+      method: 'POST', headers: {'Content-Type':'application/json'},
+      body: JSON.stringify({ email: _mfaEmail, code })
+    });
+    const data = await res.json();
+    if (!data.ok) { showMfaErr(data.error || 'Incorrect code.'); return; }
+
+    // Success — start app
+    _prof = _mfaMember;
+    sessionStorage.setItem(SESSION_KEY, JSON.stringify({ id: _mfaId, member: _mfaMember }));
+    document.getElementById('mfaScreen').style.display = 'none';
+    startApp();
+  } catch (e) {
+    showMfaErr('Could not verify code. Please try again.');
+  } finally {
+    btn.disabled = false; btn.textContent = 'Verify';
+  }
+}
+
+async function doResendMfa(e) {
+  e.preventDefault();
+  if (!_mfaEmail) return;
+  try {
+    await fetch(`${API}/professionals/send-mfa`, {
+      method:'POST', headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({ email: _mfaEmail })
+    });
+    document.getElementById('mfaError').style.display = 'none';
+    showMfaErr('A new code has been sent to your email.', '#2e6a4f');
+  } catch {}
+}
+
+function cancelMfa(e) {
+  e.preventDefault();
+  _mfaMember = _mfaId = _mfaEmail = null;
+  document.getElementById('mfaScreen').style.display = 'none';
+  document.getElementById('loginScreen').style.display = 'flex';
+  document.getElementById('loginPw').value = '';
+}
+
+function showMfaErr(msg, color) {
+  const el = document.getElementById('mfaError');
+  el.textContent = msg;
+  el.style.background = color ? 'rgba(46,106,79,.15)' : 'rgba(192,57,43,.15)';
+  el.style.borderColor = color ? 'rgba(46,106,79,.4)' : 'rgba(192,57,43,.4)';
+  el.style.color = color || '#f87171';
+  el.style.display = 'block';
 }
 
 function showLoginErr(msg) {
@@ -553,6 +666,8 @@ function doLogout() {
 window.addEventListener('DOMContentLoaded', () => {
   document.getElementById('loginPw').addEventListener('keydown', e => { if (e.key==='Enter') doLogin(); });
   document.getElementById('loginId').addEventListener('keydown', e => { if (e.key==='Enter') document.getElementById('loginPw').focus(); });
+  document.getElementById('mfaCode').addEventListener('keydown', e => { if (e.key==='Enter') doVerifyMfa(); });
+  document.getElementById('mfaCode').addEventListener('input', e => { e.target.value = e.target.value.replace(/\D/g,'').slice(0,6); });
 
   const saved = sessionStorage.getItem(SESSION_KEY);
   if (saved) {

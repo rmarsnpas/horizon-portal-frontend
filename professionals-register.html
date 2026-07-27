@@ -1,0 +1,247 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Request Portal Access | Horizon House Professionals</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Request access to the Horizon House Professionals Portal — for referring case workers, counselors, and healthcare providers.">
+  <meta name="robots" content="noindex,nofollow">
+  <link rel="icon" type="image/png" href="HH%20logo%20grntree.png">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@500;600;700&family=Nunito:wght@400;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg:#0b1929; --surface:#112236; --border:#1c3a54;
+      --amber:#c98a22; --amber-light:#eab85e; --green:#2e6a4f;
+      --red:#c0392b; --text:#e8edf3; --muted:#7a9bb5;
+      --navy:#07111d; --radius:.85rem; --radius-sm:.5rem;
+    }
+    *{box-sizing:border-box;margin:0;padding:0}
+    body{font-family:Nunito,system-ui,-apple-system;background:var(--bg);color:var(--text);min-height:100vh}
+    a{color:var(--amber);text-decoration:none}
+    a:hover{color:var(--amber-light)}
+    :focus-visible{outline:2px solid var(--amber);outline-offset:2px}
+
+    /* Top bar */
+    .top-bar{background:var(--navy);padding:.65rem 1.5rem;display:flex;align-items:center;justify-content:space-between;gap:1rem;flex-wrap:wrap;border-bottom:1px solid var(--border);position:sticky;top:0;z-index:900}
+    .brand{display:flex;align-items:center;gap:.75rem}
+    .brand img{height:46px}
+    .brand-text{font-family:Inter,system-ui;font-weight:700;font-size:.95rem;color:#fff;line-height:1.2}
+    .brand-text small{display:block;font-weight:400;font-size:.7rem;color:var(--muted);letter-spacing:.5px;text-transform:uppercase}
+    .btn-back{background:rgba(255,255,255,.08);border:1px solid var(--border);color:var(--muted);padding:.4rem .9rem;border-radius:var(--radius-sm);font-size:.82rem;font-weight:700;transition:all .2s;cursor:pointer}
+    .btn-back:hover{background:rgba(255,255,255,.14);color:#fff}
+
+    /* Page layout */
+    .page{display:flex;align-items:flex-start;justify-content:center;min-height:calc(100vh - 70px);padding:3rem 1rem}
+    .card{background:var(--surface);border:1.5px solid var(--border);border-radius:var(--radius);padding:2.5rem 2.25rem;max-width:560px;width:100%;box-shadow:0 16px 48px rgba(0,0,0,.45)}
+    .card-logo{text-align:center;margin-bottom:1.5rem}
+    .card-logo img{height:60px}
+    .card h1{font-family:Inter,system-ui;font-size:1.5rem;color:#fff;text-align:center;margin-bottom:.35rem}
+    .card-sub{text-align:center;color:var(--muted);font-size:.9rem;margin-bottom:2rem}
+
+    /* Form */
+    .form-row{display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-bottom:1.1rem}
+    .form-field{margin-bottom:1.1rem}
+    .form-field label{display:block;font-size:.82rem;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.05em;margin-bottom:.4rem}
+    .form-field input,.form-field select{width:100%;padding:.75rem 1rem;background:#0d1d31;border:1.5px solid var(--border);border-radius:var(--radius-sm);color:#fff;font-size:.95rem;font-family:inherit;transition:border-color .2s}
+    .form-field input:focus,.form-field select:focus{border-color:var(--amber);outline:none}
+    .form-field input::placeholder{color:#3a5a72}
+    .form-field select option{background:#0d1d31}
+    .required{color:var(--amber)}
+    .field-hint{font-size:.78rem;color:var(--muted);margin-top:.35rem}
+
+    /* Buttons */
+    .btn-primary{width:100%;padding:.9rem;background:var(--amber);color:#1d1d1d;border:none;border-radius:var(--radius-sm);font-size:1rem;font-weight:700;font-family:inherit;cursor:pointer;transition:background .2s,transform .15s;margin-top:.5rem}
+    .btn-primary:hover{background:var(--amber-light);transform:translateY(-1px)}
+    .btn-primary:disabled{background:#3a5a72;color:#6a8a9a;cursor:not-allowed;transform:none}
+
+    /* Alerts */
+    .alert{border-radius:var(--radius-sm);padding:.75rem 1rem;font-size:.9rem;margin-top:1rem;display:none}
+    .alert-error{background:rgba(192,57,43,.15);border:1px solid rgba(192,57,43,.4);color:#f87171}
+    .alert-success{background:rgba(46,106,79,.15);border:1px solid rgba(46,106,79,.4);color:#6ee7b7}
+
+    /* Success state */
+    #successState{display:none;text-align:center;padding:1rem 0}
+    .success-icon{font-size:3rem;margin-bottom:1rem}
+    #successState h2{font-family:Inter,system-ui;font-size:1.4rem;color:#fff;margin-bottom:.75rem}
+    #successState p{color:var(--muted);font-size:.93rem;line-height:1.6}
+
+    /* Footer note */
+    .footer-note{text-align:center;color:var(--muted);font-size:.8rem;margin-top:1.75rem;padding-top:1.25rem;border-top:1px solid var(--border)}
+
+    @media(max-width:480px){.form-row{grid-template-columns:1fr}}
+  </style>
+</head>
+<body>
+
+<div class="top-bar">
+  <div class="brand">
+    <img src="HH%20logo%20grntree.png" alt="Horizon House logo">
+    <div class="brand-text">
+      Horizon House
+      <small>Professionals Portal</small>
+    </div>
+  </div>
+  <a href="professionals-portal.html" class="btn-back">← Sign In</a>
+</div>
+
+<div class="page">
+  <div class="card">
+    <div class="card-logo"><img src="HH%20logo%20grntree.png" alt="Horizon House"></div>
+    <h1>Request Portal Access</h1>
+    <p class="card-sub">Complete the form below to create your Professionals Portal account. You'll receive a temporary password by email.</p>
+
+    <!-- Registration form -->
+    <div id="regForm">
+      <div class="form-row">
+        <div class="form-field">
+          <label for="regFirst">First Name <span class="required">*</span></label>
+          <input type="text" id="regFirst" placeholder="Jane" autocomplete="given-name">
+        </div>
+        <div class="form-field">
+          <label for="regLast">Last Name <span class="required">*</span></label>
+          <input type="text" id="regLast" placeholder="Smith" autocomplete="family-name">
+        </div>
+      </div>
+
+      <div class="form-field">
+        <label for="regEmail">Work Email <span class="required">*</span></label>
+        <input type="email" id="regEmail" placeholder="jsmith@ruhs.org" autocomplete="email">
+        <p class="field-hint">This will be your login email. Use your professional/work address.</p>
+      </div>
+
+      <div class="form-field">
+        <label for="regPhone">Phone Number</label>
+        <input type="tel" id="regPhone" placeholder="(555) 555-5555" autocomplete="tel">
+      </div>
+
+      <div class="form-field">
+        <label for="regCompany">Organization / Company <span class="required">*</span></label>
+        <input type="text" id="regCompany" placeholder="e.g. RUHS, Desert Arc, ABC Treatment Center">
+      </div>
+
+      <div class="form-field">
+        <label for="regTitle">Your Role / Title <span class="required">*</span></label>
+        <select id="regTitle">
+          <option value="">— Select your role —</option>
+          <option>Case Worker</option>
+          <option>Case Manager</option>
+          <option>Counselor / Therapist</option>
+          <option>Substance Use Counselor</option>
+          <option>Social Worker</option>
+          <option>Probation / Parole Officer</option>
+          <option>Nurse / Medical Provider</option>
+          <option>Psychiatrist / Psychologist</option>
+          <option>Interventionist</option>
+          <option>Recovery Coach</option>
+          <option>Program Director</option>
+          <option>Discharge Planner</option>
+          <option>Other</option>
+        </select>
+      </div>
+
+      <div class="alert alert-error" id="regError"></div>
+
+      <button class="btn-primary" id="regBtn" onclick="submitReg()">Create My Account</button>
+
+      <p class="footer-note">
+        Already have an account? <a href="professionals-portal.html">Sign In</a><br>
+        Questions? Contact us at <a href="mailto:info@horizon-house.org">info@horizon-house.org</a>
+      </p>
+    </div>
+
+    <!-- Success state -->
+    <div id="successState">
+      <div class="success-icon">✅</div>
+      <h2>Account Created!</h2>
+      <p>
+        A temporary password has been sent to <strong id="successEmail"></strong>.<br><br>
+        Check your inbox (and spam folder) then sign in below.<br>
+        You'll be prompted to change your password on first login.
+      </p>
+      <a href="professionals-portal.html" style="display:inline-block;margin-top:1.75rem;padding:.8rem 2rem;background:var(--amber);color:#1d1d1d;font-weight:700;border-radius:var(--radius-sm);font-size:.95rem">
+        Go to Sign In →
+      </a>
+      <p class="footer-note" style="margin-top:2rem">
+        Questions? <a href="mailto:info@horizon-house.org">info@horizon-house.org</a>
+      </p>
+    </div>
+  </div>
+</div>
+
+<script>
+const API = 'https://horizon-portal-backend-production-3532.up.railway.app/api';
+
+async function submitReg() {
+  const firstName = document.getElementById('regFirst').value.trim();
+  const lastName  = document.getElementById('regLast').value.trim();
+  const email     = document.getElementById('regEmail').value.trim();
+  const phone     = document.getElementById('regPhone').value.trim();
+  const company   = document.getElementById('regCompany').value.trim();
+  const title     = document.getElementById('regTitle').value;
+  const errEl     = document.getElementById('regError');
+  const btn       = document.getElementById('regBtn');
+
+  errEl.style.display = 'none';
+
+  if (!firstName) return showErr('Please enter your first name.');
+  if (!lastName)  return showErr('Please enter your last name.');
+  if (!email)     return showErr('Please enter your work email address.');
+  if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) return showErr('Please enter a valid email address.');
+  if (!company)   return showErr('Please enter your organization or company name.');
+  if (!title)     return showErr('Please select your role.');
+
+  btn.disabled = true;
+  btn.textContent = 'Creating account…';
+
+  try {
+    const res  = await fetch(`${API}/professionals/register`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ firstName, lastName, phone, email, company, title })
+    });
+    const data = await res.json();
+
+    if (!res.ok || data.error) {
+      showErr(data.error || 'Registration failed. Please try again.');
+      return;
+    }
+
+    // Success
+    document.getElementById('regForm').style.display = 'none';
+    document.getElementById('successEmail').textContent = email;
+    document.getElementById('successState').style.display = 'block';
+
+  } catch (e) {
+    showErr('Could not reach server. Please check your connection and try again.');
+  } finally {
+    btn.disabled = false;
+    btn.textContent = 'Create My Account';
+  }
+}
+
+function showErr(msg) {
+  const el = document.getElementById('regError');
+  el.textContent = msg;
+  el.style.display = 'block';
+  el.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+}
+
+// Allow pressing Enter to tab through and submit
+document.addEventListener('DOMContentLoaded', () => {
+  const fields = ['regFirst','regLast','regEmail','regPhone','regCompany','regTitle'];
+  fields.forEach((id, i) => {
+    const el = document.getElementById(id);
+    if (!el) return;
+    el.addEventListener('keydown', e => {
+      if (e.key === 'Enter') {
+        e.preventDefault();
+        if (i < fields.length - 1) document.getElementById(fields[i+1]).focus();
+        else submitReg();
+      }
+    });
+  });
+});
+</script>
+</body>
+</html>
