@@ -4807,6 +4807,7 @@ function renderProfessionalsList(pros, linked) {
       <table style="width:100%;border-collapse:collapse;min-width:700px">
         <thead>
           <tr style="background:#f4f6f9;text-align:left;font-size:12px;text-transform:uppercase;color:#555;letter-spacing:.5px">
+            <th style="padding:10px 12px">ID</th>
             <th style="padding:10px 12px">Name</th>
             <th style="padding:10px 12px">Email / Login</th>
             <th style="padding:10px 12px">Organization</th>
@@ -4826,6 +4827,7 @@ function renderProfessionalsList(pros, linked) {
             const linkedCount = linked[String(id)] || 0;
             const active = p.professionalPortalAccess === true || p.professionalPortalAccess === 'true';
             return `<tr style="border-bottom:1px solid #eee;transition:background .15s" onmouseover="this.style.background='#f8f9ff'" onmouseout="this.style.background=''">
+              <td style="padding:10px 12px;font-family:monospace;font-size:12px;color:#667eea;font-weight:700">${id}</td>
               <td style="padding:10px 12px;font-weight:700;color:#1a1a2e">${name}</td>
               <td style="padding:10px 12px;color:#444;font-size:13px">${email}</td>
               <td style="padding:10px 12px;color:#555;font-size:13px">${org}</td>
@@ -4838,7 +4840,7 @@ function renderProfessionalsList(pros, linked) {
               </td>
               <td style="padding:10px 12px">
                 <div style="display:flex;gap:5px;flex-wrap:wrap">
-                  <button onclick="window.openEditMemberModalById('${id}')" style="padding:5px 10px;background:#667eea;color:white;border:none;border-radius:4px;cursor:pointer;font-size:12px;font-weight:700">✏️ Edit</button>
+                  <button onclick="proEditMember('${id}')" style="padding:5px 10px;background:#667eea;color:white;border:none;border-radius:4px;cursor:pointer;font-size:12px;font-weight:700">✏️ Edit</button>
                   <button onclick="proResetPassword('${id}','${name.replace(/'/g,'\\\'')}')" style="padding:5px 10px;background:#f59e0b;color:#1d1d1d;border:none;border-radius:4px;cursor:pointer;font-size:12px;font-weight:700">🔑 Reset PW</button>
                   <button onclick="proToggleAccess('${id}',${active})" style="padding:5px 10px;background:${active?'#dc3545':'#28a745'};color:white;border:none;border-radius:4px;cursor:pointer;font-size:12px;font-weight:700">${active?'🚫 Revoke':'✅ Enable'}</button>
                   <button onclick="proDelete('${id}','${name.replace(/'/g,'\\\'')}')" style="padding:5px 10px;background:#6c757d;color:white;border:none;border-radius:4px;cursor:pointer;font-size:12px;font-weight:700">🗑</button>
@@ -4860,6 +4862,21 @@ function filterProfessionalsList() {
         return name.includes(q) || email.includes(q) || org.includes(q);
     });
     renderProfessionalsList(filtered, {});
+}
+
+async function proEditMember(id) {
+    // Ensure member table data is loaded before opening edit modal
+    if (!window._allMembersTableData || !window._allMembersTableData.members) {
+        try {
+            const r = await fetch(MDOC_API + '/members');
+            const members = await r.json();
+            const allFields = ['#','YR','ID','STATUS','FIRST','LAST','NICKNAME','M/F','BED','DOB','ADMIT DATE','DISCHARGE DATE','DAYS HERE','SOBER DATE','DAYSOBER','RATE','PHONE','EMAIL','PIN','BILL ON DAY','KEY','REF'];
+            window._allMembersTableData = { members, allKeys: allFields };
+        } catch (e) {
+            alert('Could not load member data. Please try again.'); return;
+        }
+    }
+    window.openEditMemberModalById(id);
 }
 
 async function proResetPassword(id, name) {
