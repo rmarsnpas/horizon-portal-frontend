@@ -1932,6 +1932,9 @@ ${rateSummaryHtml}
                                 'REF_CASEWORKER': ['refCaseWorker'],
                                 'REF_CW_PHONE': ['refCwPhone'],
                                 'NOTES': ['notes'],
+                                'ELMR_ID': ['elmrId', 'ELMR_ID', 'clientElmrId', 'CLIENT_ELMR_ID'],
+                                'PRESUMPTIVE_EXIT_DATE': ['presumptiveExitDate', 'PRESUMPTIVE_EXIT_DATE'],
+                                'INPATIENT_FACILITY': ['inpatientFacility', 'INPATIENT_FACILITY'],
                             };
                             const keys = aliases[key] || [key, key.replace(/ /g, '_')];
                             for (const k of keys) {
@@ -2039,6 +2042,13 @@ ${rateSummaryHtml}
                                 `<label style='${labelStyle}'>Admit Date</label><input name='ADMIT DATE' value="${gv('ADMIT DATE')}" style='${fieldStyle}'>`,
                                 `<label style='${labelStyle}'>Discharge Date</label><input name='DISCHARGE DATE' value="${gv('DISCHARGE DATE')}" style='${fieldStyle}'>`
                             ),
+                            // Row: ELMR ID | Presumptive Exit Date
+                            makeRow(
+                                `<label style='${labelStyle}'>Client ELMR ID #</label><input name='ELMR_ID' value="${gv('ELMR_ID')}" placeholder="ELMR ID" style='${fieldStyle}'>`,
+                                `<label style='${labelStyle}'>Presumptive Exit Date</label><input name='PRESUMPTIVE_EXIT_DATE' value="${gv('PRESUMPTIVE_EXIT_DATE')}" placeholder="MM/DD/YYYY" style='${fieldStyle}'>`
+                            ),
+                            // Row: Inpatient Facility (full width)
+                            `<div style='margin-bottom:10px;'><label style='${labelStyle}'>Inpatient Facility</label><input name='INPATIENT_FACILITY' value="${gv('INPATIENT_FACILITY')}" placeholder="e.g. Desert Valley Hospital" style='${fieldStyle}'></div>`,
                             // Row: SOBER DATE | DAYS SOBER
                             makeRow(
                                 `<label style='${labelStyle}'>Sober Date</label><input name='SOBER DATE' id='profileSoberDate' value="${soberVal}" oninput='calcProfileDaysSober()' style='${fieldStyle}'>`,
@@ -2302,6 +2312,9 @@ ${rateSummaryHtml}
                             refCaseWorker: form.elements['REF_CASEWORKER'] ? form.elements['REF_CASEWORKER'].value : '',
                             refCwPhone: form.elements['REF_CW_PHONE'] ? form.elements['REF_CW_PHONE'].value : '',
                             linkedProfessionalId: (() => { const n = (form.elements['LINKED_PRO_NUM'] ? form.elements['LINKED_PRO_NUM'].value : '').trim(); return n ? 'PRO' + n.padStart(3,'0') : ''; })(),
+                            elmrId: form.elements['ELMR_ID'] ? form.elements['ELMR_ID'].value : '',
+                            presumptiveExitDate: form.elements['PRESUMPTIVE_EXIT_DATE'] ? form.elements['PRESUMPTIVE_EXIT_DATE'].value : '',
+                            inpatientFacility: form.elements['INPATIENT_FACILITY'] ? form.elements['INPATIENT_FACILITY'].value : '',
                             notes: form.elements['NOTES'] ? form.elements['NOTES'].value : '',
                         };
                         if (form.elements['PIN'] && form.elements['PIN'].value) payload.pin = form.elements['PIN'].value;
