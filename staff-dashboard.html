@@ -3063,7 +3063,19 @@ ${rateSummaryHtml}
                                 key: getVal('KEY'),
                                 ref: getVal('REF'),
                                 status: getVal('STATUS'),
+                                refCaseWorker: getVal('REF_CASEWORKER'),
+                                refCwPhone: getVal('REF_CW_PHONE'),
+                                elmrId: getVal('ELMR_ID'),
+                                presumptiveExitDate: getVal('PRESUMPTIVE_EXIT_DATE'),
+                                inpatientFacility: getVal('INPATIENT_FACILITY'),
+                                notes: getVal('NOTES'),
+                                staffPw: getVal('STAFF_PW'),
+                                professionalEmail: getVal('PROF_EMAIL'),
+                                professionalOrg: getVal('PROF_ORG'),
                             };
+                            // linkedProfessionalId: only set if a value was entered
+                            const _proNum = getVal('LINKED_PRO_NUM').trim();
+                            if (_proNum) payload.linkedProfessionalId = 'PRO' + _proNum.padStart(3,'0');
                             // Ask relapse question if status changing from 1 → 2 or 3
                             const _relapsedEdit = await askRelapseQuestion(window._editMemberOriginalStatus || '', payload.status);
                             if (_relapsedEdit) {
