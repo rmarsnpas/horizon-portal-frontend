@@ -548,40 +548,10 @@ async function doLogin() {
       return;
     }
 
-    // Step 3: Send MFA code
-    const profEmail = (member.professionalEmail || member.email || member.EMAIL || '').trim();
-    if (!profEmail) {
-      // No email on file — skip MFA and go straight in
-      _prof = member;
-      sessionStorage.setItem(SESSION_KEY, JSON.stringify({ id: resolvedId, member }));
-      startApp();
-      return;
-    }
-
-    _mfaMember = member;
-    _mfaId     = resolvedId;
-    _mfaEmail  = profEmail;
-
-    const mfaRes = await fetch(`${API}/professionals/send-mfa`, {
-      method: 'POST', headers: {'Content-Type':'application/json'},
-      body: JSON.stringify({ email: profEmail })
-    });
-    const mfaData = await mfaRes.json();
-    if (!mfaData.ok) {
-      showLoginErr('Could not send verification code. Please try again.');
-      return;
-    }
-
-    // Dev mode: show code in console for testing
-    if (mfaData._devCode) console.log('[DEV] MFA code:', mfaData._devCode);
-
-    // Show MFA screen
-    document.getElementById('loginScreen').style.display = 'none';
-    const mfaScreen = document.getElementById('mfaScreen');
-    mfaScreen.style.display = 'flex';
-    document.getElementById('mfaCode').value = '';
-    document.getElementById('mfaError').style.display = 'none';
-    setTimeout(() => document.getElementById('mfaCode').focus(), 100);
+    // Step 3: Login successful — go straight in (MFA disabled until email is resolved)
+    _prof = member;
+    sessionStorage.setItem(SESSION_KEY, JSON.stringify({ id: resolvedId, member }));
+    startApp();
 
   } catch (e) {
     showLoginErr('Could not reach server. Please try again.');
