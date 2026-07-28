@@ -963,15 +963,13 @@ function renderProfile() {
   const email   = mVal(m,'email','EMAIL');
   const addr    = mVal(m,'address','ADDRESS','addr');
   const sdate   = mVal(m,'soberDate','SOBER_DATE','SOBER\r\nDATE');
-  const intake  = mVal(m,'admitDate','ADMIT_DATE','ADMIT DATE','admitdate','intakeDate','INTAKE_DATE','moveInDate','MOVE_IN_DATE');
+  const intake  = mVal(m,'intakeDate','INTAKE_DATE','moveInDate','MOVE_IN_DATE');
   const refCw   = mVal(m,'refCaseWorker','REF_CASEWORKER');
   const ins     = mVal(m,'insurance','INSURANCE','insuranceCarrier','INSURANCE_CARRIER');
   const medId   = mVal(m,'medicaidId','MEDICAID_ID','memberId','MEMBER_ID','medi_cal_id','MEDI_CAL_ID');
   const bed     = mVal(m,'bed','BED','bedAssignment');
-  const houseRaw = mVal(m,'house','HOUSE','location','LOCATION');
-  const house   = houseRaw || (gender && gender.toString().toUpperCase().startsWith('M') ? '351' : gender && gender.toString().toUpperCase().startsWith('F') ? '321' : '');
+  const house   = mVal(m,'house','HOUSE','location','LOCATION');
   const days    = sdate ? calcDaysSober(sdate) : null;
-  const daysHere = intake ? calcDaysSober(intake) : null;
 
   card.innerHTML = `
     <h3>Personal Information</h3>
@@ -986,7 +984,6 @@ function renderProfile() {
       ${fld('Sober Date', sdate ? fmtDate(sdate) : '')}
       ${fld('Days Sober', days !== null ? days + ' days' : '')}
       ${fld('Intake Date', intake ? fmtDate(intake) : '')}
-      ${fld('Days Here', daysHere !== null ? daysHere + ' days' : '')}
       ${fld('House', house)} ${fld('Bed', bed)}
     </div>
     <h3 style="margin-top:1.35rem">Insurance &amp; Referring</h3>
@@ -1467,10 +1464,7 @@ function fmtDate(val) {
   if (!val) return '\u2014';
   const d = new Date(val);
   if (isNaN(d.getTime())) return String(val);
-  const mm = String(d.getMonth() + 1).padStart(2, '0');
-  const dd = String(d.getDate()).padStart(2, '0');
-  const yyyy = d.getFullYear();
-  return `${mm}-${dd}-${yyyy}`;
+  return d.toLocaleDateString('en-US', { month:'short', day:'numeric', year:'numeric' });
 }
 
 function calcDaysSober(val) {

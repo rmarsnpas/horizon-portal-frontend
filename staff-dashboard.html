@@ -4795,8 +4795,12 @@ async function loadProfessionalsList() {
         // Also fetch all members to count linked members per pro
         const linked = {};
         all.forEach(m => {
-            const cw = (m.refCaseWorker || m.REF_CASEWORKER || '').trim();
+            const cw  = (m.refCaseWorker || m.REF_CASEWORKER || '').trim();
+            const lpi = (m.linkedProfessionalId || '').trim();
+            // Count by refCaseWorker (may be PRO ID or a name)
             if (cw) linked[cw] = (linked[cw] || 0) + 1;
+            // Count by linkedProfessionalId (PRO001 etc.) — only if different from cw to avoid double-counting
+            if (lpi && lpi !== cw) linked[lpi] = (linked[lpi] || 0) + 1;
         });
 
         renderProfessionalsList(_allPros, linked);
@@ -4873,18 +4877,20 @@ function filterProfessionalsList() {
 }
 
 async function proEditMember(id) {
-    // Ensure member table data is loaded before opening edit modal
-    if (!window._allMembersTableData || !window._allMembersTableData.members) {
-        try {
-            const r = await fetch(MDOC_API + '/members');
-            const members = await r.json();
-            const allFields = ['#','YR','ID','STATUS','FIRST','LAST','NICKNAME','M/F','BED','DOB','ADMIT DATE','DISCHARGE DATE','DAYS HERE','SOBER DATE','DAYSOBER','RATE','PHONE','EMAIL','PIN','BILL ON DAY','KEY','REF'];
-            window._allMembersTableData = { members, allKeys: allFields };
-        } catch (e) {
-            alert('Could not load member data. Please try again.'); return;
-        }
+    // openAllMembersModal initializes window.openEditMemberModalById — call it to set up, then hide
+    if (typeof window.openEditMemberModalById !== 'function') {
+        await openAllMembersModal();
+        const allModal = document.getElementById('allMembersModal');
+        if (allModal) allModal.style.display = 'none';
+        document.body.style.overflow = 'hidden';
     }
-    window.openEditMemberModalById(id);
+    closeProfessionalsPanel();
+    document.body.style.overflow = 'hidden';
+    if (typeof window.openEditMemberModalById === 'function') {
+        window.openEditMemberModalById(id);
+    } else {
+        alert('Could not open editor. Please use the Members Database section directly.');
+    }
 }
 
 async function proResetPassword(id, name) {
