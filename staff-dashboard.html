@@ -2017,8 +2017,16 @@ ${rateSummaryHtml}
                             (() => {
                                 const rawPro = member.linkedProfessionalId || '';
                                 const proNum = rawPro.toUpperCase().startsWith('PRO') ? rawPro.slice(3) : rawPro;
+                                const existingPro = (typeof _allPros !== 'undefined' && _allPros.length)
+                                    ? _allPros.find(p => String(p.ID||p.id||'').toUpperCase() === rawPro.toUpperCase()) : null;
+                                const proInfoHtml = existingPro ? (() => {
+                                    const pn = ((existingPro.FIRST_NAME||existingPro.firstName||'')+' '+(existingPro.LAST_NAME||existingPro.lastName||'')).trim();
+                                    const ph = existingPro.phone||existingPro.PHONE||'';
+                                    const em = existingPro.professionalEmail||existingPro.email||existingPro.EMAIL||'';
+                                    return `<div style="margin-top:6px;padding:8px 10px;background:#f0f4ff;border:1px solid #c3d0f0;border-radius:6px;font-size:12px;"><strong>${pn}</strong>${ph?'<br>'+ph:''}${em?'<br><span style=color:#667>'+em+'</span>':''}</div>`;
+                                })() : '';
                                 return makeRow(
-                                    `<label style='${labelStyle}'>Linked Professional (PRO #)</label><div style='display:flex;align-items:center;gap:6px;'><span style='background:#e8edf3;border:1.5px solid #cbd5e0;border-radius:4px;padding:8px 10px;font-weight:700;color:#555;font-family:monospace'>PRO</span><input name='LINKED_PRO_NUM' type='text' maxlength='3' placeholder='001' value='${proNum}' style='${fieldStyle};width:80px;font-family:monospace;letter-spacing:2px;'></div><div style='font-size:11px;color:#718096;margin-top:4px'>Enter the 3-digit PRO ID (e.g. 001 for PRO001). Leave blank if no professional is linked.</div>`,
+                                    `<label style='${labelStyle}'>Linked Professional (PRO #)</label><div style='display:flex;align-items:center;gap:6px;'><span style='background:#e8edf3;border:1.5px solid #cbd5e0;border-radius:4px;padding:8px 10px;font-weight:700;color:#555;font-family:monospace'>PRO</span><input name='LINKED_PRO_NUM' id='linkedProNumInput' type='text' maxlength='3' placeholder='001' value='${proNum}' oninput='window.updateProInfoDisplay(this.value)' style='${fieldStyle};width:80px;font-family:monospace;letter-spacing:2px;'></div><div id='proInfoDisplayArea'>${proInfoHtml}</div><div style='font-size:11px;color:#718096;margin-top:4px'>3-digit PRO ID. Leave blank to keep unchanged.</div>`,
                                     ''
                                 );
                             })(),
@@ -2311,7 +2319,7 @@ ${rateSummaryHtml}
                             })(),
                             refCaseWorker: form.elements['REF_CASEWORKER'] ? form.elements['REF_CASEWORKER'].value : '',
                             refCwPhone: form.elements['REF_CW_PHONE'] ? form.elements['REF_CW_PHONE'].value : '',
-                            linkedProfessionalId: (() => { const n = (form.elements['LINKED_PRO_NUM'] ? form.elements['LINKED_PRO_NUM'].value : '').trim(); return n ? 'PRO' + n.padStart(3,'0') : ''; })(),
+                            linkedProfessionalId: (() => { const n = (form.elements['LINKED_PRO_NUM'] ? form.elements['LINKED_PRO_NUM'].value : '').trim(); return n ? 'PRO' + n.padStart(3,'0') : undefined; })(),
                             elmrId: form.elements['ELMR_ID'] ? form.elements['ELMR_ID'].value : '',
                             presumptiveExitDate: form.elements['PRESUMPTIVE_EXIT_DATE'] ? form.elements['PRESUMPTIVE_EXIT_DATE'].value : '',
                             inpatientFacility: form.elements['INPATIENT_FACILITY'] ? form.elements['INPATIENT_FACILITY'].value : '',
@@ -4888,6 +4896,28 @@ function filterProfessionalsList() {
     });
     renderProfessionalsList(filtered, {});
 }
+
+window.updateProInfoDisplay = async function(num) {
+    const area = document.getElementById('proInfoDisplayArea');
+    if (!area) return;
+    if (!num || num.trim().length < 3) { area.innerHTML = ''; return; }
+    const fullId = 'PRO' + num.trim().padStart(3,'0');
+    let pros = (_allPros && _allPros.length) ? _allPros : null;
+    if (!pros) {
+        try {
+            const r = await fetch(MDOC_API + '/members');
+            const all = await r.json();
+            pros = (Array.isArray(all) ? all : []).filter(m => m.professionalPortalAccess);
+            _allPros = pros;
+        } catch { area.innerHTML = ''; return; }
+    }
+    const pro = pros.find(p => String(p.ID||p.id||'').toUpperCase() === fullId.toUpperCase());
+    if (!pro) { area.innerHTML = '<div style="font-size:11px;color:#c0392b;margin-top:4px">PRO ID not found in professionals list</div>'; return; }
+    const pn = ((pro.FIRST_NAME||pro.firstName||'')+' '+(pro.LAST_NAME||pro.lastName||'')).trim();
+    const ph = pro.phone||pro.PHONE||'';
+    const em = pro.professionalEmail||pro.email||pro.EMAIL||'';
+    area.innerHTML = `<div style="margin-top:6px;padding:8px 10px;background:#f0f4ff;border:1px solid #c3d0f0;border-radius:6px;font-size:12px;"><strong>${pn}</strong>${ph?'<br>'+ph:''}${em?'<br><span style=color:#444>'+em+'</span>':''}</div>`;
+};
 
 async function proEditMember(id) {
     // openAllMembersModal initializes window.openEditMemberModalById — call it to set up, then hide
