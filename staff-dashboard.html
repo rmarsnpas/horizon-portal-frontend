@@ -2010,6 +2010,15 @@ ${rateSummaryHtml}
                                 `<label style='${labelStyle}'>Ref Case Worker</label><input name='REF_CASEWORKER' value="${gv('REF_CASEWORKER')}" style='${fieldStyle}'>`,
                                 `<label style='${labelStyle}'>Ref CW Phone</label><input name='REF_CW_PHONE' value="${gv('REF_CW_PHONE')}" style='${fieldStyle}'>`
                             ),
+                            // Row: Linked Professional ID
+                            (() => {
+                                const rawPro = member.linkedProfessionalId || '';
+                                const proNum = rawPro.toUpperCase().startsWith('PRO') ? rawPro.slice(3) : rawPro;
+                                return makeRow(
+                                    `<label style='${labelStyle}'>Linked Professional (PRO #)</label><div style='display:flex;align-items:center;gap:6px;'><span style='background:#e8edf3;border:1.5px solid #cbd5e0;border-radius:4px;padding:8px 10px;font-weight:700;color:#555;font-family:monospace'>PRO</span><input name='LINKED_PRO_NUM' type='text' maxlength='3' placeholder='001' value='${proNum}' style='${fieldStyle};width:80px;font-family:monospace;letter-spacing:2px;'></div><div style='font-size:11px;color:#718096;margin-top:4px'>Enter the 3-digit PRO ID (e.g. 001 for PRO001). Leave blank if no professional is linked.</div>`,
+                                    ''
+                                );
+                            })(),
                             // Row: FIRST | LAST
                             makeRow(
                                 `<label style='${labelStyle}'>First Name</label><input name='FIRST' value="${gv('FIRST')}" style='${fieldStyle}'>`,
@@ -2064,12 +2073,10 @@ ${rateSummaryHtml}
                             })(),
                             // Staff password (shown for status 4/5, or when staffPortalAccess is granted)
                             `<div id="staffPwSection" style="margin-bottom:10px;${(statusVal==='4'||statusVal==='5'||member.staffPortalAccess||member.professionalPortalAccess)?'':'display:none;'}"><label style='${labelStyle}'>Portal Password</label><input name='STAFF_PW' type='text' value="${member.staffPw || ''}" placeholder="Set portal login password" style='${fieldStyle}'><div style="font-size:12px;color:#718096;margin-top:4px;">Password used to log into the Management or Professionals Portal.</div></div>`,
-                            // Professional Portal Access section
+                            // Professional Portal Access section — checkbox removed; access managed via Professionals panel
                             `<div id="profPortalSection" style="border:2px solid #c98a22;border-radius:8px;padding:14px;margin-bottom:14px;">`+
-                                `<label style="display:flex;align-items:center;gap:10px;cursor:pointer;font-size:14px;font-weight:600;color:#c98a22;">`+
-                                `<input type="checkbox" name="professionalPortalAccess" id="profPortalAccessChk" ${member.professionalPortalAccess?'checked':''} onchange="window.toggleProfPortalFields(this.checked)" style="width:18px;height:18px;">`+
-                                `<span>&#127973; Grant Professional Portal Access</span></label>`+
-                                `<div style="font-size:12px;color:#718096;margin-top:6px;">For case workers, counselors, RUHS staff, and other referring professionals. Grants restricted portal access to view their linked members' information. Set a Portal Password above.</div>`+
+                                `<div style="font-size:13px;font-weight:600;color:#c98a22;">&#127973; Professional Portal Access</div>`+
+                                `<div style="font-size:12px;color:#718096;margin-top:6px;">Access is managed through the Professionals Database panel in the staff dashboard. Use the Linked PRO # field above to associate this member with a professional.</div>`+
                                 `</div>`,
                             // Professional portal fields (email/username, org, permissions)
                             (function() {
@@ -2294,6 +2301,7 @@ ${rateSummaryHtml}
                             })(),
                             refCaseWorker: form.elements['REF_CASEWORKER'] ? form.elements['REF_CASEWORKER'].value : '',
                             refCwPhone: form.elements['REF_CW_PHONE'] ? form.elements['REF_CW_PHONE'].value : '',
+                            linkedProfessionalId: (() => { const n = (form.elements['LINKED_PRO_NUM'] ? form.elements['LINKED_PRO_NUM'].value : '').trim(); return n ? 'PRO' + n.padStart(3,'0') : ''; })(),
                             notes: form.elements['NOTES'] ? form.elements['NOTES'].value : '',
                         };
                         if (form.elements['PIN'] && form.elements['PIN'].value) payload.pin = form.elements['PIN'].value;
