@@ -222,15 +222,17 @@ function Get-Members {
         
         Write-Log "  Total members from API: $($all.Count)"
         
-        # Filter to active members only (status 1, 2, H, or W)
-        $active = $all | Where-Object {
-            $status = (Get-PropValue $_ @('STATUS','STATU','status'))
-            if ($status) { $status = $status.Trim() }
-            $status -in @('1','2','H','W','HOLD','WAIT','WAITLIST')
+        # For document inbox, we want ALL members (active, alumni, discharged, etc.)
+        # Someone might scan a document for any member regardless of status
+        if ($all.Count -gt 0) {
+            # Show status breakdown for debugging
+            $statusGroups = $all | Group-Object { (Get-PropValue $_ @('STATUS','STATU','status')).Trim() }
+            foreach ($g in $statusGroups) {
+                Write-Log "    Status '$($g.Name)': $($g.Count) members"
+            }
         }
         
-        Write-Log "  Active members: $($active.Count)"
-        return $active
+        return $all
     }
     catch { 
         Write-Log "ERROR fetching members: $($_.Exception.Message)"
@@ -343,11 +345,20 @@ while ($true) {
     if (-not $members -or ([datetime]::Now - $lastMemberLoad).TotalHours -gt 1) {
         Write-Log "Loading member list..."
         $members = Get-Members
-        if ($members) { 
+        if ($null -ne $members -and $members.Count -gt 0) { 
             $lastMemberLoad = [datetime]::Now
             Write-Log "Loaded $($members.Count) members."
         }
-        else { Write-Log "Cannot reach server --- retrying in $POLL_SECONDS s."; Start-Sleep -Seconds $POLL_SECONDS; continue }
+        elseif ($null -eq $members) { 
+            Write-Log "Cannot reach server --- retrying in $POLL_SECONDS s."
+            Start-Sleep -Seconds $POLL_SECONDS
+            continue 
+        }
+        else {
+            Write-Log "WARNING: Server returned 0 members. Retrying in $POLL_SECONDS s."
+            Start-Sleep -Seconds $POLL_SECONDS
+            continue
+        }
     }
 
     $files = Get-ChildItem -Path $INBOX_FOLDER -File -ErrorAction SilentlyContinue |
