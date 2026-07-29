@@ -1,0 +1,300 @@
+═══════════════════════════════════════════════════════════════════════════════
+                    HORIZON HOUSE - iPAD KIOSK SETUP GUIDE
+                          Sign In/Out Kiosk Configuration
+═══════════════════════════════════════════════════════════════════════════════
+
+🔧 SETUP METHOD 1: GUIDED ACCESS (EASIEST - 5 MINUTES)
+═══════════════════════════════════════════════════════════════════════════════
+
+STEP 1: ENABLE GUIDED ACCESS
+─────────────────────────────────────────────────────────────────────────────
+
+1. Open the Settings app on your iPad
+2. Tap "Accessibility"
+3. Scroll down and tap "Guided Access"
+4. Turn "Guided Access" ON (toggle switch to green)
+5. Tap "Passcode Settings"
+   - Tap "Set Guided Access Passcode"
+   - Enter a 6-digit passcode (REMEMBER THIS!)
+   - Re-enter to confirm
+   - Optional: Enable Face ID or Touch ID for easier exit
+6. Enable "Display Auto-Lock" → Set to "Never"
+7. Go back to main Settings
+
+
+STEP 2: CONFIGURE GENERAL IPAD SETTINGS
+─────────────────────────────────────────────────────────────────────────────
+
+Prevent Sleep:
+Settings → Display & Brightness → Auto-Lock → Set to "Never"
+
+Disable Notifications:
+Settings → Notifications → Turn OFF for all apps
+Settings → Focus → Do Not Disturb → Turn ON
+
+Disable Automatic Updates:
+Settings → General → Software Update → Automatic Updates → Turn OFF
+
+
+STEP 3: OPEN YOUR KIOSK PAGE
+─────────────────────────────────────────────────────────────────────────────
+
+1. Open Safari browser
+2. Navigate to one of these URLs:
+   
+   For Men's House:
+   https://horizonhouse.com/horizon-portal/kiosk-men.html
+   
+   For Women's House:
+   https://horizonhouse.com/horizon-portal/kiosk-women.html
+   
+   For General Use:
+   https://horizonhouse.com/horizon-portal/kiosk-signin.html
+
+
+STEP 4: ADD TO HOME SCREEN (RECOMMENDED)
+─────────────────────────────────────────────────────────────────────────────
+
+1. In Safari, tap the Share button (box with arrow pointing up)
+2. Scroll down and tap "Add to Home Screen"
+3. Name it "Sign In/Out Kiosk"
+4. Tap "Add"
+5. Close Safari
+6. Open the kiosk from your home screen (looks like an app, no browser bars)
+
+
+STEP 5: ACTIVATE GUIDED ACCESS (LOCK THE iPAD)
+─────────────────────────────────────────────────────────────────────────────
+
+1. With the kiosk page open, TRIPLE-CLICK the Home button
+   (On newer iPads without home button: TRIPLE-CLICK the Side/Power button)
+
+2. Tap "Options" in the bottom left corner
+
+3. Configure these settings:
+   ☐ Sleep/Wake Button - Turn OFF
+   ☐ Volume Buttons - Turn OFF  
+   ☐ Motion - Turn OFF (prevents rotating screen)
+   ☐ Keyboards - Turn OFF (unless needed for kiosk)
+   ☐ Touch - Leave ON (or circle areas to disable if needed)
+   ☐ Time Limit - Leave OFF (or set if you want auto-end)
+
+4. Tap "Done"
+
+5. Tap "Start" in the top right corner
+
+🎉 YOUR iPAD IS NOW LOCKED TO THE KIOSK!
+─────────────────────────────────────────────────────────────────────────────
+
+
+═══════════════════════════════════════════════════════════════════════════════
+🔓 HOW TO EXIT KIOSK MODE
+═══════════════════════════════════════════════════════════════════════════════
+
+1. TRIPLE-CLICK the Home button (or Side button on newer iPads)
+2. Enter your Guided Access passcode
+3. Tap "End" in the top left corner
+
+The iPad is now unlocked and back to normal.
+
+
+═══════════════════════════════════════════════════════════════════════════════
+🛡️ SETUP METHOD 2: SINGLE APP MODE (ADVANCED - MDM REQUIRED)
+═══════════════════════════════════════════════════════════════════════════════
+
+FOR MULTIPLE iPADS OR PROFESSIONAL DEPLOYMENT:
+
+Option A: Apple Configurator (Free - Requires Mac)
+─────────────────────────────────────────────────────────────────────────────
+
+1. Download "Apple Configurator 2" from Mac App Store
+2. Connect iPad to Mac via USB cable
+3. In Apple Configurator:
+   - Select your iPad
+   - Click "Prepare"
+   - Choose "Manual Configuration"
+   - Create a new Blueprint
+   - Under "Single App Mode", select Safari
+   - Add Web Clip for your kiosk URL
+   - Apply configuration to iPad
+4. iPad will restart in kiosk mode automatically
+
+
+Option B: Mobile Device Management (MDM) - Recommended for Multiple Devices
+─────────────────────────────────────────────────────────────────────────────
+
+Use one of these MDM services:
+
+• Jamf Now (jamf.com/products/jamf-now/)
+  - Professional, easy to use
+  - Paid service (~$2-4/device/month)
+
+• Hexnode MDM (hexnode.com)
+  - Good features, affordable
+  - Paid service
+
+• Mosyle (mosyle.com)
+  - Has a free tier
+  - Good for small deployments
+
+• Meraki Systems Manager (meraki.cisco.com)
+  - Cisco product
+  - Free for small deployments (up to 100 devices)
+
+With MDM you can:
+✓ Remotely configure kiosk settings
+✓ Lock to specific app/website
+✓ Monitor device status
+✓ Push updates to all devices at once
+✓ Wipe or lock lost/stolen devices
+
+
+═══════════════════════════════════════════════════════════════════════════════
+💡 BEST PRACTICES & TIPS
+═══════════════════════════════════════════════════════════════════════════════
+
+PHYSICAL SETUP:
+─────────────────────────────────────────────────────────────────────────────
+
+1. MOUNT THE iPAD
+   Consider a secure kiosk stand or wall mount:
+   
+   • Compulocks iPad Enclosure
+     - Lockable, tamper-resistant
+     - Wall or desk mount options
+     
+   • ArmorActive Secure iPad Kiosk
+     - Heavy-duty commercial grade
+     
+   • CTA Digital Anti-Theft Security Kiosk Stand
+     - Budget-friendly option
+     
+   • Heckler Design WindFall Stand
+     - Premium, sleek design
+
+2. KEEP iPAD CHARGED
+   - Use a long lightning/USB-C cable
+   - Consider a powered stand with built-in charging
+   - Hide cable in wall mount or cable management sleeve
+
+3. PLACEMENT
+   - Eye level for easy viewing
+   - Well-lit area (not in direct sunlight)
+   - Near the entrance/exit for convenience
+   - Away from water or damage hazards
+
+
+SOFTWARE TIPS:
+─────────────────────────────────────────────────────────────────────────────
+
+1. REGULAR RESTART
+   Restart iPad weekly to clear cache and keep running smoothly
+
+2. MONITOR STORAGE
+   Check Settings → General → iPad Storage
+   Clear Safari cache if needed
+
+3. KEEP iOS UPDATED
+   Update iOS during off-hours when kiosk isn't needed
+
+4. TEST REGULARLY
+   Verify kiosk is working properly each week
+
+5. BACKUP PLAN
+   Have a paper sign-in/out sheet as backup if iPad fails
+
+
+SECURITY:
+─────────────────────────────────────────────────────────────────────────────
+
+1. Use a strong Guided Access passcode
+2. Don't share the passcode with residents
+3. Enable Find My iPad in case of theft
+4. Consider adding a cable lock to physical mount
+5. Set up a separate Apple ID just for the kiosk iPad
+
+
+═══════════════════════════════════════════════════════════════════════════════
+🔧 TROUBLESHOOTING
+═══════════════════════════════════════════════════════════════════════════════
+
+PROBLEM: iPad keeps going to sleep
+SOLUTION: Settings → Display & Brightness → Auto-Lock → Never
+
+PROBLEM: Notifications appearing
+SOLUTION: Settings → Focus → Do Not Disturb → Turn ON
+          Settings → Notifications → Turn off for all apps
+
+PROBLEM: Kiosk page keeps reloading
+SOLUTION: Check internet connection
+          Clear Safari cache: Settings → Safari → Clear History and Data
+
+PROBLEM: Can't exit Guided Access
+SOLUTION: Triple-click home/side button → Enter passcode
+          If forgot passcode: Force restart iPad and set up again
+
+PROBLEM: Touch not working in kiosk
+SOLUTION: Exit Guided Access → Options → Make sure Touch is ON
+
+PROBLEM: Kiosk URL won't load
+SOLUTION: Check WiFi connection
+          Verify URL is correct
+          Try reloading page in Safari
+
+
+═══════════════════════════════════════════════════════════════════════════════
+📋 QUICK SETUP CHECKLIST
+═══════════════════════════════════════════════════════════════════════════════
+
+PRE-SETUP:
+☐ iPad charged to 100%
+☐ Connected to reliable WiFi
+☐ Kiosk URL tested in Safari
+
+GUIDED ACCESS SETUP:
+☐ Guided Access enabled in Settings
+☐ Passcode set and recorded
+☐ Auto-Lock set to Never
+☐ Do Not Disturb enabled
+☐ Automatic updates disabled
+
+KIOSK SETUP:
+☐ Kiosk page loaded in Safari
+☐ Added to Home Screen
+☐ Guided Access activated
+☐ Sleep/Wake button disabled
+☐ Volume buttons disabled
+☐ Motion disabled
+☐ Tested sign in/out functionality
+
+PHYSICAL SETUP:
+☐ iPad mounted securely
+☐ Charging cable connected
+☐ Positioned at eye level
+☐ Staff trained on exit procedure
+
+
+═══════════════════════════════════════════════════════════════════════════════
+📞 SUPPORT INFORMATION
+═══════════════════════════════════════════════════════════════════════════════
+
+Horizon House Portal Kiosk URLs:
+• Men's Kiosk: /horizon-portal/kiosk-men.html
+• Women's Kiosk: /horizon-portal/kiosk-women.html
+• General Sign-In: /horizon-portal/kiosk-signin.html
+
+Technical Support:
+• Apple Support: 1-800-275-2273
+• Guided Access Help: support.apple.com/guide/ipad/guided-access
+
+For questions about the Horizon House kiosk system,
+refer to PROJECT_STATUS.md in the project documentation.
+
+
+═══════════════════════════════════════════════════════════════════════════════
+
+Last Updated: February 3, 2026
+Document: iPad Kiosk Setup Instructions for Horizon House
+Version: 1.0
+
+═══════════════════════════════════════════════════════════════════════════════

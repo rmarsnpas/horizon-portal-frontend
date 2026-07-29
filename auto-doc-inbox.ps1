@@ -33,83 +33,72 @@ $LogFile      = Join-Path $INBOX_FOLDER "upload-log.txt"
 function Write-Log($msg) {
     $line = "[$(Get-Date -Format 'yyyy-MM-dd HH:mm:ss')] $msg"
     Write-Host $line
-    Add-Content -Path $LogFile -Value $line -Encoding UTF8
+    
+    # Try to write to log file, but don't spam console if it fails
+    # (likely locked by OneDrive or another instance)
+    try {
+        Add-Content -Path $LogFile -Value $line -Encoding UTF8 -ErrorAction SilentlyContinue
+    } catch {
+        # Fail silently
+    }
+}
+
+# ------ Check if file is ready to process (not locked by scanner/OneDrive) -----------------
+function Test-FileReady {
+    param([string]$FilePath)
+    
+    if (-not (Test-Path $FilePath)) {
+        return $false
+    }
+    
+    try {
+        $stream = [System.IO.File]::Open($FilePath, 'Open', 'Read', 'None')
+        $stream.Close()
+        return $true
+    } catch {
+        return $false
+    }
 }
 
 # ------ WinRT async helper ------------------------------------------------------------------------------------------------------------------------
 Add-Type -AssemblyName System.Runtime.WindowsRuntime | Out-Null
 
 function Await {
-    param($WinRtTask, [Type]$ResultType = $null)
+    param($WinRtTask)
     
     try {
-        # Get the AsTask extension methods
-        $asTask = ([System.WindowsRuntimeSystemExtensions].GetMethods() | Where-Object { $_.Name -eq 'AsTask' })
+        # Poll the Status property until completion
+        # Status values: 0=Started, 1=Completed, 2=Canceled, 3=Error
+        $timeout = 30000  # 30 seconds in milliseconds
+        $waited = 0
         
-        # Determine what type of async operation we have
-        $taskTypeName = $WinRtTask.GetType().GetInterfaces() | 
-            Where-Object { $_.Name -match '^IAsync' } | 
-            Select-Object -First 1 -ExpandProperty Name
-        
-        if ($null -eq $taskTypeName) {
-            throw "Unknown async operation type"
+        while ($WinRtTask.Status -eq 0 -and $waited -lt $timeout) {
+            Start-Sleep -Milliseconds 100
+            $waited += 100
         }
         
-        # Handle based on operation type
-        if ($taskTypeName -eq 'IAsyncAction') {
-            # Action with no result
-            $method = $asTask | Where-Object { 
-                $_.GetParameters().Count -eq 1 -and 
-                $_.GetParameters()[0].ParameterType.Name -eq 'IAsyncAction' 
-            } | Select-Object -First 1
-            
-            if ($method) {
-                $task = $method.Invoke($null, @($WinRtTask))
-                $task.Wait(-1) | Out-Null
-                return $null
-            }
-        }
-        elseif ($taskTypeName -match 'IAsyncOperation') {
-            # Operation with result
-            if ($null -ne $ResultType) {
-                # Result type explicitly provided
-                $method = $asTask | Where-Object { 
-                    $_.GetParameters().Count -eq 1 -and 
-                    $_.GetParameters()[0].ParameterType.Name -eq 'IAsyncOperation`1' -and
-                    $_.IsGenericMethod
-                } | Select-Object -First 1
-                
-                if ($method) {
-                    $genericMethod = $method.MakeGenericMethod($ResultType)
-                    $task = $genericMethod.Invoke($null, @($WinRtTask))
-                    $task.Wait(-1) | Out-Null
-                    return $task.Result
-                }
-            } else {
-                # Infer result type from the async operation
-                $asyncOpInterface = $WinRtTask.GetType().GetInterface('IAsyncOperation`1')
-                if ($asyncOpInterface) {
-                    $inferredType = $asyncOpInterface.GenericTypeArguments[0]
-                    $method = $asTask | Where-Object { 
-                        $_.GetParameters().Count -eq 1 -and 
-                        $_.GetParameters()[0].ParameterType.Name -eq 'IAsyncOperation`1' -and
-                        $_.IsGenericMethod
-                    } | Select-Object -First 1
-                    
-                    if ($method) {
-                        $genericMethod = $method.MakeGenericMethod($inferredType)
-                        $task = $genericMethod.Invoke($null, @($WinRtTask))
-                        $task.Wait(-1) | Out-Null
-                        return $task.Result
-                    }
-                }
-            }
+        if ($waited -ge $timeout) {
+            throw "WinRT async operation timed out after 30 seconds"
         }
         
-        throw "Could not convert WinRT async operation to Task"
+        # Check final status
+        if ($WinRtTask.Status -eq 3) {
+            throw "WinRT async operation failed"
+        }
+        if ($WinRtTask.Status -eq 2) {
+            throw "WinRT async operation was canceled"
+        }
+        
+        # Try to get results
+        try {
+            return $WinRtTask.GetResults()
+        } catch {
+            # Some operations (IAsyncAction) don't return results
+            return $null
+        }
+        
     } catch {
         Write-Log "  Await error: $($_.Exception.Message)"
-        Write-Log "  Task type: $($WinRtTask.GetType().FullName)"
         throw
     }
 }
@@ -136,25 +125,35 @@ function Load-WinRTTypes {
 # ------ Render first page of PDF to a temp PNG ---------------------------------------------------------
 function Render-PdfFirstPage($pdfPath) {
     try {
+        # Copy PDF to temp location to avoid OneDrive/long path issues with WinRT
+        $tempPdf = [System.IO.Path]::Combine([System.IO.Path]::GetTempPath(), "ocr_temp_$(Get-Random).pdf")
+        Copy-Item -Path $pdfPath -Destination $tempPdf -Force
+        
         $tmpPng  = [System.IO.Path]::ChangeExtension([System.IO.Path]::GetTempFileName(), '.png')
-        $absPath = (Resolve-Path $pdfPath).Path
 
-        $sf    = Await ([Windows.Storage.StorageFile]::GetFileFromPathAsync($absPath)) ([Windows.Storage.StorageFile])
-        $pdf   = Await ([Windows.Data.Pdf.PdfDocument]::LoadFromFileAsync($sf)) ([Windows.Data.Pdf.PdfDocument])
-        if ($pdf.PageCount -eq 0) { return $null }
+        $sf    = Await ([Windows.Storage.StorageFile]::GetFileFromPathAsync($tempPdf))
+        $pdf   = Await ([Windows.Data.Pdf.PdfDocument]::LoadFromFileAsync($sf))
+        if ($pdf.PageCount -eq 0) { 
+            Remove-Item $tempPdf -Force -ErrorAction SilentlyContinue
+            return $null 
+        }
         $page  = $pdf.GetPage(0)
 
         $tmpDir  = [System.IO.Path]::GetDirectoryName($tmpPng)
         $tmpName = [System.IO.Path]::GetFileName($tmpPng)
-        $folder  = Await ([Windows.Storage.StorageFolder]::GetFolderFromPathAsync($tmpDir)) ([Windows.Storage.StorageFolder])
-        $outFile = Await ($folder.CreateFileAsync($tmpName, [Windows.Storage.CreationCollisionOption]::ReplaceExisting)) ([Windows.Storage.StorageFile])
-        $stream  = Await ($outFile.OpenAsync([Windows.Storage.FileAccessMode]::ReadWrite)) ([Windows.Storage.Streams.IRandomAccessStream])
+        $folder  = Await ([Windows.Storage.StorageFolder]::GetFolderFromPathAsync($tmpDir))
+        $outFile = Await ($folder.CreateFileAsync($tmpName, [Windows.Storage.CreationCollisionOption]::ReplaceExisting))
+        $stream  = Await ($outFile.OpenAsync([Windows.Storage.FileAccessMode]::ReadWrite))
 
         $opts = New-Object Windows.Data.Pdf.PdfPageRenderOptions
         $opts.DestinationHeight = 2400
         Await ($page.RenderToStreamAsync($stream, $opts))
         $stream.Dispose()
         $page.Dispose()
+        
+        # Clean up temp PDF
+        Remove-Item $tempPdf -Force -ErrorAction SilentlyContinue
+        
         return $tmpPng
     } catch {
         Write-Log "  OCR: PDF render failed: $_"
@@ -165,16 +164,29 @@ function Render-PdfFirstPage($pdfPath) {
 # ------ OCR: read text from an image file ------------------------------------------------------------------------
 function Get-OcrTextFromImage($imagePath) {
     try {
-        $absPath = (Resolve-Path $imagePath).Path
+        # Copy to temp location to avoid OneDrive path issues
+        $ext = [System.IO.Path]::GetExtension($imagePath)
+        $tempImage = [System.IO.Path]::Combine([System.IO.Path]::GetTempPath(), "ocr_img_$(Get-Random)$ext")
+        Copy-Item -Path $imagePath -Destination $tempImage -Force
+        
         $engine  = [Windows.Media.Ocr.OcrEngine]::TryCreateFromUserProfileLanguages()
-        if (-not $engine) { return '' }
+        if (-not $engine) { 
+            Write-Log "  OCR engine initialization failed - Windows OCR not available"
+            Write-Log "  Install a language pack from Windows Settings > Time & Language > Language"
+            Remove-Item $tempImage -Force -ErrorAction SilentlyContinue
+            return '' 
+        }
 
-        $sf      = Await ([Windows.Storage.StorageFile]::GetFileFromPathAsync($absPath)) ([Windows.Storage.StorageFile])
-        $stream  = Await ($sf.OpenAsync([Windows.Storage.FileAccessMode]::Read)) ([Windows.Storage.Streams.IRandomAccessStream])
-        $decoder = Await ([Windows.Graphics.Imaging.BitmapDecoder]::CreateAsync($stream)) ([Windows.Graphics.Imaging.BitmapDecoder])
-        $bitmap  = Await ($decoder.GetSoftwareBitmapAsync()) ([Windows.Graphics.Imaging.SoftwareBitmap])
-        $result  = Await ($engine.RecognizeAsync($bitmap)) ([Windows.Media.Ocr.OcrResult])
+        $sf      = Await ([Windows.Storage.StorageFile]::GetFileFromPathAsync($tempImage))
+        $stream  = Await ($sf.OpenAsync([Windows.Storage.FileAccessMode]::Read))
+        $decoder = Await ([Windows.Graphics.Imaging.BitmapDecoder]::CreateAsync($stream))
+        $bitmap  = Await ($decoder.GetSoftwareBitmapAsync())
+        $result  = Await ($engine.RecognizeAsync($bitmap))
         $stream.Dispose()
+        
+        # Clean up temp file
+        Remove-Item $tempImage -Force -ErrorAction SilentlyContinue
+        
         return $result.Text
     } catch {
         Write-Log "  OCR: Image read failed: $_"
@@ -301,23 +313,23 @@ function Get-Members {
 function Get-MemberIdFromFilename($members, $filename) {
     $base = [System.IO.Path]::GetFileNameWithoutExtension($filename).ToLower()
     
-    # Try multiple patterns for member ID
+    # Try multiple patterns for member ID (support 2-9 digit IDs)
     # Pattern 1: "ID 123" or "member ID 123" or "memberid123"
-    if ($base -match '(?:member\s*)?id[\s:-]*?(\d{2,4})\b') {
+    if ($base -match '(?:member\s*)?id[\s:-]*?(\d{2,9})\b') {
         $candidateId = $matches[1]
         Write-Log "  Found ID pattern in filename: $candidateId"
         return $candidateId
     }
     
-    # Pattern 2: Just digits at start "174.pdf" or "170-document.pdf"
-    if ($base -match '^(\d{2,4})(?:\D|$)') {
+    # Pattern 2: Just digits at start "174.pdf" or "170-document.pdf" or "145045_file.pdf"
+    if ($base -match '^(\d{2,9})(?:\D|$)') {
         $candidateId = $matches[1]
         Write-Log "  Found ID at start of filename: $candidateId"
         return $candidateId
     }
     
-    # Pattern 3: Any 2-4 digit number as word boundary
-    $nums = [regex]::Matches($base, '\b(\d{2,4})\b')
+    # Pattern 3: Any 2-9 digit number as word boundary
+    $nums = [regex]::Matches($base, '\b(\d{2,9})\b')
     if ($nums.Count -gt 0) {
         # Try to match against known members first
         foreach ($n in $nums) { 
@@ -421,9 +433,35 @@ while ($true) {
              Where-Object { $_.DirectoryName -eq $INBOX_FOLDER -and $_.Extension -notin @('.bat','.txt','.log') }
 
     foreach ($file in $files) {
-        Start-Sleep -Milliseconds 1200   # let scanner finish writing
-
         $filename = $file.Name
+        
+        # Wait for file to be fully written and not locked (by scanner or OneDrive sync)
+        $maxWait = 10  # seconds
+        $waited = 0
+        while ($waited -lt $maxWait) {
+            if (Test-FileReady $file.FullName) {
+                break
+            }
+            Start-Sleep -Milliseconds 500
+            $waited += 0.5
+            # Refresh file object in case it was moved/deleted
+            if (-not (Test-Path $file.FullName)) {
+                Write-Log "File disappeared (likely OneDrive sync): $filename"
+                continue
+            }
+        }
+        
+        # Final check - if still not ready or doesn't exist, skip it
+        if (-not (Test-Path $file.FullName)) {
+            Write-Log "File no longer exists: $filename - skipping"
+            continue
+        }
+        
+        if (-not (Test-FileReady $file.FullName)) {
+            Write-Log "File still locked after ${maxWait}s wait: $filename - skipping this cycle"
+            continue
+        }
+
         Write-Log "------------------------------------------------------------------------------"
         Write-Log "File: $filename"
 
@@ -452,28 +490,57 @@ while ($true) {
 
         # Step 2: OCR if filename gave no match
         if (-not $member) {
+            # Check if file still exists before OCR
+            if (-not (Test-Path $file.FullName)) {
+                Write-Log "  File disappeared before OCR - skipping"
+                continue
+            }
+            
             Write-Log "  No member ID in filename --- running OCR..."
-            $ocrText = Get-OcrText $file.FullName
+            try {
+                $ocrText = Get-OcrText $file.FullName
 
-            if ($ocrText) {
-                Write-Log "  OCR read $(($ocrText -split '\s+').Count) words."
-                $ocrDocType = Get-DocTypeFromOcrText $ocrText
-                if ($ocrDocType) { $docType = $ocrDocType }
+                if ($ocrText) {
+                    Write-Log "  OCR read $(($ocrText -split '\s+').Count) words."
+                    $ocrDocType = Get-DocTypeFromOcrText $ocrText
+                    if ($ocrDocType) { $docType = $ocrDocType }
 
-                $match = Find-MemberInOcrText $ocrText $members
-                if ($match) {
-                    $member   = $match.member
-                    $memberId = Get-PropValue $member @('ID','id','MEMBER ID')
-                    $via      = "OCR: $($match.via) [$($match.confidence) confidence]"
-                    if ($match.confidence -eq 'low') { Write-Log "  LOW CONFIDENCE match --- please verify in file cabinet." }
+                    $match = Find-MemberInOcrText $ocrText $members
+                    if ($match) {
+                        $member   = $match.member
+                        $memberId = Get-PropValue $member @('ID','id','MEMBER ID')
+                        $via      = "OCR: $($match.via) [$($match.confidence) confidence]"
+                        if ($match.confidence -eq 'low') { Write-Log "  LOW CONFIDENCE match --- please verify in file cabinet." }
+                    }
+                } else {
+                    Write-Log "  OCR returned no text."
                 }
-            } else {
-                Write-Log "  OCR returned no text."
+            } catch {
+                Write-Log "  OCR ERROR: $_"
+                Write-Log "  Moving to review folder for manual processing"
+                if (Test-Path $file.FullName) {
+                    $reviewDest = Join-Path $ReviewDir $filename
+                    if (Test-Path $reviewDest) { 
+                        $reviewDest = Join-Path $ReviewDir ("$(Get-Date -Format 'HHmmss')_$filename") 
+                    }
+                    try {
+                        Move-Item -Path $file.FullName -Destination $reviewDest -Force -ErrorAction Stop
+                    } catch {
+                        Write-Log "  Could not move file (may have been moved by OneDrive): $_"
+                    }
+                }
+                continue
             }
         }
 
         # Step 3: upload or send to review
         if ($member) {
+            # Check if file still exists before upload
+            if (-not (Test-Path $file.FullName)) {
+                Write-Log "  File disappeared before upload - skipping"
+                continue
+            }
+            
             $mName = Get-MemberName $member
             Write-Log "  Member  : $mName (ID: $memberId)"
             Write-Log "  Doc Type: $docType"
@@ -481,22 +548,58 @@ while ($true) {
             try {
                 Upload-File $file.FullName $memberId $mName $docType | Out-Null
                 Write-Log "  SUCCESS: Uploaded to $mName's file cabinet."
-                $dest = Join-Path $ProcessedDir $filename
-                if (Test-Path $dest) { $dest = Join-Path $ProcessedDir ("$(Get-Date -Format 'HHmmss')_$filename") }
-                Move-Item -Path $file.FullName -Destination $dest -Force
+                
+                # Move to processed folder if file still exists
+                if (Test-Path $file.FullName) {
+                    $dest = Join-Path $ProcessedDir $filename
+                    if (Test-Path $dest) { 
+                        $dest = Join-Path $ProcessedDir ("$(Get-Date -Format 'HHmmss')_$filename") 
+                    }
+                    try {
+                        Move-Item -Path $file.FullName -Destination $dest -Force -ErrorAction Stop
+                    } catch {
+                        Write-Log "  Could not move to processed folder (may have been moved by OneDrive): $_"
+                    }
+                } else {
+                    Write-Log "  File was already moved/deleted (likely by OneDrive)"
+                }
             } catch {
                 Write-Log "  UPLOAD FAILED: $_"
-                Move-Item -Path $file.FullName -Destination (Join-Path $ReviewDir $filename) -Force
-                if ($ocrText) { $ocrText | Out-File (Join-Path $ReviewDir "$filename.ocr.txt") -Encoding UTF8 }
+                if (Test-Path $file.FullName) {
+                    $reviewDest = Join-Path $ReviewDir $filename
+                    if (Test-Path $reviewDest) { 
+                        $reviewDest = Join-Path $ReviewDir ("$(Get-Date -Format 'HHmmss')_$filename") 
+                    }
+                    try {
+                        Move-Item -Path $file.FullName -Destination $reviewDest -Force -ErrorAction Stop
+                        if ($ocrText) { 
+                            $ocrText | Out-File (Join-Path $ReviewDir "$filename.ocr.txt") -Encoding UTF8 
+                        }
+                    } catch {
+                        Write-Log "  Could not move to review folder: $_"
+                    }
+                } else {
+                    Write-Log "  File disappeared during upload failure handling"
+                }
             }
         } else {
             Write-Log "  Could not identify member --- moved to review folder."
-            Move-Item -Path $file.FullName -Destination (Join-Path $ReviewDir $filename) -Force
-            if ($ocrText) {
-                $ocrText | Out-File (Join-Path $ReviewDir "$filename.ocr.txt") -Encoding UTF8
-                Write-Log "  OCR text saved as $filename.ocr.txt --- open it to see what was read."
+            if (Test-Path $file.FullName) {
+                $reviewDest = Join-Path $ReviewDir $filename
+                if (Test-Path $reviewDest) { 
+                    $reviewDest = Join-Path $ReviewDir ("$(Get-Date -Format 'HHmmss')_$filename") 
+                }
+                try {
+                    Move-Item -Path $file.FullName -Destination $reviewDest -Force -ErrorAction Stop
+                    if ($ocrText) { 
+                        $ocrText | Out-File (Join-Path $ReviewDir "$filename.ocr.txt") -Encoding UTF8 
+                    }
+                } catch {
+                    Write-Log "  Could not move to review folder: $_"
+                }
+            } else {
+                Write-Log "  File disappeared before moving to review"
             }
-            Write-Log "  To fix: rename with member ID and drop back in inbox."
         }
     }
 

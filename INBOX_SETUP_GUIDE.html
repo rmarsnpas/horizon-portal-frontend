@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Document Inbox Setup – Horizon House</title>
+<style>
+  body { font-family: Arial, sans-serif; max-width: 750px; margin: 40px auto; color: #222; font-size: 14px; line-height: 1.6; }
+  h1 { color: #2d6a4f; font-size: 22px; border-bottom: 3px solid #2d6a4f; padding-bottom: 8px; margin-bottom: 20px; }
+  h2 { color: #2d6a4f; font-size: 16px; margin-top: 28px; margin-bottom: 8px; }
+  .box { background: #f4f9f6; border: 1px solid #b7ddc8; border-radius: 8px; padding: 14px 18px; margin: 14px 0; }
+  .path { background: #fff3cd; border: 1px solid #ffc107; border-radius: 5px; padding: 6px 12px; font-family: Courier New, monospace; font-size: 13px; display: inline-block; margin: 4px 0; word-break: break-all; }
+  .step { display: flex; gap: 12px; margin: 10px 0; }
+  .num { background: #2d6a4f; color: #fff; border-radius: 50%; width: 26px; height: 26px; display: flex; align-items: center; justify-content: center; font-weight: bold; font-size: 13px; flex-shrink: 0; margin-top: 1px; }
+  .tip { background: #fff8e1; border-left: 4px solid #f59e0b; padding: 10px 14px; margin: 14px 0; border-radius: 0 6px 6px 0; }
+  table { border-collapse: collapse; width: 100%; margin: 10px 0; }
+  th { background: #2d6a4f; color: #fff; padding: 8px 10px; text-align: left; font-size: 13px; }
+  td { padding: 7px 10px; border-bottom: 1px solid #e2e8f0; font-size: 13px; }
+  tr:nth-child(even) td { background: #f7faf8; }
+  .logo { color: #2d6a4f; font-size: 28px; font-weight: 900; letter-spacing: -1px; }
+  .subtitle { color: #718096; font-size: 13px; margin-bottom: 30px; }
+  @media print {
+    body { margin: 20px; }
+    .no-print { display: none; }
+  }
+</style>
+</head>
+<body>
+
+<button class="no-print" onclick="window.print()" style="background:#2d6a4f;color:#fff;border:none;padding:10px 24px;border-radius:7px;font-size:14px;font-weight:700;cursor:pointer;margin-bottom:20px;">🖨️ Print / Save as PDF</button>
+
+<div class="logo">🏠 Horizon House</div>
+<div class="subtitle">Staff Technology Setup Guide</div>
+
+<h1>Document Inbox – Scanner &amp; File Upload Setup</h1>
+
+<p>Just scan and walk away. The watcher program reads each document using OCR (optical character recognition), identifies the member automatically from names or ID numbers on the page, detects the document type, and uploads it to the correct member's file cabinet. No manual file naming required.</p>
+
+<!-- ── SECTION 1 ── -->
+<h2>📁 Step 1 — The Inbox Folder</h2>
+<p>All scanned documents and files go into this one folder:</p>
+<div class="path">C:\Users\rmars\OneDrive\Documents\Documents\marsliz\Horizon-House\Members\_inbox</div>
+<p style="margin-top:8px;">Inside that folder you will also find:</p>
+<div class="box">
+  <strong>📄 START WATCHER - double click me.bat</strong><br>
+  Double-click this file to start the auto-uploader. Keep the window open while you work.
+  <br><br>
+  <strong>📂 processed\</strong> — Files that uploaded successfully are moved here automatically.<br>
+  <strong>📂 review\</strong> — Files the system could not identify go here. A <em>.ocr.txt</em> file is saved next to each one showing exactly what was read from the page.
+</div>
+
+<!-- ── SECTION 2 ── -->
+<h2>🖨️ Step 2 — Configure the Ricoh IM C4500 Scanner</h2>
+<p>The Ricoh scans to a <strong>shared network folder</strong>. This is a one-time setup with two parts.</p>
+
+<h2 style="font-size:14px;margin-top:18px;">Part A — Share the Inbox Folder on Your Computer</h2>
+<div class="step"><div class="num">1</div><div>Open Windows Explorer and navigate to the <strong>_inbox</strong> folder:<br><span class="path">C:\Users\rmars\OneDrive\Documents\Documents\marsliz\Horizon-House\Members\_inbox</span></div></div>
+<div class="step"><div class="num">2</div><div>Right-click the <strong>_inbox</strong> folder → <strong>Properties</strong></div></div>
+<div class="step"><div class="num">3</div><div>Click the <strong>Sharing</strong> tab → <strong>Advanced Sharing</strong></div></div>
+<div class="step"><div class="num">4</div><div>Check <strong>"Share this folder"</strong> → set the Share name to: <span class="path">HorizonInbox</span></div></div>
+<div class="step"><div class="num">5</div><div>Click <strong>Permissions</strong> → make sure <strong>Everyone</strong> has <strong>Change</strong> (read/write) access → OK → OK → Close</div></div>
+<div class="step"><div class="num">6</div><div>Find your computer's IP address: press <strong>Start</strong> → type <strong>cmd</strong> → press Enter → type <strong>ipconfig</strong> → press Enter → write down the <strong>IPv4 Address</strong> (looks like: 192.168.1.45)</div></div>
+
+<div class="tip">
+  <strong>💡 Write your IP address here:</strong> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;___________________<br>
+  <strong>Write your Windows username here:</strong> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;___________________<br>
+  <strong>Write your Windows password here:</strong> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;___________________<br>
+  <span style="font-size:11px;">(You'll need these when setting up the Ricoh)</span>
+</div>
+
+<h2 style="font-size:14px;margin-top:18px;">Part B — Add the Folder to the Ricoh (Web Image Monitor)</h2>
+<div class="step"><div class="num">1</div><div>From any computer browser on the same network, go to:<br><span class="path">http://[Ricoh's IP address]</span><br><span style="font-size:12px;color:#718096;">The Ricoh's IP is on the machine's front panel: Home → Settings → Network, or printed on a label on the machine.</span></div></div>
+<div class="step"><div class="num">2</div><div>Log in to Web Image Monitor (default login: username <strong>admin</strong>, password <em>leave blank</em>)</div></div>
+<div class="step"><div class="num">3</div><div>Go to <strong>Address Book</strong> → click <strong>Add New Destination</strong> → select type <strong>SMB (Folder)</strong></div></div>
+<div class="step"><div class="num">4</div><div>Fill in the fields:
+  <table style="margin-top:8px;">
+    <tr><th>Field</th><th>What to Enter</th></tr>
+    <tr><td>Name</td><td>Horizon Inbox</td></tr>
+    <tr><td>Server Name / IP Address</td><td>Your computer's IPv4 address (from Step A-6)</td></tr>
+    <tr><td>Share Name</td><td>HorizonInbox</td></tr>
+    <tr><td>User Name</td><td>Your Windows username</td></tr>
+    <tr><td>Password</td><td>Your Windows password</td></tr>
+  </table>
+</div></div>
+<div class="step"><div class="num">5</div><div>Click <strong>Test Connection</strong> — should say <em>"Connection Successful"</em> → click <strong>OK</strong> to save</div></div>
+
+<h2 style="font-size:14px;margin-top:18px;">Part C — Scan a Document on the Ricoh</h2>
+<div class="step"><div class="num">1</div><div>Place document in the Ricoh feeder or on the glass</div></div>
+<div class="step"><div class="num">2</div><div>On the Ricoh's touchscreen: press <strong>Home</strong> → <strong>Scanner</strong></div></div>
+<div class="step"><div class="num">3</div><div>Press <strong>To:</strong> or <strong>Address Book</strong> → select <strong>Horizon Inbox</strong></div></div>
+<div class="step"><div class="num">4</div><div>Set file format to <strong>PDF</strong> (recommended)</div></div>
+<div class="step"><div class="num">5</div><div>Press <strong>Start</strong> — the file saves directly to the inbox folder on your computer</div></div>
+
+<div class="tip">
+  <strong>⚠️ Important:</strong> Your computer must be turned on and connected to the same network as the Ricoh for scanning to work. The watcher program must also be running.
+</div>
+
+<!-- ── SECTION 3 ── -->
+<h2>🤖 Step 3 — How OCR Identification Works</h2>
+<p>The watcher automatically reads each scanned document and identifies the member. <strong>You do not need to rename files.</strong></p>
+
+<div class="box">
+  <strong>What the software looks for (in order):</strong><br><br>
+  <strong>1. Member ID number</strong> — if the filename or the document contains a 2–4 digit member ID (e.g. 0133, 160), it matches that member.<br><br>
+  <strong>2. Full member name</strong> — OCR reads the text on the page and looks for a member's first and last name together.<br><br>
+  <strong>3. Last name only</strong> — if only a last name is found, it still routes it (flagged as low-confidence so you can verify).<br><br>
+  <strong>4. Document type</strong> — OCR also detects the type automatically: Drug Screen, Agreement, Incident Report, Court Document, etc.
+</div>
+
+<div class="tip">
+  <strong>💡 Optional — speed things up:</strong> If you include the member ID anywhere in the filename, the OCR step is skipped and the file routes instantly. Example: <span class="path">0133 Scan001.pdf</span>
+</div>
+
+<!-- ── SECTION 4 ── -->
+<h2>▶️ Step 4 — Start the Watcher &amp; Scan</h2>
+<div class="step"><div class="num">1</div><div>Double-click <strong>START WATCHER - double click me.bat</strong> inside the inbox folder. A black window opens — this is the uploader running.</div></div>
+<div class="step"><div class="num">2</div><div>Scan your documents (or copy files into the inbox folder). The watcher checks every 10 seconds.</div></div>
+<div class="step"><div class="num">3</div><div>Watch the black window — you'll see <em>"SUCCESS: Uploaded to [Member Name]'s file cabinet"</em> for each file.</div></div>
+<div class="step"><div class="num">4</div><div>Processed files move to the <strong>processed</strong> subfolder. Unidentified files go to <strong>review</strong> with a .ocr.txt note.</div></div>
+<div class="step"><div class="num">5</div><div>When done, close the black window (or press Ctrl+C).</div></div>
+
+<!-- ── SECTION 5 ── -->
+<h2>🌐 Alternative — Upload Manually from Any Device</h2>
+<p>If you're on a different computer or an iPad, use the web inbox instead:</p>
+<div class="box">
+  <strong>Portal Document Inbox:</strong><br>
+  Go to your portal website and open <strong>staff-doc-inbox.html</strong><br>
+  Log in with your staff ID and password, then drag &amp; drop or browse for files.<br>
+  The member ID is detected from the filename the same way.
+</div>
+
+<!-- ── SECTION 6 ── -->
+<h2>❓ Troubleshooting</h2>
+<table>
+  <tr><th>Problem</th><th>Solution</th></tr>
+  <tr><td>File goes to <strong>review</strong> folder</td><td>OCR could not identify the member. Open the <em>.ocr.txt</em> file next to it to see what was read. If the member name or ID is missing from the document, rename the file with the member ID (e.g. <code>0133_filename.pdf</code>) and move it back to the inbox folder.</td></tr>
+  <tr><td>Black window says "Cannot reach server"</td><td>Check your internet connection. The watcher needs internet to reach the portal server.</td></tr>
+  <tr><td>File stays in inbox and nothing happens</td><td>Make sure the watcher window is open. If it closed, double-click the .bat file again.</td></tr>
+  <tr><td>Not sure what a member's ID is</td><td>Log into the portal staff dashboard and search for the member — their ID shows on their profile card.</td></tr>
+</table>
+
+<div style="margin-top:40px;padding-top:16px;border-top:1px solid #e2e8f0;color:#a0aec0;font-size:12px;">
+  Horizon House Portal — Document Inbox Setup Guide — Printed: <script>document.write(new Date().toLocaleDateString())</script>
+</div>
+
+</body>
+</html>

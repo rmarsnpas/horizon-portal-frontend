@@ -246,6 +246,57 @@ body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; b
   </div>
 </div>
 
+<!-- Edit Document Overlay -->
+<div id="editDocOverlay" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.6);z-index:10000;align-items:center;justify-content:center;padding:20px;" onclick="if(event.target.id==='editDocOverlay') closeEditDoc()">
+  <div style="background:#fff;border-radius:8px;padding:24px;max-width:500px;width:100%;box-shadow:0 10px 40px rgba(0,0,0,0.2);">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;">
+      <h3 style="margin:0;color:#2d3748;font-size:1.25rem;">✎ Edit Document</h3>
+      <button onclick="closeEditDoc()" style="background:none;border:none;font-size:1.8rem;cursor:pointer;color:#718096;line-height:1;">&times;</button>
+    </div>
+    
+    <div style="margin-bottom:16px;">
+      <label style="display:block;font-weight:600;color:#4a5568;margin-bottom:6px;">Document Type</label>
+      <select id="editDocType" style="width:100%;padding:10px;border:1px solid #cbd5e0;border-radius:6px;font-size:14px;">
+        <option value="ID / License">ID / License</option>
+        <option value="Court Document">Court Document</option>
+        <option value="Drug Screen">Drug Screen</option>
+        <option value="Insurance Card">Insurance Card</option>
+        <option value="Medical Record">Medical Record</option>
+        <option value="Release of Information">Release of Information</option>
+        <option value="Agreement">Agreement</option>
+        <option value="Emergency Contact Form">Emergency Contact Form</option>
+        <option value="Application">Application</option>
+        <option value="Property Form">Property Form</option>
+        <option value="Incident Report">Incident Report</option>
+        <option value="Letter">Letter</option>
+        <option value="Other">Other</option>
+      </select>
+    </div>
+    
+    <div style="margin-bottom:16px;">
+      <label style="display:block;font-weight:600;color:#4a5568;margin-bottom:6px;">Description / Notes</label>
+      <textarea id="editDocNotes" rows="3" style="width:100%;padding:10px;border:1px solid #cbd5e0;border-radius:6px;font-size:14px;resize:vertical;" placeholder="Add notes or description..."></textarea>
+    </div>
+    
+    <div style="margin-bottom:16px;">
+      <label style="display:block;font-weight:600;color:#4a5568;margin-bottom:6px;">File Name</label>
+      <input type="text" id="editDocFilename" style="width:100%;padding:10px;border:1px solid #cbd5e0;border-radius:6px;font-size:14px;" placeholder="filename.pdf" />
+    </div>
+    
+    <div style="margin-bottom:20px;padding:12px;background:#f7fafc;border-radius:6px;border-left:3px solid #4299e1;">
+      <div style="font-size:12px;color:#2d3748;margin-bottom:4px;"><strong>Original:</strong> <span id="editOriginalName"></span></div>
+      <div style="font-size:12px;color:#2d3748;"><strong>Uploaded:</strong> <span id="editUploadedAt"></span></div>
+    </div>
+    
+    <div style="display:flex;gap:8px;">
+      <button onclick="saveDocEdits()" class="btn-view" style="flex:1;background:#2563eb;padding:12px;">💾 Save Changes</button>
+      <button onclick="closeEditDoc()" class="btn-view" style="flex:1;background:#718096;padding:12px;">Cancel</button>
+    </div>
+    
+    <div id="editDocStatus" style="margin-top:12px;padding:10px;border-radius:6px;display:none;font-size:14px;font-weight:600;"></div>
+  </div>
+</div>
+
 <!-- Import / Save to File Overlay -->
 <div id="importOverlay" onclick="handleImportOverlayClick(event)">
   <div class="import-box">
@@ -570,7 +621,7 @@ function toggleSection(header) {
 // ── Table Renderers ───────────────────────────────────────────────────────────
 function renderDocsTable(docs) {
   if (!docs || !docs.length) return emptyRow('No documents uploaded yet');
-  return `<table class="file-table"><thead><tr><th>Type</th><th>Description</th><th>Uploaded</th><th>Status</th><th></th></tr></thead><tbody>` +
+  return `<table class="file-table"><thead><tr><th>Type</th><th>Description</th><th>Uploaded</th><th>Status</th><th style="width:280px;">Actions</th></tr></thead><tbody>` +
     docs.slice().reverse().map(d => {
       const key = _cacheItem({ doc: d });
       return `<tr>
@@ -581,6 +632,8 @@ function renderDocsTable(docs) {
         <td style="white-space:nowrap;">
           <button class="btn-view" onclick="previewDocCached('${key}')">View</button>
           ${!d.savedToRecord ? `<button class="btn-view" style="background:#155724;margin-left:4px;" onclick="markSaved('${d.id}',this)">Save</button>` : ''}
+          <button class="btn-view" style="background:#2563eb;margin-left:4px;" onclick="editDocCached('${key}')">✎ Edit</button>
+          <button class="btn-view" style="background:#dc2626;margin-left:4px;" onclick="deleteDoc('${d.id}','${esc(d.originalName)}')">🗑 Delete</button>
         </td>
       </tr>`;
     }).join('') + `</tbody></table>`;
@@ -838,6 +891,94 @@ async function markSaved(docId, btn) {
   } catch { alert('Failed to save.'); }
 }
 
+// ── Edit Document ─────────────────────────────────────────────────────────────
+let _editingDoc = null;
+
+function editDocCached(cacheKey) {
+  const cached = _emrViewCache[cacheKey];
+  if (!cached) { alert('Could not load document — please refresh the page and try again.'); return; }
+  const d = cached.doc;
+  _editingDoc = d;
+  
+  document.getElementById('editDocType').value = d.docType || 'Other';
+  document.getElementById('editDocNotes').value = d.notes || '';
+  document.getElementById('editDocFilename').value = d.originalName || d.filename || '';
+  document.getElementById('editOriginalName').textContent = d.originalName || d.filename || '';
+  document.getElementById('editUploadedAt').textContent = fmtDate(d.uploadedAt);
+  document.getElementById('editDocStatus').style.display = 'none';
+  
+  document.getElementById('editDocOverlay').style.display = 'flex';
+  document.body.style.overflow = 'hidden';
+}
+
+function closeEditDoc() {
+  document.getElementById('editDocOverlay').style.display = 'none';
+  document.body.style.overflow = '';
+  _editingDoc = null;
+}
+
+async function saveDocEdits() {
+  if (!_editingDoc) return;
+  
+  const statusEl = document.getElementById('editDocStatus');
+  const docType = document.getElementById('editDocType').value;
+  const notes = document.getElementById('editDocNotes').value.trim();
+  const filename = document.getElementById('editDocFilename').value.trim();
+  
+  if (!filename) {
+    statusEl.style.display = 'block';
+    statusEl.style.background = '#fef2f2';
+    statusEl.style.color = '#991b1b';
+    statusEl.textContent = '⚠️ Filename cannot be empty';
+    return;
+  }
+  
+  statusEl.style.display = 'block';
+  statusEl.style.background = '#eff6ff';
+  statusEl.style.color = '#1e40af';
+  statusEl.textContent = '💾 Saving changes...';
+  
+  try {
+    const res = await fetch(`${API}/member-documents/${encodeURIComponent(_editingDoc.id)}`, {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ docType, notes, originalName: filename })
+    });
+    
+    if (!res.ok) throw new Error((await res.json()).error || 'Update failed');
+    
+    statusEl.style.background = '#f0fdf4';
+    statusEl.style.color = '#166534';
+    statusEl.textContent = '✅ Document updated successfully!';
+    
+    setTimeout(() => {
+      closeEditDoc();
+      loadMemberFile(_currentMemberData.member.ID || _currentMemberData.member.id);
+    }, 1200);
+    
+  } catch (err) {
+    statusEl.style.background = '#fef2f2';
+    statusEl.style.color = '#991b1b';
+    statusEl.textContent = '❌ Update failed: ' + err.message;
+  }
+}
+
+// ── Delete Document ───────────────────────────────────────────────────────────
+async function deleteDoc(docId, docName) {
+  if (!confirm(`Are you sure you want to permanently delete this document?\n\n${docName}\n\nThis action cannot be undone.`)) return;
+  
+  try {
+    const res = await fetch(`${API}/member-documents/${encodeURIComponent(docId)}`, { method: 'DELETE' });
+    if (!res.ok) throw new Error((await res.json()).error || 'Delete failed');
+    
+    // Reload the member file to refresh the document list
+    loadMemberFile(_currentMemberData.member.ID || _currentMemberData.member.id);
+    
+  } catch (err) {
+    alert('Failed to delete document: ' + err.message);
+  }
+}
+
 // ── Preview ───────────────────────────────────────────────────────────────────
 function previewDocCached(cacheKey) {
   const cached = _emrViewCache[cacheKey];
@@ -900,60 +1041,148 @@ function viewIntakeForm(cacheKey) {
 }
 
 function buildFormDetailHtml(formType, d) {
-  const row = (label, val) => val ? `<div class="fd-row"><span class="fd-label">${label}</span><span class="fd-val">${esc(String(val))}</span></div>` : '';
-  const sig = d.signature || {};
-  const mi = d.memberInfo || d.residentInfo || {};
+  const row = (l, v) => (v !== undefined && v !== null && v !== '') ? `<div class="fd-row"><span class="fd-label">${l}</span><span class="fd-val">${esc(String(v))}</span></div>` : '';
   const sections = [];
 
-  // Common member info block
-  const name = sig.name || mi.firstName || d.residentName || d.memberName || '';
-  const date = fmtDate(d.submittedAt || d.createdAt);
-  sections.push(`<h3>Submission Info</h3>${row('Member Name', name)}${row('Submitted', date)}${row('Status', d.status || 'Submitted')}`);
+  // Detect signature type (image data URL vs typed text vs object)
+  const rawSig = d.signature;
+  const isSigImage  = typeof rawSig === 'string' && rawSig.startsWith('data:image');
+  const isSigText   = typeof rawSig === 'string' && !isSigImage && rawSig.trim().length > 0;
+  const sig         = (typeof rawSig === 'object' && rawSig) ? rawSig : {};
 
-  if (formType === 'emergency') {
-    const ec = d.emergencyContact || d.contact || d;
-    sections.push(`<h3>Emergency Contact</h3>
-      ${row('Contact Name', ec.contactName || ec.name)}
-      ${row('Relationship', ec.relationship)}
-      ${row('Phone', ec.phone || ec.phoneNumber)}
-      ${row('Alt Phone', ec.altPhone || ec.altPhoneNumber)}
-      ${row('Address', ec.address)}
-      ${row('City/State', (ec.city||'') + (ec.state ? ', '+ec.state : ''))}
-    `);
-    const ec2 = d.emergencyContact2 || d.contact2;
-    if (ec2) sections.push(`<h3>Secondary Contact</h3>
-      ${row('Contact Name', ec2.contactName || ec2.name)}
-      ${row('Relationship', ec2.relationship)}
-      ${row('Phone', ec2.phone || ec2.phoneNumber)}
-    `);
+  // Common member info
+  const mi = d.memberInfo || d.residentInfo || d.participantInfo || {};
+  const firstName = mi.firstName || d.memberName || d.residentName || d.printedName || sig.name || '';
+  const lastName  = mi.lastName || '';
+  const fullName  = [firstName, lastName].filter(Boolean).join(' ');
+
+  sections.push(`<h3>Submission Info</h3>
+    ${row('Member Name', fullName)}
+    ${row('Submitted', fmtDate(d.submittedAt || d.createdAt || d.signedDate))}
+    ${row('Status', d.status || 'Submitted')}
+    ${row('Member ID', d.memberId || mi.memberId || mi.id)}`);
+
+  // ── Form-specific sections ──────────────────────────────────────────────────
+  if (formType === 'agreements') {
+    // Member Agreement: memberName, signedDate, items[], signature (image)
+    const items = d.items || [];
+    if (items.length) {
+      const agreedAll = items.every(i => i.agreed);
+      sections.push(`<h3>Agreement Items (${items.filter(i=>i.agreed).length}/${items.length} agreed)</h3>` +
+        items.map(i => `<div class="fd-row">
+          <span class="fd-label" style="flex:1;">${esc(i.title || i.name || '')}</span>
+          <span class="fd-val" style="flex:none;font-weight:700;color:${i.agreed?'#276749':'#c53030'}">${i.agreed ? '✓' : '✗'}</span>
+        </div>`).join(''));
+    }
+
+  } else if (formType === 'licensee') {
+    // Licensee Agreement: memberInfo, acknowledgments{}, printedName, signature (image)
+    sections.push(`<h3>Member Info</h3>
+      ${row('First Name', mi.firstName)}
+      ${row('Last Name', mi.lastName)}
+      ${row('Admission Date', mi.admissionDate)}
+      ${row('Monthly Fee', mi.monthlyFee)}
+      ${row('Printed Name', d.printedName)}`);
+    const acks = d.acknowledgments || {};
+    if (Object.keys(acks).length) {
+      const labels = {
+        licenseeStatus:'Licensee Status Acknowledged', notTenant:'Not a Tenant',
+        immediateDischarge:'Immediate Discharge', vacateWithin24Hours:'Vacate Within 24 Hours',
+        noRefunds:'No Refunds', noTenantRights:'No Tenant Rights',
+        trespassConsequences:'Trespass Consequences', legalCapacity:'Legal Capacity Certified'
+      };
+      sections.push(`<h3>Acknowledgments</h3>` +
+        Object.entries(acks).map(([k,v]) =>
+          `<div class="fd-row"><span class="fd-label">${labels[k]||k.replace(/([A-Z])/g,' $1')}</span><span class="fd-val" style="font-weight:700;color:${v?'#276749':'#c53030'}">${v?'✓ Agreed':'—'}</span></div>`
+        ).join(''));
+    }
+
+  } else if (formType === 'emergency') {
+    // Emergency Contact: memberInfo, emergencyContacts[], medicalInfo, specialInstructions
+    sections.push(`<h3>Member Info</h3>
+      ${row('First Name', mi.firstName)}
+      ${row('Last Name', mi.lastName)}
+      ${row('Medical Info', d.medicalInfo)}
+      ${row('Special Instructions', d.specialInstructions)}`);
+    const contacts = d.emergencyContacts || (d.emergencyContact ? [d.emergencyContact] : []);
+    if (contacts.length) {
+      contacts.forEach((c, i) => {
+        sections.push(`<h3>Contact ${i+1}${c.relationship ? ' — ' + esc(c.relationship) : ''}</h3>
+          ${row('Name', c.name || c.contactName)}
+          ${row('Relationship', c.relationship)}
+          ${row('Primary Phone', c.primaryPhone || c.phone)}
+          ${row('Alternate Phone', c.alternatePhone || c.altPhone)}
+          ${row('Email', c.email)}
+          ${row('Address', c.address)}
+          ${row('Authorized', c.authorized === true ? 'Yes' : c.authorized === false ? 'No' : '')}`);
+      });
+    } else {
+      sections.push(`<h3>Emergency Contacts</h3><div style="color:#888;padding:6px 0;">No contacts listed</div>`);
+    }
+
+  } else if (formType === 'liability') {
+    // Release of Liability: participantInfo, facilities[], agreementTerms, photoRelease
+    sections.push(`<h3>Participant Info</h3>
+      ${row('First Name', mi.firstName)}
+      ${row('Last Name', mi.lastName)}
+      ${row('Admission Date', mi.admissionDate)}
+      ${row('Room Number', mi.roomNumber)}
+      ${row('Emergency Contact', mi.emergencyContactName)}
+      ${row('Emergency Phone', mi.emergencyContactPhone)}`);
+    const facilities = d.facilities || [];
+    if (facilities.length) {
+      sections.push(`<h3>Facilities Authorized</h3>
+        <div class="fd-row"><span class="fd-val">${facilities.map(f => esc(f)).join(', ')}</span></div>`);
+    }
+    sections.push(`<h3>Release Terms</h3>${row('Photo Release', d.photoRelease)}`);
+
   } else if (formType === 'roi') {
     const r = d.releaseInfo || d;
     sections.push(`<h3>Release of Information</h3>
       ${row('Authorize To', r.authorizeTo || r.releaseTo)}
       ${row('Purpose', r.purpose)}
       ${row('Information Type', r.infoType || r.informationType)}
-      ${row('Expiration', fmtDate(r.expirationDate))}
-    `);
+      ${row('Expiration', fmtDate(r.expirationDate))}`);
+
   } else if (formType === 'property') {
     const items = d.propertyItems || d.items || [];
-    let propHtml = items.map(i => `<div class="fd-row"><span class="fd-val">${esc(i.description||i.item||JSON.stringify(i))}</span></div>`).join('');
+    const propHtml = items.map(i => `<div class="fd-row"><span class="fd-val">${esc(i.description||i.item||JSON.stringify(i))}</span></div>`).join('');
     sections.push(`<h3>Property Items</h3>${propHtml || '<em>No items listed</em>'}`);
+
   } else {
-    // Generic: show all non-trivial keys
-    const skip = new Set(['submittedAt','createdAt','id','_id','status','signature','memberInfo']);
-    const genericRows = Object.entries(d).filter(([k,v]) => !skip.has(k) && v && typeof v !== 'object')
-      .map(([k,v]) => row(k.replace(/([A-Z])/g,' $1').replace(/^./,s=>s.toUpperCase()), v)).join('');
-    if (genericRows) sections.push(`<h3>Details</h3>${genericRows}`);
+    // Generic: show all leaf fields, recurse one level into nested objects
+    const skip = new Set(['submittedAt','createdAt','id','_id','status','signature','ipAddress','signatureDate']);
+    const flatRows = (obj, depth=0) => Object.entries(obj)
+      .filter(([k]) => !skip.has(k))
+      .flatMap(([k, v]) => {
+        const label = k.replace(/([A-Z])/g,' $1').replace(/^./,s=>s.toUpperCase());
+        if (v === null || v === undefined || v === '') return [];
+        if (typeof v === 'boolean') return [row(label, v ? '✓ Yes' : '✗ No')];
+        if (typeof v !== 'object') return [row(label, v)];
+        if (Array.isArray(v)) return v.length ? [`<div class="fd-row"><span class="fd-label">${label}</span><span class="fd-val">${v.map(i => typeof i === 'object' ? JSON.stringify(i) : esc(String(i))).join(', ')}</span></div>`] : [];
+        if (depth < 1) return [`<h3>${label}</h3>`, ...flatRows(v, depth+1)];
+        return [];
+      }).join('');
+    const gHtml = flatRows(d);
+    if (gHtml) sections.push(`<h3>Details</h3>${gHtml}`);
   }
 
-  // Signature block
-  if (sig.name || sig.date) {
-    sections.push(`<div class="fd-sig">
-      ${row('Signed By', sig.name)}
-      ${row('Date', fmtDate(sig.date || sig.signedAt))}
-      ${row('IP', sig.ip)}
-    </div>`);
+  // ── Signature block ────────────────────────────────────────────────────────
+  const sigName = isSigText ? rawSig : (sig.name || d.printedName || '');
+  const sigDate = d.signatureDate || sig.date || sig.signedAt || '';
+  const sigIp   = d.ipAddress || sig.ip || '';
+
+  let sigHtml = '';
+  if (sigName) sigHtml += row('Signed By', sigName);
+  if (sigDate) sigHtml += row('Date', fmtDate(sigDate));
+  if (sigIp)   sigHtml += row('IP', sigIp);
+  if (isSigImage) {
+    sigHtml += `<div style="margin-top:8px;padding-top:8px;border-top:1px solid #e2e8f0;">
+      <div style="font-size:12px;color:#718096;margin-bottom:4px;">Drawn Signature</div>
+      <img src="${rawSig}" alt="Signature" style="max-width:300px;border:1px solid #e2e8f0;border-radius:4px;background:#fff;display:block;">
+    </div>`;
   }
+  if (sigHtml) sections.push(`<div class="fd-sig"><h3 style="margin:0 0 8px;color:#2d6a4f;font-size:0.95rem;">Signature</h3>${sigHtml}</div>`);
 
   return `<div class="form-detail">${sections.join('')}</div>`;
 }
