@@ -1,0 +1,570 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Drug & Medication Log - Horizon House</title>
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+            padding: 30px;
+        }
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+            padding-bottom: 20px;
+            border-bottom: 3px solid #667eea;
+        }
+        h1 {
+            color: #2d3748;
+            font-size: 2rem;
+        }
+        .member-select {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+        select, input, textarea {
+            padding: 10px;
+            border: 2px solid #e2e8f0;
+            border-radius: 6px;
+            font-size: 1rem;
+        }
+        select:focus, input:focus, textarea:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+        .btn {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 6px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .btn-primary {
+            background: #667eea;
+            color: white;
+        }
+        .btn-primary:hover {
+            background: #5568d3;
+        }
+        .btn-success {
+            background: #48bb78;
+            color: white;
+        }
+        .btn-success:hover {
+            background: #38a169;
+        }
+        .btn-danger {
+            background: #f56565;
+            color: white;
+        }
+        .btn-danger:hover {
+            background: #e53e3e;
+        }
+        .btn-secondary {
+            background: #cbd5e0;
+            color: #2d3748;
+        }
+        .btn-secondary:hover {
+            background: #a0aec0;
+        }
+        .log-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+        .log-table th {
+            background: #667eea;
+            color: white;
+            padding: 12px;
+            text-align: left;
+            font-weight: 600;
+        }
+        .log-table td {
+            padding: 12px;
+            border-bottom: 1px solid #e2e8f0;
+        }
+        .log-table tr:hover {
+            background: #f7fafc;
+        }
+        .entry-form {
+            background: #f7fafc;
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            display: none;
+        }
+        .entry-form.active {
+            display: block;
+        }
+        .form-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 15px;
+            margin-bottom: 15px;
+        }
+        .form-group {
+            display: flex;
+            flex-direction: column;
+        }
+        .form-group label {
+            margin-bottom: 5px;
+            font-weight: 600;
+            color: #2d3748;
+        }
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+            color: #a0aec0;
+        }
+        .empty-state svg {
+            width: 100px;
+            height: 100px;
+            margin-bottom: 20px;
+        }
+        .badge {
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 12px;
+            font-size: 0.85rem;
+            font-weight: 600;
+        }
+        .badge-prescribed {
+            background: #bee3f8;
+            color: #2c5282;
+        }
+        .badge-otc {
+            background: #c6f6d5;
+            color: #22543d;
+        }
+        .badge-supplement {
+            background: #feebc8;
+            color: #7c2d12;
+        }
+        .toast {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: #2d3748;
+            color: white;
+            padding: 15px 25px;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+            display: none;
+            z-index: 1000;
+        }
+        .toast.show {
+            display: block;
+            animation: slideIn 0.3s ease;
+        }
+        @keyframes slideIn {
+            from {
+                transform: translateX(100%);
+            }
+            to {
+                transform: translateX(0);
+            }
+        }
+        .back-link {
+            display: inline-block;
+            margin-bottom: 20px;
+            color: #667eea;
+            text-decoration: none;
+            font-weight: 600;
+        }
+        .back-link:hover {
+            text-decoration: underline;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <a href="/staff-dashboard.html" class="back-link">← Back to Dashboard</a>
+        
+        <div class="header">
+            <h1>💊 Drug & Medication Log</h1>
+            <div class="member-select">
+                <label for="memberSelect" style="font-weight: 600;">Select Member:</label>
+                <select id="memberSelect" onchange="loadMemberLog()">
+                    <option value="">-- Select a member --</option>
+                </select>
+            </div>
+        </div>
+
+        <div id="logContent">
+            <div class="empty-state">
+                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+                </svg>
+                <p style="font-size: 1.2rem;">Select a member to view their drug & medication log</p>
+            </div>
+        </div>
+
+        <div id="entryForm" class="entry-form">
+            <h3 style="margin-bottom: 15px;">Add New Entry</h3>
+            <div class="form-grid">
+                <div class="form-group">
+                    <label>Date/Time *</label>
+                    <input type="datetime-local" id="entryDate" required>
+                </div>
+                <div class="form-group">
+                    <label>Drug/Medication Name *</label>
+                    <input type="text" id="drugName" placeholder="e.g., Ibuprofen" required>
+                </div>
+                <div class="form-group">
+                    <label>Type *</label>
+                    <select id="drugType">
+                        <option value="Prescribed">Prescribed</option>
+                        <option value="OTC">Over-the-Counter (OTC)</option>
+                        <option value="Supplement">Supplement/Vitamin</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Dosage</label>
+                    <input type="text" id="dosage" placeholder="e.g., 200mg, 1 tablet">
+                </div>
+            </div>
+            <div class="form-group" style="margin-bottom: 15px;">
+                <label>Purpose/Reason</label>
+                <textarea id="purpose" rows="3" placeholder="Why was this taken? Any symptoms or conditions being treated?"></textarea>
+            </div>
+            <div class="form-group" style="margin-bottom: 15px;">
+                <label>Notes</label>
+                <textarea id="notes" rows="2" placeholder="Any additional notes or observations"></textarea>
+            </div>
+            <div style="display: flex; gap: 10px;">
+                <button class="btn btn-success" onclick="saveEntry()">💾 Save Entry</button>
+                <button class="btn btn-secondary" onclick="cancelEntry()">Cancel</button>
+            </div>
+        </div>
+
+        <div id="logDisplay" style="display: none;">
+            <div style="margin-bottom: 20px; display: flex; justify-content: space-between; align-items: center;">
+                <div>
+                    <h2 id="memberName" style="color: #2d3748;"></h2>
+                    <p style="color: #718096; margin-top: 5px;">Member ID: <span id="memberId"></span></p>
+                </div>
+                <button class="btn btn-primary" onclick="showEntryForm()">➕ Add Entry</button>
+            </div>
+
+            <table class="log-table">
+                <thead>
+                    <tr>
+                        <th>Date/Time</th>
+                        <th>Drug/Medication</th>
+                        <th>Type</th>
+                        <th>Dosage</th>
+                        <th>Purpose</th>
+                        <th>Notes</th>
+                        <th>Entered By</th>
+                        <th>Staff Verified</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody id="logEntries">
+                </tbody>
+            </table>
+
+            <div id="emptyLog" class="empty-state" style="display: none;">
+                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+                </svg>
+                <p style="font-size: 1.2rem;">No entries yet</p>
+                <button class="btn btn-primary" onclick="showEntryForm()" style="margin-top: 20px;">Add First Entry</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="toast" class="toast"></div>
+
+    <script>
+        const API_BASE = 'https://horizon-portal-backend-production-3532.up.railway.app';
+        let currentMemberId = null;
+        let currentEntries = [];
+        let editingEntryId = null;
+
+        // Load members on page load
+        loadMembers();
+
+        async function loadMembers() {
+            try {
+                const res = await fetch(`${API_BASE}/api/members`);
+                const members = await res.json();
+                
+                const select = document.getElementById('memberSelect');
+                select.innerHTML = '<option value="">-- Select a member --</option>';
+                
+                members
+                    .filter(m => m.STATUS === 1 || m.STATUS === 'Active')
+                    .sort((a, b) => {
+                        const aName = `${a.FIRST_NAME || ''} ${a.LAST_NAME || ''}`.trim();
+                        const bName = `${b.FIRST_NAME || ''} ${b.LAST_NAME || ''}`.trim();
+                        return aName.localeCompare(bName);
+                    })
+                    .forEach(m => {
+                        const option = document.createElement('option');
+                        option.value = m.ID;
+                        option.textContent = `${m.FIRST_NAME || ''} ${m.LAST_NAME || ''} (${m.ID})`;
+                        select.appendChild(option);
+                    });
+            } catch (error) {
+                console.error('Error loading members:', error);
+                showToast('Error loading members');
+            }
+        }
+
+        async function loadMemberLog() {
+            const memberId = document.getElementById('memberSelect').value;
+            if (!memberId) {
+                document.getElementById('logContent').innerHTML = `
+                    <div class="empty-state">
+                        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+                        </svg>
+                        <p style="font-size: 1.2rem;">Select a member to view their drug & medication log</p>
+                    </div>
+                `;
+                document.getElementById('logDisplay').style.display = 'none';
+                return;
+            }
+
+            currentMemberId = memberId;
+            
+            try {
+                const res = await fetch(`${API_BASE}/api/drugLog/${memberId}`);
+                const data = await res.json();
+                
+                currentEntries = data.entries || [];
+                
+                // Get member info
+                const memberRes = await fetch(`${API_BASE}/api/getMember?id=${memberId}`);
+                const member = await memberRes.json();
+                
+                document.getElementById('memberName').textContent = `${member.FIRST_NAME || ''} ${member.LAST_NAME || ''}`;
+                document.getElementById('memberId').textContent = member.ID;
+                
+                document.getElementById('logContent').innerHTML = '';
+                document.getElementById('logDisplay').style.display = 'block';
+                document.getElementById('entryForm').classList.remove('active');
+                
+                renderEntries();
+            } catch (error) {
+                console.error('Error loading drug log:', error);
+                // If no log exists, create empty one
+                currentEntries = [];
+                document.getElementById('logDisplay').style.display = 'block';
+                document.getElementById('logContent').innerHTML = '';
+                renderEntries();
+            }
+        }
+
+        function renderEntries() {
+            const tbody = document.getElementById('logEntries');
+            const emptyLog = document.getElementById('emptyLog');
+            
+            if (currentEntries.length === 0) {
+                tbody.innerHTML = '';
+                emptyLog.style.display = 'block';
+                return;
+            }
+            
+            emptyLog.style.display = 'none';
+            
+            tbody.innerHTML = currentEntries
+                .sort((a, b) => new Date(b.date) - new Date(a.date))
+                .map(entry => {
+                    const date = new Date(entry.date);
+                    const badge = entry.type === 'Prescribed' ? 'badge-prescribed' :
+                                entry.type === 'OTC' ? 'badge-otc' : 'badge-supplement';
+                    
+                    return `
+                        <tr>
+                            <td>${date.toLocaleString()}</td>
+                            <td><strong>${entry.drugName}</strong></td>
+                            <td><span class="badge ${badge}">${entry.type}</span></td>
+                            <td>${entry.dosage || '-'}</td>
+                            <td>${entry.purpose || '-'}</td>
+                            <td>${entry.notes || '-'}</td>
+                            <td>${entry.enteredBy || 'Staff'}</td>
+                            <td style="text-align: center;">
+                                <input type="checkbox" 
+                                       ${entry.staffVerified ? 'checked' : ''} 
+                                       onchange="verifyEntry('${entry.id}', this.checked)"
+                                       style="cursor: pointer; width: 18px; height: 18px;">
+                                <div style="font-size: 0.75rem; color: #718096; margin-top: 3px;">
+                                    ${entry.staffVerifiedBy || ''}
+                                </div>
+                            </td>
+                            <td>
+                                <button class="btn btn-secondary" style="padding: 5px 10px; font-size: 0.85rem;" onclick="editEntry('${entry.id}')">Edit</button>
+                                <button class="btn btn-danger" style="padding: 5px 10px; font-size: 0.85rem;" onclick="deleteEntry('${entry.id}')">Delete</button>
+                            </td>
+                        </tr>
+                    `;
+                }).join('');
+        }
+
+        function showEntryForm() {
+            document.getElementById('entryForm').classList.add('active');
+            document.getElementById('entryDate').value = new Date().toISOString().slice(0, 16);
+            editingEntryId = null;
+        }
+
+        function cancelEntry() {
+            document.getElementById('entryForm').classList.remove('active');
+            clearForm();
+        }
+
+        function clearForm() {
+            document.getElementById('entryDate').value = '';
+            document.getElementById('drugName').value = '';
+            document.getElementById('drugType').value = 'Prescribed';
+            document.getElementById('dosage').value = '';
+            document.getElementById('purpose').value = '';
+            document.getElementById('notes').value = '';
+            editingEntryId = null;
+        }
+
+        async function saveEntry() {
+            if (!currentMemberId) return;
+            
+            const date = document.getElementById('entryDate').value;
+            const drugName = document.getElementById('drugName').value;
+            const type = document.getElementById('drugType').value;
+            const dosage = document.getElementById('dosage').value;
+            const purpose = document.getElementById('purpose').value;
+            const notes = document.getElementById('notes').value;
+            
+            if (!date || !drugName) {
+                showToast('Please fill required fields');
+                return;
+            }
+            
+            const entry = {
+                id: editingEntryId || Date.now().toString(),
+                date,
+                drugName,
+                type,
+                dosage,
+                purpose,
+                notes,
+                enteredBy: 'Staff',
+                timestamp: new Date().toISOString()
+            };
+            
+            try {
+                const res = await fetch(`${API_BASE}/api/drugLog/${currentMemberId}`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(entry)
+                });
+                
+                if (res.ok) {
+                    showToast('Entry saved successfully');
+                    cancelEntry();
+                    loadMemberLog();
+                } else {
+                    showToast('Error saving entry');
+                }
+            } catch (error) {
+                console.error('Error saving entry:', error);
+                showToast('Error saving entry');
+            }
+        }
+
+        async function deleteEntry(entryId) {
+            if (!confirm('Delete this entry?')) return;
+            
+            try {
+                const res = await fetch(`${API_BASE}/api/drugLog/${currentMemberId}/${entryId}`, {
+                    method: 'DELETE'
+                });
+                
+                if (res.ok) {
+                    showToast('Entry deleted');
+                    loadMemberLog();
+                } else {
+                    showToast('Error deleting entry');
+                }
+            } catch (error) {
+                console.error('Error deleting entry:', error);
+                showToast('Error deleting entry');
+            }
+        }
+
+        function editEntry(entryId) {
+            const entry = currentEntries.find(e => e.id === entryId);
+            if (!entry) return;
+            
+            editingEntryId = entryId;
+            document.getElementById('entryDate').value = entry.date;
+            document.getElementById('drugName').value = entry.drugName;
+            document.getElementById('drugType').value = entry.type;
+            document.getElementById('dosage').value = entry.dosage || '';
+            document.getElementById('purpose').value = entry.purpose || '';
+            document.getElementById('notes').value = entry.notes || '';
+            
+            document.getElementById('entryForm').classList.add('active');
+        }
+
+        async function verifyEntry(entryId, isChecked) {
+            if (!currentMemberId) return;
+            
+            const staffName = localStorage.getItem('staffName') || 
+                            sessionStorage.getItem('loggedInUser') || 
+                            prompt('Enter your name for verification:');
+            
+            if (!staffName && isChecked) {
+                showToast('Staff name required for verification');
+                loadMemberLog(); // Reload to reset checkbox
+                return;
+            }
+            
+            try {
+                const res = await fetch(`${API_BASE}/api/drugLog/${currentMemberId}/${entryId}/verify`, {
+                    method: 'PATCH',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        staffVerified: isChecked,
+                        staffVerifiedBy: isChecked ? staffName : null
+                    })
+                });
+                
+                if (res.ok) {
+                    showToast(isChecked ? 'Entry verified' : 'Verification removed');
+                    loadMemberLog();
+                } else {
+                    showToast('Error updating verification');
+                    loadMemberLog(); // Reload to reset checkbox
+                }
+            } catch (error) {
+                console.error('Error verifying entry:', error);
+                showToast('Error updating verification');
+                loadMemberLog(); // Reload to reset checkbox
+            }
+        }
+
+        function showToast(message) {
+            const toast = document.getElementById('toast');
+            toast.textContent = message;
+            toast.classList.add('show');
+            setTimeout(() => toast.classList.remove('show'), 3000);
+        }
+    </script>
+</body>
+</html>

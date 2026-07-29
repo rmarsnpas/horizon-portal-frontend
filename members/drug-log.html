@@ -1,0 +1,393 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Drug & Medication Log – Horizon House</title>
+
+    <style>
+        :root {
+            --hh-primary: #F58634;
+            --hh-gold: #E1C462;
+            --hh-green: #94A880;
+            --hh-bg: #FFF8F3;
+            --hh-card: #FFF8F3;
+            --hh-text: #222;
+        }
+
+        body {
+            font-family: Arial, sans-serif;
+            background-color: var(--hh-bg);
+            margin: 0;
+            padding: 0;
+        }
+
+        header {
+            background-color: var(--hh-primary);
+            color: #fff;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 40px auto;
+            background: var(--hh-card);
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 4px 12px rgba(245,134,52,0.08);
+        }
+
+        h2 {
+            color: var(--hh-green);
+            margin-top: 0;
+        }
+
+        .back-link {
+            display: inline-block;
+            margin-bottom: 20px;
+            color: var(--hh-primary);
+            text-decoration: none;
+            font-weight: 600;
+        }
+
+        .back-link:hover {
+            text-decoration: underline;
+        }
+
+        .form-section {
+            background: white;
+            padding: 25px;
+            border-radius: 8px;
+            border: 2px solid var(--hh-gold);
+            margin-bottom: 25px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: var(--hh-green);
+        }
+
+        input, select, textarea {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid var(--hh-gold);
+            border-radius: 6px;
+            font-size: 1rem;
+            font-family: inherit;
+        }
+
+        textarea {
+            min-height: 80px;
+            resize: vertical;
+        }
+
+        .button {
+            padding: 14px 24px;
+            background-color: var(--hh-gold);
+            color: #3a2a00;
+            font-weight: 600;
+            border-radius: 6px;
+            border: none;
+            cursor: pointer;
+            font-size: 1rem;
+            font-family: inherit;
+        }
+
+        .button:hover {
+            background-color: var(--hh-primary);
+            color: #fff;
+        }
+
+        .button-secondary {
+            background-color: #ddd;
+            color: #333;
+        }
+
+        .button-secondary:hover {
+            background-color: #bbb;
+        }
+
+        .log-entry {
+            background: white;
+            padding: 15px;
+            border-radius: 8px;
+            border-left: 4px solid var(--hh-green);
+            margin-bottom: 15px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+        }
+
+        .log-entry-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+
+        .log-entry-date {
+            font-weight: 600;
+            color: var(--hh-primary);
+        }
+
+        .log-entry-type {
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 12px;
+            font-size: 0.85rem;
+            font-weight: 600;
+        }
+
+        .type-prescribed {
+            background: #e0f2fe;
+            color: #0369a1;
+        }
+
+        .type-otc {
+            background: #dcfce7;
+            color: #166534;
+        }
+
+        .type-supplement {
+            background: #fef3c7;
+            color: #a16207;
+        }
+
+        .log-entry-content {
+            color: #555;
+            line-height: 1.6;
+        }
+
+        .info-box {
+            background: #fff8e1;
+            border-left: 4px solid var(--hh-gold);
+            padding: 15px;
+            margin-bottom: 20px;
+            border-radius: 4px;
+        }
+
+        .info-box strong {
+            color: var(--hh-primary);
+        }
+
+        .toast {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: var(--hh-green);
+            color: white;
+            padding: 15px 25px;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+            display: none;
+            z-index: 1000;
+        }
+
+        .toast.show {
+            display: block;
+            animation: slideIn 0.3s ease;
+        }
+
+        @keyframes slideIn {
+            from { transform: translateX(100%); }
+            to { transform: translateX(0); }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1 style="margin: 0;">💊 My Drug & Medication Log</h1>
+    </header>
+
+    <div class="container">
+        <a href="dashboard.html" class="back-link">← Back to Dashboard</a>
+
+        <div class="info-box">
+            <strong>Why track this?</strong> This log helps staff monitor your health and ensure any medications or substances you're taking don't interfere with your recovery. Be honest - this is for your safety.
+        </div>
+
+        <div class="form-section">
+            <h2 style="margin-top: 0;">Add New Entry</h2>
+            
+            <div class="form-group">
+                <label for="entryDate">Date/Time *</label>
+                <input type="datetime-local" id="entryDate" required>
+            </div>
+
+            <div class="form-group">
+                <label for="drugName">Drug/Medication Name *</label>
+                <input type="text" id="drugName" placeholder="e.g., Ibuprofen, Vitamin D" required>
+            </div>
+
+            <div class="form-group">
+                <label for="drugType">Type *</label>
+                <select id="drugType" required>
+                    <option value="Prescribed">Prescribed by Doctor</option>
+                    <option value="OTC">Over-the-Counter (OTC)</option>
+                    <option value="Supplement">Supplement/Vitamin</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label for="dosage">Dosage (Amount Taken)</label>
+                <input type="text" id="dosage" placeholder="e.g., 200mg, 1 tablet, 2 capsules">
+            </div>
+
+            <div class="form-group">
+                <label for="purpose">Why are you taking this?</label>
+                <textarea id="purpose" placeholder="e.g., Headache, doctor prescribed for anxiety, vitamin deficiency"></textarea>
+            </div>
+
+            <div class="form-group">
+                <label for="notes">Additional Notes</label>
+                <textarea id="notes" placeholder="Any other information staff should know"></textarea>
+            </div>
+
+            <button class="button" onclick="submitEntry()">💾 Submit Entry</button>
+        </div>
+
+        <h2>My Recent Entries</h2>
+        <div id="recentEntries">
+            <p style="color: #999; text-align: center; padding: 20px;">Loading...</p>
+        </div>
+    </div>
+
+    <div id="toast" class="toast"></div>
+
+    <script>
+        const API_BASE = 'https://horizon-portal-backend-production-3532.up.railway.app';
+        let currentMemberId = null;
+
+        // Get member ID from session
+        async function init() {
+            currentMemberId = localStorage.getItem('loggedInMemberId');
+            if (!currentMemberId) {
+                alert('Please log in first');
+                window.location.href = '../member-login-fixed.html';
+                return;
+            }
+
+            // Set default date/time to now
+            const now = new Date();
+            now.setMinutes(now.getMinutes() - now.getTimezoneOffset());
+            document.getElementById('entryDate').value = now.toISOString().slice(0, 16);
+
+            // Load recent entries
+            loadRecentEntries();
+        }
+
+        async function loadRecentEntries() {
+            try {
+                const res = await fetch(`${API_BASE}/api/drugLog/${currentMemberId}`);
+                const data = await res.json();
+                
+                const entries = (data.entries || []).sort((a, b) => new Date(b.date) - new Date(a.date)).slice(0, 10);
+                
+                const container = document.getElementById('recentEntries');
+                
+                if (entries.length === 0) {
+                    container.innerHTML = '<p style="color: #999; text-align: center; padding: 20px;">No entries yet</p>';
+                    return;
+                }
+
+                container.innerHTML = entries.map(entry => {
+                    const date = new Date(entry.date);
+                    const typeClass = entry.type === 'Prescribed' ? 'type-prescribed' :
+                                    entry.type === 'OTC' ? 'type-otc' : 'type-supplement';
+                    
+                    return `
+                        <div class="log-entry">
+                            <div class="log-entry-header">
+                                <div class="log-entry-date">${date.toLocaleString()}</div>
+                                <div style="display: flex; gap: 10px; align-items: center;">
+                                    <div class="log-entry-type ${typeClass}">${entry.type}</div>
+                                    ${entry.staffVerified ? `<div style="background: #dcfce7; color: #166534; padding: 4px 12px; border-radius: 12px; font-size: 0.85rem; font-weight: 600;">✓ Staff Verified</div>` : ''}
+                                </div>
+                            </div>
+                            <div class="log-entry-content">
+                                <strong>${entry.drugName}</strong>
+                                ${entry.dosage ? ` - ${entry.dosage}` : ''}
+                                ${entry.purpose ? `<br><em>Purpose:</em> ${entry.purpose}` : ''}
+                                ${entry.notes ? `<br><em>Notes:</em> ${entry.notes}` : ''}
+                                ${entry.staffVerifiedBy ? `<br><small style="color: #999;">Verified by: ${entry.staffVerifiedBy}</small>` : ''}
+                            </div>
+                        </div>
+                    `;
+                }).join('');
+            } catch (error) {
+                console.error('Error loading entries:', error);
+                document.getElementById('recentEntries').innerHTML = '<p style="color: #999; text-align: center; padding: 20px;">Unable to load entries</p>';
+            }
+        }
+
+        async function submitEntry() {
+            const date = document.getElementById('entryDate').value;
+            const drugName = document.getElementById('drugName').value;
+            const type = document.getElementById('drugType').value;
+            const dosage = document.getElementById('dosage').value;
+            const purpose = document.getElementById('purpose').value;
+            const notes = document.getElementById('notes').value;
+
+            if (!date || !drugName) {
+                showToast('Please fill in required fields');
+                return;
+            }
+
+            const entry = {
+                id: Date.now().toString(),
+                date,
+                drugName,
+                type,
+                dosage,
+                purpose,
+                notes,
+                enteredBy: 'Member (Self-Reported)',
+                timestamp: new Date().toISOString()
+            };
+
+            try {
+                const res = await fetch(`${API_BASE}/api/drugLog/${currentMemberId}`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(entry)
+                });
+
+                if (res.ok) {
+                    showToast('Entry submitted successfully!');
+                    
+                    // Clear form
+                    document.getElementById('drugName').value = '';
+                    document.getElementById('dosage').value = '';
+                    document.getElementById('purpose').value = '';
+                    document.getElementById('notes').value = '';
+                    const now = new Date();
+                    now.setMinutes(now.getMinutes() - now.getTimezoneOffset());
+                    document.getElementById('entryDate').value = now.toISOString().slice(0, 16);
+                    
+                    // Reload entries
+                    loadRecentEntries();
+                } else {
+                    showToast('Error submitting entry');
+                }
+            } catch (error) {
+                console.error('Error submitting entry:', error);
+                showToast('Error submitting entry');
+            }
+        }
+
+        function showToast(message) {
+            const toast = document.getElementById('toast');
+            toast.textContent = message;
+            toast.classList.add('show');
+            setTimeout(() => toast.classList.remove('show'), 3000);
+        }
+
+        // Initialize on page load
+        init();
+    </script>
+</body>
+</html>

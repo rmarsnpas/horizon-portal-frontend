@@ -312,6 +312,7 @@
       <button class="tab-btn active" data-tab="profile"   onclick="switchTab('profile',this)">Profile</button>
       <button class="tab-btn"        data-tab="sio"       onclick="switchTab('sio',this)">Sign In/Out</button>
       <button class="tab-btn"        data-tab="ua"        onclick="switchTab('ua',this)">UA Results</button>
+      <button class="tab-btn"        data-tab="druglog"   onclick="switchTab('druglog',this)">Drug Log</button>
       <button class="tab-btn"        data-tab="incidents" onclick="switchTab('incidents',this)">Incidents</button>
       <button class="tab-btn"        data-tab="docs"      onclick="switchTab('docs',this)">Documents</button>
       <button class="tab-btn"        data-tab="messages"  onclick="switchTab('messages',this)">Messages</button>
@@ -337,6 +338,17 @@
     <div class="tab-panel" id="tab-ua">
       <div class="info-card" style="padding:0;overflow:hidden" id="uaCard">
         <div class="loading"><div class="spinner"></div>Loading UA results…</div>
+      </div>
+    </div>
+
+    <!-- Drug Log Tab -->
+    <div class="tab-panel" id="tab-druglog">
+      <div class="info-card">
+        <h3>💊 Drug & Medication Log</h3>
+        <p style="color:var(--muted);font-size:.88rem;margin-bottom:1.25rem">Member-reported medications, supplements, and substances. Read-only view for professionals.</p>
+        <div id="drugLogCard">
+          <div class="loading"><div class="spinner"></div>Loading drug log…</div>
+        </div>
       </div>
     </div>
 
@@ -942,7 +954,7 @@ function switchTab(tabId, btnEl) {
   document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
   if (btnEl) btnEl.classList.add('active');
   document.getElementById('tab-' + tabId)?.classList.add('active');
-  const loaders = { profile: renderProfile, sio: loadSIO, ua: loadUA,
+  const loaders = { profile: renderProfile, sio: loadSIO, ua: loadUA, druglog: loadDrugLog,
                     incidents: loadIncidents, docs: loadDocs, messages: initMessages };
   loaders[tabId]?.();
 }
@@ -963,13 +975,16 @@ function renderProfile() {
   const email   = mVal(m,'email','EMAIL');
   const addr    = mVal(m,'address','ADDRESS','addr');
   const sdate   = mVal(m,'soberDate','SOBER_DATE','SOBER\r\nDATE');
-  const intake  = mVal(m,'intakeDate','INTAKE_DATE','moveInDate','MOVE_IN_DATE');
+  const intake  = mVal(m,'admitDate','ADMIT_DATE','ADMIT DATE','admitdate','intakeDate','INTAKE_DATE','moveInDate','MOVE_IN_DATE');
   const refCw   = mVal(m,'refCaseWorker','REF_CASEWORKER');
-  const ins     = mVal(m,'insurance','INSURANCE','insuranceCarrier','INSURANCE_CARRIER');
-  const medId   = mVal(m,'medicaidId','MEDICAID_ID','memberId','MEMBER_ID','medi_cal_id','MEDI_CAL_ID');
+  const elmrId      = mVal(m,'elmrId','ELMR_ID','clientElmrId','CLIENT_ELMR_ID');
+  const presExit     = mVal(m,'presumptiveExitDate','PRESUMPTIVE_EXIT_DATE');
+  const inpatient    = mVal(m,'inpatientFacility','INPATIENT_FACILITY');
   const bed     = mVal(m,'bed','BED','bedAssignment');
-  const house   = mVal(m,'house','HOUSE','location','LOCATION');
+  const houseRaw = mVal(m,'house','HOUSE','location','LOCATION');
+  const house   = houseRaw || (gender && gender.toString().toUpperCase().startsWith('M') ? '351' : gender && gender.toString().toUpperCase().startsWith('F') ? '321' : '');
   const days    = sdate ? calcDaysSober(sdate) : null;
+  const daysHere = intake ? calcDaysSober(intake) : null;
 
   card.innerHTML = `
     <h3>Personal Information</h3>
@@ -979,16 +994,19 @@ function renderProfile() {
       ${fld('Phone', phone)} ${fld('Email', email)}
     </div>
     ${addr ? `<div style="margin-top:.85rem">${fld('Address', addr)}</div>` : ''}
-    <h3 style="margin-top:1.35rem">Residence &amp; Sobriety</h3>
+    <h3 style="margin-top:1.35rem">Housing &amp; Sobriety</h3>
     <div class="field-grid">
       ${fld('Sober Date', sdate ? fmtDate(sdate) : '')}
       ${fld('Days Sober', days !== null ? days + ' days' : '')}
       ${fld('Intake Date', intake ? fmtDate(intake) : '')}
+      ${fld('Days Here', daysHere !== null ? daysHere + ' days' : '')}
       ${fld('House', house)} ${fld('Bed', bed)}
     </div>
-    <h3 style="margin-top:1.35rem">Insurance &amp; Referring</h3>
+    <h3 style="margin-top:1.35rem">Case Information</h3>
     <div class="field-grid">
-      ${fld('Insurance', ins)} ${fld('Medi-Cal / Member ID', medId)}
+      ${fld('Client ELMR ID #', elmrId)}
+      ${fld('Presumptive Exit Date', presExit ? fmtDate(presExit) : '')}
+      ${fld('Inpatient Facility', inpatient)}
       ${fld('Referring Case Worker', refCw)}
     </div>`;
 }
@@ -1093,6 +1111,54 @@ async function loadUA() {
     </table></div>`;
   } catch {
     card.innerHTML = '<div class="empty"><div class="alert error">\u26A0\uFE0F Could not load UA results.</div></div>';
+  }
+}
+
+/* ============================================================
+   DRUG LOG TAB
+============================================================ */
+async function loadDrugLog() {
+  if (!_current) return;
+  const id   = String(_current.ID || _current.id || '');
+  const card = document.getElementById('drugLogCard');
+  try {
+    const resp = await apiFetch(`/drugLog/${id}`);
+    const entries = (resp && Array.isArray(resp.entries)) ? resp.entries : [];
+
+    if (!entries.length) {
+      card.innerHTML = '<div class="empty"><div class="empty-icon">💊</div><div>No medications or substances logged for this member.</div></div>';
+      return;
+    }
+
+    // Sort by date descending
+    const sorted = entries.sort((a,b) => new Date(b.datetime||b.date) - new Date(a.datetime||a.date));
+
+    card.innerHTML = `<div class="data-table-wrap"><table class="data-table">
+      <thead><tr><th>Date/Time</th><th>Drug/Medication Name</th><th>Type</th><th>Dosage</th><th>Purpose</th><th>Notes</th><th>Entered By</th><th>Staff Verified</th></tr></thead>
+      <tbody>
+        ${sorted.map(e => {
+          const typeClass = (e.type||'').toLowerCase().replace(/[^a-z]/g,'');
+          const typeBadge = e.type === 'Prescribed' ? '<span class="pill pass">Prescribed</span>' : 
+                           e.type === 'OTC' ? '<span class="pill info">OTC</span>' : 
+                           '<span class="pill warning">Supplement</span>';
+          const verifiedBadge = e.staffVerified ? 
+            `<span class="pill pass">✓ ${esc(e.staffVerifiedBy||'Verified')}</span>` : 
+            '<span style="color:#999;">—</span>';
+          return `<tr>
+            <td>${esc(fmtDate(e.datetime||e.date||''))}</td>
+            <td>${esc(e.drugName||'\u2014')}</td>
+            <td>${typeBadge}</td>
+            <td>${esc(e.dosage||'\u2014')}</td>
+            <td>${esc(e.purpose||'\u2014')}</td>
+            <td>${esc(e.notes||'\u2014')}</td>
+            <td>${esc(e.enteredBy||'\u2014')}</td>
+            <td>${verifiedBadge}</td>
+          </tr>`;
+        }).join('')}
+      </tbody>
+    </table></div>`;
+  } catch {
+    card.innerHTML = '<div class="empty"><div class="alert error">\u26A0\uFE0F Could not load drug log.</div></div>';
   }
 }
 
@@ -1442,7 +1508,7 @@ function normStr(s) { return String(s||'').trim().toLowerCase(); }
 function statusBadge(st, isOut) {
   if (isOut) return { label:'Signed Out', cls:'out' };
   switch (st) {
-    case '1': return { label:'Active Resident',   cls:'active'  };
+    case '1': return { label:'Active Member',   cls:'active'  };
     case 'H': return { label:'Active (HH)',        cls:'active'  };
     case 'W': return { label:'Active (Women\'s)',  cls:'active'  };
     case '2': return { label:'Alumni',             cls:'alumni'  };
@@ -1464,7 +1530,10 @@ function fmtDate(val) {
   if (!val) return '\u2014';
   const d = new Date(val);
   if (isNaN(d.getTime())) return String(val);
-  return d.toLocaleDateString('en-US', { month:'short', day:'numeric', year:'numeric' });
+  const mm = String(d.getMonth() + 1).padStart(2, '0');
+  const dd = String(d.getDate()).padStart(2, '0');
+  const yyyy = d.getFullYear();
+  return `${mm}-${dd}-${yyyy}`;
 }
 
 function calcDaysSober(val) {

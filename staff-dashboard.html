@@ -864,6 +864,13 @@
                 <div class="card-label">Record Test Results</div>
             </a>
 
+            <a href="/drug-log.html" class="dashboard-card">
+                <div class="card-icon">💊</div>
+                <div class="card-title">Drug & Medication Log</div>
+                <div class="card-count" style="font-size: 24px; color: #718096;">View/Edit</div>
+                <div class="card-label">Member Medication Tracking</div>
+            </a>
+
             <div class="dashboard-card" style="display: flex; flex-direction: column;">
                 <a href="/application-v2.html" style="text-decoration: none; color: inherit; flex: 1;">
                     <div class="card-icon">📝</div>
@@ -1102,7 +1109,7 @@
                                 </label>
                                 <label style="display:flex;align-items:center;gap:8px;cursor:pointer;font-size:13px;color:#333;">
                                     <input type="radio" name="memoRecipients" value="status1" style="accent-color:#1a1a2e;width:15px;height:15px;">
-                                    Current Residents Only <span style="color:#888;font-size:12px;">(Status 1)</span>
+                                    Current Members Only <span style="color:#888;font-size:12px;">(Status 1)</span>
                                 </label>
                                 <label style="display:flex;align-items:center;gap:8px;cursor:pointer;font-size:13px;color:#333;">
                                     <input type="radio" name="memoRecipients" value="status2" style="accent-color:#1a1a2e;width:15px;height:15px;">
@@ -1378,7 +1385,7 @@ ${rateSummaryHtml}
                         if (!s1.length && !s2.length) { list.innerHTML = '<span style="color:#aaa;font-size:12px;">No members found.</span>'; return; }
                         let html = '';
                         if (s1.length) {
-                            html += '<div style="font-size:11px;font-weight:700;color:#1a1a2e;letter-spacing:0.5px;margin:4px 0 6px;">— STATUS 1 – CURRENT RESIDENTS —</div>';
+                            html += '<div style="font-size:11px;font-weight:700;color:#1a1a2e;letter-spacing:0.5px;margin:4px 0 6px;">— STATUS 1 – CURRENT MEMBERS —</div>';
                             html += s1.map(m => {
                                 const id = m.ID || m.id || '';
                                 return `<label style="display:flex;align-items:center;gap:8px;padding:4px 0;cursor:pointer;font-size:13px;"><input type="checkbox" class="memo-member-chk" value="${escMemo(id)}" data-name="${escMemo(nm(m))}" style="accent-color:#1a1a2e;"> ${escMemo(nm(m))} <span style="color:#aaa;font-size:11px;">#${escMemo(id)}</span></label>`;
@@ -1662,7 +1669,7 @@ ${rateSummaryHtml}
 
                                 // Recipient tag
                                 const recip = m.recipients || { type: 'all' };
-                                const recipLabel = recip.type === 'status1' ? '&#127968; Current Residents'
+                                const recipLabel = recip.type === 'status1' ? '&#127968; Current Members'
                                     : recip.type === 'status2' ? '&#127891; Alumni'
                                     : recip.type === 'individual' ? `&#128100; ${(recip.memberIds||[]).length} individual(s)`
                                     : '&#128226; All Members';
@@ -2982,6 +2989,13 @@ ${rateSummaryHtml}
                     document.body.style.overflow = 'hidden';
                     // Restore the edit handler (may have been overridden by add modal)
                     document.getElementById('editMemberForm').onsubmit = submitEditMember;
+                    // Auto-populate linked pro info if a PRO# is already set
+                    setTimeout(() => {
+                        const proInput = document.getElementById('linkedProNumInput');
+                        if (proInput && proInput.value && window.updateProInfoDisplay) {
+                            window.updateProInfoDisplay(proInput.value);
+                        }
+                    }, 80);
                 }
                 window.openEditMemberModal = openEditMemberModal;
 
@@ -3686,7 +3700,7 @@ ${rateSummaryHtml}
                 <span class="member-board-count" id="memberBoardHoldCount" style="background:#ff9800; color:white; margin-left:10px;">Hold: 0</span>
                 <span class="member-board-count" id="memberBoardWaitCount" style="background:#9c27b0; color:white; margin-left:10px;">Wait: 0</span>
             </h2>
-            <p style="color: rgba(255,255,255,0.9); margin: 5px 0 0 0;">Current residents with active status</p>
+            <p style="color: rgba(255,255,255,0.9); margin: 5px 0 0 0;">Current members with active status</p>
         </div>
 
         <div id="memberBoardContainer" style="display: none; margin-bottom: 80px;">
