@@ -238,6 +238,26 @@
             </div>
 
             <div class="form-group">
+                <label for="prescriptionNumber">Prescription Number</label>
+                <input type="text" id="prescriptionNumber" placeholder="Rx # if prescribed">
+            </div>
+
+            <div class="form-group">
+                <label for="fillDate">Prescription Fill Date</label>
+                <input type="date" id="fillDate">
+            </div>
+
+            <div class="form-group">
+                <label for="quantityFill">Quantity Filled</label>
+                <input type="number" id="quantityFill" placeholder="How many dispensed" min="0">
+            </div>
+
+            <div class="form-group">
+                <label for="quantityIn">Quantity Remaining</label>
+                <input type="number" id="quantityIn" placeholder="How many left" min="0">
+            </div>
+
+            <div class="form-group">
                 <label for="purpose">Why are you taking this?</label>
                 <textarea id="purpose" placeholder="e.g., Headache, doctor prescribed for anxiety, vitamin deficiency"></textarea>
             </div>
@@ -311,6 +331,10 @@
                             <div class="log-entry-content">
                                 <strong>${entry.drugName}</strong>
                                 ${entry.dosage ? ` - ${entry.dosage}` : ''}
+                                ${entry.prescriptionNumber ? `<br><em>Rx #:</em> ${entry.prescriptionNumber}` : ''}
+                                ${entry.fillDate ? `<br><em>Fill Date:</em> ${new Date(entry.fillDate).toLocaleDateString()}` : ''}
+                                ${entry.quantityFill ? `<br><em>Qty Filled:</em> ${entry.quantityFill}` : ''}
+                                ${entry.quantityIn ? `<br><em>Qty Remaining:</em> ${entry.quantityIn}` : ''}
                                 ${entry.purpose ? `<br><em>Purpose:</em> ${entry.purpose}` : ''}
                                 ${entry.notes ? `<br><em>Notes:</em> ${entry.notes}` : ''}
                                 ${entry.staffVerifiedBy ? `<br><small style="color: #999;">Verified by: ${entry.staffVerifiedBy}</small>` : ''}
@@ -329,6 +353,10 @@
             const drugName = document.getElementById('drugName').value;
             const type = document.getElementById('drugType').value;
             const dosage = document.getElementById('dosage').value;
+            const prescriptionNumber = document.getElementById('prescriptionNumber').value;
+            const fillDate = document.getElementById('fillDate').value;
+            const quantityFill = document.getElementById('quantityFill').value;
+            const quantityIn = document.getElementById('quantityIn').value;
             const purpose = document.getElementById('purpose').value;
             const notes = document.getElementById('notes').value;
 
@@ -343,6 +371,10 @@
                 drugName,
                 type,
                 dosage,
+                prescriptionNumber,
+                fillDate,
+                quantityFill,
+                quantityIn,
                 purpose,
                 notes,
                 enteredBy: 'Member (Self-Reported)',
@@ -362,6 +394,10 @@
                     // Clear form
                     document.getElementById('drugName').value = '';
                     document.getElementById('dosage').value = '';
+                    document.getElementById('prescriptionNumber').value = '';
+                    document.getElementById('fillDate').value = '';
+                    document.getElementById('quantityFill').value = '';
+                    document.getElementById('quantityIn').value = '';
                     document.getElementById('purpose').value = '';
                     document.getElementById('notes').value = '';
                     const now = new Date();

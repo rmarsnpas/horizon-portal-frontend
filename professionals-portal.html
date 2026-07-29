@@ -1134,7 +1134,7 @@ async function loadDrugLog() {
     const sorted = entries.sort((a,b) => new Date(b.datetime||b.date) - new Date(a.datetime||a.date));
 
     card.innerHTML = `<div class="data-table-wrap"><table class="data-table">
-      <thead><tr><th>Date/Time</th><th>Drug/Medication Name</th><th>Type</th><th>Dosage</th><th>Purpose</th><th>Notes</th><th>Entered By</th><th>Staff Verified</th></tr></thead>
+      <thead><tr><th>Date/Time</th><th>Drug/Medication Name</th><th>Type</th><th>Dosage</th><th>Rx #</th><th>Fill Date</th><th>Qty Filled</th><th>Qty In</th><th>Purpose</th><th>Notes</th><th>Entered By</th><th>Staff Verified</th></tr></thead>
       <tbody>
         ${sorted.map(e => {
           const typeClass = (e.type||'').toLowerCase().replace(/[^a-z]/g,'');
@@ -1144,11 +1144,16 @@ async function loadDrugLog() {
           const verifiedBadge = e.staffVerified ? 
             `<span class="pill pass">✓ ${esc(e.staffVerifiedBy||'Verified')}</span>` : 
             '<span style="color:#999;">—</span>';
+          const fillDateDisplay = e.fillDate ? new Date(e.fillDate).toLocaleDateString() : '\u2014';
           return `<tr>
             <td>${esc(fmtDate(e.datetime||e.date||''))}</td>
             <td>${esc(e.drugName||'\u2014')}</td>
             <td>${typeBadge}</td>
             <td>${esc(e.dosage||'\u2014')}</td>
+            <td>${esc(e.prescriptionNumber||'\u2014')}</td>
+            <td>${fillDateDisplay}</td>
+            <td>${esc(e.quantityFill||'\u2014')}</td>
+            <td>${esc(e.quantityIn||'\u2014')}</td>
             <td>${esc(e.purpose||'\u2014')}</td>
             <td>${esc(e.notes||'\u2014')}</td>
             <td>${esc(e.enteredBy||'\u2014')}</td>

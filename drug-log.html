@@ -238,6 +238,22 @@
                     <label>Dosage</label>
                     <input type="text" id="dosage" placeholder="e.g., 200mg, 1 tablet">
                 </div>
+                <div class="form-group">
+                    <label>Prescription #</label>
+                    <input type="text" id="prescriptionNumber" placeholder="Rx number if applicable">
+                </div>
+                <div class="form-group">
+                    <label>Fill Date</label>
+                    <input type="date" id="fillDate">
+                </div>
+                <div class="form-group">
+                    <label>Quantity Filled</label>
+                    <input type="number" id="quantityFill" placeholder="# dispensed" min="0">
+                </div>
+                <div class="form-group">
+                    <label>Quantity In</label>
+                    <input type="number" id="quantityIn" placeholder="# remaining" min="0">
+                </div>
             </div>
             <div class="form-group" style="margin-bottom: 15px;">
                 <label>Purpose/Reason</label>
@@ -269,6 +285,10 @@
                         <th>Drug/Medication</th>
                         <th>Type</th>
                         <th>Dosage</th>
+                        <th>Rx #</th>
+                        <th>Fill Date</th>
+                        <th>Qty Filled</th>
+                        <th>Qty In</th>
                         <th>Purpose</th>
                         <th>Notes</th>
                         <th>Entered By</th>
@@ -418,6 +438,10 @@
                             <td><strong>${entry.drugName}</strong></td>
                             <td><span class="badge ${badge}">${entry.type}</span></td>
                             <td>${entry.dosage || '-'}</td>
+                            <td>${entry.prescriptionNumber || '-'}</td>
+                            <td>${entry.fillDate ? new Date(entry.fillDate).toLocaleDateString() : '-'}</td>
+                            <td>${entry.quantityFill || '-'}</td>
+                            <td>${entry.quantityIn || '-'}</td>
                             <td>${entry.purpose || '-'}</td>
                             <td>${entry.notes || '-'}</td>
                             <td>${entry.enteredBy || 'Staff'}</td>
@@ -455,6 +479,10 @@
             document.getElementById('drugName').value = '';
             document.getElementById('drugType').value = 'Prescribed';
             document.getElementById('dosage').value = '';
+            document.getElementById('prescriptionNumber').value = '';
+            document.getElementById('fillDate').value = '';
+            document.getElementById('quantityFill').value = '';
+            document.getElementById('quantityIn').value = '';
             document.getElementById('purpose').value = '';
             document.getElementById('notes').value = '';
             editingEntryId = null;
@@ -467,6 +495,10 @@
             const drugName = document.getElementById('drugName').value;
             const type = document.getElementById('drugType').value;
             const dosage = document.getElementById('dosage').value;
+            const prescriptionNumber = document.getElementById('prescriptionNumber').value;
+            const fillDate = document.getElementById('fillDate').value;
+            const quantityFill = document.getElementById('quantityFill').value;
+            const quantityIn = document.getElementById('quantityIn').value;
             const purpose = document.getElementById('purpose').value;
             const notes = document.getElementById('notes').value;
             
@@ -481,6 +513,10 @@
                 drugName,
                 type,
                 dosage,
+                prescriptionNumber,
+                fillDate,
+                quantityFill,
+                quantityIn,
                 purpose,
                 notes,
                 enteredBy: 'Staff',
@@ -536,6 +572,10 @@
             document.getElementById('drugName').value = entry.drugName;
             document.getElementById('drugType').value = entry.type;
             document.getElementById('dosage').value = entry.dosage || '';
+            document.getElementById('prescriptionNumber').value = entry.prescriptionNumber || '';
+            document.getElementById('fillDate').value = entry.fillDate || '';
+            document.getElementById('quantityFill').value = entry.quantityFill || '';
+            document.getElementById('quantityIn').value = entry.quantityIn || '';
             document.getElementById('purpose').value = entry.purpose || '';
             document.getElementById('notes').value = entry.notes || '';
             
