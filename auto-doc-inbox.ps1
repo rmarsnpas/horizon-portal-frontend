@@ -44,13 +44,18 @@ $script:_asTaskGeneric = ([System.WindowsRuntimeSystemExtensions].GetMethods() |
 
 function Await {
     param($WinRtTask, [Type]$ResultType = $null)
-    if ($null -ne $ResultType) {
-        $task = $script:_asTaskGeneric.MakeGenericMethod($ResultType).Invoke($null, @($WinRtTask))
-    } else {
-        $task = [System.WindowsRuntimeSystemExtensions]::AsTask($WinRtTask)
+    try {
+        if ($null -ne $ResultType) {
+            $task = $script:_asTaskGeneric.MakeGenericMethod($ResultType).Invoke($null, @($WinRtTask))
+        } else {
+            $task = [System.WindowsRuntimeSystemExtensions]::AsTask($WinRtTask)
+        }
+        $task.Wait(-1) | Out-Null
+        if ($null -ne $ResultType) { return $task.Result }
+    } catch {
+        Write-Log "  Await error: $_"
+        throw
     }
-    $task.Wait(-1) | Out-Null
-    if ($null -ne $ResultType) { return $task.Result }
 }
 
 # ------ Load WinRT types ------------------------------------------------------------------------------------------------------------------------------
@@ -151,8 +156,8 @@ function Find-MemberInOcrText($ocrText, $members) {
     }
     # 2. Full name (first + last both present)
     foreach ($m in $members) {
-        $fn = (Get-PropValue $m @('FIRST','first','FIRST NAME')).ToLower().Trim()
-        $ln = (Get-PropValue $m @('LAST','last','LAST NAME')).ToLower().Trim()
+        $fn = (Get-PropValue $m @('FIRST','first','FIRST NAME','FIRST\r\nNAME','FIRST\nNAME','firstName')).ToLower().Trim()
+        $ln = (Get-PropValue $m @('LAST','last','LAST NAME','LAST\r\nNAME','LAST\nNAME','lastName')).ToLower().Trim()
         if ($fn.Length -lt 2 -or $ln.Length -lt 2) { continue }
         if ($text -match [regex]::Escape($fn) -and $text -match [regex]::Escape($ln)) {
             return @{ member=$m; confidence='high'; via="full name ($fn $ln)" }
@@ -160,7 +165,7 @@ function Find-MemberInOcrText($ocrText, $members) {
     }
     # 3. Last name only (lower confidence)
     foreach ($m in $members) {
-        $ln = (Get-PropValue $m @('LAST','last','LAST NAME')).ToLower().Trim()
+        $ln = (Get-PropValue $m @('LAST','last','LAST NAME','LAST\r\nNAME','LAST\nNAME','lastName')).ToLower().Trim()
         if ($ln.Length -lt 3) { continue }
         if ($text -match "\b$([regex]::Escape($ln))\b") {
             return @{ member=$m; confidence='low'; via="last name only ($ln)" }
@@ -201,21 +206,62 @@ function Find-MemberById($members, $rawId) {
     return $null
 }
 function Get-MemberName($m) {
-    $f = Get-PropValue $m @('FIRST','first','FIRST NAME')
-    $l = Get-PropValue $m @('LAST','last','LAST NAME')
+    $f = Get-PropValue $m @('FIRST','first','FIRST NAME','FIRST
+NAME','FIRST
+NAME','firstName')
+    $l = Get-PropValue $m @('LAST','last','LAST NAME','LAST
+NAME','LAST
+NAME','lastName')
     return "$f $l".Trim()
 }
 function Get-Members {
-    try { return Invoke-RestMethod -Uri "$API_BASE/members" -Method GET -TimeoutSec 15 }
+    try { 
+        $all = Invoke-RestMethod -Uri "$API_BASE/members" -Method GET -TimeoutSec 15
+        # Filter to active members only (status 1, 2, H, or W)
+        $active = $all | Where-Object {
+            $status = (Get-PropValue $_ @('STATUS','STATU','status')).Trim()
+            $status -in @('1','2','H','W','HOLD','WAIT','WAITLIST')
+        }
+        Write-Log "  Total members from API: $($all.Count), Active: $($active.Count)"
+        return $active
+    }
     catch { Write-Log "ERROR fetching members: $_"; return $null }
 }
 
 # ------ Filename-based helpers ------------------------------------------------------------------------------------------------------------
 function Get-MemberIdFromFilename($members, $filename) {
-    $base = [System.IO.Path]::GetFileNameWithoutExtension($filename)
+    $base = [System.IO.Path]::GetFileNameWithoutExtension($filename).ToLower()
+    
+    # Try multiple patterns for member ID
+    # Pattern 1: "ID 123" or "member ID 123" or "memberid123"
+    if ($base -match '(?:member\s*)?id[\s:-]*?(\d{2,4})\b') {
+        $candidateId = $matches[1]
+        Write-Log "  Found ID pattern in filename: $candidateId"
+        return $candidateId
+    }
+    
+    # Pattern 2: Just digits at start "174.pdf" or "170-document.pdf"
+    if ($base -match '^(\d{2,4})(?:\D|$)') {
+        $candidateId = $matches[1]
+        Write-Log "  Found ID at start of filename: $candidateId"
+        return $candidateId
+    }
+    
+    # Pattern 3: Any 2-4 digit number as word boundary
     $nums = [regex]::Matches($base, '\b(\d{2,4})\b')
-    foreach ($n in $nums) { if (Find-MemberById $members $n.Groups[1].Value) { return $n.Groups[1].Value } }
-    if ($nums.Count -gt 0) { return $nums[0].Groups[1].Value }
+    if ($nums.Count -gt 0) {
+        # Try to match against known members first
+        foreach ($n in $nums) { 
+            if (Find-MemberById $members $n.Groups[1].Value) { 
+                Write-Log "  Matched known member ID from filename: $($n.Groups[1].Value)"
+                return $n.Groups[1].Value 
+            } 
+        }
+        # If no known match, return first number found
+        Write-Log "  Using first number found in filename: $($nums[0].Groups[1].Value)"
+        return $nums[0].Groups[1].Value
+    }
+    
     return $null
 }
 function Get-DocTypeFromFilename($filename) {
@@ -286,7 +332,10 @@ while ($true) {
     if (-not $members -or ([datetime]::Now - $lastMemberLoad).TotalHours -gt 1) {
         Write-Log "Loading member list..."
         $members = Get-Members
-        if ($members) { $lastMemberLoad = [datetime]::Now; Write-Log "Loaded $($members.Count) members." }
+        if ($members) { 
+            $lastMemberLoad = [datetime]::Now
+            Write-Log "Loaded $($members.Count) members."
+        }
         else { Write-Log "Cannot reach server --- retrying in $POLL_SECONDS s."; Start-Sleep -Seconds $POLL_SECONDS; continue }
     }
 
@@ -303,6 +352,22 @@ while ($true) {
         # Step 1: filename-based detection
         $memberId = Get-MemberIdFromFilename $members $filename
         $member   = if ($memberId) { Find-MemberById $members $memberId } else { $null }
+        
+        if ($memberId -and -not $member) {
+            Write-Log "  Found ID $memberId in filename, but member not in active list (may be alumni/discharged)"
+            Write-Log "  Attempting to use ID anyway..."
+            # Try to get member details directly from API
+            try {
+                $memberDirect = Invoke-RestMethod -Uri "$API_BASE/getMember?id=$memberId" -Method GET -TimeoutSec 10 -ErrorAction Stop
+                if ($memberDirect) {
+                    $member = $memberDirect
+                    Write-Log "  Retrieved member from API: $(Get-MemberName $member)"
+                }
+            } catch {
+                Write-Log "  Could not retrieve member $memberId from API: $_"
+            }
+        }
+        
         $docType  = Get-DocTypeFromFilename $filename
         $ocrText  = ''
         $via      = 'filename'
