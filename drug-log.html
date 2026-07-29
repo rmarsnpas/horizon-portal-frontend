@@ -309,19 +309,35 @@
                 const select = document.getElementById('memberSelect');
                 select.innerHTML = '<option value="">-- Select a member --</option>';
                 
+                // Helper to get status
+                const getStatus = (m) => String(m.STATUS || m.STATU || m.status || '').trim();
+                // Helper to get first name (handle various Excel formats)
+                const getFirstName = (m) => m['FIRST\r\nNAME'] || m['FIRST\nNAME'] || m['FIRST NAME'] || m.FIRST_NAME || m.firstName || '';
+                // Helper to get last name
+                const getLastName = (m) => m['LAST\r\nNAME'] || m['LAST\nNAME'] || m['LAST NAME'] || m.LAST_NAME || m.lastName || '';
+                
                 members
-                    .filter(m => m.STATUS === 1 || m.STATUS === 'Active')
+                    .filter(m => {
+                        const status = getStatus(m);
+                        // Show current (1), alumni (2), and holds (H)
+                        return status === '1' || status === '2' || status === 'H';
+                    })
                     .sort((a, b) => {
-                        const aName = `${a.FIRST_NAME || ''} ${a.LAST_NAME || ''}`.trim();
-                        const bName = `${b.FIRST_NAME || ''} ${b.LAST_NAME || ''}`.trim();
+                        const aName = `${getFirstName(a)} ${getLastName(a)}`.trim();
+                        const bName = `${getFirstName(b)} ${getLastName(b)}`.trim();
                         return aName.localeCompare(bName);
                     })
                     .forEach(m => {
                         const option = document.createElement('option');
-                        option.value = m.ID;
-                        option.textContent = `${m.FIRST_NAME || ''} ${m.LAST_NAME || ''} (${m.ID})`;
+                        const firstName = getFirstName(m);
+                        const lastName = getLastName(m);
+                        const id = m.ID || m.id || '';
+                        option.value = id;
+                        option.textContent = `${firstName} ${lastName} (${id})`;
                         select.appendChild(option);
                     });
+                    
+                console.log(`Loaded ${select.options.length - 1} members into dropdown`);
             } catch (error) {
                 console.error('Error loading members:', error);
                 showToast('Error loading members');
@@ -355,8 +371,12 @@
                 const memberRes = await fetch(`${API_BASE}/api/getMember?id=${memberId}`);
                 const member = await memberRes.json();
                 
-                document.getElementById('memberName').textContent = `${member.FIRST_NAME || ''} ${member.LAST_NAME || ''}`;
-                document.getElementById('memberId').textContent = member.ID;
+                // Helper functions for getting field names
+                const getFirstName = (m) => m['FIRST\r\nNAME'] || m['FIRST\nNAME'] || m['FIRST NAME'] || m.FIRST_NAME || m.firstName || '';
+                const getLastName = (m) => m['LAST\r\nNAME'] || m['LAST\nNAME'] || m['LAST NAME'] || m.LAST_NAME || m.lastName || '';
+                
+                document.getElementById('memberName').textContent = `${getFirstName(member)} ${getLastName(member)}`;
+                document.getElementById('memberId').textContent = member.ID || member.id || '';
                 
                 document.getElementById('logContent').innerHTML = '';
                 document.getElementById('logDisplay').style.display = 'block';
