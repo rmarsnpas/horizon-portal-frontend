@@ -38,22 +38,78 @@ function Write-Log($msg) {
 
 # ------ WinRT async helper ------------------------------------------------------------------------------------------------------------------------
 Add-Type -AssemblyName System.Runtime.WindowsRuntime | Out-Null
-$script:_asTaskGeneric = ([System.WindowsRuntimeSystemExtensions].GetMethods() |
-    Where-Object { $_.Name -eq 'AsTask' -and $_.GetParameters().Count -eq 1 -and
-                   $_.GetParameters()[0].ParameterType.Name -eq 'IAsyncOperation`1' })[0]
 
 function Await {
     param($WinRtTask, [Type]$ResultType = $null)
+    
     try {
-        if ($null -ne $ResultType) {
-            $task = $script:_asTaskGeneric.MakeGenericMethod($ResultType).Invoke($null, @($WinRtTask))
-        } else {
-            $task = [System.WindowsRuntimeSystemExtensions]::AsTask($WinRtTask)
+        # Get the AsTask extension methods
+        $asTask = ([System.WindowsRuntimeSystemExtensions].GetMethods() | Where-Object { $_.Name -eq 'AsTask' })
+        
+        # Determine what type of async operation we have
+        $taskTypeName = $WinRtTask.GetType().GetInterfaces() | 
+            Where-Object { $_.Name -match '^IAsync' } | 
+            Select-Object -First 1 -ExpandProperty Name
+        
+        if ($null -eq $taskTypeName) {
+            throw "Unknown async operation type"
         }
-        $task.Wait(-1) | Out-Null
-        if ($null -ne $ResultType) { return $task.Result }
+        
+        # Handle based on operation type
+        if ($taskTypeName -eq 'IAsyncAction') {
+            # Action with no result
+            $method = $asTask | Where-Object { 
+                $_.GetParameters().Count -eq 1 -and 
+                $_.GetParameters()[0].ParameterType.Name -eq 'IAsyncAction' 
+            } | Select-Object -First 1
+            
+            if ($method) {
+                $task = $method.Invoke($null, @($WinRtTask))
+                $task.Wait(-1) | Out-Null
+                return $null
+            }
+        }
+        elseif ($taskTypeName -match 'IAsyncOperation') {
+            # Operation with result
+            if ($null -ne $ResultType) {
+                # Result type explicitly provided
+                $method = $asTask | Where-Object { 
+                    $_.GetParameters().Count -eq 1 -and 
+                    $_.GetParameters()[0].ParameterType.Name -eq 'IAsyncOperation`1' -and
+                    $_.IsGenericMethod
+                } | Select-Object -First 1
+                
+                if ($method) {
+                    $genericMethod = $method.MakeGenericMethod($ResultType)
+                    $task = $genericMethod.Invoke($null, @($WinRtTask))
+                    $task.Wait(-1) | Out-Null
+                    return $task.Result
+                }
+            } else {
+                # Infer result type from the async operation
+                $asyncOpInterface = $WinRtTask.GetType().GetInterface('IAsyncOperation`1')
+                if ($asyncOpInterface) {
+                    $inferredType = $asyncOpInterface.GenericTypeArguments[0]
+                    $method = $asTask | Where-Object { 
+                        $_.GetParameters().Count -eq 1 -and 
+                        $_.GetParameters()[0].ParameterType.Name -eq 'IAsyncOperation`1' -and
+                        $_.IsGenericMethod
+                    } | Select-Object -First 1
+                    
+                    if ($method) {
+                        $genericMethod = $method.MakeGenericMethod($inferredType)
+                        $task = $genericMethod.Invoke($null, @($WinRtTask))
+                        $task.Wait(-1) | Out-Null
+                        return $task.Result
+                    }
+                }
+            }
+        }
+        
+        throw "Could not convert WinRT async operation to Task"
     } catch {
-        Write-Log "  Await error: $_"
+        Write-Log "  Await error: $($_.Exception.Message)"
+        Write-Log "  Task type: $($WinRtTask.GetType().FullName)"
         throw
     }
 }
@@ -96,7 +152,7 @@ function Render-PdfFirstPage($pdfPath) {
 
         $opts = New-Object Windows.Data.Pdf.PdfPageRenderOptions
         $opts.DestinationHeight = 2400
-        Await ($page.RenderToStreamAsync($stream, $opts)) $null
+        Await ($page.RenderToStreamAsync($stream, $opts))
         $stream.Dispose()
         $page.Dispose()
         return $tmpPng
