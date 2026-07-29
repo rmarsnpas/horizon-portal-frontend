@@ -206,26 +206,37 @@ function Find-MemberById($members, $rawId) {
     return $null
 }
 function Get-MemberName($m) {
-    $f = Get-PropValue $m @('FIRST','first','FIRST NAME','FIRST
-NAME','FIRST
-NAME','firstName')
-    $l = Get-PropValue $m @('LAST','last','LAST NAME','LAST
-NAME','LAST
-NAME','lastName')
+    $f = Get-PropValue $m @('FIRST','first','FIRST NAME','FIRST`r`nNAME','FIRST`nNAME','firstName')
+    $l = Get-PropValue $m @('LAST','last','LAST NAME','LAST`r`nNAME','LAST`nNAME','lastName')
     return "$f $l".Trim()
 }
 function Get-Members {
     try { 
+        Write-Log "  Fetching members from API: $API_BASE/members"
         $all = Invoke-RestMethod -Uri "$API_BASE/members" -Method GET -TimeoutSec 15
+        
+        if (-not $all) {
+            Write-Log "  WARNING: API returned null/empty"
+            return $null
+        }
+        
+        Write-Log "  Total members from API: $($all.Count)"
+        
         # Filter to active members only (status 1, 2, H, or W)
         $active = $all | Where-Object {
-            $status = (Get-PropValue $_ @('STATUS','STATU','status')).Trim()
+            $status = (Get-PropValue $_ @('STATUS','STATU','status'))
+            if ($status) { $status = $status.Trim() }
             $status -in @('1','2','H','W','HOLD','WAIT','WAITLIST')
         }
-        Write-Log "  Total members from API: $($all.Count), Active: $($active.Count)"
+        
+        Write-Log "  Active members: $($active.Count)"
         return $active
     }
-    catch { Write-Log "ERROR fetching members: $_"; return $null }
+    catch { 
+        Write-Log "ERROR fetching members: $($_.Exception.Message)"
+        Write-Log "  Stack: $($_.ScriptStackTrace)"
+        return $null 
+    }
 }
 
 # ------ Filename-based helpers ------------------------------------------------------------------------------------------------------------
