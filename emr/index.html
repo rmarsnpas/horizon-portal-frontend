@@ -522,7 +522,7 @@ async function openMemberFile(memberId) {
 
 function renderMemberFile(data) {
   _emrViewCacheIdx = 0; _emrViewCache = {}; // reset once before all sections render
-  const { member, docs, drugScreens, passes, meetingCards, intakeForms, submittedForms, applications, incidentReports, signInOutRecords, medLogs } = data;
+  const { member, docs, drugScreens, passes, meetingCards, intakeForms, submittedForms, applications, incidentReports, signInOutRecords, medLogs, drugLog } = data;
   const { first, last, full } = getMemberName(member);
   const initials = (first[0] || '') + (last[0] || '');
   const s = String(member.STATUS || member.status || member.STATU || '').trim();
@@ -534,7 +534,7 @@ function renderMemberFile(data) {
 
   // Total form count
   const intakeCount = Object.values(intakeForms || {}).reduce((t, arr) => t + (arr||[]).length, 0);
-  const totalDocs = (docs||[]).length + (meetingCards||[]).length + (submittedForms||[]).length + intakeCount + (applications||[]).length + (incidentReports||[]).length + (signInOutRecords||[]).length + (medLogs||[]).length;
+  const totalDocs = (docs||[]).length + (meetingCards||[]).length + (submittedForms||[]).length + intakeCount + (applications||[]).length + (incidentReports||[]).length + (signInOutRecords||[]).length + (medLogs||[]).length + (drugLog||[]).length;
 
   const html = `
     <div class="member-header">
@@ -590,7 +590,8 @@ function renderMemberFile(data) {
     ${sectionCard('🪪 Meeting Cards', meetingCards, renderMeetingCards(meetingCards))}
     ${sectionCard('🚨 Incident Reports', incidentReports, renderIncidentReports(incidentReports))}
     ${sectionCard('🚪 Sign In / Out Records', signInOutRecords, renderSignInOut(signInOutRecords))}
-    ${sectionCard('💊 Medication Log', medLogs, renderMedLog(medLogs))}
+    ${sectionCard('💊 Medication Administration Log', medLogs, renderMedLog(medLogs))}
+    ${sectionCard('💊 Member Drug & Medication Tracking', drugLog, renderDrugLog(drugLog))}
     ${sectionCard('📝 Application', applications, renderApplications(applications))}
     ${sectionCard('📄 Submitted Forms', submittedForms, renderSubmittedForms(submittedForms))}
   `;
@@ -823,6 +824,28 @@ function renderMedLog(logs) {
       <td>${esc(e.verifiedBy || e.administeredBy || '—')}</td>
       <td style="max-width:200px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${esc(e.notes || '')}</td>
     </tr>`).join('') + `</tbody></table>`;
+}
+
+function renderDrugLog(logs) {
+  if (!logs || !logs.length) return emptyRow('No drug/medication tracking entries on file');
+  return `<table class="file-table"><thead><tr><th>Date</th><th>Drug/Medication</th><th>Type</th><th>Dosage</th><th>Rx #</th><th>Fill Date</th><th>Qty Filled</th><th>Qty In</th><th>Purpose</th><th>Notes</th><th>Entered By</th><th>Staff Verified</th></tr></thead><tbody>` +
+    logs.map(e => {
+      const typeClass = e.type === 'Prescribed' ? 'status-active' : e.type === 'OTC' ? 'status-waitlist' : 'status-hold';
+      return `<tr>
+        <td style="white-space:nowrap;">${fmtDate(e.date || e.createdAt)}</td>
+        <td style="font-weight:600;">${esc(e.drugName || '—')}</td>
+        <td><span class="badge ${typeClass}">${esc(e.type || '—')}</span></td>
+        <td>${esc(e.dosage || '—')}</td>
+        <td>${esc(e.prescriptionNumber || '—')}</td>
+        <td>${e.fillDate ? fmtDate(e.fillDate) : '—'}</td>
+        <td>${esc(e.quantityFill || '—')}</td>
+        <td>${esc(e.quantityIn || '—')}</td>
+        <td>${esc(e.purpose || '—')}</td>
+        <td style="max-width:200px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${esc(e.notes || '')}</td>
+        <td>${esc(e.enteredBy || '—')}</td>
+        <td>${e.staffVerified ? `<span style="color:#16a34a;font-weight:700;">✓ ${esc(e.staffVerifiedBy || 'Yes')}</span>` : '<span style="color:#999;">—</span>'}</td>
+      </tr>`;
+    }).join('') + `</tbody></table>`;
 }
 
 function emptyRow(msg) {
