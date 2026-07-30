@@ -2030,10 +2030,10 @@ ${rateSummaryHtml}
                                     const pn = ((existingPro.FIRST_NAME||existingPro.firstName||'')+' '+(existingPro.LAST_NAME||existingPro.lastName||'')).trim();
                                     const ph = existingPro.phone||existingPro.PHONE||'';
                                     const em = existingPro.professionalEmail||existingPro.email||existingPro.EMAIL||'';
-                                    return `<div style="margin-top:6px;padding:8px 10px;background:#f0f4ff;border:1px solid #c3d0f0;border-radius:6px;font-size:12px;"><strong>${pn}</strong>${ph?'<br>'+ph:''}${em?'<br><span style=color:#667>'+em+'</span>':''}</div>`;
+                                    return `<div style="padding:8px 10px;background:#f0f4ff;border:1px solid #c3d0f0;border-radius:6px;font-size:12px;"><strong>${pn}</strong>${ph?'<br>'+ph:''}${em?'<br><span style=color:#667>'+em+'</span>':''}</div>`;
                                 })() : '';
                                 return makeRow(
-                                    `<label style='${labelStyle}'>Linked Professional (PRO #)</label><div style='display:flex;align-items:center;gap:6px;'><span style='background:#e8edf3;border:1.5px solid #cbd5e0;border-radius:4px;padding:8px 10px;font-weight:700;color:#555;font-family:monospace'>PRO</span><input name='LINKED_PRO_NUM' id='linkedProNumInput' type='text' maxlength='3' placeholder='001' value='${proNum}' oninput='window.updateProInfoDisplay(this.value)' style='${fieldStyle};width:80px;font-family:monospace;letter-spacing:2px;'></div><div id='proInfoDisplayArea'>${proInfoHtml}</div><div style='font-size:11px;color:#718096;margin-top:4px'>3-digit PRO ID. Leave blank to keep unchanged.</div>`,
+                                    `<label style='${labelStyle}'>Linked Professional (PRO #)</label><div style='display:flex;align-items:flex-start;gap:10px;'><div style='flex:0 0 auto;display:flex;align-items:center;gap:6px;'><span style='background:#e8edf3;border:1.5px solid #cbd5e0;border-radius:4px;padding:8px 10px;font-weight:700;color:#555;font-family:monospace'>PRO</span><input name='LINKED_PRO_NUM' id='linkedProNumInput' type='text' maxlength='3' placeholder='001' value='${proNum}' oninput='window.updateProInfoDisplay(this.value)' style='${fieldStyle};width:80px;font-family:monospace;letter-spacing:2px;'></div><div id='proInfoDisplayArea' style='flex:1;'>${proInfoHtml}</div></div><div style='font-size:11px;color:#718096;margin-top:4px'>3-digit PRO ID. Leave blank to keep unchanged.</div>`,
                                     ''
                                 );
                             })(),
@@ -2041,9 +2041,10 @@ ${rateSummaryHtml}
                             `<div style='margin-bottom:10px;'>
                                 <label style='${labelStyle}'>Additional Authorized Professionals</label>
                                 <div id='authorizedProsContainer' style='display:flex;flex-wrap:wrap;gap:6px;min-height:28px;margin-bottom:6px;'><span style='font-size:12px;color:#aaa;'>None</span></div>
-                                <div style='display:flex;gap:6px;align-items:center;margin-top:4px;'>
+                                <div style='display:flex;gap:6px;align-items:center;margin-top:4px;flex-wrap:wrap;'>
                                     <span style='background:#e8edf3;border:1.5px solid #cbd5e0;border-radius:4px;padding:8px 10px;font-weight:700;color:#555;font-family:monospace'>PRO</span>
                                     <input id='addAuthorizedProInput' type='text' maxlength='3' placeholder='001' style='${fieldStyle};width:80px;font-family:monospace;letter-spacing:2px;'>
+                                    <label style='display:flex;align-items:center;gap:4px;font-size:13px;color:#444;cursor:pointer;white-space:nowrap;'><input type='checkbox' id='addAuthorizedProRoi' style='width:15px;height:15px;'> ROI Checked</label>
                                     <button type='button' onclick='window.addAuthorizedPro()' style='padding:8px 14px;background:#2b3440;color:#fff;border:none;border-radius:6px;font-weight:700;cursor:pointer;font-size:0.9rem;white-space:nowrap;'>+ Add</button>
                                 </div>
                                 <div style='font-size:11px;color:#718096;margin-top:4px;'>Additional professionals (besides the primary Linked Pro) who can also view this member in their portal.</div>
@@ -3008,7 +3009,9 @@ ${rateSummaryHtml}
                             window.updateProInfoDisplay(proInput.value);
                         }
                         // Initialize and render additional authorized pros
-                        window._editAuthorizedPros = Array.isArray(member.authorizedPros) ? [...member.authorizedPros] : [];
+                        window._editAuthorizedPros = Array.isArray(member.authorizedPros)
+                            ? member.authorizedPros.map(window._normAuthPro)
+                            : [];
                         if (window.renderAuthorizedProsUI) window.renderAuthorizedProsUI();
                     }, 80);
                 }
@@ -4958,25 +4961,34 @@ window.updateProInfoDisplay = async function(num) {
     const pn = ((pro.FIRST_NAME||pro.firstName||'')+' '+(pro.LAST_NAME||pro.lastName||'')).trim();
     const ph = pro.phone||pro.PHONE||'';
     const em = pro.professionalEmail||pro.email||pro.EMAIL||'';
-    area.innerHTML = `<div style="margin-top:6px;padding:8px 10px;background:#f0f4ff;border:1px solid #c3d0f0;border-radius:6px;font-size:12px;"><strong>${pn}</strong>${ph?'<br>'+ph:''}${em?'<br><span style=color:#444>'+em+'</span>':''}</div>`;
+    area.innerHTML = `<div style="padding:8px 10px;background:#f0f4ff;border:1px solid #c3d0f0;border-radius:6px;font-size:12px;"><strong>${pn}</strong>${ph?'<br>'+ph:''}${em?'<br><span style=color:#444>'+em+'</span>':''}</div>`;
 };
 
 window._editAuthorizedPros = [];
 
+// Normalize a stored entry (string or object) to {id, roiChecked}
+window._normAuthPro = function(entry) {
+    if (typeof entry === 'string') return { id: entry, roiChecked: false };
+    return { id: entry.id || '', roiChecked: !!entry.roiChecked };
+};
+
 window.renderAuthorizedProsUI = function() {
     const container = document.getElementById('authorizedProsContainer');
     if (!container) return;
-    const pros = window._editAuthorizedPros || [];
+    const pros = (window._editAuthorizedPros || []).map(window._normAuthPro);
     if (!pros.length) {
         container.innerHTML = '<span style="font-size:12px;color:#aaa;">None</span>';
         return;
     }
-    container.innerHTML = pros.map(pid => {
+    container.innerHTML = pros.map(entry => {
+        const pid = entry.id;
+        const roi = entry.roiChecked;
         const pro = (_allPros||[]).find(p => String(p.ID||p.id||'').toUpperCase() === pid.toUpperCase());
         const name = pro ? ((pro.FIRST_NAME||pro.firstName||'')+' '+(pro.LAST_NAME||pro.lastName||'')).trim() : '';
-        return `<span style="display:inline-flex;align-items:center;gap:5px;background:#eef2ff;border:1px solid #c3d0f0;border-radius:4px;padding:4px 8px;font-size:12px;font-family:monospace;">` +
+        return `<span style="display:inline-flex;align-items:center;gap:6px;background:#eef2ff;border:1px solid #c3d0f0;border-radius:4px;padding:4px 10px;font-size:12px;font-family:monospace;">` +
             `${pid}` +
             (name ? `<span style="font-family:sans-serif;font-size:11px;color:#555"> — ${name}</span>` : '') +
+            `<label style="display:flex;align-items:center;gap:3px;font-family:sans-serif;font-size:11px;color:#2e6a4f;cursor:pointer;white-space:nowrap;"><input type="checkbox" ${roi?'checked':''} onchange="window.toggleAuthorizedProRoi('${pid}',this.checked)" style="width:13px;height:13px;"> ROI</label>` +
             `<button type="button" onclick="window.removeAuthorizedPro('${pid}')" style="background:none;border:none;color:#c0392b;cursor:pointer;font-size:14px;line-height:1;padding:0;">&times;</button>` +
             `</span>`;
     }).join('');
@@ -4988,9 +5000,10 @@ window.addAuthorizedPro = async function() {
     const num = input.value.trim().replace(/\D/g,'').padStart(3,'0');
     if (!num || num.length !== 3) { alert('Enter a valid 3-digit PRO number.'); return; }
     const fullId = 'PRO' + num;
-    if ((window._editAuthorizedPros||[]).map(p=>p.toUpperCase()).includes(fullId.toUpperCase())) {
-        input.value = ''; return;
-    }
+    const existing = (window._editAuthorizedPros||[]).map(window._normAuthPro);
+    if (existing.map(e=>e.id.toUpperCase()).includes(fullId.toUpperCase())) { input.value = ''; return; }
+    const roiBox = document.getElementById('addAuthorizedProRoi');
+    const roiChecked = roiBox ? roiBox.checked : false;
     // Optionally load pros cache if not already loaded
     if (!_allPros || !_allPros.length) {
         try {
@@ -4999,14 +5012,21 @@ window.addAuthorizedPro = async function() {
             _allPros = (Array.isArray(all) ? all : []).filter(m => m.professionalPortalAccess);
         } catch {}
     }
-    window._editAuthorizedPros = [...(window._editAuthorizedPros||[]), fullId];
+    window._editAuthorizedPros = [...existing, { id: fullId, roiChecked }];
     window.renderAuthorizedProsUI();
     input.value = '';
+    if (roiBox) roiBox.checked = false;
 };
 
 window.removeAuthorizedPro = function(pid) {
-    window._editAuthorizedPros = (window._editAuthorizedPros||[]).filter(p => p.toUpperCase() !== pid.toUpperCase());
+    window._editAuthorizedPros = (window._editAuthorizedPros||[]).map(window._normAuthPro)
+        .filter(e => e.id.toUpperCase() !== pid.toUpperCase());
     window.renderAuthorizedProsUI();
+};
+
+window.toggleAuthorizedProRoi = function(pid, checked) {
+    window._editAuthorizedPros = (window._editAuthorizedPros||[]).map(window._normAuthPro)
+        .map(e => e.id.toUpperCase() === pid.toUpperCase() ? { ...e, roiChecked: checked } : e);
 };
 
 async function proEditMember(id) {

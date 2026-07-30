@@ -835,7 +835,9 @@ async function loadAssociatedMembers() {
       const rcw      = normStr(m.refCaseWorker || m.REF_CASEWORKER || '');
       const rcw2     = normStr(m.referringProvider || m.referringCounselor || '');
       const linked   = normStr(m.linkedProfessionalId || '');
-      const authPros = Array.isArray(m.authorizedPros) ? m.authorizedPros.map(p => normStr(p)) : [];
+      const authPros = Array.isArray(m.authorizedPros)
+        ? m.authorizedPros.map(p => normStr(typeof p === 'string' ? p : (p.id || '')))
+        : [];
       return (
         linked === profId ||
         authPros.includes(profId) ||
