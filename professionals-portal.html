@@ -832,11 +832,13 @@ async function loadAssociatedMembers() {
     const pLn    = normStr(mVal(_prof,'lastName','LAST_NAME','LAST\r\nNAME'));
 
     _members = all.filter(m => {
-      const rcw    = normStr(m.refCaseWorker || m.REF_CASEWORKER || '');
-      const rcw2   = normStr(m.referringProvider || m.referringCounselor || '');
-      const linked = normStr(m.linkedProfessionalId || '');
+      const rcw      = normStr(m.refCaseWorker || m.REF_CASEWORKER || '');
+      const rcw2     = normStr(m.referringProvider || m.referringCounselor || '');
+      const linked   = normStr(m.linkedProfessionalId || '');
+      const authPros = Array.isArray(m.authorizedPros) ? m.authorizedPros.map(p => normStr(p)) : [];
       return (
         linked === profId ||
+        authPros.includes(profId) ||
         rcw    === profId ||
         rcw2   === profId ||
         (pFn && pLn && rcw.includes(pFn) && rcw.includes(pLn))

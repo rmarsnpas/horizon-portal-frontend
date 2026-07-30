@@ -2037,6 +2037,17 @@ ${rateSummaryHtml}
                                     ''
                                 );
                             })(),
+                            // Additional Authorized Professionals
+                            `<div style='margin-bottom:10px;'>
+                                <label style='${labelStyle}'>Additional Authorized Professionals</label>
+                                <div id='authorizedProsContainer' style='display:flex;flex-wrap:wrap;gap:6px;min-height:28px;margin-bottom:6px;'><span style='font-size:12px;color:#aaa;'>None</span></div>
+                                <div style='display:flex;gap:6px;align-items:center;margin-top:4px;'>
+                                    <span style='background:#e8edf3;border:1.5px solid #cbd5e0;border-radius:4px;padding:8px 10px;font-weight:700;color:#555;font-family:monospace'>PRO</span>
+                                    <input id='addAuthorizedProInput' type='text' maxlength='3' placeholder='001' style='${fieldStyle};width:80px;font-family:monospace;letter-spacing:2px;'>
+                                    <button type='button' onclick='window.addAuthorizedPro()' style='padding:8px 14px;background:#2b3440;color:#fff;border:none;border-radius:6px;font-weight:700;cursor:pointer;font-size:0.9rem;white-space:nowrap;'>+ Add</button>
+                                </div>
+                                <div style='font-size:11px;color:#718096;margin-top:4px;'>Additional professionals (besides the primary Linked Pro) who can also view this member in their portal.</div>
+                            </div>`,
                             // Row: FIRST | LAST
                             makeRow(
                                 `<label style='${labelStyle}'>First Name</label><input name='FIRST' value="${gv('FIRST')}" style='${fieldStyle}'>`,
@@ -2327,6 +2338,7 @@ ${rateSummaryHtml}
                             refCaseWorker: form.elements['REF_CASEWORKER'] ? form.elements['REF_CASEWORKER'].value : '',
                             refCwPhone: form.elements['REF_CW_PHONE'] ? form.elements['REF_CW_PHONE'].value : '',
                             linkedProfessionalId: (() => { const n = (form.elements['LINKED_PRO_NUM'] ? form.elements['LINKED_PRO_NUM'].value : '').trim(); return n ? 'PRO' + n.padStart(3,'0') : undefined; })(),
+                            authorizedPros: Array.isArray(window._editAuthorizedPros) ? window._editAuthorizedPros : [],
                             elmrId: form.elements['ELMR_ID'] ? form.elements['ELMR_ID'].value : '',
                             presumptiveExitDate: form.elements['PRESUMPTIVE_EXIT_DATE'] ? form.elements['PRESUMPTIVE_EXIT_DATE'].value : '',
                             inpatientFacility: form.elements['INPATIENT_FACILITY'] ? form.elements['INPATIENT_FACILITY'].value : '',
@@ -2995,6 +3007,9 @@ ${rateSummaryHtml}
                         if (proInput && proInput.value && window.updateProInfoDisplay) {
                             window.updateProInfoDisplay(proInput.value);
                         }
+                        // Initialize and render additional authorized pros
+                        window._editAuthorizedPros = Array.isArray(member.authorizedPros) ? [...member.authorizedPros] : [];
+                        if (window.renderAuthorizedProsUI) window.renderAuthorizedProsUI();
                     }, 80);
                 }
                 window.openEditMemberModal = openEditMemberModal;
@@ -3090,6 +3105,7 @@ ${rateSummaryHtml}
                             // linkedProfessionalId: only set if a value was entered
                             const _proNum = getVal('LINKED_PRO_NUM').trim();
                             if (_proNum) payload.linkedProfessionalId = 'PRO' + _proNum.padStart(3,'0');
+                            payload.authorizedPros = Array.isArray(window._editAuthorizedPros) ? window._editAuthorizedPros : [];
                             // Ask relapse question if status changing from 1 → 2 or 3
                             const _relapsedEdit = await askRelapseQuestion(window._editMemberOriginalStatus || '', payload.status);
                             if (_relapsedEdit) {
@@ -4943,6 +4959,54 @@ window.updateProInfoDisplay = async function(num) {
     const ph = pro.phone||pro.PHONE||'';
     const em = pro.professionalEmail||pro.email||pro.EMAIL||'';
     area.innerHTML = `<div style="margin-top:6px;padding:8px 10px;background:#f0f4ff;border:1px solid #c3d0f0;border-radius:6px;font-size:12px;"><strong>${pn}</strong>${ph?'<br>'+ph:''}${em?'<br><span style=color:#444>'+em+'</span>':''}</div>`;
+};
+
+window._editAuthorizedPros = [];
+
+window.renderAuthorizedProsUI = function() {
+    const container = document.getElementById('authorizedProsContainer');
+    if (!container) return;
+    const pros = window._editAuthorizedPros || [];
+    if (!pros.length) {
+        container.innerHTML = '<span style="font-size:12px;color:#aaa;">None</span>';
+        return;
+    }
+    container.innerHTML = pros.map(pid => {
+        const pro = (_allPros||[]).find(p => String(p.ID||p.id||'').toUpperCase() === pid.toUpperCase());
+        const name = pro ? ((pro.FIRST_NAME||pro.firstName||'')+' '+(pro.LAST_NAME||pro.lastName||'')).trim() : '';
+        return `<span style="display:inline-flex;align-items:center;gap:5px;background:#eef2ff;border:1px solid #c3d0f0;border-radius:4px;padding:4px 8px;font-size:12px;font-family:monospace;">` +
+            `${pid}` +
+            (name ? `<span style="font-family:sans-serif;font-size:11px;color:#555"> — ${name}</span>` : '') +
+            `<button type="button" onclick="window.removeAuthorizedPro('${pid}')" style="background:none;border:none;color:#c0392b;cursor:pointer;font-size:14px;line-height:1;padding:0;">&times;</button>` +
+            `</span>`;
+    }).join('');
+};
+
+window.addAuthorizedPro = async function() {
+    const input = document.getElementById('addAuthorizedProInput');
+    if (!input) return;
+    const num = input.value.trim().replace(/\D/g,'').padStart(3,'0');
+    if (!num || num.length !== 3) { alert('Enter a valid 3-digit PRO number.'); return; }
+    const fullId = 'PRO' + num;
+    if ((window._editAuthorizedPros||[]).map(p=>p.toUpperCase()).includes(fullId.toUpperCase())) {
+        input.value = ''; return;
+    }
+    // Optionally load pros cache if not already loaded
+    if (!_allPros || !_allPros.length) {
+        try {
+            const r = await fetch(MDOC_API + '/members');
+            const all = await r.json();
+            _allPros = (Array.isArray(all) ? all : []).filter(m => m.professionalPortalAccess);
+        } catch {}
+    }
+    window._editAuthorizedPros = [...(window._editAuthorizedPros||[]), fullId];
+    window.renderAuthorizedProsUI();
+    input.value = '';
+};
+
+window.removeAuthorizedPro = function(pid) {
+    window._editAuthorizedPros = (window._editAuthorizedPros||[]).filter(p => p.toUpperCase() !== pid.toUpperCase());
+    window.renderAuthorizedProsUI();
 };
 
 async function proEditMember(id) {
