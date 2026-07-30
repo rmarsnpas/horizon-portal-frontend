@@ -2032,8 +2032,9 @@ ${rateSummaryHtml}
                                     const em = existingPro.professionalEmail||existingPro.email||existingPro.EMAIL||'';
                                     return `<div style="padding:8px 10px;background:#f0f4ff;border:1px solid #c3d0f0;border-radius:6px;font-size:12px;"><strong>${pn}</strong>${ph?'<br>'+ph:''}${em?'<br><span style=color:#667>'+em+'</span>':''}</div>`;
                                 })() : '';
+                                const linkedRoiChecked = member.linkedProRoiChecked === true || member.linkedProRoiChecked === 'true';
                                 return makeRow(
-                                    `<label style='${labelStyle}'>Linked Professional (PRO #)</label><div style='display:flex;align-items:flex-start;gap:10px;'><div style='flex:0 0 auto;display:flex;align-items:center;gap:6px;'><span style='background:#e8edf3;border:1.5px solid #cbd5e0;border-radius:4px;padding:8px 10px;font-weight:700;color:#555;font-family:monospace'>PRO</span><input name='LINKED_PRO_NUM' id='linkedProNumInput' type='text' maxlength='3' placeholder='001' value='${proNum}' oninput='window.updateProInfoDisplay(this.value)' style='${fieldStyle};width:80px;font-family:monospace;letter-spacing:2px;'></div><div id='proInfoDisplayArea' style='flex:1;'>${proInfoHtml}</div></div><div style='font-size:11px;color:#718096;margin-top:4px'>3-digit PRO ID. Leave blank to keep unchanged.</div>`,
+                                    `<label style='${labelStyle}'>Linked Professional (PRO #)</label><div style='display:flex;align-items:flex-start;gap:10px;'><div style='flex:0 0 auto;display:flex;align-items:center;gap:6px;flex-wrap:wrap;'><span style='background:#e8edf3;border:1.5px solid #cbd5e0;border-radius:4px;padding:8px 10px;font-weight:700;color:#555;font-family:monospace'>PRO</span><input name='LINKED_PRO_NUM' id='linkedProNumInput' type='text' maxlength='3' placeholder='001' value='${proNum}' oninput='window.updateProInfoDisplay(this.value)' style='${fieldStyle};width:80px;font-family:monospace;letter-spacing:2px;'><label style='display:flex;align-items:center;gap:4px;font-size:13px;color:#2e6a4f;cursor:pointer;white-space:nowrap;'><input type='checkbox' name='LINKED_PRO_ROI' ${linkedRoiChecked?'checked':''} style='width:15px;height:15px;'> ROI Checked</label></div><div id='proInfoDisplayArea' style='flex:1;'>${proInfoHtml}</div></div><div style='font-size:11px;color:#718096;margin-top:4px'>3-digit PRO ID. Leave blank to keep unchanged.</div>`,
                                     ''
                                 );
                             })(),
@@ -2339,6 +2340,7 @@ ${rateSummaryHtml}
                             refCaseWorker: form.elements['REF_CASEWORKER'] ? form.elements['REF_CASEWORKER'].value : '',
                             refCwPhone: form.elements['REF_CW_PHONE'] ? form.elements['REF_CW_PHONE'].value : '',
                             linkedProfessionalId: (() => { const n = (form.elements['LINKED_PRO_NUM'] ? form.elements['LINKED_PRO_NUM'].value : '').trim(); return n ? 'PRO' + n.padStart(3,'0') : undefined; })(),
+                            linkedProRoiChecked: form.elements['LINKED_PRO_ROI'] ? form.elements['LINKED_PRO_ROI'].checked : false,
                             authorizedPros: Array.isArray(window._editAuthorizedPros) ? window._editAuthorizedPros : [],
                             elmrId: form.elements['ELMR_ID'] ? form.elements['ELMR_ID'].value : '',
                             presumptiveExitDate: form.elements['PRESUMPTIVE_EXIT_DATE'] ? form.elements['PRESUMPTIVE_EXIT_DATE'].value : '',
@@ -3108,6 +3110,7 @@ ${rateSummaryHtml}
                             // linkedProfessionalId: only set if a value was entered
                             const _proNum = getVal('LINKED_PRO_NUM').trim();
                             if (_proNum) payload.linkedProfessionalId = 'PRO' + _proNum.padStart(3,'0');
+                            payload.linkedProRoiChecked = form.elements['LINKED_PRO_ROI'] ? form.elements['LINKED_PRO_ROI'].checked : false;
                             payload.authorizedPros = Array.isArray(window._editAuthorizedPros) ? window._editAuthorizedPros : [];
                             // Ask relapse question if status changing from 1 → 2 or 3
                             const _relapsedEdit = await askRelapseQuestion(window._editMemberOriginalStatus || '', payload.status);
