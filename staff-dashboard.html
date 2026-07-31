@@ -637,6 +637,7 @@
                 <div>
                     <h1>📊 Admin Portal</h1>
                     <p style="color: #718096; margin-top: 5px;">Welcome to Horizon House Admin Portal</p>
+                    <p id="staffNameDisplay" style="color: #4a5568; margin-top: 3px; font-weight: 600; font-size: 0.95rem;"></p>
                 </div>
             </div>
             <div class="header-buttons">
@@ -4107,6 +4108,10 @@ ${rateSummaryHtml}
         async function showDashboard() {
             document.getElementById('loginContainer').style.display = 'none';
             document.getElementById('dashboardContainer').style.display = 'block';
+            
+            // Display staff name
+            const staffName = localStorage.getItem('staffName') || 'Staff Member';
+            document.getElementById('staffNameDisplay').textContent = `Logged in as: ${staffName}`;
             
             await loadDashboardData();
         }
