@@ -938,6 +938,45 @@
                 </div>
             </div>
 
+            <!-- Guest Waivers Card -->
+            <div class="dashboard-card" style="background:linear-gradient(135deg,#1a3a2a 0%,#0d2218 100%);color:white;display:flex;flex-direction:column;justify-content:space-between;">
+                <div>
+                    <div class="card-icon" style="font-size:48px;">📋</div>
+                    <div class="card-title" style="color:white;">Guest Waivers</div>
+                    <div class="card-count" id="waiversCount" style="font-size:28px;color:#4ade80;">-</div>
+                    <div class="card-label" style="color:rgba(255,255,255,0.85);">Submitted Waivers</div>
+                </div>
+                <div style="margin-top:15px;">
+                    <button onclick="openWaiversPanel()" style="width:100%;padding:12px;background:#2e6a4f;color:white;border:none;border-radius:6px;cursor:pointer;font-weight:700;font-size:15px;box-shadow:0 2px 8px rgba(0,0,0,0.2);">📋 View Guest Waivers</button>
+                </div>
+            </div>
+
+            <!-- Guest Waivers Panel -->
+            <div id="waiversPanel" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.6);z-index:100000;align-items:flex-start;justify-content:center;overflow-y:auto;padding:24px 10px;">
+                <div style="background:white;border-radius:14px;padding:28px 24px;max-width:1100px;width:100%;box-shadow:0 8px 40px rgba(0,0,0,0.3);position:relative;margin:auto;">
+                    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:18px;flex-wrap:wrap;gap:10px;">
+                        <h2 style="margin:0;font-size:1.3rem;color:#1a1a2e;">📋 Guest Waivers</h2>
+                        <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;">
+                            <button onclick="loadWaiversList()" style="padding:8px 14px;background:#1e3a52;color:white;border:none;border-radius:6px;font-weight:700;cursor:pointer;font-size:13px;">↻ Refresh</button>
+                            <span onclick="closeWaiversPanel()" style="font-size:1.8rem;cursor:pointer;color:#aaa;line-height:1;padding:0 4px;">&times;</span>
+                        </div>
+                    </div>
+                    <input id="waiversSearch" type="text" placeholder="Search by guest name, member, phone…" oninput="filterWaiversList()" style="width:100%;padding:9px 12px;border:1px solid #ccc;border-radius:6px;font-size:14px;margin-bottom:14px;">
+                    <div id="waiversListWrap" style="font-size:14px;overflow-x:auto;">Loading…</div>
+                </div>
+            </div>
+
+            <!-- Guest Waiver Detail Modal -->
+            <div id="waiverDetailModal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.7);z-index:200000;align-items:center;justify-content:center;padding:20px;">
+                <div style="background:white;border-radius:14px;padding:28px 24px;max-width:580px;width:100%;box-shadow:0 8px 40px rgba(0,0,0,0.35);max-height:90vh;overflow-y:auto;position:relative;">
+                    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:18px;">
+                        <h2 style="margin:0;font-size:1.2rem;color:#1a1a2e;">📋 Waiver Detail</h2>
+                        <span onclick="closeWaiverDetail()" style="font-size:1.8rem;cursor:pointer;color:#aaa;line-height:1;">&times;</span>
+                    </div>
+                    <div id="waiverDetailBody"></div>
+                </div>
+            </div>
+
             <!-- All Members Modal -->
             <div id="allMembersModal" class="modal" style="display:none;">
                 <div class="modal-content" style="max-width:95vw;height:90vh;margin:2vh auto;padding:20px;display:flex;flex-direction:column;overflow:hidden;">
@@ -4853,6 +4892,127 @@ function openProfessionalsPanel() {
 function closeProfessionalsPanel() {
     document.getElementById('professionalsPanel').style.display = 'none';
     document.body.style.overflow = '';
+}
+
+// ── Guest Waivers ──────────────────────────────────────────────────────────────
+let _allWaivers = [];
+
+function openWaiversPanel() {
+    document.getElementById('waiversPanel').style.display = 'flex';
+    document.body.style.overflow = 'hidden';
+    loadWaiversList();
+}
+function closeWaiversPanel() {
+    document.getElementById('waiversPanel').style.display = 'none';
+    document.body.style.overflow = '';
+}
+function closeWaiverDetail() {
+    document.getElementById('waiverDetailModal').style.display = 'none';
+}
+
+async function loadWaiversList() {
+    const wrap = document.getElementById('waiversListWrap');
+    wrap.innerHTML = 'Loading…';
+    try {
+        const res = await fetch(`${MDOC_API}/waivers`);
+        _allWaivers = await res.json();
+        if (!Array.isArray(_allWaivers)) _allWaivers = [];
+        // Sort newest first
+        _allWaivers.sort((a, b) => new Date(b.submittedAt||0) - new Date(a.submittedAt||0));
+        const badge = document.getElementById('waiversCount');
+        if (badge) badge.textContent = _allWaivers.length;
+        renderWaiversList(_allWaivers);
+    } catch (e) {
+        wrap.innerHTML = '<div style="color:#c0392b;padding:12px;">Failed to load waivers. Check backend connection.</div>';
+    }
+}
+
+function renderWaiversList(list) {
+    const wrap = document.getElementById('waiversListWrap');
+    if (!list.length) {
+        wrap.innerHTML = '<div style="color:#718096;padding:16px;text-align:center;">No waivers submitted yet.</div>';
+        return;
+    }
+    const rows = list.map(w => {
+        const dt = w.submittedAt ? new Date(w.submittedAt).toLocaleString() : '—';
+        const minor = (w.is_minor === 'yes' || w.is_minor === true) ? '<span style="background:#fef3c7;color:#b45309;border-radius:4px;padding:2px 6px;font-size:11px;font-weight:700;">MINOR</span>' : '';
+        return `<tr style="border-bottom:1px solid #f0f0f0;">
+            <td style="padding:9px 10px;white-space:nowrap;color:#555;font-size:12px;">${esc(dt)}</td>
+            <td style="padding:9px 10px;font-weight:600;">${esc(w.guest_name||'—')} ${minor}</td>
+            <td style="padding:9px 10px;">${esc(w.phone||'—')}</td>
+            <td style="padding:9px 10px;">${esc(w.member||'—')}</td>
+            <td style="padding:9px 10px;">${esc(w.visit_date||'—')}</td>
+            <td style="padding:9px 10px;">
+                <button onclick="showWaiverDetail('${esc(w.id||'')}')" style="padding:5px 10px;background:#1e3a52;color:white;border:none;border-radius:5px;cursor:pointer;font-size:12px;font-weight:600;">View</button>
+            </td>
+        </tr>`;
+    }).join('');
+    wrap.innerHTML = `<table style="width:100%;border-collapse:collapse;">
+        <thead><tr style="background:#f7f8fa;font-size:12px;color:#555;text-transform:uppercase;letter-spacing:.04em;">
+            <th style="padding:8px 10px;text-align:left;font-weight:700;">Submitted</th>
+            <th style="padding:8px 10px;text-align:left;font-weight:700;">Guest</th>
+            <th style="padding:8px 10px;text-align:left;font-weight:700;">Phone</th>
+            <th style="padding:8px 10px;text-align:left;font-weight:700;">Visiting Member</th>
+            <th style="padding:8px 10px;text-align:left;font-weight:700;">Visit Date</th>
+            <th style="padding:8px 10px;"></th>
+        </tr></thead>
+        <tbody>${rows}</tbody>
+    </table>`;
+}
+
+function filterWaiversList() {
+    const q = (document.getElementById('waiversSearch').value || '').toLowerCase();
+    if (!q) { renderWaiversList(_allWaivers); return; }
+    renderWaiversList(_allWaivers.filter(w =>
+        (w.guest_name||'').toLowerCase().includes(q) ||
+        (w.member||'').toLowerCase().includes(q) ||
+        (w.phone||'').toLowerCase().includes(q) ||
+        (w.email||'').toLowerCase().includes(q)
+    ));
+}
+
+function showWaiverDetail(id) {
+    const w = _allWaivers.find(x => String(x.id) === String(id));
+    if (!w) return;
+    const dt = w.submittedAt ? new Date(w.submittedAt).toLocaleString() : '—';
+    const isMinor = w.is_minor === 'yes' || w.is_minor === true;
+    const chk = v => v ? '✅' : '☐';
+    const row = (label, val) => val ? `<tr><td style="padding:5px 0;font-weight:600;color:#555;width:45%;vertical-align:top;font-size:13px;">${label}</td><td style="padding:5px 0;font-size:13px;">${esc(String(val))}</td></tr>` : '';
+    document.getElementById('waiverDetailBody').innerHTML = `
+        <div style="font-size:12px;color:#aaa;margin-bottom:14px;">Submitted: ${esc(dt)}</div>
+        <table style="width:100%;border-collapse:collapse;margin-bottom:18px;">
+            ${row('Guest Name', w.guest_name)}
+            ${row('Phone', w.phone)}
+            ${row('Email', w.email)}
+            ${row('Address', w.address)}
+            ${row('Visiting Member', w.member)}
+            ${row('Visit Date', w.visit_date)}
+            ${isMinor ? row('Minor', 'Yes') : ''}
+            ${isMinor ? row('Guardian Name', w.guardian_name) : ''}
+            ${isMinor ? row('Guardian Phone', w.guardian_phone) : ''}
+            ${isMinor ? row('Guardian Email', w.guardian_email) : ''}
+        </table>
+        <div style="border-top:1px solid #eee;padding-top:14px;">
+            <div style="font-size:12px;font-weight:700;color:#555;margin-bottom:8px;text-transform:uppercase;letter-spacing:.05em;">Acknowledgements</div>
+            <div style="display:flex;flex-direction:column;gap:6px;font-size:13px;">
+                <div>${chk(w.assumption_of_risk)} Assumption of Risk</div>
+                <div>${chk(w.release_of_liability)} Release of Liability</div>
+                <div>${chk(w.rules_ack)} Rules &amp; Responsibilities</div>
+                ${isMinor ? `<div>${chk(w.minor_supervision)} Minor Supervision</div>` : ''}
+                <div>${chk(w.emergency_auth)} Emergency Authorization</div>
+            </div>
+        </div>
+        <div style="border-top:1px solid #eee;padding-top:14px;margin-top:14px;">
+            <div style="font-size:12px;font-weight:700;color:#555;margin-bottom:6px;text-transform:uppercase;letter-spacing:.05em;">Signature</div>
+            <div style="font-size:15px;font-style:italic;color:#2b3440;">${esc(w.guest_signature||'—')}</div>
+            ${isMinor && w.guardian_signature ? `<div style="font-size:13px;color:#555;margin-top:4px;">Guardian: <em>${esc(w.guardian_signature)}</em></div>` : ''}
+            <div style="font-size:12px;color:#aaa;margin-top:4px;">Signed: ${esc(w.signed_date||'—')}</div>
+        </div>`;
+    document.getElementById('waiverDetailModal').style.display = 'flex';
+}
+
+function esc(s) {
+    return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
 }
 
 async function loadProfessionalsList() {
