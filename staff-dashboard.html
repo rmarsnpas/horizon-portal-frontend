@@ -4074,6 +4074,13 @@ ${rateSummaryHtml}
                     return;
                 }
 
+                // Store staff name for use across portal
+                const firstName = member['FIRST\r\nNAME'] || member['FIRST\nNAME'] || member['FIRST NAME'] || member.FIRST_NAME || member.firstName || '';
+                const lastName = member['LAST\r\nNAME'] || member['LAST\nNAME'] || member['LAST NAME'] || member.LAST_NAME || member.lastName || '';
+                const staffName = `${firstName} ${lastName}`.trim() || 'Staff';
+                localStorage.setItem('staffName', staffName);
+                localStorage.setItem('staffId', memberId);
+
                 sessionStorage.setItem(SESSION_KEY, 'true');
                 showDashboard();
             } catch (err) {
@@ -4084,6 +4091,8 @@ ${rateSummaryHtml}
 
         function logout() {
             sessionStorage.removeItem(SESSION_KEY);
+            localStorage.removeItem('staffName');
+            localStorage.removeItem('staffId');
             document.getElementById('loginContainer').style.display = 'block';
             document.getElementById('dashboardContainer').style.display = 'none';
             document.getElementById('loginMemberId').value = '';
@@ -4759,7 +4768,7 @@ ${rateSummaryHtml}
             const memberNameEl = document.getElementById('kmMemberName');
             const expiresAt = document.getElementById('kmExpires').value;
             const statusEl  = document.getElementById('kmStatus');
-            const staffName = (window.currentStaffName) || 'Management';
+            const staffName = localStorage.getItem('staffName') || 'Management';
 
             if (!body) { statusEl.textContent = '? Please enter a message.'; statusEl.style.color = '#dc3545'; return; }
             if (target === 'individual' && !memberId) { statusEl.textContent = '? Please enter a Member ID.'; statusEl.style.color = '#dc3545'; return; }
