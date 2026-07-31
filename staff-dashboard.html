@@ -4080,6 +4080,9 @@ ${rateSummaryHtml}
                 const staffName = `${firstName} ${lastName}`.trim() || 'Staff';
                 localStorage.setItem('staffName', staffName);
                 localStorage.setItem('staffId', memberId);
+                
+                // Also set EMR session format for compatibility with file cabinet
+                sessionStorage.setItem('emr_session', JSON.stringify({ id: memberId, name: staffName }));
 
                 sessionStorage.setItem(SESSION_KEY, 'true');
                 showDashboard();
@@ -4091,6 +4094,7 @@ ${rateSummaryHtml}
 
         function logout() {
             sessionStorage.removeItem(SESSION_KEY);
+            sessionStorage.removeItem('emr_session');
             localStorage.removeItem('staffName');
             localStorage.removeItem('staffId');
             document.getElementById('loginContainer').style.display = 'block';

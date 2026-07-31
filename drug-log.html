@@ -532,7 +532,19 @@
         function showEntryForm() {
             document.getElementById('entryForm').classList.add('active');
             document.getElementById('entryDate').value = new Date().toISOString().slice(0, 16);
-            document.getElementById('enteredBy').value = localStorage.getItem('staffName') || sessionStorage.getItem('loggedInUser') || 'Staff';
+            
+            // Get staff name from EMR session or localStorage
+            let staffName = 'Staff';
+            const emrSession = JSON.parse(sessionStorage.getItem('emr_session') || 'null');
+            if (emrSession && emrSession.name) {
+                staffName = emrSession.name.trim();
+            } else if (localStorage.getItem('staffName')) {
+                staffName = localStorage.getItem('staffName');
+            } else if (sessionStorage.getItem('loggedInUser')) {
+                staffName = sessionStorage.getItem('loggedInUser');
+            }
+            
+            document.getElementById('enteredBy').value = staffName;
             editingEntryId = null;
         }
 
@@ -646,7 +658,20 @@
             document.getElementById('quantityIn').value = entry.quantityIn || '';
             document.getElementById('purpose').value = entry.purpose || '';
             document.getElementById('notes').value = entry.notes || '';
-            document.getElementById('enteredBy').value = entry.enteredBy || localStorage.getItem('staffName') || sessionStorage.getItem('loggedInUser') || 'Staff';
+            
+            // Get staff name for editing
+            let staffName = entry.enteredBy || 'Staff';
+            if (!entry.enteredBy) {
+                const emrSession = JSON.parse(sessionStorage.getItem('emr_session') || 'null');
+                if (emrSession && emrSession.name) {
+                    staffName = emrSession.name.trim();
+                } else if (localStorage.getItem('staffName')) {
+                    staffName = localStorage.getItem('staffName');
+                } else if (sessionStorage.getItem('loggedInUser')) {
+                    staffName = sessionStorage.getItem('loggedInUser');
+                }
+            }
+            document.getElementById('enteredBy').value = staffName;
             
             document.getElementById('entryForm').classList.add('active');
         }
@@ -654,9 +679,18 @@
         async function verifyEntry(entryId, isChecked) {
             if (!currentMemberId) return;
             
-            const staffName = localStorage.getItem('staffName') || 
-                            sessionStorage.getItem('loggedInUser') || 
-                            prompt('Enter your name for verification:');
+            // Get staff name from EMR session or other sources
+            let staffName = null;
+            const emrSession = JSON.parse(sessionStorage.getItem('emr_session') || 'null');
+            if (emrSession && emrSession.name) {
+                staffName = emrSession.name.trim();
+            } else if (localStorage.getItem('staffName')) {
+                staffName = localStorage.getItem('staffName');
+            } else if (sessionStorage.getItem('loggedInUser')) {
+                staffName = sessionStorage.getItem('loggedInUser');
+            } else {
+                staffName = prompt('Enter your name for verification:');
+            }
             
             if (!staffName && isChecked) {
                 showToast('Staff name required for verification');
