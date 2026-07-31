@@ -2292,6 +2292,12 @@ ${rateSummaryHtml}
                             const days = Math.floor((today - d) / 86400000);
                             display.value = days >= 0 ? days + ' days' : '';
                         };
+
+                        // Initialize additional authorized pros for this member
+                        window._editAuthorizedPros = Array.isArray(member.authorizedPros)
+                            ? member.authorizedPros.map(window._normAuthPro)
+                            : [];
+                        setTimeout(() => { if (window.renderAuthorizedProsUI) window.renderAuthorizedProsUI(); }, 0);
                     }
 
                     document.getElementById('staffProfileForm').onsubmit = async function(event) {
