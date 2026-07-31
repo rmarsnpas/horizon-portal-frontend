@@ -488,6 +488,7 @@
       const printQrBtn = document.getElementById("printQrBtn");
 
       const today = new Date().toISOString().split("T")[0];
+      const API_URL = "https://horizon-portal-backend-production-3532.up.railway.app";
       visitDate.value = today;
       signatureDate.value = today;
 
@@ -578,7 +579,47 @@
       minorYes.addEventListener("change", () => setMinorRequirements(true));
       minorNo.addEventListener("change", () => setMinorRequirements(false));
 
-      form.addEventListener("submit", function (event) {
+      async function submitWaiver(data) {
+        const payload = {
+          guest_name: data.guestName || "",
+          phone: data.phone || "",
+          email: data.email || "",
+          address: data.address || "",
+          member: data.memberVisiting || "",
+          visit_date: data.visitDate || "",
+          is_minor: data.isMinor === "Yes" ? "yes" : "no",
+          guardian_name: data.guardianName || "",
+          guardian_phone: data.guardianPhone || "",
+          guardian_email: data.guardianEmail || "",
+          guardian_signature: data.guardianSignature || "",
+          assumption_of_risk: !!data.riskAck,
+          release_of_liability: !!data.releaseAck,
+          rules_ack: !!data.rulesAck,
+          minor_supervision: !!data.minorSupervisionAck,
+          emergency_auth: !!data.emergencyAck,
+          guest_signature: data.guestSignature || "",
+          signed_date: data.signatureDate || "",
+          submittedAt: new Date().toISOString(),
+          source: "guest-liability-waiver"
+        };
+
+        localStorage.setItem("hh_guest_liability_waiver_last", JSON.stringify(payload));
+
+        const response = await fetch(`${API_URL}/api/waivers`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(payload)
+        });
+
+        if (!response.ok) {
+          const errorPayload = await response.json().catch(() => ({}));
+          throw new Error(errorPayload.error || "Submission failed");
+        }
+
+        return response.json();
+      }
+
+      form.addEventListener("submit", async function (event) {
         event.preventDefault();
         statusEl.textContent = "";
 
@@ -595,13 +636,18 @@
         data.rulesAck = document.getElementById("rulesAck").checked;
         data.minorSupervisionAck = document.getElementById("minorSupervisionAck").checked;
         data.emergencyAck = document.getElementById("emergencyAck").checked;
-        data.submittedAt = new Date().toISOString();
 
-        // Local fallback save for kiosk/browser use when no backend endpoint is connected.
-        localStorage.setItem("hh_guest_liability_waiver_last", JSON.stringify(data));
+        statusEl.style.color = "#1d4ed8";
+        statusEl.textContent = "Submitting waiver…";
 
-        statusEl.style.color = "#166534";
-        statusEl.textContent = "Waiver submitted successfully.";
+        try {
+          await submitWaiver(data);
+          statusEl.style.color = "#166534";
+          statusEl.textContent = "Waiver submitted successfully.";
+        } catch (error) {
+          statusEl.style.color = "#b91c1c";
+          statusEl.textContent = error.message || "There was an error submitting your waiver. Please try again or ask staff for help.";
+        }
       });
 
       resetBtn.addEventListener("click", function () {
