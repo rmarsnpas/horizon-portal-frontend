@@ -325,6 +325,10 @@
                 <label>Notes</label>
                 <textarea id="notes" rows="2" placeholder="Any additional notes or observations"></textarea>
             </div>
+            <div class="form-group" style="margin-bottom: 15px;">
+                <label>Entered By</label>
+                <input type="text" id="enteredBy" placeholder="Your name" readonly style="background-color: #f9fafb;">
+            </div>
             <div style="display: flex; gap: 10px;">
                 <button class="btn btn-success" onclick="saveEntry()">💾 Save Entry</button>
                 <button class="btn btn-secondary" onclick="cancelEntry()">Cancel</button>
@@ -528,6 +532,7 @@
         function showEntryForm() {
             document.getElementById('entryForm').classList.add('active');
             document.getElementById('entryDate').value = new Date().toISOString().slice(0, 16);
+            document.getElementById('enteredBy').value = localStorage.getItem('staffName') || sessionStorage.getItem('loggedInUser') || 'Staff';
             editingEntryId = null;
         }
 
@@ -547,6 +552,7 @@
             document.getElementById('quantityIn').value = '';
             document.getElementById('purpose').value = '';
             document.getElementById('notes').value = '';
+            document.getElementById('enteredBy').value = '';
             editingEntryId = null;
         }
 
@@ -581,7 +587,7 @@
                 quantityIn,
                 purpose,
                 notes,
-                enteredBy: 'Staff',
+                enteredBy: document.getElementById('enteredBy').value || 'Staff',
                 timestamp: new Date().toISOString()
             };
             
@@ -640,6 +646,7 @@
             document.getElementById('quantityIn').value = entry.quantityIn || '';
             document.getElementById('purpose').value = entry.purpose || '';
             document.getElementById('notes').value = entry.notes || '';
+            document.getElementById('enteredBy').value = entry.enteredBy || localStorage.getItem('staffName') || sessionStorage.getItem('loggedInUser') || 'Staff';
             
             document.getElementById('entryForm').classList.add('active');
         }
