@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Professional Activity Log</title>
+  <style>
+    body { font-family: Arial, sans-serif; margin: 0; background: #f7f9fc; color: #1f2937; }
+    .wrap { max-width: 1100px; margin: 0 auto; padding: 24px; }
+    .card { background: white; border-radius: 12px; box-shadow: 0 6px 24px rgba(0,0,0,0.06); padding: 20px; }
+    h1 { margin-top: 0; font-size: 1.6rem; }
+    .toolbar { display: flex; justify-content: space-between; align-items: center; gap: 12px; margin-bottom: 16px; flex-wrap: wrap; }
+    button { padding: 10px 14px; border: none; border-radius: 8px; cursor: pointer; background: #1d4ed8; color: white; font-weight: 700; }
+    table { width: 100%; border-collapse: collapse; margin-top: 10px; }
+    th, td { text-align: left; padding: 10px 8px; border-bottom: 1px solid #e5e7eb; vertical-align: top; }
+    th { background: #f3f4f6; font-size: 0.85rem; text-transform: uppercase; letter-spacing: .04em; }
+    .muted { color: #6b7280; font-size: 0.9rem; }
+    .pill { display: inline-block; padding: 3px 8px; border-radius: 999px; font-size: 0.8rem; background: #e0f2fe; color: #075985; font-weight: 700; }
+    .empty { padding: 24px; text-align: center; color: #6b7280; }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <div class="card">
+      <div class="toolbar">
+        <div>
+          <h1>Professional Activity Log</h1>
+          <div class="muted">Staff view of professional portal activity and member interactions.</div>
+        </div>
+        <button onclick="loadLog()">Refresh</button>
+      </div>
+      <div id="status" class="muted">Loading…</div>
+      <div id="tableWrap"></div>
+    </div>
+  </div>
+
+  <script>
+    const API = 'http://localhost:3001/api';
+
+    async function loadLog() {
+      const status = document.getElementById('status');
+      const wrap = document.getElementById('tableWrap');
+      status.textContent = 'Loading…';
+      wrap.innerHTML = '';
+      try {
+        const res = await fetch(`${API}/professional-activity`);
+        const data = await res.json();
+        if (!Array.isArray(data)) {
+          throw new Error('Unexpected response');
+        }
+        if (!data.length) {
+          wrap.innerHTML = '<div class="empty">No professional activity recorded yet.</div>';
+          status.textContent = 'No entries found.';
+          return;
+        }
+        const rows = data.map(item => {
+          const ts = item.timestamp ? new Date(item.timestamp).toLocaleString() : '—';
+          return `<tr>
+            <td>${escapeHtml(ts)}</td>
+            <td><strong>${escapeHtml(item.professionalName || item.professionalId || '—')}</strong><br><span class="muted">${escapeHtml(item.professionalEmail || '')}</span></td>
+            <td><span class="pill">${escapeHtml(item.action || 'Activity')}</span></td>
+            <td>${escapeHtml(item.memberName || item.memberID || '—')}</td>
+            <td>${escapeHtml(item.details || '—')}</td>
+          </tr>`;
+        }).join('');
+        wrap.innerHTML = `
+          <table>
+            <thead>
+              <tr>
+                <th>Time</th>
+                <th>Professional</th>
+                <th>Action</th>
+                <th>Member</th>
+                <th>Details</th>
+              </tr>
+            </thead>
+            <tbody>${rows}</tbody>
+          </table>`;
+        status.textContent = `${data.length} entr${data.length === 1 ? 'y' : 'ies'} loaded.`;
+      } catch (err) {
+        status.textContent = 'Unable to load activity log.';
+        wrap.innerHTML = '<div class="empty">Check that the local backend is running.</div>';
+      }
+    }
+
+    function escapeHtml(value) {
+      return String(value ?? '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+    }
+
+    loadLog();
+  </script>
+</body>
+</html>
