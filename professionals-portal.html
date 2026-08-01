@@ -563,6 +563,13 @@ async function doLogin() {
     // Step 3: Login successful — go straight in (MFA disabled until email is resolved)
     _prof = member;
     sessionStorage.setItem(SESSION_KEY, JSON.stringify({ id: resolvedId, member }));
+    
+    // Log successful login
+    const fn = mVal(member, 'firstName','FIRST_NAME','FIRST\r\nNAME');
+    const ln = mVal(member, 'lastName','LAST_NAME','LAST\r\nNAME');
+    const fullName = (fn + ' ' + ln).trim();
+    logActivity('LOGIN', null, null, `Logged into Professionals Portal`);
+    
     startApp();
 
   } catch (e) {
@@ -659,6 +666,35 @@ window.addEventListener('DOMContentLoaded', () => {
     } catch {}
   }
 });
+
+// ── Activity Logging ──────────────────────────────────────────────────────────
+async function logActivity(action, memberID = null, memberName = null, details = '') {
+  if (!_prof) return;
+  try {
+    const profId = String(_prof.ID || _prof.id || '');
+    const fn = mVal(_prof, 'firstName','FIRST_NAME','FIRST\r\nNAME');
+    const ln = mVal(_prof, 'lastName','LAST_NAME','LAST\r\nNAME');
+    const fullName = (fn + ' ' + ln).trim();
+    const email = mVal(_prof, 'professionalEmail','email','EMAIL');
+    
+    await fetch(`${API}/professional-activity`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        professionalId: profId,
+        professionalName: fullName,
+        professionalEmail: email,
+        action,
+        memberID,
+        memberName,
+        details
+      })
+    });
+  } catch (e) {
+    // Silent fail - don't disrupt user experience if logging fails
+    console.error('Activity logging failed:', e);
+  }
+}
 
 function startApp() {
   document.getElementById('loginScreen').style.display = 'none';
@@ -910,6 +946,9 @@ async function openMember(memberId) {
   const st = String(_current.STATUS || _current.status || _current.STATU || '').trim();
   const initials = ((fn[0]||'')+(ln[0]||'')).toUpperCase() || '?';
 
+  // Log member file view
+  logActivity('VIEW_MEMBER', memberId, name, 'Opened member file');
+
   document.getElementById('detailAvatar').style.background = avatarColor(name);
   document.getElementById('detailAvatar').textContent = initials;
   document.getElementById('detailName').textContent   = name;
@@ -1025,6 +1064,12 @@ function fld(label, val) {
 async function loadSIO() {
   if (!_current) return;
   const id = String(_current.ID || _current.id || '');
+  
+  // Log activity
+  const fn = mVal(_current,'firstName','FIRST_NAME','FIRST\r\nNAME');
+  const ln = mVal(_current,'lastName','LAST_NAME','LAST\r\nNAME');
+  const name = (fn + ' ' + ln).trim();
+  logActivity('VIEW_SIGN_IN_OUT', id, name, 'Viewed sign in/out records');
 
   const sioWrap = document.getElementById('sioCurrentWrap');
   sioWrap.innerHTML = '<div class="loading"><div class="spinner"></div></div>';
@@ -1085,6 +1130,13 @@ async function loadSIO() {
 async function loadUA() {
   if (!_current) return;
   const id   = String(_current.ID || _current.id || '');
+  
+  // Log activity
+  const fn = mVal(_current,'firstName','FIRST_NAME','FIRST\r\nNAME');
+  const ln = mVal(_current,'lastName','LAST_NAME','LAST\r\nNAME');
+  const name = (fn + ' ' + ln).trim();
+  logActivity('VIEW_DRUG_SCREENS', id, name, 'Viewed drug screen results');
+  
   const card = document.getElementById('uaCard');
   try {
     const all     = await apiFetch('/drugScreens');
@@ -1124,6 +1176,13 @@ async function loadUA() {
 async function loadDrugLog() {
   if (!_current) return;
   const id   = String(_current.ID || _current.id || '');
+  
+  // Log activity
+  const fn = mVal(_current,'firstName','FIRST_NAME','FIRST\r\nNAME');
+  const ln = mVal(_current,'lastName','LAST_NAME','LAST\r\nNAME');
+  const name = (fn + ' ' + ln).trim();
+  logActivity('VIEW_DRUG_LOG', id, name, 'Viewed medication log');
+  
   const card = document.getElementById('drugLogCard');
   try {
     const resp = await apiFetch(`/drugLog/${id}`);
@@ -1177,6 +1236,13 @@ async function loadDrugLog() {
 async function loadIncidents() {
   if (!_current) return;
   const id   = String(_current.ID || _current.id || '');
+  
+  // Log activity
+  const fn = mVal(_current,'firstName','FIRST_NAME','FIRST\r\nNAME');
+  const ln = mVal(_current,'lastName','LAST_NAME','LAST\r\nNAME');
+  const name = (fn + ' ' + ln).trim();
+  logActivity('VIEW_INCIDENTS', id, name, 'Viewed incident reports');
+  
   const wrap = document.getElementById('incidentsWrap');
   try {
     const all = await apiFetch('/incidents');
@@ -1241,6 +1307,13 @@ function closeIncidentModal() {
 async function loadDocs() {
   if (!_current) return;
   const id   = String(_current.ID || _current.id || '');
+  
+  // Log activity
+  const fn = mVal(_current,'firstName','FIRST_NAME','FIRST\r\nNAME');
+  const ln = mVal(_current,'lastName','LAST_NAME','LAST\r\nNAME');
+  const name = (fn + ' ' + ln).trim();
+  logActivity('VIEW_DOCUMENTS', id, name, 'Viewed documents');
+  
   const card = document.getElementById('docsListCard');
   try {
     const all  = await apiFetch('/member-documents');
@@ -1367,6 +1440,10 @@ async function initMessages() {
   const fn     = mVal(_current,'firstName','FIRST_NAME','FIRST\r\nNAME');
   const ln     = mVal(_current,'lastName','LAST_NAME','LAST\r\nNAME');
   const mName  = (fn + ' ' + ln).trim();
+  
+  // Log activity
+  logActivity('VIEW_MESSAGES', membId, mName, 'Viewed messages');
+  
   const pFn    = mVal(_prof,'firstName','FIRST_NAME','FIRST\r\nNAME');
   const pLn    = mVal(_prof,'lastName','LAST_NAME','LAST\r\nNAME');
   const pName  = (pFn + ' ' + pLn).trim() || profId;
