@@ -37,6 +37,14 @@
     {
       "source": "/horizon-portal/members/invoices/",
       "destination": "/horizon-portal/members/invoices.html"
+    },
+    {
+      "source": "/horizon-portal/staff-professional-activity",
+      "destination": "/horizon-portal/staff-professional-activity.html"
+    },
+    {
+      "source": "/horizon-portal/staff-professional-activity.html",
+      "destination": "/horizon-portal/staff-professional-activity.html"
     }
   ]
 }
