@@ -2399,8 +2399,8 @@ ${rateSummaryHtml}
                         if (form.elements['STAFF_PW']) payload.staffPw = form.elements['STAFF_PW'].value;
                         // inCensus flag (status 4)
                         payload.inCensus = !!(form.elements['inCensus'] && form.elements['inCensus'].checked);
-                        // Collect permissions if status is 4
-                        if (payload.status === '4') {
+                        // Collect permissions if status is 4 OR staffPortalAccess is checked
+                        if (payload.status === '4' || payload.staffPortalAccess) {
                             const checkedBoxes = form.querySelectorAll('[name^="perm_"]:checked');
                             payload.permissions = Array.from(checkedBoxes).map(cb => cb.value);
                         }
