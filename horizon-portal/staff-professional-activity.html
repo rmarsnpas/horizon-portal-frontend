@@ -6,9 +6,10 @@
   <title>Professional Activity Log</title>
   <style>
     body { font-family: Arial, sans-serif; margin: 0; background: #f7f9fc; color: #1f2937; }
-    .wrap { max-width: 1100px; margin: 0 auto; padding: 24px; }
+    .wrap { max-width: 1100px; margin: 0 auto; padding: 24px; display: flex; flex-direction: column; gap: 24px; }
     .card { background: white; border-radius: 12px; box-shadow: 0 6px 24px rgba(0,0,0,0.06); padding: 20px; }
     h1 { margin-top: 0; font-size: 1.6rem; }
+    h2 { margin-top: 0; font-size: 1.2rem; }
     .toolbar { display: flex; justify-content: space-between; align-items: center; gap: 12px; margin-bottom: 16px; flex-wrap: wrap; }
     button { padding: 10px 14px; border: none; border-radius: 8px; cursor: pointer; background: #1d4ed8; color: white; font-weight: 700; }
     table { width: 100%; border-collapse: collapse; margin-top: 10px; }
@@ -17,6 +18,7 @@
     .muted { color: #6b7280; font-size: 0.9rem; }
     .pill { display: inline-block; padding: 3px 8px; border-radius: 999px; font-size: 0.8rem; background: #e0f2fe; color: #075985; font-weight: 700; }
     .empty { padding: 24px; text-align: center; color: #6b7280; }
+    .badge { display: inline-block; background: #0f766e; color: white; border-radius: 999px; padding: 2px 10px; font-size: 0.8rem; font-weight: 700; margin-left: 8px; }
   </style>
 </head>
 <body>
@@ -27,8 +29,20 @@
           <h1>Professional Activity Log</h1>
           <div class="muted">Staff view of professional portal activity and member interactions.</div>
         </div>
-        <button onclick="loadLog()">Refresh</button>
+        <button onclick="loadAll()">↻ Refresh All</button>
       </div>
+    </div>
+
+    <!-- Registered Professionals -->
+    <div class="card">
+      <h2>Registered Professionals <span id="prosBadge" class="badge">0</span></h2>
+      <div id="prosStatus" class="muted">Loading…</div>
+      <div id="prosTableWrap"></div>
+    </div>
+
+    <!-- Activity Log -->
+    <div class="card">
+      <h2>Portal Activity Log</h2>
       <div id="status" class="muted">Loading…</div>
       <div id="tableWrap"></div>
     </div>
@@ -36,6 +50,54 @@
 
   <script>
     const API = 'https://horizon-portal-backend-production-3532.up.railway.app/api';
+
+    function loadAll() {
+      loadPros();
+      loadLog();
+    }
+
+    async function loadPros() {
+      const status = document.getElementById('prosStatus');
+      const wrap = document.getElementById('prosTableWrap');
+      const badge = document.getElementById('prosBadge');
+      status.textContent = 'Loading…';
+      wrap.innerHTML = '';
+      try {
+        const res = await fetch(`${API}/members`);
+        const all = await res.json();
+        const pros = (Array.isArray(all) ? all : []).filter(m => m.professionalPortalAccess);
+        badge.textContent = pros.length;
+        if (!pros.length) {
+          wrap.innerHTML = '<div class="empty">No registered professionals found.</div>';
+          status.textContent = '';
+          return;
+        }
+        const rows = pros.map(p => {
+          const name = [p.firstName || p.FIRST_NAME || '', p.lastName || p.LAST_NAME || ''].join(' ').trim() || p.id || '—';
+          const email = p.professionalEmail || p.email || '—';
+          const org = p.professionalOrg || p.organization || '—';
+          const id = p.id || p.ID || '—';
+          const role = p.professionalRole || p.role || '—';
+          return `<tr>
+            <td style="font-weight:600">${escapeHtml(name)}</td>
+            <td>${escapeHtml(id)}</td>
+            <td>${escapeHtml(email)}</td>
+            <td>${escapeHtml(org)}</td>
+            <td>${escapeHtml(role)}</td>
+          </tr>`;
+        }).join('');
+        wrap.innerHTML = `<table>
+          <thead><tr>
+            <th>Name</th><th>ID</th><th>Email</th><th>Organization</th><th>Role</th>
+          </tr></thead>
+          <tbody>${rows}</tbody>
+        </table>`;
+        status.textContent = `${pros.length} professional${pros.length !== 1 ? 's' : ''} registered.`;
+      } catch (err) {
+        status.textContent = 'Unable to load professionals.';
+        wrap.innerHTML = '<div class="empty">Check backend connection.</div>';
+      }
+    }
 
     async function loadLog() {
       const status = document.getElementById('status');
@@ -45,12 +107,10 @@
       try {
         const res = await fetch(`${API}/professional-activity`);
         const data = await res.json();
-        if (!Array.isArray(data)) {
-          throw new Error('Unexpected response');
-        }
+        if (!Array.isArray(data)) throw new Error('Unexpected response');
         if (!data.length) {
-          wrap.innerHTML = '<div class="empty">No professional activity recorded yet.</div>';
-          status.textContent = 'No entries found.';
+          wrap.innerHTML = '<div class="empty">No activity recorded yet. Activity is logged when professionals log in and view member records.</div>';
+          status.textContent = 'No activity entries yet.';
           return;
         }
         const rows = data.map(item => {
@@ -63,23 +123,16 @@
             <td>${escapeHtml(item.details || '—')}</td>
           </tr>`;
         }).join('');
-        wrap.innerHTML = `
-          <table>
-            <thead>
-              <tr>
-                <th>Time</th>
-                <th>Professional</th>
-                <th>Action</th>
-                <th>Member</th>
-                <th>Details</th>
-              </tr>
-            </thead>
-            <tbody>${rows}</tbody>
-          </table>`;
-        status.textContent = `${data.length} entr${data.length === 1 ? 'y' : 'ies'} loaded.`;
+        wrap.innerHTML = `<table>
+          <thead><tr>
+            <th>Time</th><th>Professional</th><th>Action</th><th>Member</th><th>Details</th>
+          </tr></thead>
+          <tbody>${rows}</tbody>
+        </table>`;
+        status.textContent = `${data.length} entr${data.length === 1 ? 'y' : 'ies'} found.`;
       } catch (err) {
         status.textContent = 'Unable to load activity log.';
-        wrap.innerHTML = '<div class="empty">Check that the local backend is running.</div>';
+        wrap.innerHTML = '<div class="empty">Check that the backend is running.</div>';
       }
     }
 
@@ -87,7 +140,7 @@
       return String(value ?? '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
     }
 
-    loadLog();
+    loadAll();
   </script>
 </body>
 </html>
