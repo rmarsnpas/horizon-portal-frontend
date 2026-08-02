@@ -4065,31 +4065,47 @@ ${rateSummaryHtml}
                     return;
                 }
 
-                // Verify member has staff access (Status 5 OR staffPortalAccess checkbox)
+                // Fetch member record to check access level
                 const memberRes = await fetch(`${API_BASE}/api/getMember?id=${encodeURIComponent(memberId)}`);
                 const member = await memberRes.json();
                 const status = String((member && (member.STATU || member.STATUS || member.status)) || '').trim();
-                const hasStaffAccess = status === '5' || member.staffPortalAccess === true;
+                const hasStaffPortalAccess = member.staffPortalAccess === true;
                 
-                if (!hasStaffAccess) {
-                    errorMsg.textContent = 'Access denied. Admin Portal requires Status 5 or Staff Portal Access.';
+                // Status 5 = Full Admin Portal access
+                // staffPortalAccess only = Limited Portal with specific permissions
+                if (status === '5') {
+                    // Full dashboard access
+                    const firstName = member['FIRST\r\nNAME'] || member['FIRST\nNAME'] || member['FIRST NAME'] || member.FIRST_NAME || member.firstName || '';
+                    const lastName = member['LAST\r\nNAME'] || member['LAST\nNAME'] || member['LAST NAME'] || member.LAST_NAME || member.lastName || '';
+                    const staffName = `${firstName} ${lastName}`.trim() || 'Staff';
+                    localStorage.setItem('staffName', staffName);
+                    localStorage.setItem('staffId', memberId);
+                    
+                    // Also set EMR session format for compatibility with file cabinet
+                    sessionStorage.setItem('emr_session', JSON.stringify({ id: memberId, name: staffName }));
+                    sessionStorage.setItem(SESSION_KEY, 'true');
+                    showDashboard();
+                } else if (hasStaffPortalAccess) {
+                    // Limited access - redirect to permissions-based portal
+                    const firstName = member['FIRST\r\nNAME'] || member['FIRST\nNAME'] || member['FIRST NAME'] || member.FIRST_NAME || member.firstName || '';
+                    const lastName = member['LAST\r\nNAME'] || member['LAST\nNAME'] || member['LAST NAME'] || member.LAST_NAME || member.lastName || '';
+                    const staffName = `${firstName} ${lastName}`.trim() || 'Staff';
+                    
+                    // Store session for limited portal
+                    sessionStorage.setItem('horizonLimitedStaffAuth', JSON.stringify({
+                        memberId: memberId,
+                        name: staffName,
+                        permissions: Array.isArray(member.permissions) ? member.permissions : []
+                    }));
+                    
+                    // Redirect to limited portal
+                    window.location.href = '/staff-limited-portal.html';
+                } else {
+                    errorMsg.textContent = 'Access denied. Requires Status 5 or Staff Portal Access.';
                     errorMsg.style.display = 'block';
                     document.getElementById('password').value = '';
                     return;
                 }
-
-                // Store staff name for use across portal
-                const firstName = member['FIRST\r\nNAME'] || member['FIRST\nNAME'] || member['FIRST NAME'] || member.FIRST_NAME || member.firstName || '';
-                const lastName = member['LAST\r\nNAME'] || member['LAST\nNAME'] || member['LAST NAME'] || member.LAST_NAME || member.lastName || '';
-                const staffName = `${firstName} ${lastName}`.trim() || 'Staff';
-                localStorage.setItem('staffName', staffName);
-                localStorage.setItem('staffId', memberId);
-                
-                // Also set EMR session format for compatibility with file cabinet
-                sessionStorage.setItem('emr_session', JSON.stringify({ id: memberId, name: staffName }));
-
-                sessionStorage.setItem(SESSION_KEY, 'true');
-                showDashboard();
             } catch (err) {
                 errorMsg.textContent = 'Network error. Please try again.';
                 errorMsg.style.display = 'block';

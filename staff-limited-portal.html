@@ -253,14 +253,17 @@
             const member = await memberRes.json();
             if (!member) throw new Error('Member record not found.');
 
-            // Step 3: must be status 4
-            const status = String(member.STATU || member.STATUS || '').trim();
-            if (status !== '4') {
-                showError(
-                    status === '5'
-                        ? 'Admin staff should use the Admin Portal.'
-                        : 'This portal is for managers (status 4) only.'
-                );
+            // Step 3: check access - must have staffPortalAccess (not Status 5)
+            const status = String(member.STATU || member.STATUS || member.status || '').trim();
+            const hasStaffPortalAccess = member.staffPortalAccess === true;
+            
+            if (status === '5') {
+                showError('Status 5 members should use the full Admin Portal.');
+                return;
+            }
+            
+            if (!hasStaffPortalAccess) {
+                showError('Access denied. This portal requires Staff Portal Access permission.');
                 return;
             }
 
