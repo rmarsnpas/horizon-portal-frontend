@@ -502,6 +502,60 @@
                 grid-template-columns: 1fr;
             }
         }
+
+        /* Autocomplete styles */
+        .autocomplete-container {
+            position: relative;
+        }
+
+        .autocomplete-dropdown {
+            position: absolute;
+            top: 100%;
+            left: 0;
+            right: 0;
+            background: white;
+            border: 1px solid #cbd5e0;
+            border-top: none;
+            border-radius: 0 0 6px 6px;
+            max-height: 200px;
+            overflow-y: auto;
+            z-index: 1000;
+            display: none;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+
+        .autocomplete-dropdown.show {
+            display: block;
+        }
+
+        .autocomplete-item {
+            padding: 10px 12px;
+            cursor: pointer;
+            border-bottom: 1px solid #e2e8f0;
+            transition: background 0.2s;
+        }
+
+        .autocomplete-item:last-child {
+            border-bottom: none;
+        }
+
+        .autocomplete-item:hover {
+            background: #f7fafc;
+        }
+
+        .autocomplete-item.selected {
+            background: #edf2f7;
+        }
+
+        .autocomplete-item .member-id {
+            font-weight: 600;
+            color: #667eea;
+            margin-right: 10px;
+        }
+
+        .autocomplete-item .member-name {
+            color: #4a5568;
+        }
     </style>
 </head>
 <body>
@@ -521,9 +575,10 @@
                     <label for="memberId">Member ID *</label>
                     <input type="text" id="memberId" name="memberId" required>
                 </div>
-                <div class="form-group">
+                <div class="form-group autocomplete-container">
                     <label for="memberName">Member Name *</label>
-                    <input type="text" id="memberName" name="memberName" required>
+                    <input type="text" id="memberName" name="memberName" required autocomplete="off">
+                    <div id="nameAutocomplete" class="autocomplete-dropdown"></div>
                 </div>
             </div>
 
@@ -857,6 +912,116 @@
     <script>
         const API_BASE = 'https://horizon-portal-backend-production-3532.up.railway.app';
 
+        // Member autocomplete functionality
+        let membersCache = [];
+        let selectedMemberIndex = -1;
+
+        async function fetchMembers() {
+            try {
+                const response = await fetch(`${API_BASE}/api/members`);
+                const data = await response.json();
+                membersCache = Array.isArray(data) ? data : [];
+            } catch (error) {
+                console.error('Error fetching members:', error);
+                membersCache = [];
+            }
+        }
+
+        function findMemberById(id) {
+            return membersCache.find(m => m.memberId === id.trim());
+        }
+
+        function findMemberByName(name) {
+            return membersCache.find(m => m.memberName && m.memberName.toLowerCase() === name.toLowerCase().trim());
+        }
+
+        function filterMembersByName(query) {
+            if (!query || query.length < 2) return [];
+            const lowerQuery = query.toLowerCase();
+            return membersCache.filter(m => 
+                m.memberName && m.memberName.toLowerCase().includes(lowerQuery)
+            ).slice(0, 10); // Limit to 10 results
+        }
+
+        function showAutocomplete(members) {
+            const dropdown = document.getElementById('nameAutocomplete');
+            dropdown.innerHTML = '';
+            selectedMemberIndex = -1;
+
+            if (members.length === 0) {
+                dropdown.classList.remove('show');
+                return;
+            }
+
+            members.forEach((member, index) => {
+                const item = document.createElement('div');
+                item.className = 'autocomplete-item';
+                item.innerHTML = `<span class="member-id">${member.memberId}</span><span class="member-name">${member.memberName || 'No Name'}</span>`;
+                item.dataset.index = index;
+                item.dataset.memberId = member.memberId;
+                item.dataset.memberName = member.memberName || '';
+                
+                item.addEventListener('click', () => {
+                    selectMember(member);
+                });
+                
+                dropdown.appendChild(item);
+            });
+
+            dropdown.classList.add('show');
+        }
+
+        function hideAutocomplete() {
+            setTimeout(() => {
+                document.getElementById('nameAutocomplete').classList.remove('show');
+            }, 200);
+        }
+
+        function selectMember(member) {
+            document.getElementById('memberId').value = member.memberId;
+            document.getElementById('memberName').value = member.memberName || '';
+            document.getElementById('nameAutocomplete').classList.remove('show');
+        }
+
+        function navigateAutocomplete(direction) {
+            const dropdown = document.getElementById('nameAutocomplete');
+            const items = dropdown.querySelectorAll('.autocomplete-item');
+            
+            if (items.length === 0) return;
+
+            // Remove current selection
+            if (selectedMemberIndex >= 0 && selectedMemberIndex < items.length) {
+                items[selectedMemberIndex].classList.remove('selected');
+            }
+
+            // Update index
+            if (direction === 'down') {
+                selectedMemberIndex = (selectedMemberIndex + 1) % items.length;
+            } else if (direction === 'up') {
+                selectedMemberIndex = selectedMemberIndex <= 0 ? items.length - 1 : selectedMemberIndex - 1;
+            }
+
+            // Add new selection
+            items[selectedMemberIndex].classList.add('selected');
+            items[selectedMemberIndex].scrollIntoView({ block: 'nearest' });
+        }
+
+        function selectCurrentAutocomplete() {
+            const dropdown = document.getElementById('nameAutocomplete');
+            const items = dropdown.querySelectorAll('.autocomplete-item');
+            
+            if (selectedMemberIndex >= 0 && selectedMemberIndex < items.length) {
+                const item = items[selectedMemberIndex];
+                const member = {
+                    memberId: item.dataset.memberId,
+                    memberName: item.dataset.memberName
+                };
+                selectMember(member);
+                return true;
+            }
+            return false;
+        }
+
         // Signature pad functionality
         const signaturePads = {};
 
@@ -963,7 +1128,7 @@
         }
 
         // Set default date and time to now
-        document.addEventListener('DOMContentLoaded', () => {
+        document.addEventListener('DOMContentLoaded', async () => {
             const now = new Date();
             document.getElementById('testDate').valueAsDate = now;
             document.getElementById('testTime').value = now.toTimeString().slice(0, 5);
@@ -974,6 +1139,62 @@
             
             // Initialize section visibility
             updateSectionVisibility();
+
+            // Fetch members for autocomplete
+            await fetchMembers();
+
+            // Member ID field - auto-populate name when ID is entered
+            const memberIdInput = document.getElementById('memberId');
+            memberIdInput.addEventListener('blur', () => {
+                const id = memberIdInput.value.trim();
+                if (id) {
+                    const member = findMemberById(id);
+                    if (member && member.memberName) {
+                        document.getElementById('memberName').value = member.memberName;
+                    }
+                }
+            });
+
+            // Member Name field - show autocomplete and populate ID when selected
+            const memberNameInput = document.getElementById('memberName');
+            
+            memberNameInput.addEventListener('input', (e) => {
+                const query = e.target.value;
+                const matches = filterMembersByName(query);
+                showAutocomplete(matches);
+            });
+
+            memberNameInput.addEventListener('blur', () => {
+                hideAutocomplete();
+            });
+
+            memberNameInput.addEventListener('keydown', (e) => {
+                const dropdown = document.getElementById('nameAutocomplete');
+                
+                if (!dropdown.classList.contains('show')) return;
+
+                if (e.key === 'ArrowDown') {
+                    e.preventDefault();
+                    navigateAutocomplete('down');
+                } else if (e.key === 'ArrowUp') {
+                    e.preventDefault();
+                    navigateAutocomplete('up');
+                } else if (e.key === 'Enter') {
+                    if (selectedMemberIndex >= 0) {
+                        e.preventDefault();
+                        selectCurrentAutocomplete();
+                    }
+                } else if (e.key === 'Escape') {
+                    hideAutocomplete();
+                }
+            });
+
+            // Close autocomplete when clicking outside
+            document.addEventListener('click', (e) => {
+                if (!e.target.closest('.autocomplete-container')) {
+                    document.getElementById('nameAutocomplete').classList.remove('show');
+                }
+            });
         });
 
         document.getElementById('drugScreenForm').addEventListener('submit', async (e) => {
