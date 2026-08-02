@@ -176,7 +176,7 @@
         // Format date from Excel serial or string
         function formatDate(val) {
             if (!val || val === '' || val === 'not') return '-';
-            if (typeof val === 'string' && val.includes('/')) return val;
+            if (typeof val === 'string' && val.includes('-')) return val;
             
             const excelEpoch = new Date(1899, 11, 30);
             const jsDate = new Date(excelEpoch.getTime() + val * 86400000);

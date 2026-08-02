@@ -537,7 +537,9 @@
             tests.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
 
             container.innerHTML = tests.map(test => {
-                const date = new Date(test.testDate);
+                // Parse testDate as local date (not UTC) to avoid timezone shift
+                const dateParts = test.testDate.split('-');
+                const date = new Date(dateParts[0], dateParts[1] - 1, dateParts[2]);
                 const timestamp = new Date(test.timestamp);
                 
                 // Get positive results
@@ -613,7 +615,7 @@
                         <div class="test-header">
                             <div class="test-info">
                                 <h3>${test.memberName} (ID: ${test.memberId})</h3>
-                                <p>Tested: ${date.toLocaleDateString()} at ${test.testTime} | Recorded: ${timestamp.toLocaleString()}</p>
+                                <p>Tested: ${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}-${date.getFullYear()} at ${test.testTime} | Recorded: ${String(timestamp.getMonth() + 1).padStart(2, '0')}-${String(timestamp.getDate()).padStart(2, '0')}-${timestamp.getFullYear()} ${timestamp.toLocaleTimeString('en-US', {hour: 'numeric', minute: '2-digit'})}</p>
                             </div>
                             <div class="test-badge ${test.overallResult}">
                                 ${test.overallResult === 'positive' ? '⚠️ POSITIVE' : '✓ NEGATIVE'}

@@ -384,7 +384,7 @@
                     return `
                         <div class="log-entry">
                             <div class="log-entry-header">
-                                <div class="log-entry-date">${date.toLocaleString()}</div>
+                                <div class="log-entry-date">${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}-${date.getFullYear()} ${date.toLocaleTimeString('en-US', {hour: 'numeric', minute: '2-digit'})}</div>
                                 <div style="display: flex; gap: 10px; align-items: center;">
                                     <div class="log-entry-type ${typeClass}">${entry.type}</div>
                                     ${entry.staffVerified ? `<div style="background: #dcfce7; color: #166534; padding: 4px 12px; border-radius: 12px; font-size: 0.85rem; font-weight: 600;">✓ Staff Verified</div>` : ''}
@@ -394,7 +394,7 @@
                                 <strong>${entry.drugName}</strong>
                                 ${entry.dosage ? ` - ${entry.dosage}` : ''}
                                 ${entry.prescriptionNumber ? `<br><em>Rx #:</em> ${entry.prescriptionNumber}` : ''}
-                                ${entry.fillDate ? `<br><em>Fill Date:</em> ${new Date(entry.fillDate).toLocaleDateString()}` : ''}
+                                ${entry.fillDate ? `<br><em>Fill Date:</em> ${(() => { const fd = new Date(entry.fillDate); return `${String(fd.getMonth() + 1).padStart(2, '0')}-${String(fd.getDate()).padStart(2, '0')}-${fd.getFullYear()}`; })()}` : ''}
                                 ${entry.quantityFill ? `<br><em>Qty Filled:</em> ${entry.quantityFill}` : ''}
                                 ${entry.quantityIn ? `<br><em>Qty Remaining:</em> ${entry.quantityIn}` : ''}
                                 ${entry.purpose ? `<br><em>Purpose:</em> ${entry.purpose}` : ''}
