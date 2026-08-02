@@ -556,6 +556,12 @@
         .autocomplete-item .member-name {
             color: #4a5568;
         }
+
+        .autocomplete-item .member-dob {
+            color: #718096;
+            font-size: 13px;
+            margin-left: 10px;
+        }
     </style>
 </head>
 <body>
@@ -571,14 +577,26 @@
         <form id="drugScreenForm" class="form-card">
             <div class="form-section">
                 <h2>Member Information</h2>
-                <div class="form-group">
-                    <label for="memberId">Member ID *</label>
-                    <input type="text" id="memberId" name="memberId" required>
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
+                    <div class="form-group">
+                        <label for="memberId">Member ID *</label>
+                        <input type="text" id="memberId" name="memberId" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="memberBed">Bed</label>
+                        <input type="text" id="memberBed" name="memberBed" readonly style="background-color: #f7fafc;">
+                    </div>
                 </div>
-                <div class="form-group autocomplete-container">
-                    <label for="memberName">Member Name *</label>
-                    <input type="text" id="memberName" name="memberName" required autocomplete="off">
-                    <div id="nameAutocomplete" class="autocomplete-dropdown"></div>
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
+                    <div class="form-group autocomplete-container">
+                        <label for="memberName">Member Name *</label>
+                        <input type="text" id="memberName" name="memberName" required autocomplete="off">
+                        <div id="nameAutocomplete" class="autocomplete-dropdown"></div>
+                    </div>
+                    <div class="form-group">
+                        <label for="memberDOB">Date of Birth</label>
+                        <input type="text" id="memberDOB" name="memberDOB" readonly style="background-color: #f7fafc;">
+                    </div>
                 </div>
             </div>
 
@@ -956,10 +974,14 @@
             members.forEach((member, index) => {
                 const item = document.createElement('div');
                 item.className = 'autocomplete-item';
-                item.innerHTML = `<span class="member-id">${member.memberId}</span><span class="member-name">${member.memberName || 'No Name'}</span>`;
+                const dobDisplay = member.dob ? `<span class="member-dob">DOB: ${member.dob}</span>` : '';
+                item.innerHTML = `<span class="member-id">${member.memberId}</span><span class="member-name">${member.memberName || 'No Name'}</span>${dobDisplay}`;
                 item.dataset.index = index;
                 item.dataset.memberId = member.memberId;
                 item.dataset.memberName = member.memberName || '';
+                item.dataset.dob = member.dob || '';
+                item.dataset.bed = member.bed || '';
+                item.dataset.gender = member.gender || '';
                 
                 item.addEventListener('click', () => {
                     selectMember(member);
@@ -980,6 +1002,16 @@
         function selectMember(member) {
             document.getElementById('memberId').value = member.memberId;
             document.getElementById('memberName').value = member.memberName || '';
+            document.getElementById('memberDOB').value = member.dob || '';
+            
+            // Add bed prefix based on gender
+            let bedValue = '';
+            if (member.bed) {
+                const prefix = member.gender === 'F' ? '321-' : member.gender === 'M' ? '351-' : '';
+                bedValue = prefix + member.bed;
+            }
+            document.getElementById('memberBed').value = bedValue;
+            
             document.getElementById('nameAutocomplete').classList.remove('show');
         }
 
@@ -1014,7 +1046,10 @@
                 const item = items[selectedMemberIndex];
                 const member = {
                     memberId: item.dataset.memberId,
-                    memberName: item.dataset.memberName
+                    memberName: item.dataset.memberName,
+                    dob: item.dataset.dob,
+                    bed: item.dataset.bed,
+                    gender: item.dataset.gender
                 };
                 selectMember(member);
                 return true;
@@ -1143,14 +1178,23 @@
             // Fetch members for autocomplete
             await fetchMembers();
 
-            // Member ID field - auto-populate name when ID is entered
+            // Member ID field - auto-populate name, DOB, and bed when ID is entered
             const memberIdInput = document.getElementById('memberId');
             memberIdInput.addEventListener('blur', () => {
                 const id = memberIdInput.value.trim();
                 if (id) {
                     const member = findMemberById(id);
-                    if (member && member.memberName) {
-                        document.getElementById('memberName').value = member.memberName;
+                    if (member) {
+                        document.getElementById('memberName').value = member.memberName || '';
+                        document.getElementById('memberDOB').value = member.dob || '';
+                        
+                        // Add bed prefix based on gender
+                        let bedValue = '';
+                        if (member.bed) {
+                            const prefix = member.gender === 'F' ? '321-' : member.gender === 'M' ? '351-' : '';
+                            bedValue = prefix + member.bed;
+                        }
+                        document.getElementById('memberBed').value = bedValue;
                     }
                 }
             });
@@ -1239,6 +1283,8 @@
                 const data = {
                     memberId: formData.get('memberId'),
                     memberName: formData.get('memberName'),
+                    memberDOB: formData.get('memberDOB'),
+                    memberBed: formData.get('memberBed'),
                     testDate: formData.get('testDate'),
                     testTime: formData.get('testTime'),
                     testTypes: testTypes,
