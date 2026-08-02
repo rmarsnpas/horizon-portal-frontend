@@ -847,7 +847,22 @@
                                 <label for="tca-pos">POS</label>
                             </div>
                         </div>
-                    </div>                </div>
+                    </div>
+
+                    <div class="substance-item">
+                        <span>ALCOH</span>
+                        <div class="result-toggle">
+                            <div class="result-negative">
+                                <input type="radio" id="alc-ua-neg" name="alcohol_ua" value="negative" checked>
+                                <label for="alc-ua-neg">NEG</label>
+                            </div>
+                            <div class="result-positive">
+                                <input type="radio" id="alc-ua-pos" name="alcohol_ua" value="positive">
+                                <label for="alc-ua-pos">POS</label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
             </div>
 
             <div class="form-section" id="bacResultsSection" style="display: none;">
@@ -1369,6 +1384,7 @@
                         oxycodone: formData.get('oxycodone'),
                         pcp: formData.get('pcp'),
                         tca: formData.get('tca'),
+                        alcohol_ua: formData.get('alcohol_ua'),
                         alcohol: formData.get('alcohol')
                     },
                     bac: formData.get('bac'),
