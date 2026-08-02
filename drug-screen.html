@@ -930,6 +930,40 @@
     <script>
         const API_BASE = 'https://horizon-portal-backend-production-3532.up.railway.app';
 
+        // Date formatting functions
+        function parseDate(str) {
+            if (!str) return null;
+            const s = String(str).trim();
+            if (!s) return null;
+            
+            // Try ISO format first
+            if (/^\d{4}-\d{2}-\d{2}/.test(s)) {
+                const d = new Date(s);
+                if (!isNaN(d.getTime())) return d;
+            }
+            
+            // Try M/D/YYYY or MM/DD/YYYY
+            const slashMatch = s.match(/^(\d{1,2})\/(\d{1,2})\/(\d{4})/);
+            if (slashMatch) {
+                const d = new Date(slashMatch[3], slashMatch[1] - 1, slashMatch[2]);
+                if (!isNaN(d.getTime())) return d;
+            }
+            
+            // Try MM-DD-YYYY
+            const dashMatch = s.match(/^(\d{1,2})-(\d{1,2})-(\d{4})/);
+            if (dashMatch) {
+                const d = new Date(dashMatch[3], dashMatch[1] - 1, dashMatch[2]);
+                if (!isNaN(d.getTime())) return d;
+            }
+            
+            return null;
+        }
+
+        function fmtDate(d) {
+            if (!d) return '';
+            return String(d.getMonth()+1).padStart(2,'0') + '-' + String(d.getDate()).padStart(2,'0') + '-' + d.getFullYear();
+        }
+
         // Member autocomplete functionality
         let membersCache = [];
         let selectedMemberIndex = -1;
@@ -940,12 +974,17 @@
             const lastName = m['LAST\r\nNAME'] || m['LAST\nNAME'] || m['LAST NAME'] || m.lastName || m.LAST || '';
             const fullName = `${firstName} ${lastName}`.trim();
             
+            // Format DOB to MM-DD-YYYY
+            const dobRaw = m.DOB || m.dob || '';
+            const dobParsed = parseDate(dobRaw);
+            const dobFormatted = dobParsed ? fmtDate(dobParsed) : dobRaw;
+            
             return {
                 id: m.ID || m.id || '',
                 name: fullName,
                 firstName: firstName,
                 lastName: lastName,
-                dob: m.DOB || m.dob || '',
+                dob: dobFormatted,
                 bed: m.BED || m['BED#'] || m.bed || '',
                 gender: m['M/F'] || m.GENDER || m.gender || ''
             };
