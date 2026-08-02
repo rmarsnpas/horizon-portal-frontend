@@ -934,11 +934,30 @@
         let membersCache = [];
         let selectedMemberIndex = -1;
 
+        // Helper function to normalize member data
+        function normalizeMember(m) {
+            const firstName = m['FIRST\r\nNAME'] || m['FIRST\nNAME'] || m['FIRST NAME'] || m.firstName || m.FIRST || '';
+            const lastName = m['LAST\r\nNAME'] || m['LAST\nNAME'] || m['LAST NAME'] || m.lastName || m.LAST || '';
+            const fullName = `${firstName} ${lastName}`.trim();
+            
+            return {
+                id: m.ID || m.id || '',
+                name: fullName,
+                firstName: firstName,
+                lastName: lastName,
+                dob: m.DOB || m.dob || '',
+                bed: m.BED || m['BED#'] || m.bed || '',
+                gender: m['M/F'] || m.GENDER || m.gender || ''
+            };
+        }
+
         async function fetchMembers() {
             try {
                 const response = await fetch(`${API_BASE}/api/members`);
                 const data = await response.json();
-                membersCache = Array.isArray(data) ? data : [];
+                const rawMembers = Array.isArray(data) ? data : [];
+                membersCache = rawMembers.map(normalizeMember);
+                console.log('Loaded members:', membersCache.length);
             } catch (error) {
                 console.error('Error fetching members:', error);
                 membersCache = [];
@@ -946,18 +965,18 @@
         }
 
         function findMemberById(id) {
-            return membersCache.find(m => m.memberId === id.trim());
+            return membersCache.find(m => m.id === id.trim());
         }
 
         function findMemberByName(name) {
-            return membersCache.find(m => m.memberName && m.memberName.toLowerCase() === name.toLowerCase().trim());
+            return membersCache.find(m => m.name && m.name.toLowerCase() === name.toLowerCase().trim());
         }
 
         function filterMembersByName(query) {
             if (!query || query.length < 2) return [];
             const lowerQuery = query.toLowerCase();
             return membersCache.filter(m => 
-                m.memberName && m.memberName.toLowerCase().includes(lowerQuery)
+                m.name && m.name.toLowerCase().includes(lowerQuery)
             ).slice(0, 10); // Limit to 10 results
         }
 
@@ -975,10 +994,10 @@
                 const item = document.createElement('div');
                 item.className = 'autocomplete-item';
                 const dobDisplay = member.dob ? `<span class="member-dob">DOB: ${member.dob}</span>` : '';
-                item.innerHTML = `<span class="member-id">${member.memberId}</span><span class="member-name">${member.memberName || 'No Name'}</span>${dobDisplay}`;
+                item.innerHTML = `<span class="member-id">${member.id}</span><span class="member-name">${member.name || 'No Name'}</span>${dobDisplay}`;
                 item.dataset.index = index;
-                item.dataset.memberId = member.memberId;
-                item.dataset.memberName = member.memberName || '';
+                item.dataset.id = member.id;
+                item.dataset.name = member.name || '';
                 item.dataset.dob = member.dob || '';
                 item.dataset.bed = member.bed || '';
                 item.dataset.gender = member.gender || '';
@@ -1000,8 +1019,8 @@
         }
 
         function selectMember(member) {
-            document.getElementById('memberId').value = member.memberId;
-            document.getElementById('memberName').value = member.memberName || '';
+            document.getElementById('memberId').value = member.id;
+            document.getElementById('memberName').value = member.name || '';
             document.getElementById('memberDOB').value = member.dob || '';
             
             // Add bed prefix based on gender
@@ -1045,8 +1064,8 @@
             if (selectedMemberIndex >= 0 && selectedMemberIndex < items.length) {
                 const item = items[selectedMemberIndex];
                 const member = {
-                    memberId: item.dataset.memberId,
-                    memberName: item.dataset.memberName,
+                    id: item.dataset.id,
+                    name: item.dataset.name,
                     dob: item.dataset.dob,
                     bed: item.dataset.bed,
                     gender: item.dataset.gender
@@ -1191,7 +1210,7 @@
                 if (id) {
                     const member = findMemberById(id);
                     if (member) {
-                        document.getElementById('memberName').value = member.memberName || '';
+                        document.getElementById('memberName').value = member.name || '';
                         document.getElementById('memberDOB').value = member.dob || '';
                         
                         // Add bed prefix based on gender
