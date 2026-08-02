@@ -29,7 +29,10 @@
           <h1>Professional Activity Log</h1>
           <div class="muted">Staff view of professional portal activity and member interactions.</div>
         </div>
-        <button onclick="loadAll()">↻ Refresh All</button>
+        <div style="display:flex;gap:8px;">
+          <button onclick="loadAll()">↻ Refresh All</button>
+          <button onclick="window.history.back()" style="background:#6b7280;">← Back</button>
+        </div>
       </div>
     </div>
 
