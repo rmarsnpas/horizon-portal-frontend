@@ -4065,12 +4065,14 @@ ${rateSummaryHtml}
                     return;
                 }
 
-                // Verify it's a status 5 member
+                // Verify member has staff access (Status 5 OR staffPortalAccess checkbox)
                 const memberRes = await fetch(`${API_BASE}/api/getMember?id=${encodeURIComponent(memberId)}`);
                 const member = await memberRes.json();
                 const status = String((member && (member.STATU || member.STATUS || member.status)) || '').trim();
-                if (status !== '5') {
-                    errorMsg.textContent = 'Access denied. Admin Portal requires Status 5.';
+                const hasStaffAccess = status === '5' || member.staffPortalAccess === true;
+                
+                if (!hasStaffAccess) {
+                    errorMsg.textContent = 'Access denied. Admin Portal requires Status 5 or Staff Portal Access.';
                     errorMsg.style.display = 'block';
                     document.getElementById('password').value = '';
                     return;
