@@ -1350,7 +1350,8 @@ function viewDrugScreen(cacheKey) {
     ${row('Test Time', s.testTime)}
     ${row('Tested By', s.testedBy || s.staffName)}
     ${row('Member', s.memberName)}
-    ${s.bac ? row('BAC', s.bac) : ''}
+    ${s.bac ? row('ALCOH_BAC', s.bac + '%') : ''}
+    ${(s.results && s.results.alcohol) ? row('Breathalyzer', s.results.alcohol.charAt(0).toUpperCase() + s.results.alcohol.slice(1)) : (s.alcohol ? row('Breathalyzer', s.alcohol) : '')}
     ${row('Notes', s.notes)}
     ${resultsHtml}
     ${sigHtml}

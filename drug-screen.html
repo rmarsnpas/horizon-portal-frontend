@@ -1249,9 +1249,29 @@
             updateSectionVisibility();
 
             // Auto-populate staff name from logged-in session
-            const staffName = localStorage.getItem('staffName');
+            // Check all session sources: full dashboard, limited portal, EMR session
+            let staffName = localStorage.getItem('staffName');
+            if (!staffName) {
+                try {
+                    const limited = JSON.parse(sessionStorage.getItem('horizonLimitedStaffAuth') || 'null');
+                    if (limited && limited.name) staffName = limited.name;
+                } catch (e) {}
+            }
+            if (!staffName) {
+                try {
+                    const emrSess = JSON.parse(sessionStorage.getItem('emr_session') || 'null');
+                    if (emrSess && emrSess.name) staffName = emrSess.name;
+                } catch (e) {}
+            }
+            const staffNameInput = document.getElementById('staffName');
             if (staffName) {
-                document.getElementById('staffName').value = staffName;
+                staffNameInput.value = staffName;
+                staffNameInput.readOnly = true;
+            } else {
+                // No session found — allow manual entry
+                staffNameInput.readOnly = false;
+                staffNameInput.style.backgroundColor = '';
+                staffNameInput.placeholder = 'Enter your name';
             }
 
             // Fetch members for autocomplete
