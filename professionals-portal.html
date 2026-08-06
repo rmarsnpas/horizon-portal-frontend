@@ -918,14 +918,14 @@ function memberCardHTML(m, outIds) {
   const isOut = outIds.has(id);
   const { label, cls } = statusBadge(st, isOut);
   const initials = ((fn[0]||'')+(ln[0]||'')).toUpperCase() || '?';
-  const sdate = mVal(m,'soberDate','SOBER_DATE','SOBER\r\nDATE');
+  const dob = mVal(m,'dob','DOB','dateOfBirth','DATE_OF_BIRTH');
   return `<div class="member-card" onclick="openMember('${esc(id)}')">
     <div class="member-avatar" style="background:${avatarColor(name)}">${esc(initials)}</div>
     <div class="member-card-info">
       <div class="member-card-name">${esc(name)}</div>
       <div class="member-card-meta">
         <span class="status-badge ${cls}">${esc(label)}</span>
-        ${sdate ? `<span>\uD83C\uDF31 ${esc(fmtDate(sdate))}</span>` : ''}
+        ${dob ? `<span>DOB: ${esc(fmtDate(dob))}</span>` : ''}
       </div>
       <div class="member-card-meta" style="margin-top:.35rem">ID: ${esc(id)}</div>
     </div>
