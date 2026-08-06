@@ -580,7 +580,9 @@
                 <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
                     <div class="form-group">
                         <label for="memberId">Member ID *</label>
-                        <input type="text" id="memberId" name="memberId" required>
+                        <select id="memberId" name="memberId" required>
+                            <option value="">Loading members...</option>
+                        </select>
                     </div>
                     <div class="form-group">
                         <label for="memberBed">Bed</label>
@@ -588,10 +590,9 @@
                     </div>
                 </div>
                 <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
-                    <div class="form-group autocomplete-container">
-                        <label for="memberName">Member Name *</label>
-                        <input type="text" id="memberName" name="memberName" required autocomplete="off">
-                        <div id="nameAutocomplete" class="autocomplete-dropdown"></div>
+                    <div class="form-group">
+                        <label for="memberName">Member Name</label>
+                        <input type="text" id="memberName" name="memberName" readonly style="background-color: #f7fafc;">
                     </div>
                     <div class="form-group">
                         <label for="memberDOB">Date of Birth</label>
@@ -1018,6 +1019,23 @@
             }
         }
 
+        function populateMemberDropdown() {
+            const select = document.getElementById('memberId');
+            select.innerHTML = '<option value="">— Select Member —</option>';
+            if (membersCache.length === 0) {
+                select.innerHTML = '<option value="">No members found</option>';
+                return;
+            }
+            const sorted = [...membersCache].sort((a, b) => (a.name || '').localeCompare(b.name || ''));
+            sorted.forEach(member => {
+                const option = document.createElement('option');
+                option.value = member.id;
+                const dobText = member.dob ? ` — DOB: ${member.dob}` : '';
+                option.textContent = `${member.id} – ${member.name || 'Unknown'}${dobText}`;
+                select.appendChild(option);
+            });
+        }
+
         function findMemberById(id) {
             return membersCache.find(m => m.id === id.trim());
         }
@@ -1274,20 +1292,19 @@
                 staffNameInput.placeholder = 'Enter your name';
             }
 
-            // Fetch members for autocomplete
+            // Fetch members and populate dropdown
             await fetchMembers();
+            populateMemberDropdown();
 
-            // Member ID field - auto-populate name, DOB, and bed when ID is entered
-            const memberIdInput = document.getElementById('memberId');
-            memberIdInput.addEventListener('blur', () => {
-                const id = memberIdInput.value.trim();
+            // Member ID dropdown - auto-populate name, DOB, and bed when selected
+            const memberIdSelect = document.getElementById('memberId');
+            memberIdSelect.addEventListener('change', () => {
+                const id = memberIdSelect.value;
                 if (id) {
                     const member = findMemberById(id);
                     if (member) {
                         document.getElementById('memberName').value = member.name || '';
                         document.getElementById('memberDOB').value = member.dob || '';
-                        
-                        // Add bed prefix based on gender
                         let bedValue = '';
                         if (member.bed) {
                             const prefix = member.gender === 'F' ? '321-' : member.gender === 'M' ? '351-' : '';
@@ -1295,47 +1312,10 @@
                         }
                         document.getElementById('memberBed').value = bedValue;
                     }
-                }
-            });
-
-            // Member Name field - show autocomplete and populate ID when selected
-            const memberNameInput = document.getElementById('memberName');
-            
-            memberNameInput.addEventListener('input', (e) => {
-                const query = e.target.value;
-                const matches = filterMembersByName(query);
-                showAutocomplete(matches);
-            });
-
-            memberNameInput.addEventListener('blur', () => {
-                hideAutocomplete();
-            });
-
-            memberNameInput.addEventListener('keydown', (e) => {
-                const dropdown = document.getElementById('nameAutocomplete');
-                
-                if (!dropdown.classList.contains('show')) return;
-
-                if (e.key === 'ArrowDown') {
-                    e.preventDefault();
-                    navigateAutocomplete('down');
-                } else if (e.key === 'ArrowUp') {
-                    e.preventDefault();
-                    navigateAutocomplete('up');
-                } else if (e.key === 'Enter') {
-                    if (selectedMemberIndex >= 0) {
-                        e.preventDefault();
-                        selectCurrentAutocomplete();
-                    }
-                } else if (e.key === 'Escape') {
-                    hideAutocomplete();
-                }
-            });
-
-            // Close autocomplete when clicking outside
-            document.addEventListener('click', (e) => {
-                if (!e.target.closest('.autocomplete-container')) {
-                    document.getElementById('nameAutocomplete').classList.remove('show');
+                } else {
+                    document.getElementById('memberName').value = '';
+                    document.getElementById('memberDOB').value = '';
+                    document.getElementById('memberBed').value = '';
                 }
             });
         });
