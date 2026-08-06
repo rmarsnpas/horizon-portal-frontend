@@ -502,6 +502,7 @@ let _msgFile    = null;
 let _mfaMember  = null;  // member pending MFA verification
 let _mfaId      = null;  // resolved ID for that member
 let _mfaEmail   = null;  // email MFA code was sent to
+let _outIds     = new Set(); // members currently signed out
 
 /* ============================================================
    AUTH
@@ -900,10 +901,11 @@ async function loadAssociatedMembers() {
 function renderMembersGrid() {
   const grid = document.getElementById('membersGrid');
   apiFetch('/signInOut/current').then(sio => {
-    const outIds = new Set((sio?.membersOut || []).map(o => String(o.memberId)));
-    grid.innerHTML = _members.map(m => memberCardHTML(m, outIds)).join('');
+    _outIds = new Set((sio?.membersOut || []).map(o => String(o.memberId)));
+    grid.innerHTML = _members.map(m => memberCardHTML(m, _outIds)).join('');
   }).catch(() => {
-    grid.innerHTML = _members.map(m => memberCardHTML(m, new Set())).join('');
+    _outIds = new Set();
+    grid.innerHTML = _members.map(m => memberCardHTML(m, _outIds)).join('');
   });
 }
 
@@ -953,12 +955,13 @@ async function openMember(memberId) {
   document.getElementById('detailAvatar').textContent = initials;
   document.getElementById('detailName').textContent   = name;
 
-  const { label, cls } = statusBadge(st, false);
-  const sdate = mVal(_current,'soberDate','SOBER_DATE','SOBER\r\nDATE');
+  const isOut = _outIds.has(memberId);
+  const { label, cls } = statusBadge(st, isOut);
+  const dob = mVal(_current,'dob','DOB','dateOfBirth','DATE_OF_BIRTH');
   document.getElementById('detailSub').innerHTML =
     `<span class="status-badge ${cls}">${esc(label)}</span>` +
     `<span>ID: ${esc(memberId)}</span>` +
-    (sdate ? `<span>\uD83C\uDF31 Sober: ${esc(fmtDate(sdate))}</span>` : '');
+    (dob ? `<span>DOB: ${esc(fmtDate(dob))}</span>` : '');
 
   document.getElementById('membersView').style.display = 'none';
   document.getElementById('detailView').style.display  = 'block';
@@ -1594,7 +1597,7 @@ function normStr(s) { return String(s||'').trim().toLowerCase(); }
 function statusBadge(st, isOut) {
   if (isOut) return { label:'Signed Out', cls:'out' };
   switch (st) {
-    case '1': return { label:'Active Member',   cls:'active'  };
+    case '1': return { label:'On Site',          cls:'active'  };
     case 'H': return { label:'Active (HH)',        cls:'active'  };
     case 'W': return { label:'Active (Women\'s)',  cls:'active'  };
     case '2': return { label:'Alumni',             cls:'alumni'  };
