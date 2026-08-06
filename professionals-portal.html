@@ -67,7 +67,7 @@
     #membersView{padding:1.25rem 1.75rem}
     .section-label{font-size:.75rem;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:var(--muted);margin-bottom:1rem}
     .members-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:1rem}
-    .member-card{background:var(--surface);border:1.5px solid var(--border);border-radius:var(--radius);padding:1.35rem 1.5rem;cursor:pointer;transition:all .2s;display:flex;gap:1rem;align-items:flex-start}
+    .member-card{background:var(--surface);border:1.5px solid var(--border);border-radius:var(--radius);padding:1.35rem 1.5rem;cursor:pointer;transition:all .2s;display:flex;gap:1rem;align-items:flex-start;position:relative}
     .member-card:hover{border-color:var(--amber);transform:translateY(-2px);box-shadow:0 8px 24px rgba(0,0,0,.3)}
     .member-avatar{width:48px;height:48px;border-radius:50%;background:var(--green);color:#fff;display:flex;align-items:center;justify-content:center;font-size:1.15rem;font-weight:700;flex-shrink:0}
     .member-card-info{flex:1;min-width:0}
@@ -918,7 +918,9 @@ function memberCardHTML(m, outIds) {
   const isOut = outIds.has(id);
   const { label, cls } = statusBadge(st, isOut);
   const initials = ((fn[0]||'')+(ln[0]||'')).toUpperCase() || '?';
-  const dob = mVal(m,'dob','DOB','dateOfBirth','DATE_OF_BIRTH');
+  const dob   = mVal(m,'dob','DOB','dateOfBirth','DATE_OF_BIRTH');
+  const refVal = mVal(m,'REF','ref').toUpperCase().trim();
+  const isIEHP = refVal === 'H';
   return `<div class="member-card" onclick="openMember('${esc(id)}')">
     <div class="member-avatar" style="background:${avatarColor(name)}">${esc(initials)}</div>
     <div class="member-card-info">
@@ -929,6 +931,7 @@ function memberCardHTML(m, outIds) {
       </div>
       <div class="member-card-meta" style="margin-top:.35rem">ID: ${esc(id)}</div>
     </div>
+    ${isIEHP ? `<img src="/iehp-logo.png" alt="IEHP" title="IEHP" style="position:absolute;bottom:8px;left:10px;height:20px;width:auto;opacity:.85;">` : ''}
   </div>`;
 }
 
@@ -955,13 +958,16 @@ async function openMember(memberId) {
   document.getElementById('detailAvatar').textContent = initials;
   document.getElementById('detailName').textContent   = name;
 
-  const isOut = _outIds.has(memberId);
+  const isOut  = _outIds.has(memberId);
   const { label, cls } = statusBadge(st, isOut);
-  const dob = mVal(_current,'dob','DOB','dateOfBirth','DATE_OF_BIRTH');
+  const dob    = mVal(_current,'dob','DOB','dateOfBirth','DATE_OF_BIRTH');
+  const refVal = mVal(_current,'REF','ref').toUpperCase().trim();
+  const isIEHP = refVal === 'H';
   document.getElementById('detailSub').innerHTML =
     `<span class="status-badge ${cls}">${esc(label)}</span>` +
     `<span>ID: ${esc(memberId)}</span>` +
-    (dob ? `<span>DOB: ${esc(fmtDate(dob))}</span>` : '');
+    (dob ? `<span>DOB: ${esc(fmtDate(dob))}</span>` : '') +
+    (isIEHP ? `<img src="/iehp-logo.png" alt="IEHP" title="IEHP" style="height:22px;width:auto;vertical-align:middle;margin-left:4px;opacity:.9;">` : '');
 
   document.getElementById('membersView').style.display = 'none';
   document.getElementById('detailView').style.display  = 'block';
