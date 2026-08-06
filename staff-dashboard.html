@@ -2201,7 +2201,7 @@ ${rateSummaryHtml}
                             (function() {
                                 const ALL_PROFILE_PERMISSIONS = [
                                     // -- Operational sections --
-                                    { key: 'member_database_list', label: '👥 Member Database (Read Only)' },
+                                    { key: 'member_database_list', label: '👥 Members Database' },
                                     { key: 'overnight_passes',    label: '🌙 Overnight Passes' },
                                     { key: 'drug_screens',        label: '🧪 Drug Screen History' },
                                     { key: 'sign_inout',          label: '🚪 Sign In/Out Board' },
@@ -2217,11 +2217,40 @@ ${rateSummaryHtml}
                                     // Add new permission keys here to have them appear in this list.
                                 ];
                                 const currentPerms = Array.isArray(member.permissions) ? member.permissions : [];
-                                const boxes = ALL_PROFILE_PERMISSIONS.map(p =>
-                                    `<label style="display:flex;align-items:center;gap:8px;padding:5px 0;cursor:pointer;font-size:14px;">`+
-                                    `<input type="checkbox" name="perm_${p.key}" value="${p.key}" ${currentPerms.includes(p.key)?'checked':''}>`+
-                                    `<span>${p.label}</span></label>`
-                                ).join('');
+                                const currentDbPerms = member.memberDatabasePermissions || {};
+                                const hasMemberDb = currentPerms.includes('member_database_list');
+                                
+                                const boxes = ALL_PROFILE_PERMISSIONS.map(p => {
+                                    const isDbPerm = p.key === 'member_database_list';
+                                    const mainCheckbox = `<label style="display:flex;align-items:center;gap:8px;padding:5px 0;cursor:pointer;font-size:14px;">`+
+                                        `<input type="checkbox" name="perm_${p.key}" value="${p.key}" ${currentPerms.includes(p.key)?'checked':''} ${isDbPerm?'onchange="window.toggleMemberDbPerms(this.checked)"':''}>`+
+                                        `<span>${p.label}</span></label>`;
+                                    
+                                    if (isDbPerm) {
+                                        // Add nested permissions for Members Database
+                                        const nestedHtml = `<div id="memberDbPermsNested" style="margin-left:30px;padding:10px;background:#f7fafc;border-left:3px solid #667eea;border-radius:4px;margin-top:8px;margin-bottom:8px;display:${hasMemberDb?'block':'none'};">` +
+                                            `<div style="font-weight:600;color:#4a5568;margin-bottom:8px;font-size:13px;">Database Permissions:</div>` +
+                                            `<label style="display:flex;align-items:center;gap:8px;padding:3px 0;cursor:pointer;font-size:13px;">` +
+                                                `<input type="checkbox" name="db_perm_view_only" ${currentDbPerms.viewOnly?'checked':''}> View Only` +
+                                            `</label>` +
+                                            `<label style="display:flex;align-items:center;gap:8px;padding:3px 0;cursor:pointer;font-size:13px;">` +
+                                                `<input type="checkbox" name="db_perm_edit" ${currentDbPerms.edit?'checked':''}> Edit Members` +
+                                            `</label>` +
+                                            `<label style="display:flex;align-items:center;gap:8px;padding:3px 0;cursor:pointer;font-size:13px;">` +
+                                                `<input type="checkbox" name="db_perm_add_new" ${currentDbPerms.addNew?'checked':''}> Add New Member` +
+                                            `</label>` +
+                                            `<label style="display:flex;align-items:center;gap:8px;padding:3px 0;cursor:pointer;font-size:13px;">` +
+                                                `<input type="checkbox" name="db_perm_delete" ${currentDbPerms.delete?'checked':''}> Delete` +
+                                            `</label>` +
+                                            `<label style="display:flex;align-items:center;gap:8px;padding:3px 0;cursor:pointer;font-size:13px;">` +
+                                                `<input type="checkbox" name="db_perm_print_census" ${currentDbPerms.printCensus?'checked':''}> Print Census` +
+                                            `</label>` +
+                                        `</div>`;
+                                        return mainCheckbox + nestedHtml;
+                                    }
+                                    return mainCheckbox;
+                                }).join('');
+                                
                                 return `<div id="permissionsSection" style="border:2px solid #667eea;border-radius:8px;padding:14px;margin-bottom:14px;${(statusVal==='4'||member.staffPortalAccess)?'':'display:none;'}">`+
                                     `<div style="font-weight:700;color:#667eea;margin-bottom:8px;">🔑 Management Portal Access</div>`+
                                     `<div style="font-size:12px;color:#718096;margin-bottom:10px;">Select which sections this member can access in the Management Portal.</div>`+
@@ -2289,6 +2318,11 @@ ${rateSummaryHtml}
                             if (pf) pf.style.display = checked ? 'block' : 'none';
                             const spw = document.getElementById('staffPwSection');
                             if (spw && checked) spw.style.display = 'block';
+                        };
+                        // Toggle nested member database permissions
+                        window.toggleMemberDbPerms = function(checked) {
+                            const nested = document.getElementById('memberDbPermsNested');
+                            if (nested) nested.style.display = checked ? 'block' : 'none';
                         };
 
                         // Readmit handler — called from the Readmit button inside the profile modal
@@ -2403,6 +2437,18 @@ ${rateSummaryHtml}
                         if (payload.status === '4' || payload.staffPortalAccess) {
                             const checkedBoxes = form.querySelectorAll('[name^="perm_"]:checked');
                             payload.permissions = Array.from(checkedBoxes).map(cb => cb.value);
+                            // Collect granular member database permissions if the main permission is granted
+                            if (payload.permissions.includes('member_database_list')) {
+                                payload.memberDatabasePermissions = {
+                                    viewOnly: !!(form.elements['db_perm_view_only'] && form.elements['db_perm_view_only'].checked),
+                                    edit: !!(form.elements['db_perm_edit'] && form.elements['db_perm_edit'].checked),
+                                    addNew: !!(form.elements['db_perm_add_new'] && form.elements['db_perm_add_new'].checked),
+                                    delete: !!(form.elements['db_perm_delete'] && form.elements['db_perm_delete'].checked),
+                                    printCensus: !!(form.elements['db_perm_print_census'] && form.elements['db_perm_print_census'].checked)
+                                };
+                            } else {
+                                payload.memberDatabasePermissions = {};
+                            }
                         }
                         // Ask relapse question if status changing from 1 → 2 or 3
                         const _relapsed = await askRelapseQuestion(window._profileOriginalStatus || '', payload.status);
