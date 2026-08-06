@@ -2266,16 +2266,18 @@ ${rateSummaryHtml}
                                         // Generate field checkboxes for View Only
                                         const viewFieldsHtml = MEMBER_FIELDS.map(f => 
                                             `<label style="display:flex;align-items:center;gap:6px;padding:2px 0;cursor:pointer;font-size:12px;">`+
-                                            `<input type="checkbox" name="db_view_field_${f.key}" ${currentViewFields.includes(f.key)?'checked':''}> ${f.label}`+
+                                            `<input type="checkbox" name="db_view_field_${f.key}" data-field-key="${f.key}" onchange="window.updateEditFieldsList()" ${currentViewFields.includes(f.key)?'checked':''}> ${f.label}`+
                                             `</label>`
                                         ).join('');
                                         
-                                        // Generate field checkboxes for Edit
-                                        const editFieldsHtml = MEMBER_FIELDS.map(f => 
-                                            `<label style="display:flex;align-items:center;gap:6px;padding:2px 0;cursor:pointer;font-size:12px;">`+
-                                            `<input type="checkbox" name="db_edit_field_${f.key}" ${currentEditFields.includes(f.key)?'checked':''}> ${f.label}`+
-                                            `</label>`
-                                        ).join('');
+                                        // Generate field checkboxes for Edit - only show fields that are in currentViewFields
+                                        const editFieldsHtml = MEMBER_FIELDS
+                                            .filter(f => currentViewFields.includes(f.key))
+                                            .map(f => 
+                                                `<label style="display:flex;align-items:center;gap:6px;padding:2px 0;cursor:pointer;font-size:12px;" data-edit-field="${f.key}">`+
+                                                `<input type="checkbox" name="db_edit_field_${f.key}" ${currentEditFields.includes(f.key)?'checked':''}> ${f.label}`+
+                                                `</label>`
+                                            ).join('');
                                         
                                         // Add nested permissions for Members Database
                                         const nestedHtml = `<div id="memberDbPermsNested" style="margin-left:30px;padding:10px;background:#f7fafc;border-left:3px solid #667eea;border-radius:4px;margin-top:8px;margin-bottom:8px;display:${hasMemberDb?'block':'none'};">` +
@@ -2287,7 +2289,7 @@ ${rateSummaryHtml}
                                             `</label>` +
                                             `<div id="dbViewFieldsNested" style="margin-left:25px;padding:8px;background:#fff;border:1px solid #e2e8f0;border-radius:4px;margin-top:4px;margin-bottom:8px;max-height:200px;overflow-y:auto;display:${hasViewOnly?'block':'none'};">` +
                                                 `<div style="font-size:11px;color:#718096;margin-bottom:6px;font-weight:600;">Allowed Fields:</div>` +
-                                                `<div style="display:grid;grid-template-columns:1fr 1fr;gap:4px;">${viewFieldsHtml}</div>` +
+                                                `<div id="dbViewFieldsContainer" style="display:grid;grid-template-columns:1fr 1fr;gap:4px;">${viewFieldsHtml}</div>` +
                                             `</div>` +
                                             
                                             // Edit with field-level permissions (requires View Only to be checked first)
@@ -2295,8 +2297,8 @@ ${rateSummaryHtml}
                                                 `<input type="checkbox" name="db_perm_edit" id="dbPermEditChk" onchange="window.toggleDbFieldPerms('edit', this.checked)" ${currentDbPerms.edit?'checked':''} ${hasViewOnly?'':'disabled'}> Edit Members`+
                                             `</label>` +
                                             `<div id="dbEditFieldsNested" style="margin-left:25px;padding:8px;background:#fff;border:1px solid #e2e8f0;border-radius:4px;margin-top:4px;margin-bottom:8px;max-height:200px;overflow-y:auto;display:${hasEdit?'block':'none'};">` +
-                                                `<div style="font-size:11px;color:#718096;margin-bottom:6px;font-weight:600;">Editable Fields:</div>` +
-                                                `<div style="display:grid;grid-template-columns:1fr 1fr;gap:4px;">${editFieldsHtml}</div>` +
+                                                `<div style="font-size:11px;color:#718096;margin-bottom:6px;font-weight:600;">Editable Fields (from View Only):</div>` +
+                                                `<div id="dbEditFieldsContainer" style="display:grid;grid-template-columns:1fr 1fr;gap:4px;">${editFieldsHtml || '<div style="font-size:11px;color:#aaa;grid-column:1/-1;">No fields selected in View Only</div>'}</div>` +
                                             `</div>` +
                                             
                                             // Other permissions (no field nesting)
@@ -2412,6 +2414,64 @@ ${rateSummaryHtml}
                             }
                             if (type === 'edit' && editNested) {
                                 editNested.style.display = checked ? 'block' : 'none';
+                            }
+                        };
+                        
+                        // Update edit fields list based on checked view fields
+                        window.updateEditFieldsList = function() {
+                            const viewContainer = document.getElementById('dbViewFieldsContainer');
+                            const editContainer = document.getElementById('dbEditFieldsContainer');
+                            if (!viewContainer || !editContainer) return;
+                            
+                            // Get all checked view field checkboxes
+                            const checkedViewFields = Array.from(viewContainer.querySelectorAll('input[type="checkbox"]:checked'))
+                                .map(cb => cb.getAttribute('data-field-key'));
+                            
+                            // Get currently checked edit fields to preserve their state
+                            const checkedEditFields = Array.from(editContainer.querySelectorAll('input[type="checkbox"]:checked'))
+                                .map(cb => cb.name.replace('db_edit_field_', ''));
+                            
+                            // Define fields structure (should match MEMBER_FIELDS from above)
+                            const MEMBER_FIELDS = [
+                                { key: 'firstName', label: 'First Name' },
+                                { key: 'lastName', label: 'Last Name' },
+                                { key: 'nickname', label: 'Nickname' },
+                                { key: 'dob', label: 'Date of Birth' },
+                                { key: 'phone', label: 'Phone' },
+                                { key: 'email', label: 'Email' },
+                                { key: 'gender', label: 'Gender' },
+                                { key: 'bed', label: 'Bed' },
+                                { key: 'status', label: 'Status' },
+                                { key: 'admitDate', label: 'Admit Date' },
+                                { key: 'dischargeDate', label: 'Discharge Date' },
+                                { key: 'soberDate', label: 'Sober Date' },
+                                { key: 'elmrId', label: 'ELMR ID' },
+                                { key: 'presumptiveExitDate', label: 'Presumptive Exit Date' },
+                                { key: 'inpatientFacility', label: 'Inpatient Facility' },
+                                { key: 'rate', label: 'Rate' },
+                                { key: 'billOnDay', label: 'Bill On Day' },
+                                { key: 'pin', label: 'PIN' },
+                                { key: 'key', label: 'Key' },
+                                { key: 'hideInvoices', label: 'Hide Invoices' },
+                                { key: 'ref', label: 'Ref' },
+                                { key: 'refCaseWorker', label: 'Ref Case Worker' },
+                                { key: 'refCwPhone', label: 'Ref CW Phone' },
+                                { key: 'linkedProfessional', label: 'Linked Professional' },
+                                { key: 'notes', label: 'Notes' }
+                            ];
+                            
+                            // Rebuild edit fields HTML
+                            if (checkedViewFields.length === 0) {
+                                editContainer.innerHTML = '<div style="font-size:11px;color:#aaa;grid-column:1/-1;">No fields selected in View Only</div>';
+                            } else {
+                                const editFieldsHtml = MEMBER_FIELDS
+                                    .filter(f => checkedViewFields.includes(f.key))
+                                    .map(f => 
+                                        `<label style="display:flex;align-items:center;gap:6px;padding:2px 0;cursor:pointer;font-size:12px;" data-edit-field="${f.key}">`+
+                                        `<input type="checkbox" name="db_edit_field_${f.key}" ${checkedEditFields.includes(f.key)?'checked':''}> ${f.label}`+
+                                        `</label>`
+                                    ).join('');
+                                editContainer.innerHTML = editFieldsHtml;
                             }
                         };
 
