@@ -577,10 +577,18 @@
         <form id="drugScreenForm" class="form-card">
             <div class="form-section">
                 <h2>Member Information</h2>
-                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
+
+                <!-- Toggle: existing vs new member -->
+                <div style="margin-bottom:16px;display:flex;align-items:center;gap:10px;">
+                    <input type="checkbox" id="newMemberToggle" onchange="toggleNewMember(this.checked)" style="width:18px;height:18px;cursor:pointer;">
+                    <label for="newMemberToggle" style="margin:0;font-weight:500;cursor:pointer;color:#4a5568;">New member (not yet in system)</label>
+                </div>
+
+                <!-- Existing member row -->
+                <div id="existingMemberRow" style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
                     <div class="form-group">
                         <label for="memberId">Member ID *</label>
-                        <select id="memberId" name="memberId" required>
+                        <select id="memberId" name="memberId">
                             <option value="">Loading members...</option>
                         </select>
                     </div>
@@ -589,7 +597,9 @@
                         <input type="text" id="memberBed" name="memberBed" readonly style="background-color: #f7fafc;">
                     </div>
                 </div>
-                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
+
+                <!-- Existing member name/DOB row -->
+                <div id="existingMemberNameRow" style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-top: 0;">
                     <div class="form-group">
                         <label for="memberName">Member Name</label>
                         <input type="text" id="memberName" name="memberName" readonly style="background-color: #f7fafc;">
@@ -597,6 +607,30 @@
                     <div class="form-group">
                         <label for="memberDOB">Date of Birth</label>
                         <input type="text" id="memberDOB" name="memberDOB" readonly style="background-color: #f7fafc;">
+                    </div>
+                </div>
+
+                <!-- New member row (hidden by default) -->
+                <div id="newMemberRow" style="display:none; display-grid: none;">
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
+                        <div class="form-group">
+                            <label for="newMemberId">Member ID <span style="font-weight:normal;color:#718096;">(leave blank if unknown)</span></label>
+                            <input type="text" id="newMemberId" name="newMemberId" placeholder="e.g. 1042 or leave blank">
+                        </div>
+                        <div class="form-group">
+                            <label for="memberBedNew">Bed</label>
+                            <input type="text" id="memberBedNew" name="memberBedNew" placeholder="e.g. 351-3A">
+                        </div>
+                    </div>
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
+                        <div class="form-group">
+                            <label for="memberNameNew">Member Name *</label>
+                            <input type="text" id="memberNameNew" name="memberNameNew" placeholder="First Last" required style="display:none;">
+                        </div>
+                        <div class="form-group">
+                            <label for="memberDOBNew">Date of Birth</label>
+                            <input type="text" id="memberDOBNew" name="memberDOBNew" placeholder="MM-DD-YYYY">
+                        </div>
                     </div>
                 </div>
             </div>
@@ -1002,7 +1036,8 @@
                 lastName: lastName,
                 dob: dobFormatted,
                 bed: m.BED || m['BED#'] || m.bed || '',
-                gender: m['M/F'] || m.GENDER || m.gender || ''
+                gender: m['M/F'] || m.GENDER || m.gender || '',
+                status: String(m.STATUS || m.STATU || m.status || '').trim()
             };
         }
 
@@ -1021,12 +1056,14 @@
 
         function populateMemberDropdown() {
             const select = document.getElementById('memberId');
+            // Filter to status 1 (active) members only
+            const active = membersCache.filter(m => m.status === '1');
             select.innerHTML = '<option value="">— Select Member —</option>';
-            if (membersCache.length === 0) {
-                select.innerHTML = '<option value="">No members found</option>';
+            if (active.length === 0) {
+                select.innerHTML = '<option value="">No active members found</option>';
                 return;
             }
-            const sorted = [...membersCache].sort((a, b) => (a.name || '').localeCompare(b.name || ''));
+            const sorted = [...active].sort((a, b) => (a.name || '').localeCompare(b.name || ''));
             sorted.forEach(member => {
                 const option = document.createElement('option');
                 option.value = member.id;
@@ -1034,6 +1071,40 @@
                 option.textContent = `${member.id} – ${member.name || 'Unknown'}${dobText}`;
                 select.appendChild(option);
             });
+        }
+
+        function toggleNewMember(isNew) {
+            const existingRow = document.getElementById('existingMemberRow');
+            const existingNameRow = document.getElementById('existingMemberNameRow');
+            const newRow = document.getElementById('newMemberRow');
+            const memberIdSelect = document.getElementById('memberId');
+            const memberNameNew = document.getElementById('memberNameNew');
+
+            if (isNew) {
+                existingRow.style.display = 'none';
+                existingNameRow.style.display = 'none';
+                newRow.style.display = 'block';
+                memberNameNew.style.display = '';
+                memberNameNew.required = true;
+                memberIdSelect.required = false;
+                // Clear existing fields
+                memberIdSelect.value = '';
+                document.getElementById('memberName').value = '';
+                document.getElementById('memberDOB').value = '';
+                document.getElementById('memberBed').value = '';
+            } else {
+                existingRow.style.display = 'grid';
+                existingNameRow.style.display = 'grid';
+                newRow.style.display = 'none';
+                memberNameNew.style.display = 'none';
+                memberNameNew.required = false;
+                memberIdSelect.required = true;
+                // Clear new member fields
+                document.getElementById('newMemberId').value = '';
+                document.getElementById('memberNameNew').value = '';
+                document.getElementById('memberDOBNew').value = '';
+                document.getElementById('memberBedNew').value = '';
+            }
         }
 
         function findMemberById(id) {
@@ -1360,10 +1431,10 @@
                 const memberSig = getSignatureData('memberSignature');
                 
                 const data = {
-                    memberId: formData.get('memberId'),
-                    memberName: formData.get('memberName'),
-                    memberDOB: formData.get('memberDOB'),
-                    memberBed: formData.get('memberBed'),
+                    memberId: formData.get('newMemberId') || formData.get('memberId'),
+                    memberName: formData.get('memberNameNew') || formData.get('memberName'),
+                    memberDOB: formData.get('memberDOBNew') || formData.get('memberDOB'),
+                    memberBed: formData.get('memberBedNew') || formData.get('memberBed'),
                     testDate: formData.get('testDate'),
                     testTime: formData.get('testTime'),
                     testTypes: testTypes,
