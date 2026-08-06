@@ -211,7 +211,10 @@
         if (saved) {
             try {
                 const s = JSON.parse(saved);
-                if (s && s.memberId) { showPortal(s.name, s.permissions); return; }
+                if (s && s.memberId) { 
+                    showPortal(s.name, s.permissions, s.memberDatabasePermissions || {}); 
+                    return; 
+                }
             } catch (e) { /* bad data */ }
             sessionStorage.removeItem(SESSION_KEY);
         }
@@ -269,10 +272,16 @@
 
             // Step 4: read permissions
             const permissions = Array.isArray(member.permissions) ? member.permissions : [];
+            const memberDatabasePermissions = member.memberDatabasePermissions || {};
             const name = [member.FIRST_NAME, member.LAST_NAME].filter(Boolean).join(' ') || memberId;
 
-            sessionStorage.setItem(SESSION_KEY, JSON.stringify({ memberId, name, permissions }));
-            showPortal(name, permissions);
+            sessionStorage.setItem(SESSION_KEY, JSON.stringify({ 
+                memberId, 
+                name, 
+                permissions,
+                memberDatabasePermissions
+            }));
+            showPortal(name, permissions, memberDatabasePermissions);
 
         } catch (ex) {
             showError(ex.message || 'Login failed. Please try again.');
@@ -289,22 +298,29 @@
     }
 
     // -- Portal render ---------------------------------------------------------
-    function showPortal(name, permissions) {
+    function showPortal(name, permissions, memberDatabasePermissions = {}) {
         document.getElementById('loginContainer').style.display = 'none';
         document.getElementById('staffName').textContent = name;
-        buildGrids(permissions);
+        buildGrids(permissions, memberDatabasePermissions);
         document.getElementById('portalContainer').style.display = 'block';
     }
 
-    function buildGrids(permissions) {
+    function buildGrids(permissions, memberDatabasePermissions = {}) {
         const pendingCards = [];
         const formCards = [];
 
         for (const [key, cfg] of Object.entries(SECTION_CONFIG)) {
             if (!permissions.includes(key)) continue;
-            const html = buildCard(cfg);
-            if (cfg.group === 'pending') pendingCards.push(html);
-            else formCards.push(html);
+            
+            // Special handling for member_database_list to show granular permissions
+            if (key === 'member_database_list') {
+                const html = buildMemberDatabaseCard(cfg, memberDatabasePermissions);
+                pendingCards.push(html);
+            } else {
+                const html = buildCard(cfg);
+                if (cfg.group === 'pending') pendingCards.push(html);
+                else formCards.push(html);
+            }
         }
 
         const pendingGrid = document.getElementById('pendingGrid');
@@ -324,6 +340,35 @@
         if (pendingCards.length === 0 && formCards.length === 0) {
             emptyState.style.display = 'block';
         }
+    }
+
+    function buildMemberDatabaseCard(cfg, dbPerms) {
+        const permissions = [];
+        if (dbPerms.viewOnly) permissions.push('👁️ View');
+        if (dbPerms.edit) permissions.push('✏️ Edit');
+        if (dbPerms.addNew) permissions.push('➕ Add New');
+        if (dbPerms.delete) permissions.push('🗑️ Delete');
+        if (dbPerms.printCensus) permissions.push('🖨️ Print Census');
+        
+        const permText = permissions.length > 0 
+            ? permissions.join(', ') 
+            : 'No specific permissions';
+        
+        // Show field counts if available
+        let fieldInfo = '';
+        if (dbPerms.viewOnlyFields && dbPerms.viewOnlyFields.length > 0) {
+            fieldInfo += `<div style="font-size:11px;color:#718096;margin-top:4px;">${dbPerms.viewOnlyFields.length} fields viewable</div>`;
+        }
+        if (dbPerms.editFields && dbPerms.editFields.length > 0) {
+            fieldInfo += `<div style="font-size:11px;color:#718096;">${dbPerms.editFields.length} fields editable</div>`;
+        }
+        
+        return `<a href="${cfg.href}" class="dashboard-card">
+            <div class="card-icon">${cfg.icon}</div>
+            <div class="card-title">${cfg.title}</div>
+            <div class="card-label" style="font-size:12px;line-height:1.4;">${permText}</div>
+            ${fieldInfo}
+        </a>`;
     }
 
     function buildCard(cfg) {
