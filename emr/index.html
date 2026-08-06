@@ -688,8 +688,9 @@ function renderDocsTable(docs) {
   return `<table class="file-table"><thead><tr><th>Type</th><th>Description</th><th>Uploaded</th><th>Status</th><th style="width:280px;">Actions</th></tr></thead><tbody>` +
     docs.slice().reverse().map(d => {
       const key = _cacheItem({ doc: d });
-      return `<tr>
-        <td><span style="font-size:16px;">${d.isPdf ? '📄' : '🖼️'}</span> ${esc(d.docType)}</td>
+      const atRisk = !d.gcsUrl;
+      return `<tr${atRisk ? ' title="⚠️ This file is stored locally only and may be lost after a server restart. Open it and re-upload if needed."' : ''}>
+        <td><span style="font-size:16px;">${d.isPdf ? '📄' : '🖼️'}</span> ${esc(d.docType)}${atRisk ? ' <span title="Local-only — not backed up to cloud storage" style="color:#b45309;font-size:12px;">⚠️</span>' : ''}</td>
         <td style="max-width:200px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${esc(d.notes || d.originalName)}</td>
         <td style="white-space:nowrap;">${fmtDate(d.uploadedAt)}</td>
         <td><span class="badge ${d.savedToRecord ? 'badge-green' : 'badge-orange'}">${d.savedToRecord ? '✔ Saved' : 'Pending'}</span></td>
@@ -950,7 +951,12 @@ async function doUpload() {
   try {
     const res = await fetch(`${API}/member-documents/upload`, { method: 'POST', body: fd });
     if (!res.ok) throw new Error((await res.json()).error || 'Upload failed');
-    setUploadStatus('success', '✅ Uploaded! Refreshing file…');
+    const json = await res.json();
+    if (json.warning) {
+      setUploadStatus('warn', '⚠️ Uploaded (local only) — ' + json.warning);
+    } else {
+      setUploadStatus('success', '✅ Uploaded! Refreshing file…');
+    }
     clearUpFile();
     document.getElementById('upNotes').value = '';
     setTimeout(() => openMemberFile(_currentMemberId), 800);
@@ -965,9 +971,9 @@ function setUploadStatus(type, msg) {
   const el = document.getElementById('uploadStatusBar');
   if (!msg) { el.style.display = 'none'; return; }
   el.textContent = msg; el.style.display = 'block';
-  el.style.background = type === 'success' ? '#d4edda' : '#f8d7da';
-  el.style.color = type === 'success' ? '#155724' : '#721c24';
-  el.style.border = type === 'success' ? '1px solid #c3e6cb' : '1px solid #f5c6cb';
+  if (type === 'success') { el.style.background='#d4edda'; el.style.color='#155724'; el.style.border='1px solid #c3e6cb'; }
+  else if (type === 'warn') { el.style.background='#fff3cd'; el.style.color='#856404'; el.style.border='1px solid #ffc107'; }
+  else { el.style.background='#f8d7da'; el.style.color='#721c24'; el.style.border='1px solid #f5c6cb'; }
 }
 
 async function markSaved(docId, btn) {
