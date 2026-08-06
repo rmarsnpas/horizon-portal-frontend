@@ -1941,7 +1941,7 @@ ${rateSummaryHtml}
                             const res = await fetch(`${API_BASE}/api/getMember?id=${encodeURIComponent(memberId)}`);
                             if (res.ok) {
                                 member = await res.json();
-                                console.log('Loaded member data:', member);
+                                console.log('Loaded member data:', JSON.stringify(member, null, 2));
                                 console.log('memberDatabasePermissions:', member.memberDatabasePermissions);
                                 if (!member || Object.keys(member).length === 0) {
                                     isNew = true;
