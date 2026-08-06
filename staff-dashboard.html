@@ -1941,6 +1941,8 @@ ${rateSummaryHtml}
                             const res = await fetch(`${API_BASE}/api/getMember?id=${encodeURIComponent(memberId)}`);
                             if (res.ok) {
                                 member = await res.json();
+                                console.log('Loaded member data:', member);
+                                console.log('memberDatabasePermissions:', member.memberDatabasePermissions);
                                 if (!member || Object.keys(member).length === 0) {
                                     isNew = true;
                                     member = { ID: memberId };
@@ -2548,6 +2550,7 @@ ${rateSummaryHtml}
                                     delete: !!(form.elements['db_perm_delete'] && form.elements['db_perm_delete'].checked),
                                     printCensus: !!(form.elements['db_perm_print_census'] && form.elements['db_perm_print_census'].checked)
                                 };
+                                console.log('Saving memberDatabasePermissions:', payload.memberDatabasePermissions);
                             } else {
                                 payload.memberDatabasePermissions = {};
                             }
