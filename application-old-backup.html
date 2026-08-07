@@ -1,0 +1,148 @@
+﻿<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Horizon House - Member Application</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Horizon House Sober Living Member Application">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@500;700&family=Nunito:wght@400;600&display=swap" rel="stylesheet">
+  <style>
+    :root { --slate:#2b3440; --amber:#c98a22; --sand:#f5f1ea; }
+    *, *::before, *::after { box-sizing: border-box; }
+    body { margin:0; font-family:Nunito,system-ui; background:var(--sand); color:var(--slate); display:flex; flex-direction:column; min-height:100vh; }
+    header { background:var(--slate); color:#fff; padding:1rem 0; }
+    .wrap { max-width:960px; margin:0 auto; padding:0 1rem; }
+    h1 { font-family:Inter; margin:0; font-size:1.3rem; }
+    nav a { background:rgba(255,255,255,0.18); color:#fff; text-decoration:none; padding:.5rem 1rem; border-radius:.4rem; font-weight:700; font-size:.9rem; }
+    nav a:hover { background:rgba(255,255,255,0.3); }
+    .page-body { flex:1; display:flex; flex-direction:column; padding:1.5rem 1rem; }
+    .intro-card {
+      background:#fff; border-radius:.6rem; box-shadow:0 2px 8px rgba(0,0,0,.08);
+      padding:1.2rem 1.5rem; margin-bottom:1.2rem;
+      display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:1rem;
+    }
+    .intro-card p { margin:0; line-height:1.6; flex:1; min-width:220px; }
+    .dl-btn {
+      display:inline-flex; align-items:center; gap:.5rem;
+      background:var(--amber); color:#fff; font-weight:700;
+      padding:.7rem 1.3rem; border-radius:.45rem; text-decoration:none;
+      font-size:.95rem; white-space:nowrap; transition:filter .15s;
+    }
+    .dl-btn:hover { filter:brightness(1.1); }
+    .pdf-frame-wrap {
+      flex:1; background:#888; border-radius:.5rem; overflow:hidden;
+      min-height:75vh; box-shadow:0 4px 16px rgba(0,0,0,.18);
+    }
+    .pdf-frame-wrap iframe { display:block; width:100%; height:100%; min-height:75vh; border:none; }
+    .mobile-fallback { display:none; background:#fff; border-radius:.6rem; padding:2rem; text-align:center; box-shadow:0 2px 8px rgba(0,0,0,.08); }
+    .mobile-fallback p { margin:.5rem 0 1.5rem; line-height:1.6; }
+    @media (max-width:640px) {
+      .pdf-frame-wrap { display:none; }
+      .mobile-fallback { display:block; }
+    }
+    .submit-section {
+      background:#fff; border-radius:.6rem; box-shadow:0 2px 8px rgba(0,0,0,.08);
+      padding:1.2rem 1.5rem; margin-top:1.4rem;
+      display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:1rem;
+    }
+    .submit-section p { margin:0; line-height:1.6; flex:1; min-width:220px; }
+    .upload-form { display:grid; gap:.75rem; }
+    .upload-form input { padding:.55rem .75rem; border:1px solid #ccc; border-radius:.4rem; font-size:.95rem; width:100%; box-sizing:border-box; }
+    .upload-row { display:flex; gap:.75rem; flex-wrap:wrap; }
+    .upload-row input { flex:1; min-width:180px; }
+    #uploadStatus { display:none; padding:1rem 1.2rem; border-radius:.45rem; font-weight:600; margin-top:.5rem; }
+    #uploadStatus.success { background:#d4edda; color:#155724; border:1px solid #c3e6cb; }
+    #uploadStatus.error   { background:#f8d7da; color:#721c24; border:1px solid #f5c6cb; }
+    .submit-btn { background:var(--amber); color:#fff; border:none; padding:.8rem 1.5rem; border-radius:.45rem; font-weight:700; cursor:pointer; font-size:1rem; transition:filter .15s; }
+    .submit-btn:hover { filter:brightness(1.1); }
+    .submit-btn:disabled { opacity:.6; cursor:not-allowed; }
+
+    footer { text-align:center; padding:1.2rem 0; color:#777; font-size:.85rem; }
+  </style>
+</head>
+<body>
+<header>
+  <div class="wrap" style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:.75rem;padding-top:.25rem;padding-bottom:.25rem;">
+    <h1>Horizon House Sober Living - Member Application</h1>
+    <nav><a href="index.html">&larr; Return to Website</a></nav>
+  </div>
+</header>
+<div class="wrap page-body">
+  <div class="intro-card">
+    <p>Fill out the application below directly in your browser, or <strong>download it</strong>, complete it, and upload the finished file using the form at the bottom of this page. Questions? Call us at <strong>(760) 766-0300</strong>.</p>
+    <a href="uploads/HorizonHouse-MemberApplication-Fillable.pdf" download class="dl-btn">&#x2B07; Download PDF</a>
+  </div>
+  <div class="pdf-frame-wrap">
+    <iframe src="uploads/HorizonHouse-MemberApplication-Fillable.pdf" title="Horizon House Member Application" allowfullscreen></iframe>
+  </div>
+  <div class="mobile-fallback">
+    <h2 style="font-family:Inter;margin-top:0;">Member Application</h2>
+    <p>Download the fillable PDF, complete it on your device, and upload it using the form below.</p>
+    <a href="uploads/HorizonHouse-MemberApplication-Fillable.pdf" download class="dl-btn" style="display:inline-flex;">&#x2B07; Download Application PDF</a>
+  </div>
+
+  <!-- Submit / Upload -->
+  <div class="submit-section" style="flex-direction:column; align-items:stretch;">
+    <p style="margin-bottom:1rem;"><strong>When you're finished, submit your completed application below.</strong> Our admissions staff will review it and be in touch with you shortly.</p>
+    <form class="upload-form" id="pdfUploadForm">
+      <div class="upload-row">
+        <input type="text"  id="u_first" placeholder="First Name" required>
+        <input type="text"  id="u_last"  placeholder="Last Name"  required>
+      </div>
+      <div class="upload-row">
+        <input type="tel"   id="u_phone" placeholder="Phone Number" required>
+        <input type="email" id="u_email" placeholder="Email Address (optional)">
+      </div>
+      <div>
+        <label style="font-weight:600;display:block;margin-bottom:.4rem;">Upload Completed PDF</label>
+        <input type="file" id="u_pdf" accept=".pdf,application/pdf" required>
+      </div>
+      <div id="uploadStatus"></div>
+      <button type="submit" class="submit-btn" id="submitBtn">&#x2709; Submit Application</button>
+    </form>
+  </div>
+
+</div>
+
+<footer>&copy; 2026 Horizon House Sober Living &nbsp;|&nbsp; (760) 766-0300 &nbsp;|&nbsp; info@horizon-house.org</footer>
+<script>
+  const API = 'https://horizon-portal-backend-production-3532.up.railway.app';
+  document.getElementById('pdfUploadForm').addEventListener('submit', async function(e) {
+    e.preventDefault();
+    const btn    = document.getElementById('submitBtn');
+    const status = document.getElementById('uploadStatus');
+    const pdf    = document.getElementById('u_pdf').files[0];
+    if (!pdf) { return; }
+
+    btn.disabled = true;
+    btn.textContent = 'Submitting…';
+    status.style.display = 'none';
+    status.className = '';
+
+    const data = new FormData();
+    data.append('pdf',        pdf);
+    data.append('first_name', document.getElementById('u_first').value.trim());
+    data.append('last_name',  document.getElementById('u_last').value.trim());
+    data.append('phone',      document.getElementById('u_phone').value.trim());
+    data.append('email',      document.getElementById('u_email').value.trim());
+
+    try {
+      const res = await fetch(`${API}/api/uploadApplicationPdf`, { method: 'POST', body: data });
+      if (!res.ok) throw new Error('Server error ' + res.status);
+      const json = await res.json();
+      status.textContent = '✓ Application received! Reference: ' + json.referenceNumber + '. Our admissions team will be in touch shortly.';
+      status.className = 'success';
+      status.style.display = 'block';
+      document.getElementById('pdfUploadForm').reset();
+    } catch (err) {
+      status.textContent = 'There was a problem submitting your application. Please call us at (760) 766-0300.';
+      status.className = 'error';
+      status.style.display = 'block';
+    } finally {
+      btn.disabled = false;
+      btn.textContent = '✉ Submit Application';
+    }
+  });
+</script>
+</body>
+</html>
