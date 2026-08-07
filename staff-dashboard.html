@@ -799,6 +799,7 @@
                 <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;gap:12px;flex-wrap:wrap;">
                     <div id="memberDocPreviewTitle" style="font-weight:700;font-size:1rem;color:#1a1a2e;"></div>
                     <div style="display:flex;gap:8px;flex-wrap:wrap;">
+                        <button onclick="editMemberDoc()" style="padding:8px 16px;background:#2563eb;color:white;border:none;border-radius:6px;font-weight:700;cursor:pointer;">✎ Edit</button>
                         <button id="memberDocPrintBtn" onclick="printMemberDoc()" style="padding:8px 16px;background:#2d6a4f;color:white;border:none;border-radius:6px;font-weight:700;cursor:pointer;">🖨️ Print</button>
                         <button id="memberDocSaveBtn" onclick="saveDocToRecord()" style="padding:8px 16px;background:#155724;color:white;border:none;border-radius:6px;font-weight:700;cursor:pointer;">✔ Save to Record</button>
                         <button id="memberDocDeleteBtn" onclick="deleteMemberDoc()" style="padding:8px 16px;background:#dc3545;color:white;border:none;border-radius:6px;font-weight:700;cursor:pointer;">🗑 Delete</button>
@@ -806,6 +807,60 @@
                     </div>
                 </div>
                 <div id="memberDocPreviewContent" style="text-align:center;"></div>
+            </div>
+        </div>
+
+        <!-- Member Document Edit Modal -->
+        <div id="memberDocEditModal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.7);z-index:200001;align-items:center;justify-content:center;">
+            <div style="background:white;border-radius:12px;max-width:600px;width:90%;padding:24px;">
+                <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;">
+                    <h3 style="margin:0;color:#2d3748;font-size:1.25rem;">✎ Edit Document</h3>
+                    <button onclick="closeMemberDocEdit()" style="background:none;border:none;font-size:1.8rem;cursor:pointer;color:#718096;line-height:1;">&times;</button>
+                </div>
+                
+                <div style="margin-bottom:16px;">
+                    <label style="display:block;font-weight:600;color:#4a5568;margin-bottom:6px;">Document Type / Category</label>
+                    <select id="editMemberDocType" style="width:100%;padding:10px;border:1px solid #cbd5e0;border-radius:6px;font-size:14px;">
+                        <option value="ID / License">ID / License</option>
+                        <option value="Court Document">Court Document</option>
+                        <option value="Drug Screen">Drug Screen</option>
+                        <option value="Insurance Card">Insurance Card</option>
+                        <option value="Medical Record">Medical Record</option>
+                        <option value="Medication Log">Medication Log</option>
+                        <option value="Release of Information">Release of Information</option>
+                        <option value="Agreement">Agreement</option>
+                        <option value="Emergency Contact Form">Emergency Contact Form</option>
+                        <option value="Application">Application</option>
+                        <option value="Property Form">Property Form</option>
+                        <option value="Incident Report">Incident Report</option>
+                        <option value="Letter">Letter</option>
+                        <option value="Med Log">Med Log</option>
+                        <option value="Other">Other</option>
+                    </select>
+                </div>
+                
+                <div style="margin-bottom:16px;">
+                    <label style="display:block;font-weight:600;color:#4a5568;margin-bottom:6px;">Description / Notes</label>
+                    <textarea id="editMemberDocNotes" rows="3" style="width:100%;padding:10px;border:1px solid #cbd5e0;border-radius:6px;font-size:14px;resize:vertical;" placeholder="Add notes or description..."></textarea>
+                </div>
+                
+                <div style="margin-bottom:16px;">
+                    <label style="display:block;font-weight:600;color:#4a5568;margin-bottom:6px;">File Name</label>
+                    <input type="text" id="editMemberDocFilename" style="width:100%;padding:10px;border:1px solid #cbd5e0;border-radius:6px;font-size:14px;" placeholder="filename.pdf" />
+                </div>
+                
+                <div style="margin-bottom:20px;padding:12px;background:#f7fafc;border-radius:6px;border-left:3px solid #4299e1;">
+                    <div style="font-size:12px;color:#2d3748;margin-bottom:4px;"><strong>Member:</strong> <span id="editMemberDocMemberName"></span></div>
+                    <div style="font-size:12px;color:#2d3748;margin-bottom:4px;"><strong>Original:</strong> <span id="editMemberDocOriginalName"></span></div>
+                    <div style="font-size:12px;color:#2d3748;"><strong>Uploaded:</strong> <span id="editMemberDocUploadedAt"></span></div>
+                </div>
+                
+                <div style="display:flex;gap:8px;">
+                    <button onclick="saveMemberDocEdits()" class="btn-view" style="flex:1;background:#2563eb;padding:12px;">💾 Save Changes</button>
+                    <button onclick="closeMemberDocEdit()" class="btn-view" style="flex:1;background:#718096;padding:12px;">Cancel</button>
+                </div>
+                
+                <div id="editMemberDocStatus" style="margin-top:12px;padding:10px;border-radius:6px;display:none;font-size:14px;font-weight:600;"></div>
             </div>
         </div>
 
@@ -5734,6 +5789,107 @@ async function deleteMemberDoc() {
         const el = document.getElementById('memberDocsCount');
         if (el) el.textContent = pending;
     } catch (e) { alert('Delete failed: ' + e.message); }
+}
+
+function editMemberDoc() {
+    if (!_currentPreviewDoc) return;
+    
+    document.getElementById('editMemberDocType').value = _currentPreviewDoc.docType || 'Other';
+    document.getElementById('editMemberDocNotes').value = _currentPreviewDoc.notes || '';
+    document.getElementById('editMemberDocFilename').value = _currentPreviewDoc.originalName || _currentPreviewDoc.filename || '';
+    document.getElementById('editMemberDocMemberName').textContent = `${_currentPreviewDoc.memberName || 'Unknown'} (ID: ${_currentPreviewDoc.memberId})`;
+    document.getElementById('editMemberDocOriginalName').textContent = _currentPreviewDoc.originalName || _currentPreviewDoc.filename || '';
+    document.getElementById('editMemberDocUploadedAt').textContent = new Date(_currentPreviewDoc.uploadedAt).toLocaleDateString();
+    document.getElementById('editMemberDocStatus').style.display = 'none';
+    
+    document.getElementById('memberDocEditModal').style.display = 'flex';
+    document.body.style.overflow = 'hidden';
+}
+
+function closeMemberDocEdit() {
+    document.getElementById('memberDocEditModal').style.display = 'none';
+}
+
+async function saveMemberDocEdits() {
+    if (!_currentPreviewDoc) return;
+    
+    const statusEl = document.getElementById('editMemberDocStatus');
+    const docType = document.getElementById('editMemberDocType').value;
+    const notes = document.getElementById('editMemberDocNotes').value.trim();
+    const filename = document.getElementById('editMemberDocFilename').value.trim();
+    
+    if (!filename) {
+        statusEl.style.display = 'block';
+        statusEl.style.background = '#fef2f2';
+        statusEl.style.color = '#991b1b';
+        statusEl.textContent = '⚠️ Filename cannot be empty';
+        return;
+    }
+    
+    statusEl.style.display = 'block';
+    statusEl.style.background = '#eff6ff';
+    statusEl.style.color = '#1e40af';
+    statusEl.textContent = '💾 Saving changes...';
+    
+    try {
+        const res = await fetch(`${MDOC_API}/member-documents/${encodeURIComponent(_currentPreviewDoc.id)}`, {
+            method: 'PATCH',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ docType, notes, originalName: filename })
+        });
+        
+        if (!res.ok) {
+            let errorMsg = 'Update failed';
+            const contentType = res.headers.get('content-type');
+            if (contentType && contentType.includes('application/json')) {
+                try {
+                    const errData = await res.json();
+                    errorMsg = errData.error || errorMsg;
+                } catch (e) {
+                    errorMsg = `Server error (${res.status})`;
+                }
+            } else {
+                errorMsg = `Server error (${res.status})`;
+            }
+            
+            statusEl.style.background = '#fef2f2';
+            statusEl.style.color = '#991b1b';
+            statusEl.textContent = `⚠️ ${errorMsg}`;
+            return;
+        }
+        
+        const result = await res.json();
+        
+        // Update cached document
+        _currentPreviewDoc.docType = docType;
+        _currentPreviewDoc.notes = notes;
+        _currentPreviewDoc.originalName = filename;
+        
+        // Update in the list
+        const idx = _allMemberDocs.findIndex(d => d.id === _currentPreviewDoc.id);
+        if (idx !== -1) {
+            _allMemberDocs[idx].docType = docType;
+            _allMemberDocs[idx].notes = notes;
+            _allMemberDocs[idx].originalName = filename;
+        }
+        
+        statusEl.style.background = '#d1fae5';
+        statusEl.style.color = '#065f46';
+        statusEl.textContent = '✓ Document updated successfully!';
+        
+        setTimeout(() => {
+            closeMemberDocEdit();
+            // Update preview modal title
+            document.getElementById('memberDocPreviewTitle').textContent = `${docType} — ${_currentPreviewDoc.memberName || 'Member #' + _currentPreviewDoc.memberId} · ${new Date(_currentPreviewDoc.uploadedAt).toLocaleDateString()}`;
+            // Refresh the list
+            filterMemberDocs();
+        }, 800);
+        
+    } catch (e) {
+        statusEl.style.background = '#fef2f2';
+        statusEl.style.color = '#991b1b';
+        statusEl.textContent = `⚠️ Network error: ${e.message}`;
+    }
 }
 
 function escMD(s) {
