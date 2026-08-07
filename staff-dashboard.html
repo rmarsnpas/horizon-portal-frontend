@@ -1923,6 +1923,43 @@ ${rateSummaryHtml}
                     }
                     // ─────────────────────────────────────────────────────────────────────────
 
+                    // ── Archive member files prompt ───────────────────────────────────────────
+                    async function promptArchiveMemberFiles(memberId, memberName) {
+                        const confirmed = confirm(
+                            `Archive files for ${memberName} (${memberId})?\n\n` +
+                            `This will move member documents, meeting cards, and other files from cloud storage to OneDrive archive.\n\n` +
+                            `Files will be saved to:\n` +
+                            `OneDrive/Horizon House/Discharged Members/${new Date().getFullYear()}/${memberId}-${memberName.replace(/[^a-zA-Z0-9-]/g, '-')}/\n\n` +
+                            `Click OK to archive, or Cancel to keep files in cloud storage.`
+                        );
+                        
+                        if (!confirmed) return;
+                        
+                        try {
+                            const res = await fetch(`${API_BASE}/api/archive-member-files`, {
+                                method: 'POST',
+                                headers: { 'Content-Type': 'application/json' },
+                                body: JSON.stringify({ memberId, memberName })
+                            });
+                            
+                            const result = await res.json();
+                            
+                            if (result.success) {
+                                alert(
+                                    `✓ Files archived successfully!\n\n` +
+                                    `${result.fileCount || 0} files moved to:\n${result.archivePath || 'OneDrive archive'}\n\n` +
+                                    `This will reduce your cloud storage costs by removing frequently-accessed files from GCS.`
+                                );
+                            } else {
+                                alert(`Archive failed: ${result.error || 'Unknown error'}\n\nFiles remain in cloud storage.`);
+                            }
+                        } catch (e) {
+                            console.error('Archive error:', e);
+                            alert(`Archive failed: ${e.message}\n\nFiles remain in cloud storage.`);
+                        }
+                    }
+                    // ─────────────────────────────────────────────────────────────────────────
+
 
                     async function openStaffProfileModal(memberIdArg) {
                         const memberId = memberIdArg ? String(memberIdArg).trim() : '';
@@ -3405,6 +3442,13 @@ ${rateSummaryHtml}
                                     setTimeout(() => {
                                         window.open('/discharge-combined-fillable.html?' + params.toString(), '_blank');
                                     }, 950);
+                                    
+                                    // Prompt to archive member files to OneDrive after discharge
+                                    if (newStatus === '3') {
+                                        setTimeout(() => {
+                                            promptArchiveMemberFiles(payload.id, memberName);
+                                        }, 1200);
+                                    }
                                 }
                                 setTimeout(closeEditMemberModal, 900);
                             } else {
