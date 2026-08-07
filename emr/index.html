@@ -596,9 +596,16 @@ function renderMemberFile(data) {
   const phone= member.phone|| member.PHONE|| member['PHONE'] || '';
   const dob  = member.dob  || member.DOB  || member['D.O.B'] || member['DOB'] || '';
 
-  // Total form count
-  const intakeCount = Object.values(intakeForms || {}).reduce((t, arr) => t + (arr||[]).length, 0);
-  const totalDocs = (docs||[]).length + (meetingCards||[]).length + (submittedForms||[]).length + intakeCount + (applications||[]).length + (incidentReports||[]).length + (signInOutRecords||[]).length + (medLogs||[]).length + (drugLog||[]).length;
+  // Separate documents by folder
+  const intakeFormDocs = (docs || []).filter(d => d.folder === 'Intake Forms');
+  const medLogDocs = (docs || []).filter(d => d.folder === 'Med Logs');
+  const courtDocs = (docs || []).filter(d => d.folder === 'Court Documents');
+  const medRecordDocs = (docs || []).filter(d => d.folder === 'Medical Records');
+  const generalDocs = (docs || []).filter(d => !d.folder || d.folder === '');
+
+  // Total form count (including uploaded intake form documents)
+  const intakeCount = Object.values(intakeForms || {}).reduce((t, arr) => t + (arr||[]).length, 0) + intakeFormDocs.length;
+  const totalDocs = generalDocs.length + (meetingCards||[]).length + (submittedForms||[]).length + intakeCount + (applications||[]).length + (incidentReports||[]).length + (signInOutRecords||[]).length + (medLogs||[]).length + (drugLog||[]).length + medLogDocs.length + courtDocs.length + medRecordDocs.length;
 
   const html = `
     <div class="member-header">
@@ -619,19 +626,28 @@ function renderMemberFile(data) {
     <div class="upload-bar">
       <span style="font-weight:700;font-size:14px;white-space:nowrap;">⬆️ Add to File:</span>
       <select id="upDocType">
-        <option value="Intake Forms">Intake Forms</option>
-        <option value="Admission Paperwork">Admission Paperwork</option>
-        <option value="Government ID">Government ID / Driver's License</option>
-        <option value="Vehicle Registration">Vehicle Registration</option>
-        <option value="Court Order">Court Order / Legal Document</option>
-        <option value="Medical Record">Medical Record / Prescription</option>
-        <option value="Insurance">Insurance Card</option>
-        <option value="Employment">Employment / Pay Stub</option>
-        <option value="Drug Screen">Drug Screen (paper)</option>
+        <option value="ID / License">ID / License</option>
+        <option value="Court Document">Court Document</option>
+        <option value="Drug Screen">Drug Screen</option>
+        <option value="Insurance Card">Insurance Card</option>
+        <option value="Medical Record">Medical Record</option>
+        <option value="Medication Log">Medication Log</option>
+        <option value="Release of Information">Release of Information</option>
+        <option value="Agreement">Agreement</option>
+        <option value="Emergency Contact Form">Emergency Contact Form</option>
+        <option value="Application">Application</option>
+        <option value="Property Form">Property Form</option>
         <option value="Incident Report">Incident Report</option>
-        <option value="Program Certificate">Program Certificate</option>
-        <option value="Signed Agreement">Signed Agreement</option>
+        <option value="Letter">Letter</option>
+        <option value="Photo">Photo</option>
         <option value="Other">Other</option>
+      </select>
+      <select id="upFolder" style="max-width:140px;">
+        <option value="">General</option>
+        <option value="Intake Forms">📋 Intake</option>
+        <option value="Med Logs">💊 Med Logs</option>
+        <option value="Court Documents">⚖️ Court</option>
+        <option value="Medical Records">🏥 Medical</option>
       </select>
       <input type="text" id="upNotes" placeholder="Description (optional)" style="flex:1;min-width:140px;">
       <div id="upFilePill" style="display:none;background:#fff3e0;border:1px solid #E1C462;border-radius:5px;padding:5px 10px;font-size:13px;font-weight:700;color:#5a3a00;">
@@ -647,8 +663,11 @@ function renderMemberFile(data) {
       <button class="btn-upload-file" onclick="openImport()" style="background:#1a4f3a;font-size:13px;">📥 Save Records to File</button>
     </div>
 
-    ${sectionCard('📎 Uploaded Documents', docs, renderDocsTable(docs))}
-    ${sectionCard('📋 Intake Forms', [{_count: intakeCount}], renderIntakeForms(intakeForms), intakeCount)}
+    ${sectionCard('📎 General Documents', generalDocs, renderDocsTable(generalDocs))}
+    ${sectionCard('📋 Intake Forms', [{_count: intakeCount}], renderIntakeForms(intakeForms, intakeFormDocs), intakeCount)}
+    ${sectionCard('💊 Med Logs', medLogDocs, renderDocsTable(medLogDocs))}
+    ${sectionCard('⚖️ Court Documents', courtDocs, renderDocsTable(courtDocs))}
+    ${sectionCard('🏥 Medical Records', medRecordDocs, renderDocsTable(medRecordDocs))}
     ${sectionCard('🧪 Drug Screens', drugScreens, renderDrugScreens(drugScreens))}
     ${sectionCard('🌙 Overnight Passes', passes, renderPasses(passes))}
     ${sectionCard('🪪 Meeting Cards', meetingCards, renderMeetingCards(meetingCards))}
@@ -715,7 +734,7 @@ function _cacheItem(obj) {
   return key;
 }
 
-function renderIntakeForms(forms) {
+function renderIntakeForms(forms, uploadedIntakeDocs) {
   const sections = [
     { key: 'agreements', label: 'Member Agreement',        icon: '📜' },
     { key: 'licensee',   label: 'Licensee Agreement',      icon: '📜' },
@@ -725,6 +744,8 @@ function renderIntakeForms(forms) {
     { key: 'property',   label: 'Personal Property Release', icon: '📦' },
   ];
   const rows = [];
+  
+  // Add rows for submitted intake forms
   sections.forEach(s => {
     (forms[s.key] || []).forEach(f => {
       const subDate = f.submittedAt || f.createdAt || '';
@@ -739,6 +760,24 @@ function renderIntakeForms(forms) {
       </tr>`);
     });
   });
+  
+  // Add rows for uploaded intake documents
+  (uploadedIntakeDocs || []).forEach(d => {
+    const key = _cacheItem({ doc: d });
+    rows.push(`<tr>
+      <td>📄 ${esc(d.docType)}</td>
+      <td>${esc(d.notes || d.originalName)}</td>
+      <td style="white-space:nowrap;">${fmtDate(d.uploadedAt)}</td>
+      <td><span class="badge badge-blue">Uploaded</span></td>
+      <td>
+        <button class="btn-view" onclick="previewDocCached('${key}')">View</button>
+        ${!d.savedToRecord ? `<button class="btn-view" style="background:#155724;margin-left:4px;" onclick="markSaved('${d.id}',this)">Save</button>` : ''}
+        <button class="btn-view" style="background:#2563eb;margin-left:4px;" onclick="editDocCached('${key}')">✎ Edit</button>
+        <button class="btn-view" style="background:#dc2626;margin-left:4px;" onclick="deleteDoc('${d.id}','${esc(d.originalName)}')">🗑 Delete</button>
+      </td>
+    </tr>`);
+  });
+  
   if (!rows.length) return emptyRow('No intake forms on file');
   return `<table class="file-table"><thead><tr><th>Form</th><th>Signed By</th><th>Date</th><th>Status</th><th></th></tr></thead><tbody>${rows.join('')}</tbody></table>`;
 }
@@ -948,6 +987,7 @@ async function doUpload() {
   fd.append('memberId', _currentMemberId);
   fd.append('memberName', full);
   fd.append('docType', document.getElementById('upDocType').value);
+  fd.append('folder', document.getElementById('upFolder').value);
   fd.append('notes', document.getElementById('upNotes').value.trim());
 
   try {

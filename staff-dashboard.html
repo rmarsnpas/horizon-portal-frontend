@@ -819,9 +819,8 @@
                 </div>
                 
                 <div style="margin-bottom:16px;">
-                    <label style="display:block;font-weight:600;color:#4a5568;margin-bottom:6px;">Document Type / Category</label>
+                    <label style="display:block;font-weight:600;color:#4a5568;margin-bottom:6px;">Document Type</label>
                     <select id="editMemberDocType" style="width:100%;padding:10px;border:1px solid #cbd5e0;border-radius:6px;font-size:14px;">
-                        <option value="Intake Forms">Intake Forms</option>
                         <option value="ID / License">ID / License</option>
                         <option value="Court Document">Court Document</option>
                         <option value="Drug Screen">Drug Screen</option>
@@ -835,8 +834,19 @@
                         <option value="Property Form">Property Form</option>
                         <option value="Incident Report">Incident Report</option>
                         <option value="Letter">Letter</option>
-                        <option value="Med Log">Med Log</option>
+                        <option value="Photo">Photo</option>
                         <option value="Other">Other</option>
+                    </select>
+                </div>
+                
+                <div style="margin-bottom:16px;">
+                    <label style="display:block;font-weight:600;color:#4a5568;margin-bottom:6px;">Folder / Category</label>
+                    <select id="editMemberDocFolder" style="width:100%;padding:10px;border:1px solid #cbd5e0;border-radius:6px;font-size:14px;">
+                        <option value="">General Documents (Default)</option>
+                        <option value="Intake Forms">📋 Intake Forms</option>
+                        <option value="Med Logs">💊 Med Logs</option>
+                        <option value="Court Documents">⚖️ Court Documents</option>
+                        <option value="Medical Records">🏥 Medical Records</option>
                     </select>
                 </div>
                 
@@ -5796,6 +5806,7 @@ function editMemberDoc() {
     if (!_currentPreviewDoc) return;
     
     document.getElementById('editMemberDocType').value = _currentPreviewDoc.docType || 'Other';
+    document.getElementById('editMemberDocFolder').value = _currentPreviewDoc.folder || '';
     document.getElementById('editMemberDocNotes').value = _currentPreviewDoc.notes || '';
     document.getElementById('editMemberDocFilename').value = _currentPreviewDoc.originalName || _currentPreviewDoc.filename || '';
     document.getElementById('editMemberDocMemberName').textContent = `${_currentPreviewDoc.memberName || 'Unknown'} (ID: ${_currentPreviewDoc.memberId})`;
@@ -5816,6 +5827,7 @@ async function saveMemberDocEdits() {
     
     const statusEl = document.getElementById('editMemberDocStatus');
     const docType = document.getElementById('editMemberDocType').value;
+    const folder = document.getElementById('editMemberDocFolder').value;
     const notes = document.getElementById('editMemberDocNotes').value.trim();
     const filename = document.getElementById('editMemberDocFilename').value.trim();
     
@@ -5836,7 +5848,7 @@ async function saveMemberDocEdits() {
         const res = await fetch(`${MDOC_API}/member-documents/${encodeURIComponent(_currentPreviewDoc.id)}`, {
             method: 'PATCH',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ docType, notes, originalName: filename })
+            body: JSON.stringify({ docType, folder, notes, originalName: filename })
         });
         
         if (!res.ok) {
@@ -5863,6 +5875,7 @@ async function saveMemberDocEdits() {
         
         // Update cached document
         _currentPreviewDoc.docType = docType;
+        _currentPreviewDoc.folder = folder;
         _currentPreviewDoc.notes = notes;
         _currentPreviewDoc.originalName = filename;
         
@@ -5870,6 +5883,7 @@ async function saveMemberDocEdits() {
         const idx = _allMemberDocs.findIndex(d => d.id === _currentPreviewDoc.id);
         if (idx !== -1) {
             _allMemberDocs[idx].docType = docType;
+            _allMemberDocs[idx].folder = folder;
             _allMemberDocs[idx].notes = notes;
             _allMemberDocs[idx].originalName = filename;
         }
