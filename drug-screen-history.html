@@ -614,7 +614,8 @@
                         </div>
                         <div class="test-header">
                             <div class="test-info">
-                                <h3>${test.memberName} (ID: ${test.memberId})</h3>
+                                <h3>${test.memberName}</h3>
+                                <p><strong>ID:</strong> ${test.memberId} ${test.memberDOB ? `| <strong>DOB:</strong> ${test.memberDOB}` : ''} ${test.memberBed ? `| <strong>Bed:</strong> ${test.memberBed}` : ''}</p>
                                 <p>Tested: ${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}-${date.getFullYear()} at ${test.testTime} | Recorded: ${String(timestamp.getMonth() + 1).padStart(2, '0')}-${String(timestamp.getDate()).padStart(2, '0')}-${timestamp.getFullYear()} ${timestamp.toLocaleTimeString('en-US', {hour: 'numeric', minute: '2-digit'})}</p>
                             </div>
                             <div class="test-badge ${test.overallResult}">
