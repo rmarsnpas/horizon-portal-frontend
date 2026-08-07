@@ -1107,7 +1107,7 @@ function previewDocCached(cacheKey) {
   const cached = _emrViewCache[cacheKey];
   if (!cached) { alert('Could not load document — please refresh the page and try again.'); return; }
   const d = cached.doc;
-  const url = d.gcsUrl || `${API}/member-documents/file/${encodeURIComponent(d.filename)}`;
+  const url = `${API}/member-documents/file/${encodeURIComponent(d.filename)}`;
   _previewDoc = { docId: d.id, isPdf: d.isPdf };
   document.getElementById('previewTitle').textContent = (d.docType || '') + ' — ' + (d.originalName || d.filename);
   document.getElementById('btnSaveRec').style.display = d.savedToRecord ? 'none' : '';
