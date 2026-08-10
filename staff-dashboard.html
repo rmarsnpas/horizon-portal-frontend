@@ -5678,6 +5678,16 @@ function filterMemberDocs() {
     renderMemberDocsList(docs);
 }
 
+const MDOC_FOLDERS = [
+    { value: '', label: 'General Documents' },
+    { value: 'Intake Forms', label: '📋 Intake Forms' },
+    { value: 'Med Logs', label: '💊 Med Logs' },
+    { value: 'Court Documents', label: '⚖️ Court Documents' },
+    { value: 'Medical Records', label: '🏥 Medical Records' },
+];
+function mdocFolderLabel(v) { return (MDOC_FOLDERS.find(f => f.value === (v||'')) || MDOC_FOLDERS[0]).label; }
+function mdocFolderOpts(current) { return MDOC_FOLDERS.map(f => `<option value="${escMD(f.value)}"${f.value===(current||'')?' selected':''}>${f.label}</option>`).join(''); }
+
 function renderMemberDocsList(docs) {
     const wrap = document.getElementById('memberDocsListWrap');
     if (!docs.length) { wrap.innerHTML = '<em style="color:#777;">No documents found.</em>'; return; }
@@ -5690,26 +5700,63 @@ function renderMemberDocsList(docs) {
         byMember[key].docs.push(d);
     });
 
-    wrap.innerHTML = Object.values(byMember).map(m => `
+    wrap.innerHTML = Object.values(byMember).map(m => {
+        // Group docs by folder within each member
+        const byFolder = {};
+        m.docs.forEach(d => { const fk = d.folder || ''; if (!byFolder[fk]) byFolder[fk] = []; byFolder[fk].push(d); });
+
+        const folderSections = Object.entries(byFolder).map(([fkey, fdocs]) => `
+            <div>
+                <div style="background:#edf7ed;padding:7px 14px;font-size:12px;font-weight:700;color:#276749;letter-spacing:.3px;border-bottom:1px solid #d4edda;">
+                    📁 ${escMD(mdocFolderLabel(fkey))} <span style="font-weight:400;opacity:.7;">(${fdocs.length})</span>
+                </div>
+                ${fdocs.map(d => `
+                <div style="display:flex;align-items:center;gap:12px;padding:10px 14px;border-bottom:1px solid #f0f4f8;flex-wrap:wrap;background:${d.savedToRecord ? '#f0fff4' : '#fff'};">
+                    <span style="font-size:22px;flex-shrink:0;">${d.isPdf ? '📄' : '🖼️'}</span>
+                    <div style="flex:1;min-width:0;">
+                        <div style="font-weight:700;color:#2d3748;">${escMD(d.docType)}</div>
+                        <div style="font-size:12px;color:#718096;">${escMD(d.originalName)} · ${new Date(d.uploadedAt).toLocaleDateString()} · ${(d.size/1024).toFixed(1)} KB</div>
+                        ${d.notes ? `<div style="font-size:12px;color:#555;margin-top:2px;">${escMD(d.notes)}</div>` : ''}
+                    </div>
+                    <div style="display:flex;gap:6px;flex-shrink:0;flex-wrap:wrap;align-items:center;">
+                        <button onclick="previewMemberDoc('${d.id}')" style="padding:6px 12px;background:#2d6a4f;color:white;border:none;border-radius:5px;cursor:pointer;font-size:13px;font-weight:700;">👁 View</button>
+                        ${!d.savedToRecord ? `<button onclick="quickSaveToRecord('${d.id}',this)" style="padding:6px 12px;background:#155724;color:white;border:none;border-radius:5px;cursor:pointer;font-size:13px;font-weight:700;">✔ Save</button>` : `<span style="padding:6px 10px;background:#d4edda;color:#155724;border-radius:5px;font-size:12px;font-weight:700;">✔ Saved</span>`}
+                        <select onchange="moveDocToFolder('${d.id}',this.value,this)" title="Move to folder" style="padding:5px 8px;border:1px solid #cbd5e0;border-radius:5px;font-size:12px;color:#4a5568;background:#f7fafc;cursor:pointer;">
+                            ${mdocFolderOpts(d.folder)}
+                        </select>
+                    </div>
+                </div>`).join('')}
+            </div>`).join('');
+
+        return `
         <div style="margin-bottom:18px;border:1px solid #e2e8f0;border-radius:8px;overflow:hidden;">
             <div style="background:#2d6a4f;color:white;padding:10px 16px;font-weight:700;font-size:14px;">
                 👤 ${escMD(m.name)} <span style="font-weight:400;opacity:0.8;">(ID: ${escMD(m.id)})</span>
                 <span style="float:right;opacity:0.85;">${m.docs.length} doc${m.docs.length !== 1 ? 's' : ''}</span>
             </div>
-            ${m.docs.map(d => `
-            <div style="display:flex;align-items:center;gap:12px;padding:10px 14px;border-bottom:1px solid #f0f4f8;flex-wrap:wrap;background:${d.savedToRecord ? '#f0fff4' : '#fff'};">
-                <span style="font-size:24px;flex-shrink:0;">${d.isPdf ? '📄' : '🖼️'}</span>
-                <div style="flex:1;min-width:0;">
-                    <div style="font-weight:700;color:#2d3748;">${escMD(d.docType)}</div>
-                    <div style="font-size:12px;color:#718096;">${escMD(d.originalName)} · ${new Date(d.uploadedAt).toLocaleDateString()} · ${(d.size/1024).toFixed(1)} KB</div>
-                    ${d.notes ? `<div style="font-size:12px;color:#555;margin-top:2px;">${escMD(d.notes)}</div>` : ''}
-                </div>
-                <div style="display:flex;gap:6px;flex-shrink:0;flex-wrap:wrap;">
-                    <button onclick="previewMemberDoc('${d.id}')" style="padding:6px 12px;background:#2d6a4f;color:white;border:none;border-radius:5px;cursor:pointer;font-size:13px;font-weight:700;">👁 View</button>
-                    ${!d.savedToRecord ? `<button onclick="quickSaveToRecord('${d.id}',this)" style="padding:6px 12px;background:#155724;color:white;border:none;border-radius:5px;cursor:pointer;font-size:13px;font-weight:700;">✔ Save</button>` : `<span style="padding:6px 10px;background:#d4edda;color:#155724;border-radius:5px;font-size:12px;font-weight:700;">✔ Saved</span>`}
-                </div>
-            </div>`).join('')}
-        </div>`).join('');
+            ${folderSections}
+        </div>`;
+    }).join('');
+}
+
+async function moveDocToFolder(docId, newFolder, selectEl) {
+    const doc = _allMemberDocs.find(d => d.id === docId);
+    if (!doc || (doc.folder || '') === newFolder) return;
+    selectEl.disabled = true;
+    try {
+        const res = await fetch(`${MDOC_API}/member-documents/${encodeURIComponent(docId)}`, {
+            method: 'PATCH',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ folder: newFolder })
+        });
+        if (!res.ok) throw new Error('Move failed');
+        doc.folder = newFolder;
+        filterMemberDocs();
+    } catch (e) {
+        alert('Move failed: ' + e.message);
+        selectEl.value = doc.folder || '';
+        selectEl.disabled = false;
+    }
 }
 
 async function previewMemberDoc(docId) {
