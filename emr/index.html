@@ -276,6 +276,17 @@ body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; b
     </div>
     
     <div style="margin-bottom:16px;">
+      <label style="display:block;font-weight:600;color:#4a5568;margin-bottom:6px;">Folder</label>
+      <select id="editDocFolder" style="width:100%;padding:10px;border:1px solid #cbd5e0;border-radius:6px;font-size:14px;">
+        <option value="">📎 General Documents</option>
+        <option value="Intake Forms">📋 Intake Forms</option>
+        <option value="Med Logs">💊 Med Logs</option>
+        <option value="Court Documents">⚖️ Court Documents</option>
+        <option value="Medical Records">🏥 Medical Records</option>
+      </select>
+    </div>
+
+    <div style="margin-bottom:16px;">
       <label style="display:block;font-weight:600;color:#4a5568;margin-bottom:6px;">Description / Notes</label>
       <textarea id="editDocNotes" rows="3" style="width:100%;padding:10px;border:1px solid #cbd5e0;border-radius:6px;font-size:14px;resize:vertical;" placeholder="Add notes or description..."></textarea>
     </div>
@@ -720,9 +731,33 @@ function renderDocsTable(docs) {
           ${!d.savedToRecord ? `<button class="btn-view" style="background:#155724;margin-left:4px;" onclick="markSaved('${d.id}',this)">Save</button>` : ''}
           <button class="btn-view" style="background:#2563eb;margin-left:4px;" onclick="editDocCached('${key}')">✎ Edit</button>
           <button class="btn-view" style="background:#dc2626;margin-left:4px;" onclick="deleteDoc('${d.id}','${esc(d.originalName)}')">🗑 Delete</button>
+          <select onchange="moveEmrDoc('${d.id}',this.value,this)" title="Move to folder" style="margin-left:4px;padding:4px 6px;border:1px solid #cbd5e0;border-radius:5px;font-size:12px;color:#4a5568;background:#f7fafc;cursor:pointer;">
+            <option value="" ${!d.folder?'selected':''}>📎 General</option>
+            <option value="Intake Forms" ${d.folder==='Intake Forms'?'selected':''}>📋 Intake</option>
+            <option value="Med Logs" ${d.folder==='Med Logs'?'selected':''}>💊 Med Logs</option>
+            <option value="Court Documents" ${d.folder==='Court Documents'?'selected':''}>⚖️ Court</option>
+            <option value="Medical Records" ${d.folder==='Medical Records'?'selected':''}>🏥 Medical</option>
+          </select>
         </td>
       </tr>`;
     }).join('') + `</tbody></table>`;
+}
+
+async function moveEmrDoc(docId, newFolder, selectEl) {
+  selectEl.disabled = true;
+  try {
+    const res = await fetch(`${API}/member-documents/${encodeURIComponent(docId)}`, {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ folder: newFolder })
+    });
+    if (!res.ok) throw new Error('Move failed');
+    // Reload the member view to reflect the new folder grouping
+    openMemberFile(_currentMemberId);
+  } catch (e) {
+    alert('Move failed: ' + e.message);
+    selectEl.disabled = false;
+  }
 }
 
 // ── View Cache (avoids broken onclick attribute escaping) ─────────────────────
@@ -1035,6 +1070,7 @@ function editDocCached(cacheKey) {
   _editingDoc = d;
   
   document.getElementById('editDocType').value = d.docType || 'Other';
+  document.getElementById('editDocFolder').value = d.folder || '';
   document.getElementById('editDocNotes').value = d.notes || '';
   document.getElementById('editDocFilename').value = d.originalName || d.filename || '';
   document.getElementById('editOriginalName').textContent = d.originalName || d.filename || '';
@@ -1056,6 +1092,7 @@ async function saveDocEdits() {
   
   const statusEl = document.getElementById('editDocStatus');
   const docType = document.getElementById('editDocType').value;
+  const folder = document.getElementById('editDocFolder').value;
   const notes = document.getElementById('editDocNotes').value.trim();
   const filename = document.getElementById('editDocFilename').value.trim();
   
@@ -1076,7 +1113,7 @@ async function saveDocEdits() {
     const res = await fetch(`${API}/member-documents/${encodeURIComponent(_editingDoc.id)}`, {
       method: 'PATCH',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ docType, notes, originalName: filename })
+      body: JSON.stringify({ docType, folder, notes, originalName: filename })
     });
     
     if (!res.ok) {
