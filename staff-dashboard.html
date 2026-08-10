@@ -1279,24 +1279,25 @@
 
                         const allMembers = (window._allMembersTableData || {}).members || [];
                         // Helper: is this member a bed-hold inclusion for this report type?
+                        const _refCodes = m => String(m.REF || m.ref || '').trim().toUpperCase().split(',').map(s=>s.trim()).filter(Boolean);
                         const isBedHoldMember = m => {
                             const st = String(m.STATUS || m.status || m.STATU || '').trim().toUpperCase();
-                            const rv = String(m.REF || m.ref || '').trim().toUpperCase();
+                            const rv = _refCodes(m);
                             return st === 'H' && (
-                                (filterVal === 'ats'   && rv === 'A') ||
-                                (filterVal === 'rivco' && rv === 'H')
+                                (filterVal === 'ats'   && rv.includes('A')) ||
+                                (filterVal === 'rivco' && rv.includes('H'))
                             );
                         };
                         let members = allMembers.filter(m => {
                             const s = String(m.STATUS || m.status || m.STATU || '').trim().toUpperCase();
-                            const r = String(m.REF || m.ref || '').trim().toUpperCase();
+                            const rr = _refCodes(m);
                             // Status 4 with inCensus flag counts as Status 1 for all census filters
                             const isS4Census = s === '4' && m.inCensus === true;
                             const s1 = s === '1' || isS4Census;
                             let pass = false;
                             if (filterVal === 'current')      pass = s1;
-                            else if (filterVal === 'ats')     pass = (s1 && r === 'A') || (s === 'H' && r === 'A');
-                            else if (filterVal === 'rivco')   pass = (s1 && r === 'H') || (s === 'H' && r === 'H');
+                            else if (filterVal === 'ats')     pass = (s1 && rr.includes('A')) || (s === 'H' && rr.includes('A'));
+                            else if (filterVal === 'rivco')   pass = (s1 && rr.includes('H')) || (s === 'H' && rr.includes('H'));
                             else if (filterVal === 'all')     pass = s !== '5';
                             else                              pass = true;
                             if (!pass && inclHW) pass = s === 'H' || s === 'W';
@@ -1393,9 +1394,9 @@
                         // Breakdown totals
                         const totalF    = members.filter(m => String(m['M/F'] || m.GENDER || m.gender || '').trim().toUpperCase() === 'F').length;
                         const totalM    = members.filter(m => String(m['M/F'] || m.GENDER || m.gender || '').trim().toUpperCase() === 'M').length;
-                        const totalATS  = members.filter(m => String(m.REF || m.ref || '').trim().toUpperCase() === 'A').length;
-                        const totalRIV  = members.filter(m => String(m.REF || m.ref || '').trim().toUpperCase() === 'H').length;
-                        const totalSelf = members.filter(m => { const r = String(m.REF || m.ref || '').trim().toUpperCase(); return r !== 'A' && r !== 'H'; }).length;
+                        const totalATS  = members.filter(m => _refCodes(m).includes('A')).length;
+                        const totalRIV  = members.filter(m => _refCodes(m).includes('H')).length;
+                        const totalSelf = members.filter(m => { const rc = _refCodes(m); return !rc.includes('A') && !rc.includes('H'); }).length;
                                                 const rateTotal = members.reduce((sum, m) => sum + parseRate(m.RATE || m.rate), 0);
                                                 const targetRateTotal = members.length * 1500;
                                                 const rateDifference = rateTotal - targetRateTotal;

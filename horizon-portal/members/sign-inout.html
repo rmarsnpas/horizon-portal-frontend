@@ -427,7 +427,7 @@
                         hint.textContent = '';
                     }
                     const memberRef = String(m.REF || m.ref || '').trim().toUpperCase();
-                    if (memberRef !== 'H') checkInvoiceDue(id);
+                    if (!memberRef.split(',').map(s=>s.trim()).includes('H')) checkInvoiceDue(id);
                     else hideInvoiceAlert();
                 } else {
                     hint.textContent = id.length >= 2 ? 'ID not found' : '';
