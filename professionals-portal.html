@@ -920,7 +920,7 @@ function memberCardHTML(m, outIds) {
   const initials = ((fn[0]||'')+(ln[0]||'')).toUpperCase() || '?';
   const dob   = mVal(m,'dob','DOB','dateOfBirth','DATE_OF_BIRTH');
   const refVal = mVal(m,'REF','ref').toUpperCase().trim();
-  const isIEHP = refVal === 'H';
+  const isIEHP = refVal.split(',').map(s=>s.trim()).includes('H');
   return `<div class="member-card" onclick="openMember('${esc(id)}')">
     <div class="member-avatar" style="background:${avatarColor(name)}">${esc(initials)}</div>
     <div class="member-card-info">
@@ -962,7 +962,7 @@ async function openMember(memberId) {
   const { label, cls } = statusBadge(st, isOut);
   const dob    = mVal(_current,'dob','DOB','dateOfBirth','DATE_OF_BIRTH');
   const refVal = mVal(_current,'REF','ref').toUpperCase().trim();
-  const isIEHP = refVal === 'H';
+  const isIEHP = refVal.split(',').map(s=>s.trim()).includes('H');
   document.getElementById('detailSub').innerHTML =
     `<span class="status-badge ${cls}">${esc(label)}</span>` +
     `<span>ID: ${esc(memberId)}</span>` +

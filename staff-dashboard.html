@@ -3114,7 +3114,7 @@ ${rateSummaryHtml}
 
                         // Billing urgency highlight (skip county REF='H', skip non-active)
                         const isActive = String(status).trim() === '1' || String(status).trim() === '2';
-                        const isCounty = String(ref).trim().toUpperCase() === 'H';
+                        const isCounty = String(ref).trim().toUpperCase().split(',').map(s=>s.trim()).includes('H');
                         let billCellClass = '';
                         let billCellTitle = '';
                         if (isActive && !isCounty) {
