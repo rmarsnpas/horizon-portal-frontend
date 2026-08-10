@@ -1362,8 +1362,10 @@
                             const daysSober = daysBetween(sober, null);
                             const idVal = (m.ID || m.id || '') + (isBedHold ? '<span class="bh-badge">BED HOLD</span>' : (isHW ? `<span class="hw-badge">${st}</span>` : ''));
                             const ref = m.REF || m.ref || '';
+                            const _rcs = ref.trim().toUpperCase().split(',').map(s=>s.trim()).filter(Boolean);
+                            const refDisplay = ref + (_rcs.includes('H') ? ' <img src="/iehp-logo.png" alt="IEHP" title="IEHP" style="height:18px;vertical-align:middle;background:#fff;border-radius:3px;padding:1px 4px;border:1px solid #ddd;">' : '');
                             const cells = [rowIdx + 1, idVal, first, last, gender, dob, fmt(admit), fmt(dc), daysHere, fmt(sober), daysSober];
-                            if (inclRef)     cells.push(ref);
+                            if (inclRef)     cells.push(refDisplay);
                             if (inclRate) {
                                 cells.push(m.RATE || m.rate ? '$' + (m.RATE || m.rate) : '');
                                 const _rv = parseRate(m.RATE || m.rate);

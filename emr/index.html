@@ -617,6 +617,7 @@ function renderMemberFile(data) {
   // Total form count (including uploaded intake form documents)
   const intakeCount = Object.values(intakeForms || {}).reduce((t, arr) => t + (arr||[]).length, 0) + intakeFormDocs.length;
   const totalDocs = generalDocs.length + (meetingCards||[]).length + (submittedForms||[]).length + intakeCount + (applications||[]).length + (incidentReports||[]).length + (signInOutRecords||[]).length + (medLogs||[]).length + (drugLog||[]).length + medLogDocs.length + courtDocs.length + medRecordDocs.length;
+  const _memberRefCodes = String(member.ref || member.REF || '').trim().toUpperCase().split(',').map(s=>s.trim()).filter(Boolean);
 
   const html = `
     <div class="member-header">
@@ -624,11 +625,12 @@ function renderMemberFile(data) {
       <div class="info" style="flex:1;">
         <h2 style="cursor:pointer;text-decoration:underline dotted;" onclick="openProfileCard()" title="View full profile">${esc(full)}</h2>
         <div style="font-size:13px;color:#718096;">ID: ${member.ID || member.id || ''} ${phone ? '· ' + phone : ''} ${dob ? '· DOB: ' + dob : ''}</div>
-        <div class="badges" style="margin-top:8px;">
+        <div class="badges" style="margin-top:8px;display:flex;align-items:center;flex-wrap:wrap;gap:6px;">
           <span class="badge badge-green">${statusLabel[s] || s}</span>
           ${bed ? `<span class="badge badge-blue">Bed ${bed}</span>` : ''}
           ${admitDate ? `<span class="badge badge-gray">Admitted ${admitDate}</span>` : ''}
           <span class="badge badge-orange">${totalDocs} item${totalDocs !== 1 ? 's' : ''} in file</span>
+          ${_memberRefCodes.includes('H') ? `<img src="/iehp-logo.png" alt="IEHP" title="IEHP Member" style="height:28px;object-fit:contain;background:#fff;border-radius:4px;padding:2px 6px;border:1px solid #e2e8f0;">` : ''}
         </div>
       </div>
     </div>
