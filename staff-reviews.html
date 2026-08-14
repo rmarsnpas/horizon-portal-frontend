@@ -450,7 +450,7 @@
                     <div class="app-info">
                         <h3>${data.first_name || ''} ${data.last_name || ''}</h3>
                         <div class="app-meta">
-                            📅 Submitted: ${submittedDate} | 📧 ${data.email || 'No email'}
+                            📅 Submitted: ${submittedDate} | 📧 ${data.email_address || 'No email'}
                         </div>
                     </div>
                     <span class="app-status ${app.status === 'reviewed' ? 'reviewed' : 'pending'}">
@@ -461,19 +461,19 @@
                 <div class="app-details">
                     <div class="detail-item">
                         <div class="detail-label">📞 Phone</div>
-                        <div class="detail-value">${data.phone || 'Not provided'}</div>
+                        <div class="detail-value">${data.cell_phone || 'Not provided'}</div>
                     </div>
                     <div class="detail-item">
                         <div class="detail-label">🎂 Date of Birth</div>
-                        <div class="detail-value">${data.dob || 'Not provided'}</div>
+                        <div class="detail-value">${data.date_of_birth || 'Not provided'}</div>
                     </div>
                     <div class="detail-item">
                         <div class="detail-label">🏠 Current Living</div>
-                        <div class="detail-value">${data.address || 'Not provided'}</div>
+                        <div class="detail-value">${data.current_address ? `${data.current_address}${data.city ? ', ' + data.city : ''}` : 'Not provided'}</div>
                     </div>
                     <div class="detail-item">
                         <div class="detail-label">💼 Employment</div>
-                        <div class="detail-value">${data.job === 'yes' ? 'Yes' : data.job === 'no' ? 'No' : 'Not provided'}</div>
+                        <div class="detail-value">${data.has_job === 'yes' ? 'Yes' : data.has_job === 'no' ? 'No' : 'Not provided'}</div>
                     </div>
                 </div>
 
@@ -515,87 +515,130 @@
                         <div style="display: grid; gap: 10px;">
                             <p><strong>First Name:</strong> ${data.first_name || 'Not provided'}</p>
                             <p><strong>Last Name:</strong> ${data.last_name || 'Not provided'}</p>
-                            <p><strong>Email:</strong> ${data.email || 'Not provided'}</p>
-                            <p><strong>Phone:</strong> ${data.phone || 'Not provided'}</p>
-                            <p><strong>DOB:</strong> ${formatDate(data.dob)}</p>
-                            <p><strong>Address:</strong> ${data.address || 'Not provided'}</p>
-                            <p><strong>Gender:</strong> ${data.gender || 'Not provided'}</p>
-                            <p><strong>SSN:</strong> ${data.ssn || 'Not provided'}</p>
+                            <p><strong>Email:</strong> ${data.email_address || 'Not provided'}</p>
+                            <p><strong>Phone:</strong> ${data.cell_phone || 'Not provided'}</p>
+                            <p><strong>Date of Birth:</strong> ${formatDate(data.date_of_birth)}</p>
+                            <p><strong>Gender:</strong> ${data.gender || 'Not provided'}${data.gender_other_text ? ` (${data.gender_other_text})` : ''}</p>
+                            <p><strong>Marital Status:</strong> ${data.marital_status || 'Not provided'}${data.marital_other_text ? ` (${data.marital_other_text})` : ''}</p>
+                            <p><strong>Current Address:</strong> ${data.current_address || 'Not provided'}</p>
+                            <p><strong>City:</strong> ${data.city || 'Not provided'}</p>
+                            <p><strong>State:</strong> ${data.state || 'Not provided'}</p>
+                            <p><strong>ZIP:</strong> ${data.zip || 'Not provided'}</p>
+                            <p><strong>Desired Move-In Date:</strong> ${formatDate(data.desired_move_in_date)}</p>
+                        </div>
+                    </div>
+
+                    <div>
+                        <h3 style="color: #2d3748; margin-bottom: 10px;">🚗 Driver's License & Vehicle</h3>
+                        <div style="display: grid; gap: 10px;">
                             <p><strong>DL Number:</strong> ${data.dl_number || 'Not provided'}</p>
                             <p><strong>DL State:</strong> ${data.dl_state || 'Not provided'}</p>
-                            <p><strong>DL Expiration:</strong> ${data.dl_expiration || 'Not provided'}</p>
+                            <p><strong>DL Expiration:</strong> ${formatDate(data.dl_expiration)}</p>
+                            <p><strong>DL Status:</strong> ${data.dl_status || 'Not provided'}</p>
                             <p><strong>Has Vehicle:</strong> ${data.has_vehicle === 'yes' ? 'Yes' : data.has_vehicle === 'no' ? 'No' : 'Not provided'}</p>
-                            ${data.vehicle ? `<p><strong>Vehicle:</strong> ${data.vehicle}</p>` : ''}
-                            ${data.license_plate ? `<p><strong>License Plate:</strong> ${data.license_plate}</p>` : ''}
+                            ${data.vehicle_make_model ? `<p><strong>Vehicle:</strong> ${data.vehicle_make_model}</p>` : ''}
+                            ${data.license_plate_no ? `<p><strong>License Plate:</strong> ${data.license_plate_no}</p>` : ''}
                             ${data.plate_state ? `<p><strong>Plate State:</strong> ${data.plate_state}</p>` : ''}
-                            ${data.registration_expires ? `<p><strong>Registration Expires:</strong> ${formatDate(data.registration_expires)}</p>` : ''}
-                            <p><strong>Desired Move-In:</strong> ${formatDate(data.move_in)}</p>
+                            ${data.registration_exp ? `<p><strong>Registration Expires:</strong> ${formatDate(data.registration_exp)}</p>` : ''}
                         </div>
                     </div>
 
                     <div>
-                        <h3 style="color: #2d3748; margin-bottom: 10px;">🏠 Current Situation</h3>
+                        <h3 style="color: #2d3748; margin-bottom: 10px;">👥 How Did You Find Us & Referral</h3>
                         <div style="display: grid; gap: 10px;">
-                            <p><strong>Why Seeking Sober Living:</strong> ${data.seeking_reason || 'Not provided'}</p>
+                            ${data.found_us_counselor === 'Yes' ? '<p>✓ Counselor/Therapist</p>' : ''}
+                            ${data.found_us_friend === 'Yes' ? '<p>✓ Friend/Family</p>' : ''}
+                            ${data.found_us_internet === 'Yes' ? '<p>✓ Internet Search</p>' : ''}
+                            ${data.found_us_other === 'Yes' ? `<p>✓ Other: ${data.found_us_other_text || ''}</p>` : ''}
                             <p><strong>Referred By:</strong> ${data.referred_by || 'Not provided'}</p>
                             <p><strong>Referral Phone:</strong> ${data.referral_phone || 'Not provided'}</p>
-                            <p><strong>Employed:</strong> ${data.job === 'yes' ? 'Yes' : data.job === 'no' ? 'No' : 'Not provided'}</p>
-                            ${data.job_where ? `<p><strong>Job Location:</strong> ${data.job_where}</p>` : ''}
-                            ${data.job_schedule ? `<p><strong>Work Schedule:</strong> ${data.job_schedule}</p>` : ''}
-                            <p><strong>Have Sponsor:</strong> ${data.sponsor === 'yes' ? 'Yes' : data.sponsor === 'no' ? 'No' : 'Not provided'}</p>
-                            ${data.willing_sponsor ? `<p><strong>Willing to Get Sponsor:</strong> ${data.willing_sponsor === 'yes' ? 'Yes' : 'No'}</p>` : ''}
                         </div>
                     </div>
 
                     <div>
-                        <h3 style="color: #2d3748; margin-bottom: 10px;">🏥 Treatment & Recovery</h3>
+                        <h3 style="color: #2d3748; margin-bottom: 10px;">⚖️ Legal Information</h3>
                         <div style="display: grid; gap: 10px;">
-                            <p><strong>Completed Detox:</strong> ${data.detox === 'yes' ? 'Yes' : 'No'}</p>
-                            <p><strong>Inpatient Treatment:</strong> ${data.inpatient === 'yes' ? 'Yes' : 'No'}</p>
-                            ${data.inpatient_days ? `<p><strong>Days in Treatment:</strong> ${data.inpatient_days}</p>` : ''}
-                            ${data.facility ? `<p><strong>Facility Name:</strong> ${data.facility}</p>` : ''}
-                            ${data.discharge_date ? `<p><strong>Discharge Date:</strong> ${formatDate(data.discharge_date)}</p>` : ''}
-                            <p><strong>Attending IOP:</strong> ${data.iop === 'yes' ? 'Yes' : 'No'}</p>
-                            ${data.iop_where ? `<p><strong>IOP Location:</strong> ${data.iop_where}</p>` : ''}
-                            ${data.iop_schedule ? `<p><strong>IOP Schedule:</strong> ${data.iop_schedule}</p>` : ''}
+                            <p><strong>PC290 Registrant (Sex Offender):</strong> ${data.pc290_registrant === 'yes' ? 'Yes' : data.pc290_registrant === 'no' ? 'No' : 'Not provided'}</p>
+                            <p><strong>On Probation/Parole:</strong> ${data.on_probation_parole === 'yes' ? 'Yes' : data.on_probation_parole === 'no' ? 'No' : 'Not provided'}</p>
+                            <p><strong>Pending Legal Matters:</strong> ${data.legal_matters_pending === 'yes' ? 'Yes' : data.legal_matters_pending === 'no' ? 'No' : 'Not provided'}</p>
+                            ${data.legal_details ? `<p><strong>Legal Details:</strong> ${data.legal_details}</p>` : ''}
+                        </div>
+                    </div>
+
+                    <div>
+                        <h3 style="color: #2d3748; margin-bottom: 10px;">🏥 Treatment History - Detox</h3>
+                        <div style="display: grid; gap: 10px;">
+                            <p><strong>Completed Detox:</strong> ${data.detox_completed === 'yes' ? 'Yes' : data.detox_completed === 'no' ? 'No' : 'Not provided'}</p>
+                            ${data.detox_total_days ? `<p><strong>Total Days:</strong> ${data.detox_total_days}</p>` : ''}
+                            ${data.detox_facility_name ? `<p><strong>Facility Name:</strong> ${data.detox_facility_name}</p>` : ''}
+                            ${data.detox_facility_phone ? `<p><strong>Facility Phone:</strong> ${data.detox_facility_phone}</p>` : ''}
+                        </div>
+                    </div>
+
+                    <div>
+                        <h3 style="color: #2d3748; margin-bottom: 10px;">🏥 Treatment History - Inpatient</h3>
+                        <div style="display: grid; gap: 10px;">
+                            <p><strong>Completed Inpatient:</strong> ${data.inpatient_completed === 'yes' ? 'Yes' : data.inpatient_completed === 'no' ? 'No' : 'Not provided'}</p>
+                            ${data.inpatient_total_days ? `<p><strong>Total Days:</strong> ${data.inpatient_total_days}</p>` : ''}
+                            ${data.inpatient_facility_name ? `<p><strong>Facility Name:</strong> ${data.inpatient_facility_name}</p>` : ''}
+                            ${data.inpatient_facility_phone ? `<p><strong>Facility Phone:</strong> ${data.inpatient_facility_phone}</p>` : ''}
+                        </div>
+                    </div>
+
+                    <div>
+                        <h3 style="color: #2d3748; margin-bottom: 10px;">🏥 Treatment History - IOP</h3>
+                        <div style="display: grid; gap: 10px;">
+                            <p><strong>Currently in IOP:</strong> ${data.iop_current === 'yes' ? 'Yes' : data.iop_current === 'no' ? 'No' : 'Not provided'}</p>
+                            ${data.iop_days_per_wk ? `<p><strong>Days Per Week:</strong> ${data.iop_days_per_wk}</p>` : ''}
+                            ${data.iop_provider_location ? `<p><strong>Provider/Location:</strong> ${data.iop_provider_location}</p>` : ''}
+                            ${data.iop_facility_phone ? `<p><strong>Facility Phone:</strong> ${data.iop_facility_phone}</p>` : ''}
+                        </div>
+                    </div>
+
+                    <div>
+                        <h3 style="color: #2d3748; margin-bottom: 10px;">💼 Employment</h3>
+                        <div style="display: grid; gap: 10px;">
+                            <p><strong>Currently Employed:</strong> ${data.has_job === 'yes' ? 'Yes' : data.has_job === 'no' ? 'No' : 'Not provided'}</p>
+                            ${data.employer_job ? `<p><strong>Employer/Job:</strong> ${data.employer_job}</p>` : ''}
+                            ${data.work_schedule ? `<p><strong>Work Schedule:</strong> ${data.work_schedule}</p>` : ''}
+                        </div>
+                    </div>
+
+                    <div>
+                        <h3 style="color: #2d3748; margin-bottom: 10px;">🌟 Recovery Journey</h3>
+                        <div style="display: grid; gap: 10px;">
+                            <p><strong>Drugs of Choice:</strong> ${data.drugs_of_choice || 'Not provided'}</p>
                             <p><strong>Sobriety Date:</strong> ${formatDate(data.sobriety_date)}</p>
-                            <p><strong>Primary Substance:</strong> ${data.drugs || 'Not provided'}</p>
+                            <p><strong>Attending AA/NA Meetings:</strong> ${data.attending_meetings === 'yes' ? 'Yes' : data.attending_meetings === 'no' ? 'No' : 'Not provided'}</p>
+                            <p><strong>Has Sponsor:</strong> ${data.has_sponsor === 'yes' ? 'Yes' : data.has_sponsor === 'no' ? 'No' : 'Not provided'}</p>
+                            ${data.has_sponsor === 'no' && data.willing_get_sponsor ? `<p><strong>Willing to Get Sponsor:</strong> ${data.willing_get_sponsor === 'yes' ? 'Yes' : 'No'}</p>` : ''}
+                            <p><strong>Working the Steps:</strong> ${data.step_work === 'yes' ? 'Yes' : data.step_work === 'no' ? 'No' : 'Not provided'}</p>
+                            ${data.on_step_number ? `<p><strong>Currently on Step:</strong> ${data.on_step_number}</p>` : ''}
                         </div>
                     </div>
 
                     <div>
                         <h3 style="color: #2d3748; margin-bottom: 10px;">🏘️ Sober Living History</h3>
                         <div style="display: grid; gap: 10px;">
-                            <p><strong>First Time in Sober Living:</strong> ${data.first_sober_living === 'yes' ? 'Yes' : 'No'}</p>
+                            <p><strong>First Time in Sober Living:</strong> ${data.first_time_sober_living === 'yes' ? 'Yes' : data.first_time_sober_living === 'no' ? 'No' : 'Not provided'}</p>
                             ${data.previous_sober_living_count ? `<p><strong>Previous Times:</strong> ${data.previous_sober_living_count}</p>` : ''}
-                            <p><strong>Ever Asked to Leave:</strong> ${data.asked_to_leave === 'yes' ? 'Yes' : 'No'}</p>
-                            ${data.asked_to_leave_explanation ? `<p><strong>Explanation:</strong> ${data.asked_to_leave_explanation}</p>` : ''}
-                        </div>
-                    </div>
-
-                    <div>
-                        <h3 style="color: #2d3748; margin-bottom: 10px;">⚖️ Legal Status</h3>
-                        <div style="display: grid; gap: 10px;">
-                            <p><strong>PC 290 (Sex Offender Registry):</strong> ${data.pc290 === 'yes' ? 'Yes' : 'No'}</p>
-                            <p><strong>On Probation/Parole:</strong> ${data.probation === 'yes' ? 'Yes' : 'No'}</p>
-                            <p><strong>Legal Issues Pending:</strong> ${data.legal_pending === 'yes' ? 'Yes' : 'No'}</p>
-                            ${data.legal_details ? `<p><strong>Legal Details:</strong> ${data.legal_details}</p>` : ''}
+                            <p><strong>Ever Asked to Leave:</strong> ${data.asked_to_leave === 'yes' ? 'Yes' : data.asked_to_leave === 'no' ? 'No' : 'Not provided'}</p>
+                            ${data.asked_to_leave_why ? `<p><strong>Reason:</strong> ${data.asked_to_leave_why}</p>` : ''}
                         </div>
                     </div>
 
                     <div>
                         <h3 style="color: #2d3748; margin-bottom: 10px;">💊 Medical Information</h3>
                         <div style="display: grid; gap: 10px;">
-                            <p><strong>Current Medications:</strong> ${data.medications || 'None reported'}</p>
-                            <p><strong>Medical Conditions:</strong> ${data.medical || 'None reported'}</p>
+                            <p><strong>Current Medications:</strong> ${data.current_medications || 'None reported'}</p>
+                            <p><strong>Medical Conditions:</strong> ${data.medical_conditions || 'None reported'}</p>
                         </div>
                     </div>
 
                     <div>
-                        <h3 style="color: #2d3748; margin-bottom: 10px;">🏠 House Responsibilities</h3>
+                        <h3 style="color: #2d3748; margin-bottom: 10px;">🏠 House Expectations</h3>
                         <div style="display: grid; gap: 10px;">
-                            <p><strong>Willing to Do Daily Chores:</strong> ${data.chores === 'yes' ? 'Yes' : data.chores === 'no' ? 'No' : 'Not answered'}</p>
-                            <p><strong>Willing to Follow Structured Schedule:</strong> ${data.structured_schedule === 'yes' ? 'Yes' : data.structured_schedule === 'no' ? 'No' : 'Not answered'}</p>
+                            <p><strong>Willing to Do Chores:</strong> ${data.willing_chores === 'yes' ? 'Yes' : data.willing_chores === 'no' ? 'No' : 'Not answered'}</p>
                         </div>
                     </div>
 
@@ -611,9 +654,10 @@
                                     <p style="font-size: 13px; color: #718096; margin-top: 5px;"><em>Signed via ${data.signature_method || 'electronic signature'}</em></p>
                                 </div>
                             ` : '<p><strong>Signature:</strong> Not signed</p>'}
-                            <p><strong>Signature Date:</strong> ${formatDate(data.signature_date)}</p>
-                            <p><strong>Submitted:</strong> ${formatDate(data.submitted_date)}</p>
-                            <p><strong>Application Status:</strong> ${app.status || 'Pending'}</p>
+                            <p><strong>Printed Name:</strong> ${data.applicant_printed_name || 'Not provided'}</p>
+                            <p><strong>Signature Date:</strong> ${formatDate(data.applicant_date)}</p>
+                            <p><strong>Submitted:</strong> ${app.submittedAt ? new Date(app.submittedAt).toLocaleDateString() : 'Not available'}</p>
+                            <p><strong>Application Status:</strong> <span style="color: ${app.status === 'approved' ? '#48bb78' : app.status === 'rejected' ? '#e53e3e' : '#f59e0b'}; font-weight: 600;">${app.status || 'Pending'}</span></p>
                         </div>
                     </div>
                 </div>
