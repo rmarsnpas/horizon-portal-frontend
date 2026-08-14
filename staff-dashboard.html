@@ -939,7 +939,7 @@
             </a>
 
             <div class="dashboard-card" style="display: flex; flex-direction: column;">
-                <a href="/application-v2.html" style="text-decoration: none; color: inherit; flex: 1;">
+                <a href="/application-new.html" style="text-decoration: none; color: inherit; flex: 1;">
                     <div class="card-icon">📝</div>
                     <div class="card-title">Application Form</div>
                     <div class="card-count" style="font-size: 24px; color: #718096;">View Form</div>
@@ -5959,5 +5959,55 @@ async function saveMemberDocEdits() {
 
 function escMD(s) {
     return String(s || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+function emailApplicationLink(event) {
+    event.preventDefault();
+    const appLink = window.location.origin + '/application-new.html';
+    const subject = encodeURIComponent('Horizon House - Member Application');
+    const body = encodeURIComponent(`Please complete your application for Horizon House:\n\n${appLink}\n\nIf you have any questions, feel free to call us at (760) 766-0300.`);
+    window.location.href = `mailto:?subject=${subject}&body=${body}`;
+}
+
+function copyApplicationLink(event) {
+    event.preventDefault();
+    const appLink = window.location.origin + '/application-new.html';
+    
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(appLink).then(() => {
+            const btn = event.target;
+            const originalText = btn.textContent;
+            btn.textContent = '✓ Copied!';
+            btn.style.background = '#48bb78';
+            setTimeout(() => {
+                btn.textContent = originalText;
+                btn.style.background = '';
+            }, 2000);
+        }).catch(err => {
+            alert('Failed to copy: ' + err);
+        });
+    } else {
+        // Fallback for browsers that don't support clipboard API
+        const textarea = document.createElement('textarea');
+        textarea.value = appLink;
+        textarea.style.position = 'fixed';
+        textarea.style.opacity = '0';
+        document.body.appendChild(textarea);
+        textarea.select();
+        try {
+            document.execCommand('copy');
+            const btn = event.target;
+            const originalText = btn.textContent;
+            btn.textContent = '✓ Copied!';
+            btn.style.background = '#48bb78';
+            setTimeout(() => {
+                btn.textContent = originalText;
+                btn.style.background = '';
+            }, 2000);
+        } catch (err) {
+            alert('Failed to copy: ' + err);
+        }
+        document.body.removeChild(textarea);
+    }
 }
 </script>
