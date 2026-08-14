@@ -1,0 +1,15 @@
+{
+  "name": "Compass Check-In",
+  "short_name": "Compass",
+  "description": "Member check-ins and trip tracking for Horizon House",
+  "start_url": "/checkin.html",
+  "scope": "/",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#F6F4EF",
+  "theme_color": "#1F4B48",
+  "icons": [
+    { "src": "/icons/icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any maskable" },
+    { "src": "/icons/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any maskable" }
+  ]
+}

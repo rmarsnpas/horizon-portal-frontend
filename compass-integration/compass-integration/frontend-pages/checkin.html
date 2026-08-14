@@ -1,0 +1,436 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1">
+<title>Check In</title>
+
+<!-- PWA install support -->
+<link rel="manifest" href="/manifest.json">
+<meta name="theme-color" content="#1F4B48">
+<link rel="apple-touch-icon" href="/icons/apple-touch-icon.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Compass">
+<style>
+  :root {
+    --ink: #26302E; --paper: #F6F4EF; --teal: #1F4B48; --teal-dim: #2F615C;
+    --sage: #8AA98C; --ontime: #3F7D53; --late: #C08A2E; --missed: #B14A3B;
+    --line: #DAD5C8; --card: #FFFFFF;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0; background: var(--paper); color: var(--ink);
+    font-family: -apple-system, 'Segoe UI', sans-serif;
+    min-height: 100vh; display: flex; align-items: center; justify-content: center; padding: 20px;
+  }
+  .wrap { width: 100%; max-width: 420px; }
+  header { text-align: center; margin-bottom: 28px; }
+  header .mark { font-size: 13px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--sage); font-weight: 600; }
+  header h1 { font-size: 26px; margin: 6px 0 0; color: var(--teal); }
+  .card { background: var(--card); border: 1px solid var(--line); border-radius: 16px; padding: 24px; }
+  form { display: flex; flex-direction: column; gap: 14px; }
+  label { font-size: 13px; font-weight: 600; color: var(--teal-dim); }
+  input {
+    border: 1px solid var(--line); border-radius: 10px; padding: 12px 14px;
+    font-size: 16px; background: var(--card); color: var(--ink); width: 100%;
+  }
+  .btn-primary {
+    background: var(--teal); color: var(--paper); border: none; border-radius: 999px;
+    padding: 14px 28px; font-size: 16px; font-weight: 600; cursor: pointer; width: 100%;
+  }
+  .btn-primary:disabled { background: #B9BDB6; cursor: not-allowed; }
+  .btn-secondary {
+    background: transparent; color: var(--teal); border: 1px solid var(--teal);
+    border-radius: 999px; padding: 8px 16px; font-size: 13px; font-weight: 600; cursor: pointer;
+  }
+  .error-text { color: var(--missed); font-size: 14px; margin: 0; }
+  .window-label { text-align: center; font-size: 20px; margin-bottom: 8px; color: var(--teal); }
+  .status-line { text-align: center; font-size: 15px; color: #5C6660; margin-bottom: 20px; }
+  .ring-wrap { display: flex; justify-content: center; margin-bottom: 20px; }
+  .ring { width: 140px; height: 140px; }
+  .ring circle { fill: none; stroke-width: 8; }
+  .ring .track { stroke: var(--line); }
+  .ring .progress { stroke-linecap: round; transform: rotate(-90deg); transform-origin: 50% 50%; transition: stroke-dashoffset 0.6s ease, stroke 0.3s ease; }
+  .top-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 18px; }
+  .history-item { display: flex; justify-content: space-between; align-items: center; padding: 10px 0; border-bottom: 1px solid var(--line); font-size: 14px; }
+  .history-item:last-child { border-bottom: none; }
+  .muted { color: #7A8079; font-size: 13px; }
+  .tag { display: inline-flex; border-radius: 999px; padding: 4px 12px; font-size: 13px; font-weight: 600; }
+  .tag-ontime { background: #E4F0E5; color: var(--ontime); }
+  .tag-late { background: #F5EBD8; color: var(--late); }
+  .tag-pending { background: #EDEBE3; color: #6B6558; }
+  #screen-checkin { display: none; }
+
+  #install-banner {
+    display: none; align-items: center; gap: 10px; justify-content: space-between;
+    background: var(--teal); color: var(--paper); border-radius: 12px;
+    padding: 12px 14px; margin-bottom: 16px; font-size: 13px;
+  }
+  #install-banner button { border-radius: 999px; padding: 6px 14px; font-size: 12px; font-weight: 600; cursor: pointer; }
+  #install-btn { background: var(--paper); color: var(--teal); border: none; display: none; }
+  #install-dismiss { background: transparent; color: var(--paper); border: 1px solid var(--paper); }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <div id="install-banner">
+    <span id="install-banner-text"></span>
+    <span style="display:flex;gap:8px;flex-shrink:0;">
+      <button id="install-btn">Install</button>
+      <button id="install-dismiss">✕</button>
+    </span>
+  </div>
+
+  <div id="screen-login">
+    <header><div class="mark">Compass</div><h1>Member Check-In</h1></header>
+    <div class="card">
+      <form id="login-form">
+        <div><label for="memberId">Member ID</label><input id="memberId" required></div>
+        <div><label for="pin">PIN</label><input id="pin" type="password" inputmode="numeric" required></div>
+        <p class="error-text" id="login-error"></p>
+        <button type="submit" class="btn-primary">Log in</button>
+      </form>
+    </div>
+  </div>
+
+  <div id="screen-checkin">
+    <div class="top-row">
+      <div><div class="mark">Compass</div><h1 id="greeting" style="font-size:20px;color:var(--teal);margin:2px 0 0;">Hi</h1></div>
+      <button class="btn-secondary" id="logout-btn">Log out</button>
+    </div>
+    <div class="card" style="margin-bottom:16px;">
+      <div class="window-label" id="window-label">Checking for an open window…</div>
+      <div class="status-line" id="status-line"></div>
+      <div class="ring-wrap">
+        <svg class="ring" viewBox="0 0 140 140">
+          <circle class="track" cx="70" cy="70" r="58"></circle>
+          <circle class="progress" id="ring-progress" cx="70" cy="70" r="58" stroke-dasharray="364.4" stroke-dashoffset="364.4"></circle>
+        </svg>
+      </div>
+      <button class="btn-primary" id="checkin-btn" disabled>Check in now</button>
+      <p class="error-text" id="checkin-error" style="margin-top:10px;"></p>
+    </div>
+    <div class="card">
+      <h3 style="font-size:15px;margin:0 0 10px;color:var(--teal);">Recent check-ins</h3>
+      <div id="history-list" class="muted">Loading…</div>
+    </div>
+
+    <div class="card" style="margin-top:16px;">
+      <h3 style="font-size:15px;margin:0 0 10px;color:var(--teal);">Trip tracking</h3>
+      <p class="muted" id="trip-explain" style="margin-top:0;">Share your live location for a specific trip — only while this is open, and only until you stop it.</p>
+
+      <div id="trip-idle">
+        <input id="trip-label" placeholder="What's this trip for? (optional)" style="margin-bottom:10px;">
+        <button class="btn-primary" id="trip-start-btn">Start trip tracking</button>
+      </div>
+
+      <div id="trip-active" style="display:none;">
+        <div style="display:flex;align-items:center;gap:8px;margin-bottom:12px;">
+          <span style="width:10px;height:10px;border-radius:50%;background:var(--missed);display:inline-block;animation:pulse 1.5s infinite;"></span>
+          <strong>Tracking active</strong>
+        </div>
+        <p class="muted" id="trip-status-line">Sending your location periodically…</p>
+        <button class="btn-primary" id="trip-stop-btn" style="width:100%;background:var(--missed);">Stop tracking now</button>
+      </div>
+      <p class="error-text" id="trip-error" style="margin-top:10px;"></p>
+    </div>
+  </div>
+
+</div>
+<style>@keyframes pulse { 0%,100%{opacity:1;} 50%{opacity:0.3;} }</style>
+
+<script>
+// Point this at your Railway backend.
+const API = 'https://horizon-portal-backend-production-3532.up.railway.app/api/checkin';
+
+let token = sessionStorage.getItem('compass_token');
+let name = sessionStorage.getItem('compass_name');
+const screenLogin = document.getElementById('screen-login');
+const screenCheckin = document.getElementById('screen-checkin');
+
+function showCheckinScreen() {
+  screenLogin.style.display = 'none';
+  screenCheckin.style.display = 'block';
+  document.getElementById('greeting').textContent = 'Hi, ' + name;
+  refreshWindow();
+  loadHistory();
+}
+if (token && name) showCheckinScreen();
+
+document.getElementById('login-form').addEventListener('submit', async function (e) {
+  e.preventDefault();
+  const memberId = document.getElementById('memberId').value.trim();
+  const pin = document.getElementById('pin').value.trim();
+  const errorEl = document.getElementById('login-error');
+  errorEl.textContent = '';
+  try {
+    const res = await fetch(API + '/auth/login', {
+      method: 'POST', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ memberId, pin }),
+    });
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.error || 'Login failed.');
+    token = data.token; name = data.name;
+    sessionStorage.setItem('compass_token', token);
+    sessionStorage.setItem('compass_name', name);
+    showCheckinScreen();
+  } catch (err) { errorEl.textContent = err.message; }
+});
+
+document.getElementById('logout-btn').addEventListener('click', function () {
+  sessionStorage.clear(); token = null;
+  screenCheckin.style.display = 'none'; screenLogin.style.display = 'block';
+});
+
+async function authFetch(path, options) {
+  options = options || {};
+  const res = await fetch(API + path, {
+    ...options,
+    headers: { ...(options.headers || {}), Authorization: 'Bearer ' + token },
+  });
+  if (res.status === 401) { sessionStorage.clear(); location.reload(); }
+  return res;
+}
+
+async function refreshWindow() {
+  const res = await authFetch('/current');
+  const data = await res.json();
+  const label = document.getElementById('window-label');
+  const statusLine = document.getElementById('status-line');
+  const btn = document.getElementById('checkin-btn');
+  const ring = document.getElementById('ring-progress');
+
+  if (!data.open && !data.alreadyDone) {
+    label.textContent = 'No window open right now';
+    statusLine.textContent = data.message || 'Check back at your next scheduled time.';
+    btn.disabled = true;
+    ring.style.stroke = 'var(--line)'; ring.style.strokeDashoffset = 364.4;
+    return;
+  }
+  if (data.alreadyDone) {
+    label.textContent = data.label + ' — done';
+    statusLine.textContent = 'You already checked in for this window.';
+    btn.disabled = true; btn.textContent = 'Already checked in';
+    ring.style.stroke = 'var(--ontime)'; ring.style.strokeDashoffset = 0;
+    return;
+  }
+  label.textContent = data.label;
+  statusLine.textContent = data.status === 'late'
+    ? 'Window opened ' + data.minutesLate + ' min ago — check in now'
+    : 'Window is open — check in now';
+  ring.style.stroke = data.status === 'late' ? 'var(--late)' : 'var(--ontime)';
+  ring.style.strokeDashoffset = 364.4 * 0.3;
+  btn.disabled = false; btn.textContent = 'Check in now';
+}
+
+document.getElementById('checkin-btn').addEventListener('click', function () {
+  const btn = document.getElementById('checkin-btn');
+  const errorEl = document.getElementById('checkin-error');
+  errorEl.textContent = '';
+  btn.disabled = true; btn.textContent = 'Getting location…';
+
+  if (!navigator.geolocation) {
+    errorEl.textContent = 'This device does not support location access.';
+    btn.disabled = false; btn.textContent = 'Check in now';
+    return;
+  }
+
+  navigator.geolocation.getCurrentPosition(async function (pos) {
+    try {
+      const res = await authFetch('', {
+        method: 'POST', headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          latitude: pos.coords.latitude, longitude: pos.coords.longitude,
+          accuracyMeters: pos.coords.accuracy,
+        }),
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || 'Check-in failed.');
+      const ring = document.getElementById('ring-progress');
+      ring.style.stroke = data.status === 'late' ? 'var(--late)' : 'var(--ontime)';
+      ring.style.strokeDashoffset = 0;
+      document.getElementById('window-label').textContent = (data.label || 'Checked in') + ' — done';
+      document.getElementById('status-line').textContent = "Thanks — you're checked in.";
+      btn.textContent = 'Checked in';
+      loadHistory();
+    } catch (err) {
+      errorEl.textContent = err.message;
+      btn.disabled = false; btn.textContent = 'Check in now';
+    }
+  }, function () {
+    errorEl.textContent = 'Location access is required to check in. Please allow it in your browser/phone settings.';
+    btn.disabled = false; btn.textContent = 'Check in now';
+  }, { enableHighAccuracy: true, timeout: 15000 });
+});
+
+async function loadHistory() {
+  const res = await authFetch('/history');
+  const rows = await res.json();
+  const list = document.getElementById('history-list');
+  if (!rows.length) { list.textContent = 'No check-ins yet.'; return; }
+  list.innerHTML = rows.slice(0, 10).map(function (r) {
+    const when = new Date(r.checked_in_at).toLocaleString();
+    const tagClass = r.status === 'on_time' ? 'tag-ontime' : r.status === 'late' ? 'tag-late' : 'tag-pending';
+    const tagText = r.status === 'on_time' ? 'On time' : r.status === 'late' ? 'Late' : 'Logged';
+    return '<div class="history-item"><span>' + (r.label || 'Check-in') + '<br><span class="muted">' + when + '</span></span><span class="tag ' + tagClass + '">' + tagText + '</span></div>';
+  }).join('');
+}
+
+/* ---------------- Trip tracking ---------------- */
+const TRIP_API = API.replace('/checkin', '/checkin/trip');
+let activeTrip = null;
+let watchId = null;
+let pingTimer = null;
+const PING_INTERVAL_MS = 30000; // send a location update at most every 30s
+
+async function tripApiFetch(path, options) {
+  options = options || {};
+  const res = await fetch(TRIP_API + path, {
+    ...options,
+    headers: { ...(options.headers || {}), Authorization: 'Bearer ' + token, 'Content-Type': 'application/json' },
+  });
+  if (res.status === 401) { sessionStorage.clear(); location.reload(); }
+  return res;
+}
+
+function showTripActive(trip) {
+  activeTrip = trip;
+  document.getElementById('trip-idle').style.display = 'none';
+  document.getElementById('trip-active').style.display = 'block';
+}
+function showTripIdle() {
+  activeTrip = null;
+  document.getElementById('trip-idle').style.display = 'block';
+  document.getElementById('trip-active').style.display = 'none';
+}
+
+async function checkExistingTrip() {
+  const res = await tripApiFetch('/current');
+  const trip = await res.json();
+  if (trip) {
+    showTripActive(trip);
+    startWatching();
+  }
+}
+
+document.getElementById('trip-start-btn').addEventListener('click', async function () {
+  const errorEl = document.getElementById('trip-error');
+  errorEl.textContent = '';
+  if (!navigator.geolocation) {
+    errorEl.textContent = 'This device does not support location access.';
+    return;
+  }
+  try {
+    const label = document.getElementById('trip-label').value.trim();
+    const res = await tripApiFetch('/start', { method: 'POST', body: JSON.stringify({ label }) });
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.error || 'Could not start trip.');
+    showTripActive(data);
+    startWatching();
+  } catch (err) {
+    errorEl.textContent = err.message;
+  }
+});
+
+document.getElementById('trip-stop-btn').addEventListener('click', async function () {
+  await stopTripTracking();
+});
+
+async function stopTripTracking() {
+  stopWatching();
+  if (activeTrip) {
+    try { await tripApiFetch('/' + activeTrip.id + '/stop', { method: 'POST' }); } catch (e) {}
+  }
+  showTripIdle();
+}
+
+// Stop tracking if the member navigates away or closes the tab — belt and suspenders
+// alongside the server-side MAX_TRIP_HOURS expiry.
+window.addEventListener('pagehide', function () {
+  if (activeTrip) { navigator.sendBeacon && navigator.sendBeacon(TRIP_API + '/' + activeTrip.id + '/stop'); }
+});
+
+function startWatching() {
+  let lastSent = 0;
+  watchId = navigator.geolocation.watchPosition(
+    function (pos) {
+      const now = Date.now();
+      document.getElementById('trip-status-line').textContent =
+        'Last update: ' + new Date().toLocaleTimeString() + ' (±' + Math.round(pos.coords.accuracy) + 'm)';
+      if (now - lastSent < PING_INTERVAL_MS) return; // throttle
+      lastSent = now;
+      sendPing(pos);
+    },
+    function () {
+      document.getElementById('trip-error').textContent = 'Lost location access. Tracking may have stopped — check permissions.';
+    },
+    { enableHighAccuracy: true, maximumAge: 10000, timeout: 20000 }
+  );
+}
+
+function stopWatching() {
+  if (watchId !== null) { navigator.geolocation.clearWatch(watchId); watchId = null; }
+}
+
+async function sendPing(pos) {
+  if (!activeTrip) return;
+  try {
+    const res = await tripApiFetch('/' + activeTrip.id + '/ping', {
+      method: 'POST',
+      body: JSON.stringify({
+        latitude: pos.coords.latitude,
+        longitude: pos.coords.longitude,
+        accuracyMeters: pos.coords.accuracy,
+      }),
+    });
+    if (res.status === 410) {
+      // trip auto-expired server-side
+      stopWatching();
+      showTripIdle();
+    }
+  } catch (e) { /* transient network errors are fine, next ping will retry */ }
+}
+
+checkExistingTrip();
+
+/* ---------------- Install prompt ---------------- */
+if ('serviceWorker' in navigator) {
+  navigator.serviceWorker.register('/sw.js').catch(function () {});
+}
+
+// Android/Chrome: capture the native install prompt and show our own button for it.
+let deferredInstallPrompt = null;
+window.addEventListener('beforeinstallprompt', function (e) {
+  e.preventDefault();
+  deferredInstallPrompt = e;
+  document.getElementById('install-banner').style.display = 'flex';
+  document.getElementById('install-banner-text').textContent = 'Add Compass to your home screen for faster check-ins.';
+  document.getElementById('install-btn').style.display = 'inline-block';
+});
+
+document.getElementById('install-btn').addEventListener('click', async function () {
+  if (!deferredInstallPrompt) return;
+  deferredInstallPrompt.prompt();
+  await deferredInstallPrompt.userChoice;
+  deferredInstallPrompt = null;
+  document.getElementById('install-banner').style.display = 'none';
+});
+
+// iOS Safari has no install prompt API — show manual instructions instead,
+// unless it's already running as an installed home-screen app.
+const isIOS = /iphone|ipad|ipod/i.test(navigator.userAgent);
+const isStandalone = window.navigator.standalone === true;
+if (isIOS && !isStandalone) {
+  document.getElementById('install-banner').style.display = 'flex';
+  document.getElementById('install-banner-text').innerHTML = 'To install: tap <strong>Share</strong> \u2192 <strong>Add to Home Screen</strong>.';
+  document.getElementById('install-btn').style.display = 'none';
+}
+
+document.getElementById('install-dismiss').addEventListener('click', function () {
+  document.getElementById('install-banner').style.display = 'none';
+});
+</script>
+</body>
+</html>
