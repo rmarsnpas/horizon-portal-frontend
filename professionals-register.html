@@ -200,6 +200,7 @@ async function submitReg() {
   if (!lastName)  return showErr('Please enter your last name.');
   if (!email)     return showErr('Please enter your work email address.');
   if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) return showErr('Please enter a valid email address.');
+  if (smsConsent && !/^(?:\+?1[\s.-]?)?(?:\(?\d{3}\)?[\s.-]?)\d{3}[\s.-]?\d{4}$/.test(phone)) return showErr('Please enter a valid U.S. mobile number to enable text verification.');
   if (!company)   return showErr('Please enter your organization or company name.');
   if (!title)     return showErr('Please select your role.');
 

@@ -261,7 +261,7 @@
   <div class="login-card" style="max-width:400px">
     <div class="login-logo"><img src="HH%20logo%20grntree.png" alt="Horizon House"></div>
     <h1 style="font-size:1.35rem">Verification Required</h1>
-    <p class="login-sub">A 6-digit code has been sent to your email. Enter it below.</p>
+    <p class="login-sub" id="mfaMessage">A 6-digit verification code has been sent. Enter it below.</p>
     <div class="form-field">
       <label for="mfaCode">Verification Code</label>
       <input type="text" id="mfaCode" placeholder="_ _ _ _ _ _" maxlength="6" autocomplete="one-time-code"
@@ -561,17 +561,31 @@ async function doLogin() {
       return;
     }
 
-    // Step 3: Login successful — go straight in (MFA disabled until email is resolved)
-    _prof = member;
-    sessionStorage.setItem(SESSION_KEY, JSON.stringify({ id: resolvedId, member }));
-    
-    // Log successful login
-    const fn = mVal(member, 'firstName','FIRST_NAME','FIRST\r\nNAME');
-    const ln = mVal(member, 'lastName','LAST_NAME','LAST\r\nNAME');
-    const fullName = (fn + ' ' + ln).trim();
-    logActivity('LOGIN', null, null, `Logged into Professionals Portal`);
-    
-    startApp();
+    // Step 3: Require a one-time code. SMS is used with consent; otherwise email.
+    const email = mVal(member, 'professionalEmail','email','EMAIL');
+    if (!email) {
+      showLoginErr('This account does not have a verification email. Please contact Horizon House.');
+      return;
+    }
+    const mfaRes = await fetch(`${API}/professionals/send-mfa`, {
+      method:'POST', headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({ email })
+    });
+    const mfaData = await mfaRes.json();
+    if (!mfaRes.ok || !mfaData.ok) {
+      showLoginErr(mfaData.error || 'Could not send a verification code.');
+      return;
+    }
+
+    _mfaMember = member;
+    _mfaId = resolvedId;
+    _mfaEmail = email;
+    document.getElementById('mfaMessage').textContent =
+      `A 6-digit code was sent by ${mfaData.method === 'sms' ? 'text message' : 'email'} to ${mfaData.destination || 'your saved contact'}.`;
+    document.getElementById('loginScreen').style.display = 'none';
+    document.getElementById('mfaScreen').style.display = 'flex';
+    document.getElementById('mfaCode').value = '';
+    document.getElementById('mfaCode').focus();
 
   } catch (e) {
     showLoginErr('Could not reach server. Please try again.');
@@ -600,6 +614,7 @@ async function doVerifyMfa() {
     _prof = _mfaMember;
     sessionStorage.setItem(SESSION_KEY, JSON.stringify({ id: _mfaId, member: _mfaMember }));
     document.getElementById('mfaScreen').style.display = 'none';
+    logActivity('LOGIN', null, null, 'Logged into Professionals Portal with two-factor verification');
     startApp();
   } catch (e) {
     showMfaErr('Could not verify code. Please try again.');
@@ -612,12 +627,14 @@ async function doResendMfa(e) {
   e.preventDefault();
   if (!_mfaEmail) return;
   try {
-    await fetch(`${API}/professionals/send-mfa`, {
+    const res = await fetch(`${API}/professionals/send-mfa`, {
       method:'POST', headers:{'Content-Type':'application/json'},
       body: JSON.stringify({ email: _mfaEmail })
     });
+    const data = await res.json();
+    if (!res.ok || !data.ok) { showMfaErr(data.error || 'Could not resend code.'); return; }
     document.getElementById('mfaError').style.display = 'none';
-    showMfaErr('A new code has been sent to your email.', '#2e6a4f');
+    showMfaErr(`A new code was sent by ${data.method === 'sms' ? 'text message' : 'email'}.`, '#2e6a4f');
   } catch {}
 }
 
