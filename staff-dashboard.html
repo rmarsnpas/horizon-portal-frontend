@@ -3102,6 +3102,9 @@ ${rateSummaryHtml}
                         const dischargeDate = parseDate(dischargeRaw);
                         const dischargeText = dischargeDate ? String(dischargeDate.getMonth()+1).padStart(2,'0') + '-' + String(dischargeDate.getDate()).padStart(2,'0') + '-' + dischargeDate.getFullYear() : '';
                         const today = new Date(); today.setHours(0, 0, 0, 0);
+                        const admitDisplay = admitDate && admitDate > today
+                            ? `<span style="display:inline-block;padding:3px 7px;border-radius:5px;background:#fee2e2;color:#b91c1c;font-weight:700;" title="Future admit date">${admitText}</span>`
+                            : admitText;
                         const daysHere = admitDate ? Math.floor(((dischargeDate || today) - admitDate) / 86400000) : '';
                         const soberDate = parseDate(soberRaw);
                         const soberText = soberDate ? String(soberDate.getMonth()+1).padStart(2,'0') + '-' + String(soberDate.getDate()).padStart(2,'0') + '-' + soberDate.getFullYear() : '';
@@ -3159,7 +3162,7 @@ ${rateSummaryHtml}
                             <td>${genderTag}</td>
                             <td>${bed}</td>
                             <td>${dob}</td>
-                            <td>${admitText}</td>
+                            <td>${admitDisplay}</td>
                             <td>${dischargeText}</td>
                             <td>${daysHere}</td>
                             <td>${soberText}</td>

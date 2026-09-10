@@ -89,6 +89,10 @@
         tr:last-child td { border-bottom: none; }
         tbody tr:hover { background: #fffbf5; cursor: pointer; }
         td code { font-size: 12px; background: #f0f4f8; padding: 2px 6px; border-radius: 4px; }
+        .future-admit-date {
+            display: inline-block; padding: 3px 7px; border-radius: 5px;
+            background: #fee2e2; color: #b91c1c; font-weight: 700;
+        }
 
         /* ── Status Badges ───────────────────────────────────────────── */
         .badge { display: inline-block; padding: 3px 10px; border-radius: 12px; font-size: 12px; font-weight: 700; color: #fff; }
@@ -403,6 +407,22 @@
         } catch(e) { return d; }
     }
 
+    function isFutureDate(d) {
+        if (!d) return false;
+        const date = new Date(`${d}T12:00:00`);
+        if (Number.isNaN(date.getTime())) return false;
+        const today = new Date();
+        today.setHours(0, 0, 0, 0);
+        return date > today;
+    }
+
+    function admitDateHtml(d) {
+        const formatted = fmtDate(d);
+        return isFutureDate(d)
+            ? `<span class="future-admit-date" title="Future admit date">${formatted}</span>`
+            : formatted;
+    }
+
     // Auth headers for API calls
     function authHeaders() {
         return { 'Content-Type':'application/json', 'X-Staff-Id': staffCreds.id, 'X-Staff-Pw': staffCreds.pw };
@@ -504,7 +524,7 @@
                 <td>${m.status === 'hold' ? 'Hold' : m.status === 'wait' ? 'Wait List' : statusBadge(m.status)}</td>
                 <td>${m.phone||'—'}</td>
                 <td style="max-width:160px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${m.email||'—'}</td>
-                <td>${fmtDate(m.admitDate)}</td>
+                <td>${admitDateHtml(m.admitDate)}</td>
                 <td>${fmtDate(m.sobrietyDate)}</td>
                 <td>${m.bed||'—'}</td>
                 <td><button class="btn btn-secondary btn-sm" onclick="event.stopPropagation();openEdit('${m.id}')">Edit</button></td>
@@ -513,9 +533,14 @@
     }
 
     function nextId() {
-        if (!allMembers.length) return '0101';
-        const nums = allMembers.map(m => parseInt(m.id)||0).filter(n => !isNaN(n) && n > 0);
-        return nums.length ? String(Math.max(...nums) + 1).padStart(4, '0') : '0101';
+        const residentIds = allMembers
+            .filter(m => ![4, 5].includes(parseInt(m.status)))
+            .map(m => String(m.id || '').trim())
+            .filter(id => /^\d{1,4}$/.test(id))
+            .map(Number)
+            .filter(id => id > 0 && id < 1000);
+        const next = residentIds.length ? Math.max(...residentIds) + 1 : 101;
+        return String(next).padStart(4, '0');
     }
 
     function clearForm() {
