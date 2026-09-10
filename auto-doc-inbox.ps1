@@ -274,14 +274,14 @@ function Find-MemberById($members, $rawId) {
     return $null
 }
 function Get-MemberName($m) {
-    $f = Get-PropValue $m @('FIRST','first','FIRST NAME','FIRST`r`nNAME','FIRST`nNAME','firstName')
-    $l = Get-PropValue $m @('LAST','last','LAST NAME','LAST`r`nNAME','LAST`nNAME','lastName')
+    $f = Get-PropValue $m @('FIRST','first','FIRST_NAME','FIRST NAME',"FIRST`r`nNAME","FIRST`nNAME",'firstName')
+    $l = Get-PropValue $m @('LAST','last','LAST_NAME','LAST NAME',"LAST`r`nNAME","LAST`nNAME",'lastName')
     return "$f $l".Trim()
 }
 function Get-Members {
     try { 
-        Write-Log "  Fetching members from API: $API_BASE/members"
-        $all = Invoke-RestMethod -Uri "$API_BASE/members" -Method GET -TimeoutSec 15
+        Write-Log "  Fetching members from API: $API_BASE/members?compact=1"
+        $all = @(Invoke-RestMethod -Uri "$API_BASE/members?compact=1" -Method GET -TimeoutSec 15)
         
         if (-not $all) {
             Write-Log "  WARNING: API returned null/empty"
@@ -300,7 +300,7 @@ function Get-Members {
             }
         }
         
-        return $all
+        return ,$all
     }
     catch { 
         Write-Log "ERROR fetching members: $($_.Exception.Message)"
@@ -369,7 +369,8 @@ function Upload-File($filePath, $memberId, $memberName, $docType) {
         '\.png$'        { 'image/png' }
         '\.(mp4|m4v)$'  { 'video/mp4' }
         '\.mov$'        { 'video/quicktime' }
-        '\.(doc|docx)$' { 'application/msword' }
+        '\.doc$'  { 'application/msword' }
+        '\.docx$' { 'application/vnd.openxmlformats-officedocument.wordprocessingml.document' }
         default         { 'application/octet-stream' }
     }
     $boundary  = [System.Guid]::NewGuid().ToString()
