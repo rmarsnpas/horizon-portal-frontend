@@ -105,6 +105,31 @@ body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; b
 .btn-view { padding: 5px 12px; background: var(--green); color: #fff; border: none; border-radius: 5px; cursor: pointer; font-size: 12px; font-weight: 700; }
 .btn-del  { padding: 5px 10px; background: #fee2e2; color: #991b1b; border: none; border-radius: 5px; cursor: pointer; font-size: 12px; font-weight: 700; }
 
+/* ── Messaging ── */
+.record-tabs { display:flex;gap:0;border-bottom:1px solid var(--border);margin-bottom:18px;background:#fff;border-radius:10px 10px 0 0;overflow:hidden; }
+.record-tab { padding:11px 20px;border:0;background:#fff;color:var(--muted);font-weight:700;cursor:pointer;border-bottom:3px solid transparent; }
+.record-tab.active { color:var(--green);border-bottom-color:var(--green);background:#f0fff4; }
+.message-layout { display:grid;grid-template-columns:minmax(230px,32%) 1fr;height:min(680px,82vh);min-height:430px; }
+.message-list { overflow-y:auto;border-right:1px solid var(--border);background:#f8fafb; }
+.message-list-item { display:block;width:100%;padding:13px 15px;border:0;border-bottom:1px solid var(--border);background:transparent;text-align:left;cursor:pointer;color:var(--text); }
+.message-list-item:hover,.message-list-item.active { background:#e8f5ec; }
+.message-list-title { font-weight:700;font-size:14px;display:flex;justify-content:space-between;gap:8px; }
+.message-list-preview { font-size:12px;color:var(--muted);margin-top:4px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis; }
+.message-main { min-width:0;display:flex;flex-direction:column;padding:16px; }
+.message-thread { flex:1;overflow-y:auto;padding:12px;display:flex;flex-direction:column;gap:10px;background:#f8fafb;border:1px solid var(--border);border-bottom:0;border-radius:8px 8px 0 0; }
+.message-row { max-width:75%;display:flex;flex-direction:column;gap:3px; }
+.message-row.mine { align-self:flex-end;align-items:flex-end; }
+.message-row.theirs { align-self:flex-start;align-items:flex-start; }
+.message-bubble { padding:9px 13px;border-radius:14px;background:#fff;border:1px solid var(--border);word-break:break-word;line-height:1.45; }
+.message-row.mine .message-bubble { background:var(--green);color:#fff;border-color:var(--green);border-bottom-right-radius:3px; }
+.message-meta { font-size:11px;color:var(--muted); }
+.message-compose { display:flex;gap:8px;padding:10px;background:#fff;border:1px solid var(--border);border-radius:0 0 8px 8px; }
+.message-compose textarea { flex:1;resize:none;padding:10px;border:1px solid var(--border);border-radius:6px;font:inherit;min-height:42px; }
+.message-compose button { padding:9px 18px;background:var(--green);color:#fff;border:0;border-radius:6px;font-weight:700;cursor:pointer; }
+.unread-badge { display:inline-flex;min-width:20px;height:20px;padding:0 6px;align-items:center;justify-content:center;border-radius:999px;background:#dc2626;color:#fff;font-size:11px;font-weight:800; }
+#staffMessageOverlay { display:none;position:fixed;inset:0;background:rgba(0,0,0,.62);z-index:30000;align-items:center;justify-content:center;padding:18px; }
+.staff-message-box { width:min(1050px,97vw);background:#fff;border-radius:14px;overflow:hidden;box-shadow:0 18px 60px rgba(0,0,0,.35); }
+
 /* ── Document Preview Overlay ── */
 #previewOverlay { display:none; position:fixed; inset:0; background:rgba(0,0,0,0.6); z-index:10000; align-items:center; justify-content:center; overflow-y:auto; padding:20px; }
 
@@ -171,6 +196,8 @@ body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; b
   .layout { flex-direction: column; height: auto; }
   .sidebar { width: 100%; height: 220px; border-right: none; border-bottom: 1px solid var(--border); }
   .file-view { padding: 14px; }
+  .message-layout { grid-template-columns:1fr;height:86vh; }
+  .message-list { max-height:190px;border-right:0;border-bottom:1px solid var(--border); }
 }
 </style>
 </head>
@@ -200,6 +227,7 @@ body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; b
     <h1>📂 Member File Cabinet</h1>
     <div class="top-right">
       <span id="loggedInAs" style="font-size:13px;opacity:.85;"></span>
+      <button class="btn-sm btn-logout" onclick="openStaffMessageCenter()">&#128233; Messages <span id="staffInboxBadge" class="unread-badge" style="display:none">0</span></button>
       <a href="/staff-dashboard.html" class="btn-sm btn-logout">← Dashboard</a>
       <button class="btn-sm btn-logout" onclick="doLogout()">Log Out</button>
     </div>
@@ -229,6 +257,27 @@ body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; b
         <div style="font-size:14px;">Choose a member from the list to open their file.</div>
       </div>
       <div id="memberFile" style="display:none;"></div>
+    </div>
+  </div>
+</div>
+
+<!-- Centralized Staff Message Center -->
+<div id="staffMessageOverlay">
+  <div class="staff-message-box">
+    <div style="display:flex;justify-content:space-between;align-items:center;padding:16px 20px;border-bottom:1px solid var(--border);">
+      <div><h2 style="font-size:1.15rem;color:var(--text);">&#128233; Staff Message Center</h2><div style="font-size:12px;color:var(--muted);margin-top:3px;">All professional conversations organized by member</div></div>
+      <button onclick="closeStaffMessageCenter()" style="border:0;background:none;font-size:28px;color:var(--muted);cursor:pointer;">&times;</button>
+    </div>
+    <div class="message-layout">
+      <div id="staffMessageList" class="message-list"><div style="padding:24px;color:var(--muted);">Loading conversations...</div></div>
+      <div class="message-main">
+        <div id="staffMessageTitle" style="font-weight:800;margin-bottom:10px;">Select a conversation</div>
+        <div id="staffMessageThread" class="message-thread"><div style="margin:auto;color:var(--muted);text-align:center;">Choose a conversation from the inbox.</div></div>
+        <div class="message-compose">
+          <textarea id="staffMessageInput" placeholder="Type a reply..." onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();sendStaffMessage()}"></textarea>
+          <button onclick="sendStaffMessage()">Send</button>
+        </div>
+      </div>
     </div>
   </div>
 </div>
@@ -446,6 +495,10 @@ let _pendingUploadFile = null;
 let _previewDoc = null;
 let _activeTab = 'active';
 let _currentMemberData = null;
+let _staffConversations = [];
+let _staffConversationId = null;
+let _staffMessagePoll = null;
+let _memberConversationId = null;
 
 // ── Auth ──────────────────────────────────────────────────────────────────────
 async function doLogin() {
@@ -482,6 +535,10 @@ function showApp() {
   document.getElementById('appShell').style.display = 'block';
   document.getElementById('loggedInAs').textContent = sess.name.trim() || sess.id;
   loadMemberList();
+  refreshStaffInboxBadge();
+  if (new URLSearchParams(location.search).get('inbox') === '1') {
+    setTimeout(openStaffMessageCenter, 0);
+  }
 }
 
 // Auto-resume session
@@ -580,6 +637,7 @@ function filterMembers() {
 // ── Member File ───────────────────────────────────────────────────────────────
 async function openMemberFile(memberId) {
   _currentMemberId = memberId;
+  _memberConversationId = null;
   document.querySelectorAll('.member-item').forEach(el => el.classList.toggle('active', el.dataset.id === String(memberId)));
   const fileDiv = document.getElementById('memberFile');
   document.getElementById('filePlaceholder').style.display = 'none';
@@ -634,6 +692,13 @@ function renderMemberFile(data) {
         </div>
       </div>
     </div>
+
+    <div class="record-tabs">
+      <button id="memberDocumentsTab" class="record-tab active" onclick="showMemberRecordTab('documents')">&#128193; Documents &amp; Records</button>
+      <button id="memberMessagesTab" class="record-tab" onclick="showMemberRecordTab('messages')">&#128172; Messages</button>
+    </div>
+
+    <div id="memberDocumentsPane">
 
     <!-- Upload Bar -->
     <div class="upload-bar">
@@ -690,6 +755,21 @@ function renderMemberFile(data) {
     ${sectionCard('💊 Member Drug & Medication Tracking', drugLog, renderDrugLog(drugLog))}
     ${sectionCard('📝 Application', applications, renderApplications(applications))}
     ${sectionCard('📄 Submitted Forms', submittedForms, renderSubmittedForms(submittedForms))}
+    </div>
+
+    <div id="memberMessagesPane" style="display:none;">
+      <div class="section-card" style="padding:0;">
+        <div id="memberMessageList" class="message-list" style="max-height:180px;border-right:0;border-bottom:1px solid var(--border);"></div>
+        <div class="message-main" style="height:520px;">
+          <div id="memberMessageTitle" style="font-weight:800;margin-bottom:10px;">Member-related conversations</div>
+          <div id="memberMessageThread" class="message-thread"><div style="margin:auto;color:var(--muted);text-align:center;">Select a conversation.</div></div>
+          <div class="message-compose">
+            <textarea id="memberMessageInput" placeholder="Type a reply..." onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();sendMemberFileMessage()}"></textarea>
+            <button onclick="sendMemberFileMessage()">Send</button>
+          </div>
+        </div>
+      </div>
+    </div>
   `;
 
   document.getElementById('memberFile').innerHTML = html;
@@ -714,6 +794,170 @@ function toggleSection(header) {
   const isOpen = body.classList.contains('open');
   body.classList.toggle('open', !isOpen);
   chev.classList.toggle('open', !isOpen);
+}
+
+// ── Messaging ────────────────────────────────────────────────────────────────
+async function fetchStaffConversations() {
+  const response = await fetch(`${API}/messages/conversations?memberId=staff`);
+  if (!response.ok) throw new Error(`Could not load messages (${response.status})`);
+  const data = await response.json();
+  return (Array.isArray(data) ? data : []).sort((a, b) =>
+    new Date(b.lastMessage?.timestamp || b.createdAt || 0) - new Date(a.lastMessage?.timestamp || a.createdAt || 0));
+}
+
+async function refreshStaffInboxBadge() {
+  try {
+    _staffConversations = await fetchStaffConversations();
+    const unread = _staffConversations.reduce((sum, c) => sum + Number(c.unreadCount || 0), 0);
+    const badge = document.getElementById('staffInboxBadge');
+    badge.textContent = unread;
+    badge.style.display = unread ? 'inline-flex' : 'none';
+  } catch { /* badge is informational */ }
+}
+
+function renderConversationList(conversations, targetId, selectedId, selectFunction) {
+  const target = document.getElementById(targetId);
+  if (!conversations.length) {
+    target.innerHTML = '<div style="padding:24px;color:var(--muted);text-align:center;">No professional messages for this member yet.</div>';
+    return;
+  }
+  target.innerHTML = conversations.map(c => `
+    <button class="message-list-item ${String(c.id)===String(selectedId)?'active':''}" onclick="${selectFunction}('${esc(c.id)}')">
+      <div class="message-list-title"><span>${esc(c.name || `Member #${c.linkedMemberId || ''}`)}</span>${c.unreadCount ? `<span class="unread-badge">${Number(c.unreadCount)}</span>` : ''}</div>
+      <div class="message-list-preview">${esc(c.lastMessage?.senderName || '')}${c.lastMessage?.senderName ? ': ' : ''}${esc(c.lastMessage?.text || 'No messages yet')}</div>
+    </button>`).join('');
+}
+
+function renderStaffMessageThread(messages, targetId) {
+  const target = document.getElementById(targetId);
+  if (!messages.length) {
+    target.innerHTML = '<div style="margin:auto;color:var(--muted);text-align:center;">No messages yet.</div>';
+    return;
+  }
+  const atBottom = target.scrollHeight - target.scrollTop - target.clientHeight < 70;
+  target.innerHTML = messages.map(m => {
+    const mine = String(m.senderId) === 'staff';
+    const time = m.timestamp ? new Date(m.timestamp).toLocaleString() : '';
+    const attachment = m.imageUrl || m.pdfUrl;
+    const attachmentUrl = attachment ? (attachment.startsWith('http') ? attachment : `${API.replace(/\/api$/, '')}/${attachment.replace(/^\//, '')}`) : '';
+    return `<div class="message-row ${mine?'mine':'theirs'}">
+      ${!mine ? `<div class="message-meta">${esc(m.senderName || m.senderId || '')}</div>` : ''}
+      ${m.text ? `<div class="message-bubble">${esc(m.text)}</div>` : ''}
+      ${attachmentUrl ? `<a href="${esc(attachmentUrl)}" target="_blank" rel="noopener" class="btn-view">View attachment</a>` : ''}
+      <div class="message-meta">${esc(time)}</div>
+    </div>`;
+  }).join('');
+  if (atBottom) target.scrollTop = target.scrollHeight;
+}
+
+async function openStaffMessageCenter() {
+  document.getElementById('staffMessageOverlay').style.display = 'flex';
+  await loadStaffMessageCenter();
+  clearInterval(_staffMessagePoll);
+  _staffMessagePoll = setInterval(loadStaffMessageCenter, 5000);
+}
+
+function closeStaffMessageCenter() {
+  document.getElementById('staffMessageOverlay').style.display = 'none';
+  clearInterval(_staffMessagePoll); _staffMessagePoll = null;
+  _staffConversationId = null;
+  refreshStaffInboxBadge();
+}
+
+async function loadStaffMessageCenter() {
+  try {
+    _staffConversations = await fetchStaffConversations();
+    renderConversationList(_staffConversations, 'staffMessageList', _staffConversationId, 'selectStaffConversation');
+    if (_staffConversationId) await loadStaffConversationMessages();
+  } catch (e) {
+    document.getElementById('staffMessageList').innerHTML = `<div style="padding:20px;color:#dc2626;">${esc(e.message)}</div>`;
+  }
+}
+
+async function selectStaffConversation(conversationId) {
+  _staffConversationId = conversationId;
+  const conv = _staffConversations.find(c => String(c.id) === String(conversationId));
+  document.getElementById('staffMessageTitle').textContent = conv?.name || 'Conversation';
+  renderConversationList(_staffConversations, 'staffMessageList', conversationId, 'selectStaffConversation');
+  await loadStaffConversationMessages();
+  refreshStaffInboxBadge();
+}
+
+async function loadStaffConversationMessages() {
+  if (!_staffConversationId) return;
+  const response = await fetch(`${API}/messages/${encodeURIComponent(_staffConversationId)}?memberId=staff`);
+  if (!response.ok) throw new Error('Could not load conversation.');
+  renderStaffMessageThread(await response.json(), 'staffMessageThread');
+}
+
+async function postStaffReply(conversationId, text) {
+  const sess = JSON.parse(sessionStorage.getItem(SESSION_KEY) || '{}');
+  const response = await fetch(`${API}/messages/send`, {
+    method:'POST', headers:{'Content-Type':'application/json'},
+    body:JSON.stringify({ conversationId, senderId:'staff', senderName:(sess.name || 'Horizon House Staff').trim(), text })
+  });
+  const data = await response.json().catch(() => ({}));
+  if (!response.ok) throw new Error(data.error || 'Could not send message.');
+}
+
+async function sendStaffMessage() {
+  const input = document.getElementById('staffMessageInput');
+  const text = input.value.trim();
+  if (!_staffConversationId || !text) return;
+  input.value = '';
+  try {
+    await postStaffReply(_staffConversationId, text);
+    await loadStaffConversationMessages();
+    await loadStaffMessageCenter();
+  } catch (e) { input.value = text; alert(e.message); }
+}
+
+function showMemberRecordTab(tab) {
+  const messages = tab === 'messages';
+  document.getElementById('memberDocumentsPane').style.display = messages ? 'none' : '';
+  document.getElementById('memberMessagesPane').style.display = messages ? '' : 'none';
+  document.getElementById('memberDocumentsTab').classList.toggle('active', !messages);
+  document.getElementById('memberMessagesTab').classList.toggle('active', messages);
+  if (messages) loadMemberMessageThreads();
+}
+
+async function loadMemberMessageThreads() {
+  try {
+    _staffConversations = await fetchStaffConversations();
+    const conversations = _staffConversations.filter(c => String(c.linkedMemberId || '') === String(_currentMemberId));
+    if (!conversations.some(c => String(c.id) === String(_memberConversationId))) _memberConversationId = null;
+    renderConversationList(conversations, 'memberMessageList', _memberConversationId, 'selectMemberConversation');
+    if (_memberConversationId) await loadMemberConversationMessages();
+  } catch (e) {
+    document.getElementById('memberMessageList').innerHTML = `<div style="padding:20px;color:#dc2626;">${esc(e.message)}</div>`;
+  }
+}
+
+async function selectMemberConversation(conversationId) {
+  _memberConversationId = conversationId;
+  const conv = _staffConversations.find(c => String(c.id) === String(conversationId));
+  document.getElementById('memberMessageTitle').textContent = conv?.name || 'Member conversation';
+  await loadMemberMessageThreads();
+  refreshStaffInboxBadge();
+}
+
+async function loadMemberConversationMessages() {
+  if (!_memberConversationId) return;
+  const response = await fetch(`${API}/messages/${encodeURIComponent(_memberConversationId)}?memberId=staff`);
+  if (!response.ok) throw new Error('Could not load conversation.');
+  renderStaffMessageThread(await response.json(), 'memberMessageThread');
+}
+
+async function sendMemberFileMessage() {
+  const input = document.getElementById('memberMessageInput');
+  const text = input.value.trim();
+  if (!_memberConversationId || !text) return;
+  input.value = '';
+  try {
+    await postStaffReply(_memberConversationId, text);
+    await loadMemberConversationMessages();
+    await loadMemberMessageThreads();
+  } catch (e) { input.value = text; alert(e.message); }
 }
 
 // ── Table Renderers ───────────────────────────────────────────────────────────
