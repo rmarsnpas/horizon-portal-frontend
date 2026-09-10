@@ -8,10 +8,11 @@
 #      member names and IDs directly from the page content
 #   3. Auto-detect the document type (Drug Screen, Agreement, etc.)
 #   4. Upload to the correct member's file cabinet
-#   5. Move unidentified files to a "review" folder with the
+#   5. Move the local file into the member's OneDrive folder
+#   6. Move unidentified files to a "review" folder with the
 #      OCR text saved alongside so you can easily assign manually
 #
-# Processed files --- _inbox\processed\
+# Processed files --- Members\###-First Last\
 # Unidentified    --- _inbox\review\   (with .ocr.txt companion)
 # ============================================================
 
@@ -22,11 +23,11 @@ $DEFAULT_TYPE = "General"
 $POLL_SECONDS = 10
 # ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
-$ProcessedDir = Join-Path $INBOX_FOLDER "processed"
-$ReviewDir    = Join-Path $INBOX_FOLDER "review"
-$LogFile      = Join-Path $INBOX_FOLDER "upload-log.txt"
+$MembersDir = Split-Path $INBOX_FOLDER -Parent
+$ReviewDir  = Join-Path $INBOX_FOLDER "review"
+$LogFile    = Join-Path $INBOX_FOLDER "upload-log.txt"
 
-@($INBOX_FOLDER, $ProcessedDir, $ReviewDir) | ForEach-Object {
+@($INBOX_FOLDER, $MembersDir, $ReviewDir) | ForEach-Object {
     if (-not (Test-Path $_)) { New-Item -ItemType Directory -Path $_ -Force | Out-Null }
 }
 
@@ -278,6 +279,41 @@ function Get-MemberName($m) {
     $l = Get-PropValue $m @('LAST','last','LAST_NAME','LAST NAME',"LAST`r`nNAME","LAST`nNAME",'lastName')
     return "$f $l".Trim()
 }
+function Get-MemberFolder($member, $rawId) {
+    $numericId = 0
+    if (-not [int]::TryParse(([string]$rawId).Trim(), [ref]$numericId)) {
+        throw "Cannot create member folder because '$rawId' is not a numeric member ID."
+    }
+
+    $folderId = $numericId.ToString('000')
+    $memberName = Get-MemberName $member
+    $safeName = ($memberName -replace '[<>:"/\\|?*]', '').Trim().TrimEnd('.')
+    if (-not $safeName) { $safeName = 'Unknown Member' }
+
+    # Reuse an existing folder that starts with this member ID, even if it
+    # predates the current ###-First Last naming convention.
+    $idPattern = '^0*' + [regex]::Escape($numericId.ToString()) + '(?:-|\s|$)'
+    $existingFolder = Get-ChildItem -Path $MembersDir -Directory -ErrorAction SilentlyContinue |
+        Where-Object { $_.Name -match $idPattern } |
+        Select-Object -First 1
+    if ($existingFolder) { return $existingFolder.FullName }
+
+    $memberFolder = Join-Path $MembersDir "$folderId-$safeName"
+    New-Item -ItemType Directory -Path $memberFolder -Force -ErrorAction Stop | Out-Null
+    Write-Log "  Created member folder: $folderId-$safeName"
+    return $memberFolder
+}
+function Move-ToMemberFolder($filePath, $filename, $member, $memberId) {
+    $memberFolder = Get-MemberFolder $member $memberId
+    $destination = Join-Path $memberFolder $filename
+    if (Test-Path $destination) {
+        $baseName = [System.IO.Path]::GetFileNameWithoutExtension($filename)
+        $extension = [System.IO.Path]::GetExtension($filename)
+        $destination = Join-Path $memberFolder ("{0}_{1}{2}" -f $baseName, (Get-Date -Format 'yyyyMMdd_HHmmss'), $extension)
+    }
+    Move-Item -Path $filePath -Destination $destination -Force -ErrorAction Stop
+    return $destination
+}
 function Get-Members {
     try { 
         Write-Log "  Fetching members from API: $API_BASE/members?compact=1"
@@ -338,9 +374,9 @@ function Get-MemberIdFromFilename($members, $filename) {
                 return $n.Groups[1].Value 
             } 
         }
-        # If no known match, return first number found
-        Write-Log "  Using first number found in filename: $($nums[0].Groups[1].Value)"
-        return $nums[0].Groups[1].Value
+        # Do not treat dates or other unrelated numbers as member IDs. An ID
+        # not in the cached list must be explicitly labelled "ID" or lead the filename.
+        Write-Log "  Numbers found in filename, but none match a known member ID."
     }
     
     return $null
@@ -398,7 +434,7 @@ function Upload-File($filePath, $memberId, $memberName, $docType) {
 # ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 Write-Log "=== Horizon House Document Inbox Watcher ==="
 Write-Log "Watching : $INBOX_FOLDER"
-Write-Log "Processed: $ProcessedDir"
+Write-Log "Processed: member folders under $MembersDir"
 Write-Log "Review   : $ReviewDir"
 Write-Log "Press Ctrl+C to stop."
 Write-Log ""
@@ -476,9 +512,13 @@ while ($true) {
             # Try to get member details directly from API
             try {
                 $memberDirect = Invoke-RestMethod -Uri "$API_BASE/getMember?id=$memberId" -Method GET -TimeoutSec 10 -ErrorAction Stop
-                if ($memberDirect) {
+                $directId = if ($memberDirect) { Get-PropValue $memberDirect @('ID','id','MEMBER ID') } else { '' }
+                $directName = if ($memberDirect) { Get-MemberName $memberDirect } else { '' }
+                if ($directId -and $directName -and $directId.TrimStart('0') -eq ([string]$memberId).TrimStart('0')) {
                     $member = $memberDirect
-                    Write-Log "  Retrieved member from API: $(Get-MemberName $member)"
+                    Write-Log "  Retrieved member from API: $directName"
+                } else {
+                    Write-Log "  API did not return a valid member record for ID $memberId."
                 }
             } catch {
                 Write-Log "  Could not retrieve member $memberId from API: $_"
@@ -550,16 +590,13 @@ while ($true) {
                 Upload-File $file.FullName $memberId $mName $docType | Out-Null
                 Write-Log "  SUCCESS: Uploaded to $mName's file cabinet."
                 
-                # Move to processed folder if file still exists
+                # Move the local copy into this member's OneDrive folder.
                 if (Test-Path $file.FullName) {
-                    $dest = Join-Path $ProcessedDir $filename
-                    if (Test-Path $dest) { 
-                        $dest = Join-Path $ProcessedDir ("$(Get-Date -Format 'HHmmss')_$filename") 
-                    }
                     try {
-                        Move-Item -Path $file.FullName -Destination $dest -Force -ErrorAction Stop
+                        $dest = Move-ToMemberFolder $file.FullName $filename $member $memberId
+                        Write-Log "  MOVED: $dest"
                     } catch {
-                        Write-Log "  Could not move to processed folder (may have been moved by OneDrive): $_"
+                        Write-Log "  Could not move to member folder (may have been moved by OneDrive): $_"
                     }
                 } else {
                     Write-Log "  File was already moved/deleted (likely by OneDrive)"
