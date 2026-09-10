@@ -3635,15 +3635,19 @@ ${rateSummaryHtml}
                 // Build form (with optional prefill from application)
                 const pf = prefill || {};
                 const isReserve = !!pf._reserve;
-                // Calculate next available ID from existing members
+                // Calculate the next resident ID. Ignore management accounts,
+                // labels, phone numbers, and other malformed imported IDs.
                 let maxId = 0;
                 if (members) {
                     members.forEach(m => {
-                        const idNum = parseInt(String(m.ID || m.id || '').replace(/\D/g, ''), 10);
-                        if (!isNaN(idNum) && idNum > maxId) maxId = idNum;
+                        const rawId = String(m.ID || m.id || '').trim();
+                        const memberStatus = parseInt(m.STATUS || m.status || m.STATU, 10);
+                        if (!/^\d{1,4}$/.test(rawId) || memberStatus === 4 || memberStatus === 5) return;
+                        const idNum = Number(rawId);
+                        if (idNum > 0 && idNum < 1000 && idNum > maxId) maxId = idNum;
                     });
                 }
-                const nextId = String(maxId + 1).padStart(4, '0');
+                const nextId = String(maxId > 0 ? maxId + 1 : 101).padStart(4, '0');
                 const pfGender = isReserve ? pf._reserveGender : (pf.gender ? (pf.gender.toLowerCase() === 'male' || pf.gender.toUpperCase() === 'M' ? 'M' : pf.gender.toLowerCase() === 'female' || pf.gender.toUpperCase() === 'F' ? 'F' : pf.gender.charAt(0).toUpperCase()) : '');
 
                 // Map keys to prefill values
