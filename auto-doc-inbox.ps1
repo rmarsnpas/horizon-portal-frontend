@@ -281,7 +281,7 @@ function Get-MemberName($m) {
 function Get-Members {
     try { 
         Write-Log "  Fetching members from API: $API_BASE/members?compact=1"
-        $all = @(Invoke-RestMethod -Uri "$API_BASE/members?compact=1" -Method GET -TimeoutSec 15)
+        $all = Invoke-RestMethod -Uri "$API_BASE/members?compact=1" -Method GET -TimeoutSec 15
         
         if (-not $all) {
             Write-Log "  WARNING: API returned null/empty"
@@ -300,7 +300,7 @@ function Get-Members {
             }
         }
         
-        return ,$all
+        return $all
     }
     catch { 
         Write-Log "ERROR fetching members: $($_.Exception.Message)"
