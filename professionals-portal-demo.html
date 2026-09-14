@@ -1,0 +1,450 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="robots" content="noindex,nofollow">
+  <meta name="description" content="A privacy-safe fictional demonstration of the Horizon House Professionals Portal.">
+  <title>Professional Portal Demo | Horizon House</title>
+  <style>
+    :root {
+      --forest-950:#09261d; --forest-900:#103a2d; --forest-800:#18513e; --forest-700:#236a50;
+      --cream:#f6f2e8; --paper:#fffdf8; --white:#fff; --ink:#17322a; --muted:#60726c;
+      --gold:#c7993c; --gold-soft:#f3e5bc; --blue:#276a86; --blue-soft:#e7f3f7;
+      --green-soft:#e5f2ea; --amber-soft:#fff2d9; --gray-soft:#eef1ef; --border:#d9e1dc;
+      --shadow:0 14px 35px rgba(9,38,29,.09); --shadow-sm:0 5px 16px rgba(9,38,29,.07);
+      --radius:14px; --focus:#0c79a1;
+    }
+    *{box-sizing:border-box}
+    html{scroll-behavior:smooth}
+    body{margin:0;min-width:320px;background:var(--cream);color:var(--ink);font-family:ui-sans-serif,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;line-height:1.5}
+    button,input,textarea{font:inherit}
+    button,a{touch-action:manipulation}
+    button{cursor:pointer}
+    a{color:inherit}
+    :focus-visible{outline:3px solid var(--focus);outline-offset:3px}
+    .sr-only{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0}
+    .demo-banner{position:sticky;top:0;z-index:1000;display:flex;align-items:center;justify-content:center;gap:.7rem;min-height:38px;padding:.45rem 1rem;background:#f1d88d;color:#3f3214;border-bottom:1px solid #d4b356;font-size:.82rem;font-weight:800;letter-spacing:.03em;text-align:center}
+    .demo-banner::before{content:"DEMO";padding:.1rem .42rem;background:var(--forest-900);color:#fff;border-radius:3px;font-size:.67rem;letter-spacing:.12em}
+    .topbar{position:sticky;top:38px;z-index:900;display:flex;align-items:center;justify-content:space-between;gap:1.25rem;padding:.9rem clamp(1rem,3vw,2.5rem);background:var(--forest-950);color:#fff;border-bottom:1px solid rgba(255,255,255,.12);box-shadow:0 6px 22px rgba(9,38,29,.18)}
+    .brand{display:flex;align-items:center;gap:.8rem;min-width:0}
+    .brand-mark{position:relative;width:43px;height:43px;flex:0 0 auto;border:1px solid rgba(255,255,255,.38);border-radius:50%;background:rgba(255,255,255,.08)}
+    .brand-mark::before{content:"";position:absolute;left:18px;top:9px;width:7px;height:25px;background:var(--gold-soft);clip-path:polygon(50% 0,100% 100%,0 100%)}
+    .brand-mark::after{content:"⌂";position:absolute;inset:0;display:grid;place-items:center;padding-top:15px;color:#fff;font-size:21px;font-weight:700}
+    .brand-name{font-family:Georgia,"Times New Roman",serif;font-weight:700;font-size:1.1rem;letter-spacing:.015em}
+    .brand-sub{display:block;color:#b9cdc5;font-size:.72rem;font-weight:650;letter-spacing:.08em;text-transform:uppercase}
+    .top-actions{display:flex;align-items:center;gap:.55rem}
+    .user-block{text-align:right;margin-right:.35rem;font-size:.79rem;color:#c7d7d1;line-height:1.25}
+    .user-block strong{display:block;color:#fff;font-size:.85rem}
+    .btn{display:inline-flex;align-items:center;justify-content:center;gap:.42rem;min-height:40px;padding:.55rem .86rem;border:1px solid transparent;border-radius:7px;text-decoration:none;font-size:.84rem;font-weight:750;transition:transform .18s,background .18s,border-color .18s,box-shadow .18s}
+    .btn:hover{transform:translateY(-1px)}
+    .btn-primary{background:var(--forest-800);color:#fff;border-color:var(--forest-700);box-shadow:0 3px 10px rgba(0,0,0,.12)}
+    .btn-primary:hover{background:var(--forest-700)}
+    .btn-gold{background:var(--gold);color:#1f2b25;border-color:#d4ab57}
+    .btn-quiet{background:rgba(255,255,255,.07);color:#fff;border-color:rgba(255,255,255,.22)}
+    .btn-quiet:hover{background:rgba(255,255,255,.14)}
+    .btn-light{background:#fff;color:var(--forest-900);border-color:var(--border)}
+    .btn-light:hover{border-color:#9fb4ab;box-shadow:var(--shadow-sm)}
+    .btn:disabled{cursor:not-allowed;opacity:.58;transform:none}
+    main{max-width:1500px;margin:0 auto;padding:clamp(1rem,2.6vw,2.25rem)}
+    .welcome{position:relative;overflow:hidden;display:grid;grid-template-columns:1fr auto;gap:2rem;align-items:center;padding:clamp(1.25rem,2.5vw,2rem);background:var(--paper);border:1px solid var(--border);border-left:5px solid var(--gold);box-shadow:var(--shadow-sm)}
+    .welcome::after{content:"";position:absolute;right:-60px;bottom:-95px;width:230px;height:230px;border:35px solid var(--green-soft);border-radius:50%;opacity:.75}
+    .eyebrow{margin:0 0 .35rem;color:var(--forest-700);font-size:.72rem;font-weight:850;letter-spacing:.12em;text-transform:uppercase}
+    h1,h2,h3,p{margin-top:0}
+    h1{margin-bottom:.45rem;font-family:Georgia,"Times New Roman",serif;font-size:clamp(1.65rem,3vw,2.55rem);line-height:1.08;color:var(--forest-950)}
+    .welcome p:not(.eyebrow){max-width:760px;margin-bottom:0;color:var(--muted);font-size:.95rem}
+    .safety-seal{position:relative;z-index:1;display:grid;place-items:center;width:116px;height:116px;border:1px solid #d6c289;border-radius:50%;background:#fbf5df;box-shadow:inset 0 0 0 7px #fff;text-align:center;color:var(--forest-900);font-size:.7rem;font-weight:800;letter-spacing:.06em;text-transform:uppercase}
+    .safety-seal span{display:block;color:var(--gold);font-size:1.6rem;line-height:1}
+    .workspace{display:grid;grid-template-columns:minmax(250px,310px) minmax(0,1fr);gap:1.25rem;margin-top:1.25rem;align-items:start}
+    .sidebar,.detail{background:var(--paper);border:1px solid var(--border);box-shadow:var(--shadow-sm)}
+    .sidebar{position:sticky;top:118px}
+    .panel-heading{display:flex;align-items:center;justify-content:space-between;gap:.75rem;padding:1rem 1.1rem;border-bottom:1px solid var(--border)}
+    .panel-heading h2{margin:0;font-size:.95rem;color:var(--forest-950)}
+    .count{min-width:24px;padding:.1rem .4rem;border-radius:10px;background:var(--green-soft);color:var(--forest-800);font-size:.72rem;font-weight:800;text-align:center}
+    .member-list{display:flex;flex-direction:column;padding:.45rem}
+    .member{width:100%;display:grid;grid-template-columns:39px 1fr auto;gap:.7rem;align-items:center;padding:.78rem .7rem;border:1px solid transparent;border-radius:9px;background:transparent;color:var(--ink);text-align:left;transition:background .15s,border-color .15s}
+    .member:hover{background:#f5f7f4}
+    .member.active{background:var(--green-soft);border-color:#b7d2c2;box-shadow:inset 3px 0 var(--forest-700)}
+    .avatar{display:grid;place-items:center;width:39px;height:39px;border-radius:50%;background:var(--forest-800);color:#fff;font-family:Georgia,serif;font-size:.9rem;font-weight:700}
+    .member-name{display:block;font-size:.85rem;font-weight:800}
+    .member-id{display:block;color:var(--muted);font-size:.72rem}
+    .status{display:inline-flex;align-items:center;gap:.3rem;white-space:nowrap;font-size:.67rem;font-weight:800;color:var(--muted)}
+    .status::before{content:"";width:7px;height:7px;border-radius:50%;background:#75918a}
+    .status.active::before{background:#218454}.status.away::before{background:#d29122}.status.transition::before{background:#4f7fb2}.status.alumni::before{background:#7b6f9b}
+    .sidebar-note{padding:.9rem 1.1rem;background:#f8f5ec;border-top:1px solid var(--border);color:var(--muted);font-size:.75rem}
+    .detail{min-width:0;min-height:640px}
+    .record-head{display:flex;align-items:center;justify-content:space-between;gap:1rem;padding:1.25rem 1.35rem;border-bottom:1px solid var(--border);background:linear-gradient(90deg,#fff 0,#fbfcf8 100%)}
+    .record-identity{display:flex;align-items:center;gap:.9rem;min-width:0}
+    .record-identity .avatar{width:52px;height:52px;font-size:1.08rem;background:var(--forest-900)}
+    .record-identity h2{margin:0;font-family:Georgia,"Times New Roman",serif;font-size:1.25rem;color:var(--forest-950)}
+    .record-meta{display:flex;gap:.65rem;flex-wrap:wrap;margin-top:.25rem;color:var(--muted);font-size:.77rem}
+    .demo-chip{display:inline-flex;align-items:center;gap:.35rem;padding:.3rem .55rem;background:var(--blue-soft);border:1px solid #bdd7e0;border-radius:5px;color:#205b72;font-size:.7rem;font-weight:800;white-space:nowrap}
+    .tabs{display:flex;overflow-x:auto;scrollbar-width:thin;border-bottom:1px solid var(--border);background:#f7f8f5;padding:0 .65rem}
+    .tab{flex:0 0 auto;padding:.8rem .78rem;border:0;border-bottom:3px solid transparent;background:transparent;color:#536760;font-size:.78rem;font-weight:800;white-space:nowrap}
+    .tab:hover{color:var(--forest-800);background:#eef3ef}
+    .tab[aria-selected="true"]{color:var(--forest-800);border-bottom-color:var(--gold);background:#fff}
+    .tab-content{padding:clamp(1rem,2vw,1.4rem)}
+    .section-top{display:flex;justify-content:space-between;align-items:flex-start;gap:1rem;margin-bottom:1rem}
+    .section-top h3{margin-bottom:.2rem;font-family:Georgia,"Times New Roman",serif;font-size:1.16rem;color:var(--forest-950)}
+    .section-top p{margin-bottom:0;color:var(--muted);font-size:.82rem}
+    .info-callout{display:flex;gap:.7rem;align-items:flex-start;padding:.8rem .9rem;margin-bottom:1rem;background:var(--blue-soft);border-left:3px solid var(--blue);color:#244d5d;font-size:.8rem}
+    .metric-row{display:grid;grid-template-columns:repeat(3,1fr);border:1px solid var(--border);margin-bottom:1rem;background:#fff}
+    .metric{padding:1rem 1.1rem;border-right:1px solid var(--border)}.metric:last-child{border-right:0}
+    .metric-label{display:block;color:var(--muted);font-size:.68rem;font-weight:800;letter-spacing:.07em;text-transform:uppercase}.metric-value{display:block;margin-top:.2rem;font-size:1rem;font-weight:800;color:var(--forest-900)}
+    .content-grid{display:grid;grid-template-columns:1.25fr .75fr;gap:1rem}
+    .card{border:1px solid var(--border);background:#fff;padding:1rem 1.05rem}
+    .card h3{margin-bottom:.8rem;font-size:.88rem;color:var(--forest-950)}
+    .fields{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:.85rem 1rem}
+    .field dt{color:var(--muted);font-size:.67rem;font-weight:800;letter-spacing:.06em;text-transform:uppercase}.field dd{margin:.15rem 0 0;font-size:.86rem;font-weight:700}
+    .timeline{list-style:none;margin:0;padding:0}.timeline li{position:relative;padding:0 0 .85rem 1.25rem;border-left:1px solid #cbd9d1;color:var(--muted);font-size:.78rem}.timeline li:last-child{padding-bottom:0;border-left-color:transparent}.timeline li::before{content:"";position:absolute;left:-5px;top:.25rem;width:9px;height:9px;border-radius:50%;background:var(--gold);box-shadow:0 0 0 3px #f7edce}.timeline strong{display:block;color:var(--ink);font-size:.81rem}
+    .pro-list{display:flex;flex-direction:column;gap:.6rem}
+    .pro-row{display:flex;align-items:center;gap:.75rem;padding:.6rem .1rem;border-bottom:1px solid var(--border)}.pro-row:last-child{border-bottom:0}
+    .pro-avatar{width:36px;height:36px;font-size:.8rem;flex:0 0 auto}
+    .pro-info{flex:1;min-width:0;display:flex;flex-direction:column}
+    .pro-name{font-size:.85rem;font-weight:800;color:var(--ink)}
+    .pro-meta{color:var(--muted);font-size:.72rem;margin-top:.1rem}
+    .btn-sm{min-height:32px;padding:.4rem .65rem;font-size:.74rem}
+    .recipient-picker{display:flex;flex-wrap:wrap;gap:.5rem;margin-bottom:.85rem}
+    .recipient-chip{padding:.42rem .75rem;border:1px solid var(--border);border-radius:20px;background:#fff;color:var(--muted);font-size:.76rem;font-weight:750}
+    .recipient-chip.active{background:var(--forest-800);border-color:var(--forest-800);color:#fff}
+    .table-wrap{overflow-x:auto;border:1px solid var(--border)}
+    table{width:100%;border-collapse:collapse;font-size:.8rem}
+    th{padding:.68rem .8rem;background:#eef2ee;color:#52665f;font-size:.67rem;letter-spacing:.06em;text-transform:uppercase;text-align:left;white-space:nowrap}
+    td{padding:.72rem .8rem;border-top:1px solid var(--border);vertical-align:top}tbody tr:hover{background:#fafbf8}
+    .pill{display:inline-block;padding:.15rem .45rem;border-radius:4px;font-size:.68rem;font-weight:800}.pill.good{background:var(--green-soft);color:#16633d}.pill.info{background:var(--blue-soft);color:#205b72}.pill.warn{background:var(--amber-soft);color:#7b5610}.pill.neutral{background:var(--gray-soft);color:#52635e}
+    .empty-state{padding:2.5rem 1rem;border:1px dashed #b9c6bf;background:#fafbf8;text-align:center;color:var(--muted)}.empty-state strong{display:block;margin-bottom:.25rem;color:var(--ink)}
+    .document-row{display:grid;grid-template-columns:38px minmax(0,1fr) auto;gap:.8rem;align-items:center;padding:.8rem;border:1px solid var(--border);border-bottom:0}.document-row:last-child{border-bottom:1px solid var(--border)}
+    .doc-icon{display:grid;place-items:center;width:38px;height:42px;background:#edf4ef;border:1px solid #c4d6ca;color:var(--forest-800);font-size:.62rem;font-weight:900}.doc-name{font-size:.82rem;font-weight:800}.doc-meta{color:var(--muted);font-size:.71rem}
+    .upload-demo{display:flex;align-items:center;justify-content:space-between;gap:1rem;padding:1rem;margin-bottom:1rem;border:2px dashed #b7c8be;background:#f8faf7}.upload-demo strong{display:block;font-size:.84rem}.upload-demo span{display:block;color:var(--muted);font-size:.74rem}
+    .thread-context{padding:.7rem .85rem;background:#eef2ee;border:1px solid var(--border);font-size:.76rem;color:var(--muted)}
+    .thread{height:300px;overflow-y:auto;padding:1rem;background:#fafbf8;border:1px solid var(--border);border-top:0;display:flex;flex-direction:column;gap:.75rem}
+    .message{max-width:76%;align-self:flex-start}.message.mine{align-self:flex-end}.bubble{padding:.65rem .8rem;border:1px solid var(--border);background:#fff;border-radius:10px 10px 10px 2px;font-size:.82rem}.mine .bubble{background:var(--forest-800);border-color:var(--forest-800);border-radius:10px 10px 2px 10px;color:#fff}.message-meta{margin-top:.2rem;color:var(--muted);font-size:.67rem}.mine .message-meta{text-align:right}.demo-unsent{color:#8a6113;font-weight:800}
+    .compose{display:grid;grid-template-columns:1fr auto;gap:.65rem;padding:.75rem;background:#fff;border:1px solid var(--border);border-top:0}.compose textarea{width:100%;min-height:44px;max-height:100px;resize:vertical;padding:.65rem .75rem;border:1px solid #aebdb5;border-radius:6px;color:var(--ink);font-size:1rem}.compose-note{grid-column:1/-1;color:var(--muted);font-size:.7rem}
+    .bottom-cta{display:flex;align-items:center;justify-content:space-between;gap:1.5rem;margin-top:1.25rem;padding:1.35rem clamp(1rem,3vw,2rem);background:var(--forest-900);color:#fff;box-shadow:var(--shadow)}
+    .bottom-cta h2{margin-bottom:.15rem;font-family:Georgia,"Times New Roman",serif;font-size:1.25rem}.bottom-cta p{margin:0;color:#c7d9d2;font-size:.82rem}.cta-actions{display:flex;gap:.65rem;flex-shrink:0}
+    footer{display:flex;justify-content:space-between;gap:1rem;padding:1rem clamp(1rem,3vw,2.5rem);color:#61736c;font-size:.73rem;max-width:1500px;margin:0 auto}.care-warning{font-weight:850;color:#674b12}
+    .modal-backdrop{position:fixed;inset:0;z-index:2000;display:none;align-items:center;justify-content:center;padding:1rem;background:rgba(4,20,15,.72)}.modal-backdrop.open{display:flex}.modal{width:min(520px,100%);max-height:88vh;overflow:auto;background:var(--paper);border-top:5px solid var(--gold);box-shadow:0 24px 70px rgba(0,0,0,.32);padding:1.25rem}.modal-head{display:flex;justify-content:space-between;align-items:flex-start;gap:1rem;margin-bottom:.8rem}.modal h2{margin:0;font-family:Georgia,"Times New Roman",serif;font-size:1.25rem}.icon-btn{display:grid;place-items:center;width:36px;height:36px;border:1px solid var(--border);background:#fff;color:var(--ink);font-size:1.2rem}.modal p{color:var(--muted);font-size:.84rem}.modal-actions{display:flex;justify-content:flex-end;gap:.6rem;margin-top:1rem}.setting-row{display:flex;justify-content:space-between;gap:1rem;padding:.7rem 0;border-bottom:1px solid var(--border);font-size:.8rem}.setting-row span{color:var(--muted)}
+    .toast-region{position:fixed;right:1rem;bottom:1rem;z-index:3000;display:flex;flex-direction:column;gap:.5rem}.toast{max-width:360px;padding:.75rem .9rem;background:var(--forest-950);color:#fff;border-left:4px solid var(--gold);box-shadow:0 10px 30px rgba(0,0,0,.22);font-size:.8rem;animation:toastIn .25s ease-out}.toast strong{display:block}.toast.out{opacity:0;transform:translateY(8px);transition:.25s}
+    @keyframes toastIn{from{opacity:0;transform:translateY(8px)}}
+    .tour-shade{position:fixed;inset:0;z-index:4000;display:none;background:rgba(3,18,13,.64)}.tour-shade.open{display:block}.tour-target{position:relative;z-index:4001!important;box-shadow:0 0 0 5px #f0c761,0 0 0 9999px rgba(3,18,13,.12)!important}.tour-card{position:fixed;z-index:4002;width:min(340px,calc(100vw - 2rem));padding:1rem;background:#fff;border-top:5px solid var(--gold);box-shadow:0 18px 55px rgba(0,0,0,.35)}.tour-step{color:var(--forest-700);font-size:.68rem;font-weight:850;letter-spacing:.1em;text-transform:uppercase}.tour-card h2{margin:.25rem 0 .35rem;font-family:Georgia,"Times New Roman",serif;font-size:1.12rem}.tour-card p{margin-bottom:.9rem;color:var(--muted);font-size:.8rem}.tour-actions{display:flex;align-items:center;justify-content:space-between;gap:.5rem}.tour-nav{display:flex;gap:.5rem}
+    @media(max-width:1000px){.user-block{display:none}.workspace{grid-template-columns:245px minmax(0,1fr)}.content-grid{grid-template-columns:1fr}.top-actions .exit-label{display:none}}
+    @media(max-width:760px){.topbar{align-items:flex-start;top:38px;padding:.72rem 1rem}.brand-sub{font-size:.64rem}.top-actions{flex-wrap:wrap;justify-content:flex-end}.top-actions .btn{min-height:36px;padding:.45rem .62rem}.welcome{grid-template-columns:1fr}.safety-seal{display:none}.workspace{grid-template-columns:1fr}.sidebar{position:static}.member-list{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:.35rem}.detail{min-height:580px}.metric-row{grid-template-columns:1fr}.metric{border-right:0;border-bottom:1px solid var(--border)}.metric:last-child{border-bottom:0}.bottom-cta{align-items:flex-start;flex-direction:column}.cta-actions{width:100%;flex-wrap:wrap}footer{flex-direction:column}.tour-target{z-index:4001!important}}
+    @media(max-width:480px){.demo-banner{font-size:.72rem}.topbar{position:relative;top:0}.brand-mark{width:38px;height:38px}.brand-mark::before{left:16px;top:8px;height:22px}.brand-name{font-size:.95rem}.top-actions{gap:.35rem}.top-actions .settings-label{display:none}main{padding:.75rem}.welcome{padding:1.1rem}.member-list{grid-template-columns:1fr}.record-head{align-items:flex-start;padding:1rem}.record-identity .avatar{display:none}.demo-chip{white-space:normal}.tab-content{padding:.85rem}.fields{grid-template-columns:1fr}.section-top{flex-direction:column}.document-row{grid-template-columns:34px minmax(0,1fr)}.document-row .btn{grid-column:1/-1;width:100%}.upload-demo{align-items:flex-start;flex-direction:column}.compose{grid-template-columns:1fr}.compose .btn{width:100%}.cta-actions .btn{flex:1}.tour-card{left:1rem!important;right:1rem!important;bottom:1rem!important;top:auto!important;width:auto}.tour-target{z-index:auto!important;box-shadow:0 0 0 4px #f0c761!important}}
+    @media(prefers-reduced-motion:reduce){*,*::before,*::after{scroll-behavior:auto!important;animation-duration:.01ms!important;transition-duration:.01ms!important}}
+  </style>
+</head>
+<body>
+  <div class="demo-banner" role="status">DEMO MODE — Fictional sample data only. No information is saved.</div>
+  <header class="topbar">
+    <div class="brand" aria-label="Horizon House Professional Portal Demo">
+      <span class="brand-mark" aria-hidden="true"></span>
+      <div><span class="brand-name">Horizon House</span><span class="brand-sub">Professional Portal Demo</span></div>
+    </div>
+    <div class="top-actions">
+      <div class="user-block"><strong>Dr. Avery Morgan</strong>Northstar Counseling — Demo</div>
+      <button class="btn btn-quiet" id="tourButton" type="button">Guided tour</button>
+      <button class="btn btn-quiet" id="settingsButton" type="button" aria-label="Demo account settings"><span aria-hidden="true">⚙</span> <span class="settings-label">Settings</span></button>
+      <a class="btn btn-quiet" href="for-professionals.html" aria-label="Exit demo"><span aria-hidden="true">↗</span> <span class="exit-label">Exit demo</span></a>
+    </div>
+  </header>
+
+  <main>
+    <section class="welcome" aria-labelledby="welcome-title">
+      <div>
+        <p class="eyebrow">A safe product preview</p>
+        <h1 id="welcome-title">Welcome, Dr. Morgan</h1>
+        <p>Explore how authorized partners can review participant updates, documents, and secure conversations. Every record on this page is fictional, and every action stays in this browser tab only.</p>
+      </div>
+      <div class="safety-seal" aria-label="Fictional and private demonstration"><div><span aria-hidden="true">✓</span>Fictional<br>Private<br>Demo</div></div>
+    </section>
+
+    <div class="workspace">
+      <aside class="sidebar" id="tour-members" aria-labelledby="participants-heading">
+        <div class="panel-heading"><h2 id="participants-heading">Demo participants</h2><span class="count">4</span></div>
+        <div class="member-list" id="memberList"></div>
+        <div class="sidebar-note">Synthetic names and IDs are used throughout this preview. No resident records are present.</div>
+      </aside>
+
+      <section class="detail" aria-labelledby="recordName">
+        <header class="record-head">
+          <div class="record-identity">
+            <span class="avatar" id="recordAvatar" aria-hidden="true"></span>
+            <div><h2 id="recordName"></h2><div class="record-meta" id="recordMeta"></div></div>
+          </div>
+          <span class="demo-chip">● FICTIONAL RECORD</span>
+        </header>
+        <nav class="tabs" id="tour-tabs" role="tablist" aria-label="Participant record sections"></nav>
+        <div class="tab-content" id="tabContent" tabindex="-1"></div>
+      </section>
+    </div>
+
+    <section class="bottom-cta" aria-labelledby="cta-title">
+      <div><h2 id="cta-title">Ready to collaborate securely?</h2><p>Request authorized access or learn how Horizon House works with professional partners.</p></div>
+      <div class="cta-actions"><a class="btn btn-gold" href="professionals-register.html">Request Access</a><a class="btn btn-quiet" href="for-professionals.html">Learn More</a></div>
+    </section>
+  </main>
+
+  <footer><span>© 2026 Horizon House · Professional Portal Demonstration</span><span class="care-warning">Not for resident care · Do not use for clinical decisions</span></footer>
+
+  <div class="modal-backdrop" id="modalBackdrop" aria-hidden="true">
+    <section class="modal" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
+      <div class="modal-head"><h2 id="modalTitle"></h2><button class="icon-btn" id="modalClose" type="button" aria-label="Close dialog">×</button></div>
+      <div id="modalBody"></div><div class="modal-actions" id="modalActions"></div>
+    </section>
+  </div>
+  <div class="tour-shade" id="tourShade" aria-hidden="true"></div>
+  <section class="tour-card" id="tourCard" role="dialog" aria-modal="true" aria-labelledby="tourTitle" hidden>
+    <div class="tour-step" id="tourStep"></div><h2 id="tourTitle"></h2><p id="tourText"></p>
+    <div class="tour-actions"><button class="btn btn-light" id="tourSkip" type="button">End tour</button><div class="tour-nav"><button class="btn btn-light" id="tourBack" type="button">Back</button><button class="btn btn-primary" id="tourNext" type="button">Next</button></div></div>
+  </section>
+  <div class="toast-region" id="toastRegion" aria-live="polite" aria-atomic="true"></div>
+
+  <script>
+    'use strict';
+    /* SAFETY BOUNDARY: This standalone demo contains only fictional data. State is memory-only. */
+    const DEMO_TODAY = new Date('2026-09-13T12:00:00');
+    const DEMO_DATA = Object.freeze({
+      professional:{name:'Dr. Avery Morgan',organization:'Northstar Counseling — Demo'},
+      members:[
+        {id:'DEMO-101',first:'Jordan',last:'Lee',dob:'Mar 04, 1992',gender:'Male',phone:'(555) 010-1201',email:'jordan.lee.demo@example.com',address:'120 Example St., Springfield (Demo)',
+          statusKey:'onsite',destination:'',timeOut:'',expectedReturn:'',
+          admitDate:'Aug 18, 2026',soberDate:'Jun 02, 2024',house:'351',bed:'12',
+          clientId:'EL-88213 (Demo)',presumptiveExitDate:'Feb 18, 2027',inpatientFacility:'—',refCaseWorker:'Riley Chen (Demo)',
+          medications:[
+            {name:'Sertraline (Demo)',dosage:'50 mg',frequency:'Once daily, morning',purpose:'Depression maintenance',prescriber:'Dr. N. Alvarez (Demo)',start:'Aug 20, 2026',status:'Active'},
+            {name:'Multivitamin (Demo)',dosage:'1 tablet',frequency:'Once daily',purpose:'General supplement',prescriber:'Self-reported',start:'Aug 20, 2026',status:'Active'}
+          ],
+          uaResults:[
+            {date:'Sep 10, 2026',reason:'Random panel',result:'negative',substances:'—',by:'Demo Staff'},
+            {date:'Sep 03, 2026',reason:'Random panel',result:'negative',substances:'—',by:'Demo Staff'},
+            {date:'Aug 27, 2026',reason:'Weekly panel',result:'negative',substances:'—',by:'Demo Staff'}
+          ],
+          sioHistory:[
+            {date:'Sep 13, 2026',timeOut:'—',destination:'—',timeIn:'8:02 AM',status:'Returned'},
+            {date:'Sep 12, 2026',timeOut:'5:45 PM',destination:'Family visit (Demo)',timeIn:'8:58 PM',status:'Returned'},
+            {date:'Sep 10, 2026',timeOut:'1:30 PM',destination:'Medical appointment (Demo)',timeIn:'3:10 PM',status:'Returned'}
+          ],
+          incidents:[],
+          documents:[
+            {name:'Sample Progress Summary — Demo.pdf',meta:'Sep 12, 2026 · Fictional preview · 2 pages'},
+            {name:'House Agreement — Demo.pdf',meta:'Aug 18, 2026 · Fictional preview · 3 pages'},
+            {name:'Release of Information (ROI) — Demo.pdf',meta:'Aug 18, 2026 · Fictional preview · 1 page'},
+            {name:'Emergency Contacts — Demo.pdf',meta:'Aug 18, 2026 · Fictional preview · 1 page'}
+          ],
+          careTeam:[
+            {id:'staff',name:'Horizon House Demo Care Team',org:'Horizon House',role:'Care Team'},
+            {id:'you',name:'Dr. Avery Morgan (You)',org:'Northstar Counseling — Demo',role:'Primary Referring Clinician',isYou:true},
+            {id:'pro-cross',name:'Dr. Elena Cross (Demo)',org:'Cross Psychiatry Group — Demo',role:'Consulting Psychiatrist'}
+          ],
+          messageThreads:{
+            staff:[
+              {mine:false,text:'Hello Dr. Morgan — this is a fictional check-in confirming the sample care-team review for Jordan.',meta:'Horizon House Demo Staff · Sep 11, 10:20 AM'},
+              {mine:true,text:'Thank you. I reviewed the fictional summary and have no demo follow-up items.',meta:'Dr. Avery Morgan · Sep 11, 11:05 AM'}
+            ],
+            'pro-cross':[]
+          }
+        },
+        {id:'DEMO-204',first:'Sam',last:'Rivera',dob:'Nov 22, 1988',gender:'Male',phone:'(555) 010-2044',email:'sam.rivera.demo@example.com',address:'48 Example Ave., Springfield (Demo)',
+          statusKey:'signedout',destination:'AA Meeting (Demo)',timeOut:'2:15 PM',expectedReturn:'6:30 PM',
+          admitDate:'Jul 06, 2026',soberDate:'Jan 14, 2025',house:'321',bed:'05',
+          clientId:'EL-77410 (Demo)',presumptiveExitDate:'Jan 06, 2027',inpatientFacility:'—',refCaseWorker:'Taylor Brooks (Demo)',
+          medications:[
+            {name:'Naltrexone (Demo)',dosage:'50 mg',frequency:'Once daily',purpose:'Relapse-prevention support',prescriber:'Dr. P. Osei (Demo)',start:'Jul 10, 2026',status:'Active'}
+          ],
+          uaResults:[
+            {date:'Sep 09, 2026',reason:'Random panel',result:'negative',substances:'—',by:'Demo Staff'},
+            {date:'Sep 01, 2026',reason:'Weekly panel',result:'negative',substances:'—',by:'Demo Staff'}
+          ],
+          sioHistory:[
+            {date:'Sep 13, 2026',timeOut:'2:15 PM',destination:'AA Meeting (Demo)',timeIn:'—',status:'Out'},
+            {date:'Sep 12, 2026',timeOut:'6:00 PM',destination:'AA Meeting (Demo)',timeIn:'8:15 PM',status:'Returned'},
+            {date:'Sep 09, 2026',timeOut:'9:00 AM',destination:'Job interview (Demo)',timeIn:'11:40 AM',status:'Returned'}
+          ],
+          incidents:[
+            {date:'Aug 29, 2026',type:'Missed curfew (Demo)',location:'Cedar Residence — Demo',status:'resolved'}
+          ],
+          documents:[
+            {name:'Sample Treatment Plan — Demo.pdf',meta:'Jul 20, 2026 · Fictional preview · 3 pages'},
+            {name:'House Agreement — Demo.pdf',meta:'Jul 06, 2026 · Fictional preview · 3 pages'},
+            {name:'Release of Information (ROI) — Demo.pdf',meta:'Jul 06, 2026 · Fictional preview · 1 page'},
+            {name:'Emergency Contacts — Demo.pdf',meta:'Jul 06, 2026 · Fictional preview · 1 page'}
+          ],
+          careTeam:[
+            {id:'staff',name:'Horizon House Demo Care Team',org:'Horizon House',role:'Care Team'},
+            {id:'you',name:'Dr. Avery Morgan (You)',org:'Northstar Counseling — Demo',role:'Referring Counselor',isYou:true},
+            {id:'pro-gutierrez',name:'Maria Gutierrez, LCSW (Demo)',org:'Bridge Recovery Services — Demo',role:'Case Manager'}
+          ],
+          messageThreads:{
+            staff:[
+              {mine:false,text:'Fictional reminder: Sam has a step-down review scheduled next week.',meta:'Horizon House Demo Staff · Sep 09, 9:00 AM'}
+            ],
+            'pro-gutierrez':[]
+          }
+        },
+        {id:'DEMO-318',first:'Casey',last:'Patel',dob:'Feb 09, 1995',gender:'Female',phone:'(555) 010-3187',email:'casey.patel.demo@example.com',address:'76 Example Blvd., Springfield (Demo)',
+          statusKey:'signedout',destination:'Grocery Store Run (Demo)',timeOut:'1:05 PM',expectedReturn:'3:00 PM',
+          admitDate:'May 11, 2026',soberDate:'Sep 30, 2024',house:'321',bed:'09',
+          clientId:'EL-65932 (Demo)',presumptiveExitDate:'Nov 11, 2026',inpatientFacility:'—',refCaseWorker:'Jamie Ellis (Demo)',
+          medications:[
+            {name:'Buspirone (Demo)',dosage:'15 mg',frequency:'Twice daily',purpose:'Anxiety management',prescriber:'Dr. L. Feldman (Demo)',start:'May 15, 2026',status:'Active'},
+            {name:'Ibuprofen (Demo)',dosage:'200 mg',frequency:'As needed',purpose:'Pain relief (OTC)',prescriber:'Self-reported',start:'—',status:'As needed'}
+          ],
+          uaResults:[
+            {date:'Sep 11, 2026',reason:'Random panel',result:'negative',substances:'—',by:'Demo Staff'}
+          ],
+          sioHistory:[
+            {date:'Sep 13, 2026',timeOut:'1:05 PM',destination:'Grocery Store Run (Demo)',timeIn:'—',status:'Out'},
+            {date:'Sep 11, 2026',timeOut:'10:00 AM',destination:'Community meeting (Demo)',timeIn:'12:20 PM',status:'Returned'}
+          ],
+          incidents:[],
+          documents:[
+            {name:'House Agreement — Demo.pdf',meta:'May 11, 2026 · Fictional preview · 3 pages'},
+            {name:'Release of Information (ROI) — Demo.pdf',meta:'May 11, 2026 · Fictional preview · 1 page'},
+            {name:'Emergency Contacts — Demo.pdf',meta:'May 11, 2026 · Fictional preview · 1 page'}
+          ],
+          careTeam:[
+            {id:'staff',name:'Horizon House Demo Care Team',org:'Horizon House',role:'Care Team'},
+            {id:'you',name:'Dr. Avery Morgan (You)',org:'Northstar Counseling — Demo',role:'Transition Planning Consultant',isYou:true}
+          ],
+          messageThreads:{staff:[]}
+        },
+        {id:'DEMO-427',first:'Morgan',last:'Kim',dob:'Jun 30, 1990',gender:'Nonbinary',phone:'(555) 010-4271',email:'morgan.kim.demo@example.com',address:'Community Follow-Up (Demo)',
+          statusKey:'alumni',destination:'',timeOut:'',expectedReturn:'',
+          admitDate:'Feb 03, 2026',soberDate:'Aug 09, 2023',house:'—',bed:'—',
+          clientId:'EL-51028 (Demo)',presumptiveExitDate:'Completed — Aug 2026',inpatientFacility:'—',refCaseWorker:'Drew Hall (Demo)',
+          medications:[],
+          uaResults:[
+            {date:'Aug 05, 2026',reason:'Alumni check-in',result:'negative',substances:'—',by:'Demo Staff'}
+          ],
+          sioHistory:[],
+          incidents:[],
+          documents:[
+            {name:'Sample Discharge Summary — Demo.pdf',meta:'Aug 09, 2026 · Fictional preview · 2 pages'},
+            {name:'House Agreement — Demo.pdf',meta:'Feb 03, 2026 · Fictional preview · 3 pages'},
+            {name:'Release of Information (ROI) — Demo.pdf',meta:'Feb 03, 2026 · Fictional preview · 1 page'},
+            {name:'Emergency Contacts — Demo.pdf',meta:'Feb 03, 2026 · Fictional preview · 1 page'}
+          ],
+          careTeam:[
+            {id:'staff',name:'Horizon House Demo Care Team',org:'Horizon House',role:'Care Team'},
+            {id:'you',name:'Dr. Avery Morgan (You)',org:'Northstar Counseling — Demo',role:'Alumni Support Liaison',isYou:true}
+          ],
+          messageThreads:{
+            staff:[
+              {mine:false,text:'Fictional alumni check-in note for Morgan.',meta:'Horizon House Demo Staff · Aug 06, 2026'}
+            ]
+          }
+        }
+      ]
+    });
+    const TABS=[['profile','Profile'],['sio','Sign In / Out'],['ua','UA Results'],['meds','Current Medications'],['incidents','Incidents'],['documents','Documents'],['messages','Messages']];
+    const state={memberIndex:0,tab:'profile',recipientByMember:{}};
+    const memberList=document.getElementById('memberList');
+    const tabContent=document.getElementById('tabContent');
+    let lastFocus=null;
+
+    function escapeHTML(value){const node=document.createElement('div');node.textContent=String(value);return node.innerHTML;}
+    function currentMember(){return DEMO_DATA.members[state.memberIndex];}
+    function fullName(m){return `${m.first} ${m.last} (Demo)`;}
+    function initialsFor(m){return `${(m.first[0]||'')}${(m.last[0]||'')}`.toUpperCase();}
+    function initialsOfName(name){const parts=String(name).replace(/\(.*?\)/g,'').trim().split(/\s+/);return `${(parts[0]?.[0]||'')}${(parts[1]?.[0]||'')}`.toUpperCase();}
+    function messageRecipients(m){return m.careTeam.filter(p=>!p.isYou);}
+    function activeRecipientId(m){const rec=messageRecipients(m);if(!rec.length)return null;const saved=state.recipientByMember[state.memberIndex];if(saved&&rec.some(p=>p.id===saved))return saved;state.recipientByMember[state.memberIndex]=rec[0].id;return rec[0].id;}
+    function statusInfo(m){
+      if(m.statusKey==='signedout')return{label:`Signed Out — ${m.destination}`,cls:'away'};
+      if(m.statusKey==='alumni')return{label:'Alumni',cls:'alumni'};
+      return{label:'On Site',cls:'active'};
+    }
+    function daysBetween(dateStr){if(!dateStr)return null;const d=new Date(dateStr);if(isNaN(d.getTime()))return null;return Math.max(0,Math.floor((DEMO_TODAY-d)/86400000));}
+    function fieldsRow(pairs){return pairs.map(([label,val])=>`<div class="field"><dt>${escapeHTML(label)}</dt><dd>${val?escapeHTML(val):'—'}</dd></div>`).join('');}
+    function renderMembers(){
+      memberList.innerHTML=DEMO_DATA.members.map((m,i)=>{const info=statusInfo(m);return `<button type="button" class="member ${i===state.memberIndex?'active':''}" data-member="${i}" aria-pressed="${i===state.memberIndex}"><span class="avatar" aria-hidden="true">${initialsFor(m)}</span><span><span class="member-name">${escapeHTML(fullName(m))}</span><span class="member-id">${escapeHTML(m.id)}</span></span><span class="status ${info.cls}">${escapeHTML(info.label)}</span></button>`;}).join('');
+      memberList.querySelectorAll('[data-member]').forEach(button=>button.addEventListener('click',()=>{state.memberIndex=Number(button.dataset.member);state.tab='profile';renderAll();document.getElementById('recordName').focus?.();}));
+    }
+    function renderHeader(){const m=currentMember();const info=statusInfo(m);document.getElementById('recordAvatar').textContent=initialsFor(m);document.getElementById('recordName').textContent=fullName(m);document.getElementById('recordMeta').innerHTML=`<span>${escapeHTML(m.id)}</span><span>•</span><span class="status ${info.cls}">${escapeHTML(info.label)}</span><span>•</span><span>DOB: ${escapeHTML(m.dob)}</span>`;}
+    function renderTabs(){const nav=document.getElementById('tour-tabs');nav.innerHTML=TABS.map(([id,label])=>`<button class="tab" id="tab-${id}" role="tab" aria-selected="${state.tab===id}" aria-controls="panel-${id}" tabindex="${state.tab===id?'0':'-1'}" data-tab="${id}">${label}</button>`).join('');nav.querySelectorAll('[data-tab]').forEach(button=>{button.addEventListener('click',()=>selectTab(button.dataset.tab));button.addEventListener('keydown',event=>{const buttons=[...nav.querySelectorAll('[data-tab]')];let index=buttons.indexOf(button);if(event.key==='ArrowRight')index=(index+1)%buttons.length;else if(event.key==='ArrowLeft')index=(index-1+buttons.length)%buttons.length;else return;event.preventDefault();buttons[index].focus();selectTab(buttons[index].dataset.tab);});});}
+    function selectTab(id){state.tab=id;renderTabs();renderPanel();}
+    function sectionTop(title,description){return `<div class="section-top"><div><h3>${title}</h3><p>${description}</p></div><span class="demo-chip">DEMO ONLY</span></div>`;}
+    function uaPillClass(result){if(result==='positive')return'warn';if(result==='refusal')return'warn';return'good';}
+    function sioPillClass(status){const s=status.toLowerCase();if(s==='out')return'info';if(s.includes('curfew'))return'warn';return'good';}
+    function renderPanel(){const m=currentMember();const info=statusInfo(m);let html='';
+      if(state.tab==='profile'){
+        const days=daysBetween(m.soberDate);const daysHere=daysBetween(m.admitDate);
+        html=`${sectionTop('Profile','Read-only participant overview for an authorized professional.')}
+        <article class="card" style="margin-bottom:1rem"><h3>Authorized professionals</h3><div class="pro-list">${m.careTeam.map(p=>`<div class="pro-row"><span class="avatar pro-avatar" aria-hidden="true">${initialsOfName(p.name)}</span><div class="pro-info"><span class="pro-name">${escapeHTML(p.name)}</span><span class="pro-meta">${escapeHTML(p.role)} · ${escapeHTML(p.org)}</span></div>${p.isYou?'<span class="demo-chip">YOU</span>':`<button class="btn btn-light btn-sm" type="button" data-message-pro="${escapeHTML(p.id)}">Message</button>`}</div>`).join('')}</div></article>
+        <div class="info-callout"><strong aria-hidden="true">i</strong><span>This sample profile mirrors the live portal's layout. All values are fictional.</span></div>
+        <div class="metric-row"><div class="metric"><span class="metric-label">Current status</span><span class="metric-value">${escapeHTML(info.label)}</span></div><div class="metric"><span class="metric-label">Days sober</span><span class="metric-value">${days!==null?days+' days':'—'}</span></div><div class="metric"><span class="metric-label">Days here</span><span class="metric-value">${daysHere!==null?daysHere+' days':'—'}</span></div></div>
+        <div class="content-grid">
+          <article class="card"><h3>Personal information</h3><dl class="fields">${fieldsRow([['First name',m.first],['Last name',m.last],['Date of birth',m.dob],['Gender',m.gender],['Phone',m.phone],['Email',m.email]])}</dl></article>
+          <article class="card"><h3>Housing &amp; sobriety</h3><dl class="fields">${fieldsRow([['Sober date',m.soberDate],['Admit date',m.admitDate],['House',m.house],['Bed',m.bed]])}</dl></article>
+        </div>
+        <article class="card" style="margin-top:1rem"><h3>Case information</h3><dl class="fields">${fieldsRow([['Client ID (demo)',m.clientId],['Presumptive exit date',m.presumptiveExitDate],['Inpatient facility',m.inpatientFacility],['Referring case worker',m.refCaseWorker]])}</dl></article>`;
+      }
+      if(state.tab==='sio'){
+        const isOut=m.statusKey==='signedout';
+        html=`${sectionTop('Sign in / out','Current location status and recent activity.')}
+        <div class="metric-row"><div class="metric"><span class="metric-label">Current status</span><span class="metric-value">${isOut?'Signed Out':'On Site'}</span></div><div class="metric"><span class="metric-label">Destination</span><span class="metric-value">${isOut?escapeHTML(m.destination):'—'}</span></div><div class="metric"><span class="metric-label">${isOut?'Expected return':'Last check-in'}</span><span class="metric-value">${isOut?escapeHTML(m.expectedReturn):escapeHTML(m.sioHistory[0]?.timeIn||'—')}</span></div></div>
+        ${m.sioHistory.length?`<div class="table-wrap"><table><thead><tr><th>Date</th><th>Time out</th><th>Destination</th><th>Time in</th><th>Status</th></tr></thead><tbody>${m.sioHistory.map(r=>`<tr><td>${escapeHTML(r.date)}</td><td>${escapeHTML(r.timeOut)}</td><td>${escapeHTML(r.destination)}</td><td>${escapeHTML(r.timeIn)}</td><td><span class="pill ${sioPillClass(r.status)}">${escapeHTML(r.status)}</span></td></tr>`).join('')}</tbody></table></div>`:`<div class="empty-state"><strong>No sign in/out history</strong>No fictional activity has been recorded for this demo participant.</div>`}`;
+      }
+      if(state.tab==='ua'){
+        html=`${sectionTop('UA results','Read-only fictional screening history.')}`+
+        (m.uaResults.length?`<div class="table-wrap"><table><thead><tr><th>Date</th><th>Reason</th><th>Result</th><th>Substances</th><th>Administered by</th></tr></thead><tbody>${m.uaResults.map(r=>`<tr><td>${escapeHTML(r.date)}</td><td>${escapeHTML(r.reason)}</td><td><span class="pill ${uaPillClass(r.result)}">${escapeHTML(r.result.charAt(0).toUpperCase()+r.result.slice(1))}</span></td><td>${escapeHTML(r.substances)}</td><td>${escapeHTML(r.by)}</td></tr>`).join('')}</tbody></table></div>`:`<div class="empty-state"><strong>No UA results</strong>No fictional screenings have been recorded yet.</div>`);
+      }
+      if(state.tab==='meds'){
+        html=`${sectionTop('Current medications','The medications this participant is currently reported to be taking — not a history of doses taken.')}
+        <div class="info-callout"><strong aria-hidden="true">!</strong><span>Demo information only. Reflects the current medication list, not a medication administration log.</span></div>`+
+        (m.medications.length?`<div class="table-wrap"><table><thead><tr><th>Medication</th><th>Dosage</th><th>Frequency</th><th>Purpose</th><th>Prescriber</th><th>Start date</th><th>Status</th></tr></thead><tbody>${m.medications.map(med=>`<tr><td>${escapeHTML(med.name)}</td><td>${escapeHTML(med.dosage)}</td><td>${escapeHTML(med.frequency)}</td><td>${escapeHTML(med.purpose)}</td><td>${escapeHTML(med.prescriber)}</td><td>${escapeHTML(med.start)}</td><td><span class="pill ${med.status==='Active'?'good':'info'}">${escapeHTML(med.status)}</span></td></tr>`).join('')}</tbody></table></div>`:`<div class="empty-state"><strong>No current medications</strong>This demo participant has no medications currently on file.</div>`);
+      }
+      if(state.tab==='incidents'){
+        html=`${sectionTop('Incidents','Representative low-sensitivity administrative reporting.')}`+
+        (m.incidents.length?`<div class="table-wrap"><table><thead><tr><th>Date</th><th>Summary</th><th>Location</th><th>Status</th></tr></thead><tbody>${m.incidents.map(ir=>`<tr><td>${escapeHTML(ir.date)}</td><td>${escapeHTML(ir.type)}</td><td>${escapeHTML(ir.location)}</td><td><span class="pill ${ir.status==='resolved'?'good':'warn'}">${escapeHTML(ir.status)}</span></td></tr>`).join('')}</tbody></table></div>`:`<div class="empty-state"><strong>No open demo incidents</strong>This fictional record has no incidents requiring partner review.</div>`);
+      }
+      if(state.tab==='documents'){
+        html=`<div id="tour-documents">${sectionTop('Documents','Safe, simulated document access — no files are transferred.')}<div class="upload-demo"><div><strong>Upload a supporting document</strong><span>Disabled in demo mode. No file is selected or stored.</span></div><button class="btn btn-light" type="button" id="uploadDemo">Simulate upload</button></div>${m.documents.length?m.documents.map(d=>`<div class="document-row"><span class="doc-icon">PDF</span><div><div class="doc-name">${escapeHTML(d.name)}</div><div class="doc-meta">${escapeHTML(d.meta)}</div></div><button class="btn btn-light doc-preview" type="button" data-doc="${escapeHTML(d.name)}">Preview</button></div>`).join(''):`<div class="empty-state"><strong>No documents on file</strong>Nothing has been uploaded for this demo participant.</div>`}</div>`;
+      }
+      if(state.tab==='messages'){
+        const recipients=messageRecipients(m);
+        const activeId=activeRecipientId(m);
+        const activePro=recipients.find(p=>p.id===activeId);
+        const thread=(activeId&&m.messageThreads[activeId])||[];
+        html=`<div id="tour-messages">${sectionTop('Secure messages','Choose a recipient to originate or continue a fictional conversation.')}
+        <div class="recipient-picker" role="tablist" aria-label="Message recipient">${recipients.map(p=>`<button type="button" class="recipient-chip ${p.id===activeId?'active':''}" data-recipient="${escapeHTML(p.id)}">${escapeHTML(p.name)}</button>`).join('')}</div>
+        <div class="thread-context"><strong>Conversation with:</strong> ${escapeHTML(activePro?.name||'Recipient')}${activePro?.org?` · ${escapeHTML(activePro.org)}`:''} &nbsp;·&nbsp; <strong>Regarding:</strong> ${escapeHTML(fullName(m))}</div>
+        <div class="thread" id="messageThread">${thread.length?thread.map(msg=>`<div class="message ${msg.mine?'mine':''}"><div class="bubble">${escapeHTML(msg.text)}</div><div class="message-meta">${escapeHTML(msg.meta)}${msg.unsent?' · <span class="demo-unsent">Demo only — not sent</span>':''}</div></div>`).join(''):'<div class="empty-state" style="border:0;background:transparent;padding:1rem"><strong>No messages yet</strong>Start a fictional conversation with this recipient below.</div>'}</div>
+        <form class="compose" id="messageForm"><label class="sr-only" for="messageInput">Type a demo message</label><textarea id="messageInput" maxlength="500" placeholder="Type a fictional demo message…" required></textarea><button class="btn btn-primary" type="submit">Send demo</button><span class="compose-note">Nothing is transmitted or saved. Avoid entering real personal or health information.</span></form></div>`;
+      }
+      tabContent.innerHTML=`<div id="panel-${state.tab}" role="tabpanel" aria-labelledby="tab-${state.tab}">${html}</div>`;
+      bindPanelActions();
+    }
+    function bindPanelActions(){
+      document.querySelectorAll('.doc-preview').forEach(button=>button.addEventListener('click',()=>openModal('Simulated document preview',`<p><strong>${escapeHTML(button.dataset.doc)}</strong></p><p>This is a safe product demonstration. No real document exists, and nothing will be opened or downloaded.</p>`,[{label:'Close',className:'btn-primary',close:true}])));
+      document.getElementById('uploadDemo')?.addEventListener('click',()=>openModal('Upload unavailable in demo',`<p>The upload control is intentionally simulated. No file picker is opened, and no information is stored or transmitted.</p><div class="info-callout" style="margin-bottom:0"><strong>Safe demo</strong><span>In an authorized account, supported documents can be shared with the care team.</span></div>`,[{label:'Understood',className:'btn-primary',close:true}]));
+      document.querySelectorAll('[data-message-pro]').forEach(button=>button.addEventListener('click',()=>{state.recipientByMember[state.memberIndex]=button.dataset.messagePro;selectTab('messages');}));
+      document.querySelectorAll('[data-recipient]').forEach(button=>button.addEventListener('click',()=>{state.recipientByMember[state.memberIndex]=button.dataset.recipient;renderPanel();document.getElementById('messageInput')?.focus();}));
+      const form=document.getElementById('messageForm');if(form)form.addEventListener('submit',event=>{event.preventDefault();const input=document.getElementById('messageInput');const value=input.value.trim();if(!value)return;const m=currentMember();const recId=activeRecipientId(m);if(!recId)return;m.messageThreads[recId]=m.messageThreads[recId]||[];m.messageThreads[recId].push({mine:true,text:value,meta:'Dr. Avery Morgan · Just now',unsent:true});renderPanel();const thread=document.getElementById('messageThread');thread.scrollTop=thread.scrollHeight;document.getElementById('messageInput')?.focus();showToast('Demo message added','This message was not sent or saved.');});
+    }
+    function renderAll(){renderMembers();renderHeader();renderTabs();renderPanel();}
+    function openModal(title,body,actions=[]){lastFocus=document.activeElement;document.getElementById('modalTitle').textContent=title;document.getElementById('modalBody').innerHTML=body;const actionBox=document.getElementById('modalActions');actionBox.innerHTML='';actions.forEach(action=>{const button=document.createElement('button');button.type='button';button.className=`btn ${action.className||'btn-light'}`;button.textContent=action.label;if(action.disabled)button.disabled=true;button.addEventListener('click',()=>action.close&&closeModal());actionBox.appendChild(button);});const backdrop=document.getElementById('modalBackdrop');backdrop.classList.add('open');backdrop.setAttribute('aria-hidden','false');document.getElementById('modalClose').focus();}
+    function closeModal(){const backdrop=document.getElementById('modalBackdrop');backdrop.classList.remove('open');backdrop.setAttribute('aria-hidden','true');lastFocus?.focus();}
+    function showSettings(){openModal('Demo account settings',`<p>Account controls are shown for product exploration only.</p><div class="setting-row"><strong>Signed in as</strong><span>Dr. Avery Morgan</span></div><div class="setting-row"><strong>Organization</strong><span>Northstar Counseling — Demo</span></div><div class="setting-row"><strong>Notifications</strong><span>Demo preview</span></div><div class="setting-row"><strong>Password</strong><span>Changes disabled</span></div>`,[{label:'Save changes (demo)',className:'btn-light',disabled:true},{label:'Close',className:'btn-primary',close:true}]);}
+    function showToast(title,text){const toast=document.createElement('div');toast.className='toast';toast.innerHTML=`<strong>${escapeHTML(title)}</strong>${escapeHTML(text)}`;document.getElementById('toastRegion').appendChild(toast);setTimeout(()=>{toast.classList.add('out');setTimeout(()=>toast.remove(),300);},3200);}
+    document.getElementById('settingsButton').addEventListener('click',showSettings);document.getElementById('modalClose').addEventListener('click',closeModal);document.getElementById('modalBackdrop').addEventListener('mousedown',event=>{if(event.target===event.currentTarget)closeModal();});
+
+    const tourSteps=[
+      {target:null,title:'Welcome to the safe demo',text:'This guided preview uses fictional information only. Nothing is connected, transmitted, or saved.'},
+      {target:'#tour-members',title:'Choose a participant',text:'Switch among four clearly labeled fictional records to preview different statuses.'},
+      {target:'#tour-tabs',title:'Explore the record',text:'Use these accessible tabs to review representative portal capabilities.'},
+      {target:'#tour-documents',prepare:()=>selectTab('documents'),title:'Preview documents safely',text:'Document actions are simulated. No files open, upload, or download.'},
+      {target:'#tour-messages',prepare:()=>selectTab('messages'),title:'Try secure messaging',text:'Add a message to the sample thread. It remains in memory only and is marked as not sent.'}
+    ];
+    let tourIndex=0,tourPreviousFocus=null,tourTarget=null;
+    function startTour(){tourPreviousFocus=document.activeElement;tourIndex=0;document.getElementById('tourShade').classList.add('open');document.getElementById('tourShade').setAttribute('aria-hidden','false');document.getElementById('tourCard').hidden=false;showTourStep();}
+    function showTourStep(){if(tourTarget)tourTarget.classList.remove('tour-target');const step=tourSteps[tourIndex];step.prepare?.();tourTarget=step.target?document.querySelector(step.target):null;if(tourTarget){tourTarget.scrollIntoView({block:'center',behavior:matchMedia('(prefers-reduced-motion: reduce)').matches?'auto':'smooth'});tourTarget.classList.add('tour-target');}document.getElementById('tourStep').textContent=`Step ${tourIndex+1} of ${tourSteps.length}`;document.getElementById('tourTitle').textContent=step.title;document.getElementById('tourText').textContent=step.text;document.getElementById('tourBack').disabled=tourIndex===0;document.getElementById('tourNext').textContent=tourIndex===tourSteps.length-1?'Finish':'Next';positionTour();document.getElementById('tourNext').focus();}
+    function positionTour(){const card=document.getElementById('tourCard');if(innerWidth<=480){card.style.cssText='';return;}const rect=tourTarget?.getBoundingClientRect();let top=rect?Math.min(innerHeight-card.offsetHeight-16,Math.max(16,rect.bottom+14)):Math.max(16,(innerHeight-card.offsetHeight)/2);let left=rect?Math.min(innerWidth-card.offsetWidth-16,Math.max(16,rect.left)):Math.max(16,(innerWidth-card.offsetWidth)/2);if(rect&&rect.bottom+card.offsetHeight+14>innerHeight)top=Math.max(16,rect.top-card.offsetHeight-14);card.style.top=`${top}px`;card.style.left=`${left}px`;}
+    function endTour(){tourTarget?.classList.remove('tour-target');tourTarget=null;document.getElementById('tourShade').classList.remove('open');document.getElementById('tourShade').setAttribute('aria-hidden','true');document.getElementById('tourCard').hidden=true;tourPreviousFocus?.focus();}
+    document.getElementById('tourButton').addEventListener('click',startTour);document.getElementById('tourSkip').addEventListener('click',endTour);document.getElementById('tourBack').addEventListener('click',()=>{if(tourIndex>0){tourIndex--;showTourStep();}});document.getElementById('tourNext').addEventListener('click',()=>{if(tourIndex<tourSteps.length-1){tourIndex++;showTourStep();}else endTour();});window.addEventListener('resize',()=>{if(!document.getElementById('tourCard').hidden)positionTour();});
+    document.addEventListener('keydown',event=>{if(event.key==='Escape'){if(!document.getElementById('tourCard').hidden)endTour();else if(document.getElementById('modalBackdrop').classList.contains('open'))closeModal();}if(event.key==='Tab'){const modal=document.getElementById('modalBackdrop');if(modal.classList.contains('open'))trapFocus(event,modal.querySelector('.modal'));else if(!document.getElementById('tourCard').hidden)trapFocus(event,document.getElementById('tourCard'));}});
+    function trapFocus(event,container){const nodes=[...container.querySelectorAll('button:not(:disabled),a[href],textarea:not(:disabled),input:not(:disabled),[tabindex]:not([tabindex="-1"])')];if(!nodes.length)return;const first=nodes[0],last=nodes[nodes.length-1];if(event.shiftKey&&document.activeElement===first){event.preventDefault();last.focus();}else if(!event.shiftKey&&document.activeElement===last){event.preventDefault();first.focus();}}
+    renderAll();
+  </script>
+</body>
+</html>
