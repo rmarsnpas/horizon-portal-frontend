@@ -71,6 +71,9 @@ body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; b
 .badge-blue  { background: #cce5ff; color: #004085; }
 .badge-gray  { background: #e2e8f0; color: #4a5568; }
 .badge-orange{ background: #ffe5cc; color: #7a3800; }
+.badge-purple{ background: #e9d8fd; color: #553c9a; }
+.member-header .info .pro-connections { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; margin-top: 8px; }
+.member-header .info .pro-connections .pro-label { font-size: 12px; font-weight: 700; color: #718096; }
 
 /* ── Upload Bar ── */
 .upload-bar { background: var(--white); border: 1px solid var(--border); border-radius: 10px; padding: 16px 20px; margin-bottom: 20px; display: flex; align-items: center; gap: 14px; flex-wrap: wrap; }
@@ -126,9 +129,37 @@ body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; b
 .message-compose { display:flex;gap:8px;padding:10px;background:#fff;border:1px solid var(--border);border-radius:0 0 8px 8px; }
 .message-compose textarea { flex:1;resize:none;padding:10px;border:1px solid var(--border);border-radius:6px;font:inherit;min-height:42px; }
 .message-compose button { padding:9px 18px;background:var(--green);color:#fff;border:0;border-radius:6px;font-weight:700;cursor:pointer; }
+.message-compose textarea:focus,.new-message-field select:focus,.new-message-field input:focus { outline:2px solid rgba(45,106,79,.2);outline-offset:1px;border-color:var(--green); }
+.message-compose textarea:disabled { background:#f1f5f9;color:var(--muted);cursor:not-allowed; }
+.message-compose button:disabled { background:#a0aec0;cursor:not-allowed; }
 .unread-badge { display:inline-flex;min-width:20px;height:20px;padding:0 6px;align-items:center;justify-content:center;border-radius:999px;background:#dc2626;color:#fff;font-size:11px;font-weight:800; }
+@keyframes staff-inbox-alert-pulse { 0%,100%{transform:scale(1);box-shadow:0 0 0 0 rgba(255,255,255,.65)} 50%{transform:scale(1.06);box-shadow:0 0 0 8px rgba(255,255,255,0)} }
+#staffInboxButton.has-new-messages { background:#d97706;color:#fff;animation:staff-inbox-alert-pulse 1.25s ease-in-out infinite; }
 #staffMessageOverlay { display:none;position:fixed;inset:0;background:rgba(0,0,0,.62);z-index:30000;align-items:center;justify-content:center;padding:18px; }
-.staff-message-box { width:min(1050px,97vw);background:#fff;border-radius:14px;overflow:hidden;box-shadow:0 18px 60px rgba(0,0,0,.35); }
+.staff-message-box { width:min(1050px,97vw);max-height:calc(100vh - 36px);background:#fff;border-radius:14px;overflow:hidden;box-shadow:0 18px 60px rgba(0,0,0,.35);display:flex;flex-direction:column; }
+.staff-message-header { display:flex;justify-content:space-between;align-items:center;padding:14px 20px;border-bottom:1px solid var(--border);gap:16px; }
+.staff-message-actions { display:flex;align-items:center;gap:8px; }
+.btn-new-message { padding:8px 14px;background:var(--green);color:#fff;border:0;border-radius:6px;font-size:13px;font-weight:700;cursor:pointer;white-space:nowrap; }
+.btn-new-message:hover { background:var(--green-light); }
+.btn-new-message:focus-visible,.new-message-controls button:focus-visible,.staff-message-close:focus-visible { outline:3px solid rgba(45,106,79,.28);outline-offset:2px; }
+.staff-message-close { border:0;background:none;font-size:28px;color:var(--muted);cursor:pointer;line-height:1;padding:2px 4px; }
+.new-message-panel { padding:14px 20px 15px;background:#f0faf4;border-bottom:1px solid #c3d9ca; }
+.new-message-panel[hidden] { display:none; }
+.new-message-heading { font-size:14px;color:var(--green);margin-bottom:10px; }
+.new-message-fields { display:grid;grid-template-columns:1fr 1fr auto;gap:12px;align-items:end; }
+.new-message-field label { display:block;font-size:12px;font-weight:700;color:var(--text);margin-bottom:5px; }
+.new-message-field select,.new-message-field input { width:100%;min-height:38px;padding:8px 10px;border:1px solid var(--border);border-radius:6px;background:#fff;color:var(--text);font:inherit;font-size:13px; }
+.new-message-help { display:block;margin-top:5px;color:#4a5568;font-size:11px;line-height:1.35; }
+.new-message-controls { display:flex;gap:7px; }
+.new-message-controls button { min-height:38px;padding:8px 13px;border:0;border-radius:6px;font-size:13px;font-weight:700;cursor:pointer;white-space:nowrap; }
+.new-message-start { background:var(--green);color:#fff; }
+.new-message-start:hover { background:var(--green-light); }
+.new-message-start:disabled { background:#a0aec0;cursor:wait; }
+.new-message-cancel { background:#e2e8f0;color:#4a5568; }
+.new-message-status { min-height:18px;margin-top:8px;font-size:12px;font-weight:600;color:#4a5568; }
+.new-message-status.error { color:#b91c1c; }
+.new-message-status.success { color:#155724; }
+.staff-message-box > .message-layout { height:min(620px,68vh);min-height:300px; }
 
 /* ── Document Preview Overlay ── */
 #previewOverlay { display:none; position:fixed; inset:0; background:rgba(0,0,0,0.6); z-index:10000; align-items:center; justify-content:center; overflow-y:auto; padding:20px; }
@@ -196,8 +227,27 @@ body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; b
   .layout { flex-direction: column; height: auto; }
   .sidebar { width: 100%; height: 220px; border-right: none; border-bottom: 1px solid var(--border); }
   .file-view { padding: 14px; }
-  .message-layout { grid-template-columns:1fr;height:86vh; }
-  .message-list { max-height:190px;border-right:0;border-bottom:1px solid var(--border); }
+  .message-layout { display:flex;flex-direction:column;height:86vh; }
+  .message-list { flex:0 0 clamp(120px,25vh,180px);max-height:none;border-right:0;border-bottom:1px solid var(--border); }
+  .message-main { flex:1;min-height:0;padding:12px; }
+  .staff-message-header { align-items:flex-start;padding:13px 14px; }
+  .staff-message-actions { gap:4px; }
+  .btn-new-message { padding:8px 10px; }
+  .new-message-panel { padding:12px 14px; }
+  .new-message-fields { grid-template-columns:1fr;gap:10px; }
+  .new-message-controls { justify-content:flex-end; }
+  .staff-message-box > .message-layout { height:auto;min-height:0;flex:1;overflow:hidden; }
+  .new-message-panel { max-height:48vh;overflow-y:auto; }
+}
+@media (max-width: 480px) {
+  #staffMessageOverlay { padding:0;align-items:stretch; }
+  .staff-message-box { width:100vw;max-height:100dvh;height:100dvh;border-radius:0; }
+  .staff-message-header { flex-wrap:wrap; }
+  .staff-message-header > div:first-child { flex:1;min-width:190px; }
+  .staff-message-actions { margin-left:auto; }
+  .message-list { flex-basis:145px; }
+  .message-compose { padding:8px; }
+  .message-compose button { padding-inline:13px; }
 }
 </style>
 </head>
@@ -227,7 +277,7 @@ body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; b
     <h1>📂 Member File Cabinet</h1>
     <div class="top-right">
       <span id="loggedInAs" style="font-size:13px;opacity:.85;"></span>
-      <button class="btn-sm btn-logout" onclick="openStaffMessageCenter()">&#128233; Messages <span id="staffInboxBadge" class="unread-badge" style="display:none">0</span></button>
+      <button id="staffInboxButton" class="btn-sm btn-logout" onclick="openStaffMessageCenter()">&#128233; Messages <span id="staffInboxBadge" class="unread-badge" style="display:none">0</span></button>
       <a href="/staff-dashboard.html" class="btn-sm btn-logout">← Dashboard</a>
       <button class="btn-sm btn-logout" onclick="doLogout()">Log Out</button>
     </div>
@@ -263,19 +313,41 @@ body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; b
 
 <!-- Centralized Staff Message Center -->
 <div id="staffMessageOverlay">
-  <div class="staff-message-box">
-    <div style="display:flex;justify-content:space-between;align-items:center;padding:16px 20px;border-bottom:1px solid var(--border);">
-      <div><h2 style="font-size:1.15rem;color:var(--text);">&#128233; Staff Message Center</h2><div style="font-size:12px;color:var(--muted);margin-top:3px;">All professional conversations organized by member</div></div>
-      <button onclick="closeStaffMessageCenter()" style="border:0;background:none;font-size:28px;color:var(--muted);cursor:pointer;">&times;</button>
+  <div class="staff-message-box" role="dialog" aria-modal="true" aria-labelledby="staffMessageHeading">
+    <div class="staff-message-header">
+      <div><h2 id="staffMessageHeading" style="font-size:1.15rem;color:var(--text);">&#128233; Staff Message Center</h2><div style="font-size:12px;color:var(--muted);margin-top:3px;">All professional conversations organized by member</div></div>
+      <div class="staff-message-actions">
+        <button id="newStaffMessageButton" class="btn-new-message" type="button" aria-expanded="false" aria-controls="newStaffMessagePanel">+ New message</button>
+        <button class="staff-message-close" type="button" onclick="closeStaffMessageCenter()" aria-label="Close message center">&times;</button>
+      </div>
     </div>
+    <form id="newStaffMessagePanel" class="new-message-panel" hidden novalidate>
+      <h3 class="new-message-heading">Start a secure professional conversation</h3>
+      <div class="new-message-fields">
+        <div class="new-message-field">
+          <label for="newMessageProfessional">Professional <span aria-hidden="true">*</span></label>
+          <select id="newMessageProfessional" required><option value="">Select a professional</option></select>
+        </div>
+        <div class="new-message-field">
+          <label for="newMessageMemberId">Member ID <span aria-hidden="true">*</span></label>
+          <input id="newMessageMemberId" name="memberId" type="text" required autocomplete="off" inputmode="text" autocapitalize="characters" spellcheck="false" aria-describedby="newMessageMemberHelp" placeholder="Enter exact Member ID">
+          <small id="newMessageMemberHelp" class="new-message-help">Enter the exact ID to limit unnecessary member name exposure.</small>
+        </div>
+        <div class="new-message-controls">
+          <button id="startStaffConversationButton" class="new-message-start" type="submit">Start conversation</button>
+          <button id="cancelStaffConversationButton" class="new-message-cancel" type="button">Cancel</button>
+        </div>
+      </div>
+      <div id="newStaffMessageStatus" class="new-message-status" role="status" aria-live="polite"></div>
+    </form>
     <div class="message-layout">
       <div id="staffMessageList" class="message-list"><div style="padding:24px;color:var(--muted);">Loading conversations...</div></div>
       <div class="message-main">
         <div id="staffMessageTitle" style="font-weight:800;margin-bottom:10px;">Select a conversation</div>
         <div id="staffMessageThread" class="message-thread"><div style="margin:auto;color:var(--muted);text-align:center;">Choose a conversation from the inbox.</div></div>
         <div class="message-compose">
-          <textarea id="staffMessageInput" placeholder="Type a reply..." onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();sendStaffMessage()}"></textarea>
-          <button onclick="sendStaffMessage()">Send</button>
+          <textarea id="staffMessageInput" placeholder="Select a conversation to reply" disabled onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();sendStaffMessage()}"></textarea>
+          <button id="staffMessageSendButton" type="button" onclick="sendStaffMessage()" disabled>Send</button>
         </div>
       </div>
     </div>
@@ -486,6 +558,7 @@ body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; b
 <input type="file" id="hiddenFileInput" accept="image/*,.pdf" style="display:none" onchange="fileChosen(this)">
 <input type="file" id="hiddenCameraInput" accept="image/*" capture="environment" style="display:none" onchange="fileChosen(this)">
 
+<script src="../timezone-utils.js"></script>
 <script>
 const API = 'https://horizon-portal-backend-production-3532.up.railway.app/api';
 const SESSION_KEY = 'emr_session';
@@ -498,7 +571,10 @@ let _currentMemberData = null;
 let _staffConversations = [];
 let _staffConversationId = null;
 let _staffMessagePoll = null;
+let _staffBadgePoll = null;
 let _memberConversationId = null;
+let _memberLoadPromise = null;
+let _staffMessageReturnFocus = null;
 
 // ── Auth ──────────────────────────────────────────────────────────────────────
 async function doLogin() {
@@ -534,10 +610,16 @@ function showApp() {
   document.getElementById('loginScreen').style.display = 'none';
   document.getElementById('appShell').style.display = 'block';
   document.getElementById('loggedInAs').textContent = sess.name.trim() || sess.id;
-  loadMemberList();
+  _memberLoadPromise = loadMemberList().finally(() => { _memberLoadPromise = null; });
   refreshStaffInboxBadge();
+  clearInterval(_staffBadgePoll);
+  _staffBadgePoll = setInterval(refreshStaffInboxBadge, 15000);
   if (new URLSearchParams(location.search).get('inbox') === '1') {
-    setTimeout(openStaffMessageCenter, 0);
+    const openComposeToo = new URLSearchParams(location.search).get('new') === '1';
+    setTimeout(async () => {
+      await openStaffMessageCenter();
+      if (openComposeToo) await openNewStaffMessagePanel();
+    }, 0);
   }
 }
 
@@ -547,6 +629,15 @@ window.addEventListener('DOMContentLoaded', () => {
   if (sess) showApp();
   document.getElementById('loginPw').addEventListener('keydown', e => { if (e.key === 'Enter') doLogin(); });
   document.getElementById('loginId').addEventListener('keydown', e => { if (e.key === 'Enter') document.getElementById('loginPw').focus(); });
+  document.getElementById('newStaffMessageButton').addEventListener('click', toggleNewStaffMessagePanel);
+  document.getElementById('cancelStaffConversationButton').addEventListener('click', closeNewStaffMessagePanel);
+  document.getElementById('newStaffMessagePanel').addEventListener('submit', startStaffConversation);
+  document.addEventListener('keydown', event => {
+    if (event.key === 'Escape' && document.getElementById('staffMessageOverlay').style.display === 'flex') {
+      event.preventDefault();
+      closeStaffMessageCenter();
+    }
+  });
 });
 
 // ── Member List ───────────────────────────────────────────────────────────────
@@ -573,7 +664,11 @@ async function loadMemberList() {
     document.getElementById('tc-discharged').textContent= cnt(m => getStatus(m)==='3');
     document.getElementById('tc-all').textContent       = _allMembers.length;
     filterMembers();
-  } catch { document.getElementById('memberCount').textContent = 'Failed to load'; }
+    return true;
+  } catch {
+    document.getElementById('memberCount').textContent = 'Failed to load';
+    return false;
+  }
 }
 
 function getStatus(m) { return String(m.STATUS || m.status || m.STATU || '').trim(); }
@@ -586,8 +681,8 @@ function setTab(tab, el) {
 }
 
 function getMemberName(m) {
-  const f = m.firstName || m['FIRST NAME'] || m['FIRST\nNAME'] || m['FIRST\r\nNAME'] || '';
-  const l = m.lastName  || m['LAST NAME']  || m['LAST\nNAME']  || m['LAST\r\nNAME']  || '';
+  const f = m.firstName || m.FIRST_NAME || m['FIRST NAME'] || m['FIRST\nNAME'] || m['FIRST\r\nNAME'] || '';
+  const l = m.lastName  || m.LAST_NAME  || m['LAST NAME']  || m['LAST\nNAME']  || m['LAST\r\nNAME']  || '';
   return { first: f.trim(), last: l.trim(), full: (f + ' ' + l).trim() };
 }
 
@@ -665,6 +760,18 @@ function renderMemberFile(data) {
   const phone= member.phone|| member.PHONE|| member['PHONE'] || '';
   const dob  = member.dob  || member.DOB  || member['D.O.B'] || member['DOB'] || '';
 
+  // Professionals connected to this member (primary referring + authorized)
+  const linkedProId = String(member.linkedProfessionalId || '').trim();
+  const authorizedProIds = Array.isArray(member.authorizedPros)
+    ? member.authorizedPros.map(p => String(typeof p === 'string' ? p : (p.id || '')).trim()).filter(Boolean)
+    : [];
+  const connectedProIds = [...new Set([linkedProId, ...authorizedProIds].filter(Boolean))];
+  const connectedPros = connectedProIds.map(id => {
+    const pro = _allMembers.find(m => String(m.ID || m.id || '') === id);
+    const org = pro ? (pro.professionalOrg || pro.organization || '') : '';
+    return { id, name: pro ? getMessageMemberName(pro) : `#${id}`, org, primary: id === linkedProId };
+  });
+
   // Separate documents by folder
   const intakeFormDocs = (docs || []).filter(d => d.folder === 'Intake Forms');
   const medLogDocs = (docs || []).filter(d => d.folder === 'Med Logs');
@@ -690,6 +797,10 @@ function renderMemberFile(data) {
           <span class="badge badge-orange">${totalDocs} item${totalDocs !== 1 ? 's' : ''} in file</span>
           ${_memberRefCodes.includes('H') ? `<img src="/iehp-logo.png" alt="IEHP" title="IEHP Member" style="height:28px;object-fit:contain;background:#fff;border-radius:4px;padding:2px 6px;border:1px solid #e2e8f0;">` : ''}
         </div>
+        ${connectedPros.length ? `<div class="pro-connections">
+          <span class="pro-label">🩺 Connected professionals:</span>
+          ${connectedPros.map(p => `<span class="badge badge-purple" style="display:inline-flex;align-items:center;gap:6px;" title="${esc(p.org)}">${p.primary ? '⭐ ' : ''}${esc(p.name)}${p.org ? ` · ${esc(p.org)}` : ''}<button type="button" onclick="messageConnectedPro('${p.id}')" style="border:none;background:rgba(85,60,154,.18);color:#553c9a;border-radius:8px;padding:1px 7px;font-size:11px;font-weight:700;cursor:pointer;">✉ Message</button></span>`).join('')}
+        </div>` : ''}
       </div>
     </div>
 
@@ -764,8 +875,8 @@ function renderMemberFile(data) {
           <div id="memberMessageTitle" style="font-weight:800;margin-bottom:10px;">Member-related conversations</div>
           <div id="memberMessageThread" class="message-thread"><div style="margin:auto;color:var(--muted);text-align:center;">Select a conversation.</div></div>
           <div class="message-compose">
-            <textarea id="memberMessageInput" placeholder="Type a reply..." onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();sendMemberFileMessage()}"></textarea>
-            <button onclick="sendMemberFileMessage()">Send</button>
+            <textarea id="memberMessageInput" placeholder="Select a conversation to reply" disabled onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();sendMemberFileMessage()}"></textarea>
+            <button id="memberMessageSendButton" onclick="sendMemberFileMessage()" disabled>Send</button>
           </div>
         </div>
       </div>
@@ -810,8 +921,11 @@ async function refreshStaffInboxBadge() {
     _staffConversations = await fetchStaffConversations();
     const unread = _staffConversations.reduce((sum, c) => sum + Number(c.unreadCount || 0), 0);
     const badge = document.getElementById('staffInboxBadge');
+    const button = document.getElementById('staffInboxButton');
     badge.textContent = unread;
     badge.style.display = unread ? 'inline-flex' : 'none';
+    button.classList.toggle('has-new-messages', unread > 0);
+    button.title = unread ? `${unread} unread message${unread === 1 ? '' : 's'}` : 'Open staff message center';
   } catch { /* badge is informational */ }
 }
 
@@ -822,10 +936,16 @@ function renderConversationList(conversations, targetId, selectedId, selectFunct
     return;
   }
   target.innerHTML = conversations.map(c => `
-    <button class="message-list-item ${String(c.id)===String(selectedId)?'active':''}" onclick="${selectFunction}('${esc(c.id)}')">
+    <button class="message-list-item ${String(c.id)===String(selectedId)?'active':''}" type="button" data-conversation-id="${esc(c.id)}">
       <div class="message-list-title"><span>${esc(c.name || `Member #${c.linkedMemberId || ''}`)}</span>${c.unreadCount ? `<span class="unread-badge">${Number(c.unreadCount)}</span>` : ''}</div>
       <div class="message-list-preview">${esc(c.lastMessage?.senderName || '')}${c.lastMessage?.senderName ? ': ' : ''}${esc(c.lastMessage?.text || 'No messages yet')}</div>
     </button>`).join('');
+  target.onclick = event => {
+    const button = event.target.closest('[data-conversation-id]');
+    if (!button || !target.contains(button)) return;
+    const handler = selectFunction === 'selectMemberConversation' ? selectMemberConversation : selectStaffConversation;
+    handler(button.dataset.conversationId);
+  };
 }
 
 function renderStaffMessageThread(messages, targetId) {
@@ -851,7 +971,9 @@ function renderStaffMessageThread(messages, targetId) {
 }
 
 async function openStaffMessageCenter() {
+  _staffMessageReturnFocus = document.activeElement;
   document.getElementById('staffMessageOverlay').style.display = 'flex';
+  updateStaffComposeState();
   await loadStaffMessageCenter();
   clearInterval(_staffMessagePoll);
   _staffMessagePoll = setInterval(loadStaffMessageCenter, 5000);
@@ -861,16 +983,34 @@ function closeStaffMessageCenter() {
   document.getElementById('staffMessageOverlay').style.display = 'none';
   clearInterval(_staffMessagePoll); _staffMessagePoll = null;
   _staffConversationId = null;
+  closeNewStaffMessagePanel(false);
+  updateStaffComposeState();
   refreshStaffInboxBadge();
+  if (_staffMessageReturnFocus && typeof _staffMessageReturnFocus.focus === 'function') _staffMessageReturnFocus.focus();
+  _staffMessageReturnFocus = null;
 }
 
 async function loadStaffMessageCenter() {
   try {
     _staffConversations = await fetchStaffConversations();
+    if (_staffConversationId && !_staffConversations.some(c => String(c.id) === String(_staffConversationId))) {
+      _staffConversationId = null;
+      document.getElementById('staffMessageTitle').textContent = 'Select a conversation';
+      document.getElementById('staffMessageThread').innerHTML = '<div style="margin:auto;color:var(--muted);text-align:center;">Choose a conversation from the inbox.</div>';
+    }
     renderConversationList(_staffConversations, 'staffMessageList', _staffConversationId, 'selectStaffConversation');
-    if (_staffConversationId) await loadStaffConversationMessages();
+    if (_staffConversationId) {
+      const selectedConversation = _staffConversations.find(c => String(c.id) === String(_staffConversationId));
+      document.getElementById('staffMessageTitle').textContent = selectedConversation?.name || 'Conversation';
+      await loadStaffConversationMessages();
+    }
+    updateStaffComposeState();
   } catch (e) {
-    document.getElementById('staffMessageList').innerHTML = `<div style="padding:20px;color:#dc2626;">${esc(e.message)}</div>`;
+    if (!_staffConversations.length) {
+      document.getElementById('staffMessageList').innerHTML = `<div style="padding:20px;color:#dc2626;">${esc(e.message)}</div>`;
+    } else {
+      document.getElementById('staffMessageTitle').textContent = 'Unable to refresh messages. Showing the last loaded inbox.';
+    }
   }
 }
 
@@ -879,8 +1019,166 @@ async function selectStaffConversation(conversationId) {
   const conv = _staffConversations.find(c => String(c.id) === String(conversationId));
   document.getElementById('staffMessageTitle').textContent = conv?.name || 'Conversation';
   renderConversationList(_staffConversations, 'staffMessageList', conversationId, 'selectStaffConversation');
+  updateStaffComposeState();
   await loadStaffConversationMessages();
   refreshStaffInboxBadge();
+}
+
+function updateStaffComposeState() {
+  const enabled = Boolean(_staffConversationId);
+  const input = document.getElementById('staffMessageInput');
+  const button = document.getElementById('staffMessageSendButton');
+  input.disabled = !enabled;
+  button.disabled = !enabled;
+  input.placeholder = enabled ? 'Type a reply...' : 'Select a conversation to reply';
+}
+
+function setNewStaffMessageStatus(message = '', type = '') {
+  const status = document.getElementById('newStaffMessageStatus');
+  status.textContent = message;
+  status.className = `new-message-status${type ? ` ${type}` : ''}`;
+}
+
+function getMessageMemberName(member) {
+  return getMemberName(member).full || String(member.ID || member.id || 'Unknown');
+}
+
+function hasProfessionalPortalAccess(member) {
+  return member.professionalPortalAccess === true || member.professionalPortalAccess === 'true';
+}
+
+function getEligibleMessageResidents() {
+  return _allMembers.filter(member =>
+    String(member.ID || member.id || '').trim() &&
+    !hasProfessionalPortalAccess(member) && !['4','5','6'].includes(getStatus(member)));
+}
+
+function populateNewStaffMessageOptions() {
+  const professionalSelect = document.getElementById('newMessageProfessional');
+  const professionals = _allMembers
+    .filter(hasProfessionalPortalAccess)
+    .sort((a, b) => getMessageMemberName(a).localeCompare(getMessageMemberName(b), undefined, { sensitivity:'base' }));
+  const residents = getEligibleMessageResidents();
+
+  professionalSelect.replaceChildren(new Option('Select a professional', ''));
+  professionals.forEach(member => {
+    const id = String(member.ID || member.id || '');
+    if (!id) return;
+    const organization = member.professionalOrg || member.organization || '';
+    const name = getMessageMemberName(member);
+    professionalSelect.add(new Option(`#${id} — ${name}${organization ? ` — ${organization}` : ''}`, id));
+  });
+  return { professionals: professionals.length, residents: residents.length };
+}
+
+function toggleNewStaffMessagePanel() {
+  const panel = document.getElementById('newStaffMessagePanel');
+  if (panel.hidden) openNewStaffMessagePanel();
+  else closeNewStaffMessagePanel();
+}
+
+async function openNewStaffMessagePanel(preselectProfessionalId) {
+  const panel = document.getElementById('newStaffMessagePanel');
+  const trigger = document.getElementById('newStaffMessageButton');
+  panel.hidden = false;
+  trigger.setAttribute('aria-expanded', 'true');
+  setNewStaffMessageStatus('Loading professionals and Member ID records...');
+  try {
+    let loaded = true;
+    if (_memberLoadPromise) loaded = await _memberLoadPromise;
+    else if (!_allMembers.length) loaded = await loadMemberList();
+    if (!loaded && !_allMembers.length) {
+      setNewStaffMessageStatus('Could not load professionals and Member ID records. Close this panel and try again.', 'error');
+      return;
+    }
+    const counts = populateNewStaffMessageOptions();
+    if (!counts.professionals) setNewStaffMessageStatus('No registered professionals are available.', 'error');
+    else if (!counts.residents) setNewStaffMessageStatus('No Member IDs are currently available for messaging.', 'error');
+    else setNewStaffMessageStatus('Choose a professional and enter the exact Member ID.');
+    const memberIdInput = document.getElementById('newMessageMemberId');
+    const professionalSelect = document.getElementById('newMessageProfessional');
+    if (_currentMemberId && !memberIdInput.value) memberIdInput.value = _currentMemberId;
+    if (preselectProfessionalId) professionalSelect.value = preselectProfessionalId;
+    (preselectProfessionalId ? memberIdInput : professionalSelect).focus();
+  } catch (error) {
+    setNewStaffMessageStatus(error.message || 'Could not load professionals or Member ID records. Try again.', 'error');
+  }
+}
+
+async function messageConnectedPro(professionalId) {
+  await openStaffMessageCenter();
+  await openNewStaffMessagePanel(professionalId);
+}
+
+function closeNewStaffMessagePanel(restoreFocus = true) {
+  const panel = document.getElementById('newStaffMessagePanel');
+  panel.hidden = true;
+  panel.reset();
+  const trigger = document.getElementById('newStaffMessageButton');
+  trigger.setAttribute('aria-expanded', 'false');
+  setNewStaffMessageStatus();
+  if (restoreFocus) trigger.focus();
+}
+
+async function startStaffConversation(event) {
+  event.preventDefault();
+  const professionalSelect = document.getElementById('newMessageProfessional');
+  const memberIdInput = document.getElementById('newMessageMemberId');
+  const submitButton = document.getElementById('startStaffConversationButton');
+  const enteredMemberId = memberIdInput.value.trim();
+  if (!professionalSelect.value || !enteredMemberId) {
+    setNewStaffMessageStatus(!professionalSelect.value ? 'Select a professional.' : 'Enter the exact Member ID.', 'error');
+    (!professionalSelect.value ? professionalSelect : memberIdInput).focus();
+    return;
+  }
+
+  const professional = _allMembers.find(member => String(member.ID || member.id || '') === professionalSelect.value);
+  if (!professional || !hasProfessionalPortalAccess(professional)) {
+    setNewStaffMessageStatus('The selected professional is no longer available. Refresh and try again.', 'error');
+    professionalSelect.focus();
+    return;
+  }
+  const resident = getEligibleMessageResidents().find(member =>
+    String(member.ID || member.id || '').trim().toLowerCase() === enteredMemberId.toLowerCase());
+  if (!resident) {
+    setNewStaffMessageStatus('Member ID not found or unavailable.', 'error');
+    memberIdInput.focus();
+    return;
+  }
+
+  const residentId = String(resident.ID || resident.id || '').trim();
+  const professionalName = getMessageMemberName(professional);
+  const residentName = getMessageMemberName(resident);
+  submitButton.disabled = true;
+  setNewStaffMessageStatus('Starting secure conversation...');
+  try {
+    const response = await fetch(`${API}/messages/conversation`, {
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({
+        memberId:'staff',
+        recipientIds:[professionalSelect.value],
+        name:`${residentName} (#${residentId}) — ${professionalName}`,
+        linkedMemberId:residentId
+      })
+    });
+    const data = await response.json().catch(() => ({}));
+    if (!response.ok) throw new Error(data.error || 'Could not start conversation.');
+    const conversationId = data.conversation?.id || data.id;
+    if (!conversationId) throw new Error('The server did not return a conversation.');
+
+    _staffConversationId = String(conversationId);
+    await loadStaffMessageCenter();
+    const conversation = _staffConversations.find(c => String(c.id) === _staffConversationId);
+    document.getElementById('staffMessageTitle').textContent = conversation?.name || `${residentName} — ${professionalName}`;
+    closeNewStaffMessagePanel(false);
+    updateStaffComposeState();
+    document.getElementById('staffMessageInput').focus();
+  } catch (error) {
+    setNewStaffMessageStatus(error.message || 'Could not start conversation. Try again.', 'error');
+  } finally {
+    submitButton.disabled = false;
+  }
 }
 
 async function loadStaffConversationMessages() {
@@ -927,6 +1225,7 @@ async function loadMemberMessageThreads() {
     const conversations = _staffConversations.filter(c => String(c.linkedMemberId || '') === String(_currentMemberId));
     if (!conversations.some(c => String(c.id) === String(_memberConversationId))) _memberConversationId = null;
     renderConversationList(conversations, 'memberMessageList', _memberConversationId, 'selectMemberConversation');
+    updateMemberComposeState();
     if (_memberConversationId) await loadMemberConversationMessages();
   } catch (e) {
     document.getElementById('memberMessageList').innerHTML = `<div style="padding:20px;color:#dc2626;">${esc(e.message)}</div>`;
@@ -937,8 +1236,19 @@ async function selectMemberConversation(conversationId) {
   _memberConversationId = conversationId;
   const conv = _staffConversations.find(c => String(c.id) === String(conversationId));
   document.getElementById('memberMessageTitle').textContent = conv?.name || 'Member conversation';
+  updateMemberComposeState();
   await loadMemberMessageThreads();
   refreshStaffInboxBadge();
+}
+
+function updateMemberComposeState() {
+  const input = document.getElementById('memberMessageInput');
+  const button = document.getElementById('memberMessageSendButton');
+  if (!input || !button) return;
+  const enabled = Boolean(_memberConversationId);
+  input.disabled = !enabled;
+  button.disabled = !enabled;
+  input.placeholder = enabled ? 'Type a reply...' : 'Select a conversation to reply';
 }
 
 async function loadMemberConversationMessages() {
@@ -1202,7 +1512,7 @@ function renderMedLog(logs) {
   if (!logs || !logs.length) return emptyRow('No medication log entries on file');
   return `<table class="file-table"><thead><tr><th>Date / Time</th><th>Medication</th><th>Dose</th><th>Route</th><th>Verified By</th><th>Notes</th></tr></thead><tbody>` +
     logs.map(e => `<tr>
-      <td style="white-space:nowrap;">${fmtDate(e.administeredAt || e.createdAt)}</td>
+      <td style="white-space:nowrap;">${HorizonTime.formatDateTime(e.administeredAt || e.createdAt)}</td>
       <td style="font-weight:600;">${esc(e.medication || '—')}</td>
       <td>${esc(e.dosage || '—')}</td>
       <td>${esc(e.route || '—')}</td>
@@ -1213,16 +1523,16 @@ function renderMedLog(logs) {
 
 function renderDrugLog(logs) {
   if (!logs || !logs.length) return emptyRow('No drug/medication tracking entries on file');
-  return `<table class="file-table"><thead><tr><th>Date</th><th>Drug/Medication</th><th>Type</th><th>Dosage</th><th>Rx #</th><th>Fill Date</th><th>Qty Filled</th><th>Qty In</th><th>Purpose</th><th>Notes</th><th>Entered By</th><th>Staff Verified</th></tr></thead><tbody>` +
+  return `<table class="file-table"><thead><tr><th>Date / Time</th><th>Drug/Medication</th><th>Type</th><th>Dosage</th><th>Rx #</th><th>Fill Date</th><th>Qty Filled</th><th>Qty In</th><th>Purpose</th><th>Notes</th><th>Entered By</th><th>Staff Verified</th></tr></thead><tbody>` +
     logs.map(e => {
       const typeClass = e.type === 'Prescribed' ? 'status-active' : e.type === 'OTC' ? 'status-waitlist' : 'status-hold';
       return `<tr>
-        <td style="white-space:nowrap;">${fmtDate(e.date || e.createdAt)}</td>
+        <td style="white-space:nowrap;">${HorizonTime.formatDateTime(e.date || e.createdAt)}</td>
         <td style="font-weight:600;">${esc(e.drugName || '—')}</td>
         <td><span class="badge ${typeClass}">${esc(e.type || '—')}</span></td>
         <td>${esc(e.dosage || '—')}</td>
         <td>${esc(e.prescriptionNumber || '—')}</td>
-        <td>${e.fillDate ? fmtDate(e.fillDate) : '—'}</td>
+        <td>${e.fillDate ? HorizonTime.formatDateOnly(e.fillDate) : '—'}</td>
         <td>${esc(e.quantityFill || '—')}</td>
         <td>${esc(e.quantityIn || '—')}</td>
         <td>${esc(e.purpose || '—')}</td>
@@ -1773,8 +2083,8 @@ function closePreview() {
 // ── Medication Log Modal ───────────────────────────────────────────────────────
 function openMedLogModal() {
   if (!_currentMemberId) return;
-  const today = new Date().toISOString().split('T')[0];
-  const now = new Date().toTimeString().slice(0,5);
+  const pacificNow = HorizonTime.nowDateTimeLocal();
+  const [today, now] = pacificNow.split('T');
   document.getElementById('mlMed').value = '';
   document.getElementById('mlDose').value = '';
   document.getElementById('mlRoute').value = 'Oral';
@@ -1797,7 +2107,9 @@ async function submitMedLog() {
   const { full } = getMemberName(member || {});
   const dateVal = document.getElementById('mlDate').value;
   const timeVal = document.getElementById('mlTime').value;
-  const administeredAt = dateVal ? (dateVal + (timeVal ? 'T' + timeVal + ':00' : 'T00:00:00')) : new Date().toISOString();
+  const administeredAt = dateVal
+    ? HorizonTime.toUtcIso(dateVal + (timeVal ? 'T' + timeVal : 'T00:00'))
+    : new Date().toISOString();
   try {
     const res = await fetch(`${API}/med-logs`, {
       method: 'POST',
