@@ -852,8 +852,13 @@ function addMember() {
       <div><label>Move-In Date</label><input type="date" class="member-movein" /></div>
       <div><label>Gender</label><select class="member-gender"><option value="">Select…</option><option>Male</option><option>Female</option><option>Non-Binary</option><option>Prefer Not to Say</option></select></div>
       <div class="md:col-span-3"><label>Status After Incident <span class="required-star">*</span></label><select class="member-status" required><option value="">Select…</option><option>Remains in Residence</option><option>Voluntarily Left</option><option>Asked to Leave / Discharged</option><option>Hospitalized</option><option>Unknown / Other</option></select></div>
+      <div class="md:col-span-3 conditional-field member-status-other-field"><label>Describe status:</label><input type="text" class="member-status-other" placeholder="Describe…" /></div>
     </div>`;
   $('residents-container-a3b4').appendChild(card);
+  // Show/hide "describe status" box when Unknown / Other is selected
+  card.querySelector('.member-status').addEventListener('change', function() {
+    card.querySelector('.member-status-other-field').classList.toggle('visible', this.value === 'Unknown / Other');
+  });
   // Lookup button handler
   card.querySelector('.member-lookup-btn').addEventListener('click', async function() {
     const idVal = card.querySelector('.member-id-lookup').value.trim();
@@ -1110,7 +1115,8 @@ function gatherFormData() {
       room:   c.querySelector('.member-room').value,
       movein: c.querySelector('.member-movein').value,
       gender: c.querySelector('.member-gender').value,
-      status: c.querySelector('.member-status').value
+      status: c.querySelector('.member-status').value,
+      statusOther: c.querySelector('.member-status-other').value
     });
   });
   // Section 3 - Witnesses
@@ -1413,7 +1419,7 @@ $('export-pdf-btn-u7v8').addEventListener('click', function() {
     addField('Room', r.room);
     addField('Move-In Date', r.movein);
     addField('Gender', r.gender);
-    addField('Status', r.status);
+    addField('Status', r.status + (r.statusOther ? ` (${r.statusOther})` : ''));
     y += 2;
   });
 
