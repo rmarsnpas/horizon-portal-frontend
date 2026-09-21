@@ -470,12 +470,30 @@
         .oc-btn { padding: 6px 16px; border: none; border-radius: 6px; font-size: 13px; font-weight: 600; cursor: pointer; }
         .oc-btn-approve { background: #28a745; color: #fff; }
         .oc-btn-approve:hover { background: #218838; }
+        .oc-btn-conditions { background: #fd7e14; color: #fff; }
+        .oc-btn-conditions:hover { background: #dc6803; }
         .oc-btn-deny { background: #dc3545; color: #fff; }
         .oc-btn-deny:hover { background: #c82333; }
         .oc-badge { display: inline-block; padding: 2px 8px; border-radius: 10px; font-size: 11px; font-weight: 700; margin-left: 8px; }
         .oc-badge-pending { background: #fff3cd; color: #856404; }
         .oc-badge-approved { background: #d4edda; color: #155724; }
+        .oc-badge-conditions { background: #ffe5cc; color: #8a4400; }
         .oc-badge-denied { background: #f8d7da; color: #721c24; }
+        .oc-note { font-size: 13px; color: #444; margin-top: 8px; padding: 8px 10px; border-radius: 6px; background: #f4f2ff; border-left: 3px solid #6c5ce7; }
+        .oc-note.oc-note-deny { background: #fdf1f1; border-left-color: #dc3545; }
+        .oc-note strong { color: #2b3440; }
+
+        /* Pass decision modal (approve / approve w/ conditions / deny) */
+        .pd-overlay { display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.5); z-index:10000; justify-content:center; align-items:center; }
+        .pd-modal { background:#fff; border-radius:12px; padding:24px; width:90%; max-width:440px; box-shadow:0 10px 40px rgba(0,0,0,0.25); }
+        .pd-modal h3 { margin:0 0 6px; color:#2b3440; font-size:18px; }
+        .pd-modal p.pd-sub { margin:0 0 14px; color:#777; font-size:13px; }
+        .pd-modal textarea { width:100%; box-sizing:border-box; padding:10px; border:2px solid #ccc; border-radius:6px; font-size:14px; font-family:inherit; resize:vertical; min-height:80px; }
+        .pd-modal .pd-actions { display:flex; gap:10px; margin-top:16px; justify-content:flex-end; }
+        .pd-modal .pd-btn { padding:9px 18px; border:none; border-radius:6px; font-weight:600; font-size:14px; cursor:pointer; }
+        .pd-modal .pd-btn-cancel { background:#e9ecef; color:#333; }
+        .pd-modal .pd-btn-confirm { color:#fff; }
+        .pd-modal .pd-error { color:#dc3545; font-size:12px; margin-top:6px; display:none; }
 
         .member-board-wrapper {
             background: white;
@@ -2293,6 +2311,7 @@ ${rateSummaryHtml}
                                     { key:'sio',       label:'\uD83D\uDEAA Sign In/Out' },
                                     { key:'ua',        label:'\uD83E\uDDEA UA Results' },
                                     { key:'incidents', label:'\u26A0\uFE0F Incidents' },
+                                    { key:'notes',     label:'\uD83D\uDCDD Notes' },
                                     { key:'docs',      label:'\uD83D\uDCC4 Documents' },
                                     { key:'messages',  label:'\uD83D\uDCAC Messages' },
                                 ];
@@ -4110,6 +4129,20 @@ ${rateSummaryHtml}
             </div>
         </div>
 
+        <!-- Pass decision modal (approve / approve w/ conditions / deny) -->
+        <div class="pd-overlay" id="pdOverlay" onclick="if(event.target===this) closePassDecisionModal()">
+            <div class="pd-modal">
+                <h3 id="pdTitle">Approve Pass</h3>
+                <p class="pd-sub" id="pdSub">Add an optional note for the member.</p>
+                <textarea id="pdNote" placeholder="Type a note for the member..."></textarea>
+                <div class="pd-error" id="pdError">Please enter a reason.</div>
+                <div class="pd-actions">
+                    <button class="pd-btn pd-btn-cancel" onclick="closePassDecisionModal()">Cancel</button>
+                    <button class="pd-btn pd-btn-confirm" id="pdConfirmBtn" onclick="confirmPassDecision()">Confirm</button>
+                </div>
+            </div>
+        </div>
+
         <!-- Active Members Board -->
         <div class="section-header" id="memberBoardSection" style="display: none; margin-top: 30px; background: linear-gradient(135deg, #F58634 0%, #c95f00 100%); color: white; padding: 20px; border-radius: 12px; margin-bottom: 20px;">
             <h2 style="color: white; margin: 0;">
@@ -5040,15 +5073,21 @@ ${rateSummaryHtml}
         }
 
         function renderOvernightCard(p, showActions) {
-            const badgeClass = p.status === 'approved' ? 'oc-badge-approved' : p.status === 'denied' ? 'oc-badge-denied' : 'oc-badge-pending';
-            const badgeLabel = p.status.charAt(0).toUpperCase() + p.status.slice(1);
+            const badgeClass = p.status === 'approved' ? (p.approvedWithConditions ? 'oc-badge-conditions' : 'oc-badge-approved') : p.status === 'denied' ? 'oc-badge-denied' : 'oc-badge-pending';
+            const badgeLabel = p.status === 'approved' && p.approvedWithConditions ? 'Approved w/ Conditions' : (p.status.charAt(0).toUpperCase() + p.status.slice(1));
             const submitted = p.submittedAt ? new Date(p.submittedAt).toLocaleString() : '';
             let actions = '';
             if (showActions) {
                 actions = '<div class="oc-actions">' +
-                    '<button class="oc-btn oc-btn-approve" onclick="approveOvernightPass(\'' + p.id + '\')">? Approve</button>' +
-                    '<button class="oc-btn oc-btn-deny" onclick="denyOvernightPass(\'' + p.id + '\')">? Deny</button>' +
+                    '<button class="oc-btn oc-btn-approve" onclick="openPassDecisionModal(\'' + p.id + '\', \'approved\')">✓ Approve</button>' +
+                    '<button class="oc-btn oc-btn-conditions" onclick="openPassDecisionModal(\'' + p.id + '\', \'conditions\')">⚠ Approve w/ Conditions</button>' +
+                    '<button class="oc-btn oc-btn-deny" onclick="openPassDecisionModal(\'' + p.id + '\', \'denied\')">✕ Deny</button>' +
                     '</div>';
+            }
+            let noteHtml = '';
+            if (p.staffNote) {
+                const noteLabel = p.status === 'denied' ? 'Reason for denial' : (p.approvedWithConditions ? 'Conditions' : 'Note to member');
+                noteHtml = '<div class="oc-note' + (p.status === 'denied' ? ' oc-note-deny' : '') + '"><strong>' + noteLabel + ':</strong> ' + p.staffNote + '</div>';
             }
             return '<div class="overnight-card">' +
                 '<div class="oc-name">' + (p.memberName || 'Unknown') + ' (ID: ' + (p.memberId || '') + ')' +
@@ -5058,32 +5097,80 @@ ${rateSummaryHtml}
                 '<div class="oc-detail"><strong>Depart:</strong> ' + (p.departureDate || '') + ' ' + (p.departureTime || '') +
                 ' &nbsp;|&nbsp; <strong>Return:</strong> ' + (p.returnDate || '') + ' ' + (p.returnTime || '') + '</div>' +
                 '<div class="oc-detail" style="font-size:11px;color:#999;">Submitted: ' + submitted + '</div>' +
-                actions + '</div>';
+                noteHtml + actions + '</div>';
         }
 
-        async function approveOvernightPass(id) {
+        // -- Pass decision modal --
+        let _pdState = { id: null, action: null };
+        function openPassDecisionModal(id, action) {
+            _pdState = { id, action };
+            const title = document.getElementById('pdTitle');
+            const sub = document.getElementById('pdSub');
+            const note = document.getElementById('pdNote');
+            const confirmBtn = document.getElementById('pdConfirmBtn');
+            const error = document.getElementById('pdError');
+            note.value = '';
+            error.style.display = 'none';
+            if (action === 'approved') {
+                title.textContent = 'Approve Pass';
+                sub.textContent = 'Optionally add a note for the member (e.g. reminders, curfew info).';
+                note.placeholder = 'Optional note for the member...';
+                confirmBtn.style.background = '#28a745';
+                confirmBtn.textContent = 'Approve';
+            } else if (action === 'conditions') {
+                title.textContent = 'Approve with Conditions';
+                sub.textContent = 'Describe the conditions the member must follow for this pass to remain approved.';
+                note.placeholder = 'e.g. Must call to check in at 8pm, must return by curfew...';
+                confirmBtn.style.background = '#fd7e14';
+                confirmBtn.textContent = 'Approve with Conditions';
+                error.textContent = 'Please enter the conditions for approval.';
+            } else {
+                title.textContent = 'Deny Pass';
+                sub.textContent = 'Provide a reason for the denial. This will be shown to the member.';
+                note.placeholder = 'Reason for denial...';
+                confirmBtn.style.background = '#dc3545';
+                confirmBtn.textContent = 'Deny';
+                error.textContent = 'Please enter a reason for the denial.';
+            }
+            document.getElementById('pdOverlay').style.display = 'flex';
+            note.focus();
+        }
+        window.openPassDecisionModal = openPassDecisionModal;
+
+        function closePassDecisionModal() {
+            document.getElementById('pdOverlay').style.display = 'none';
+            _pdState = { id: null, action: null };
+        }
+        window.closePassDecisionModal = closePassDecisionModal;
+
+        async function confirmPassDecision() {
+            const { id, action } = _pdState;
+            if (!id) return;
+            const note = document.getElementById('pdNote').value.trim();
+            const error = document.getElementById('pdError');
+            // Require a note for conditions and denial
+            if ((action === 'conditions' || action === 'denied') && !note) {
+                error.style.display = 'block';
+                return;
+            }
+            error.style.display = 'none';
+            const status = action === 'denied' ? 'denied' : 'approved';
             try {
                 await fetch(`${API_BASE}/api/overnight-pass/${id}`, {
                     method: 'PATCH',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ status: 'approved', reviewedBy: 'Management' })
+                    body: JSON.stringify({
+                        status,
+                        reviewedBy: 'Management',
+                        note,
+                        approvedWithConditions: action === 'conditions'
+                    })
                 });
+                closePassDecisionModal();
                 await loadOvernightPasses();
-            } catch (e) { console.error('Error approving pass:', e); }
+            } catch (e) { console.error('Error updating pass decision:', e); }
         }
-
-        async function denyOvernightPass(id) {
-            try {
-                await fetch(`${API_BASE}/api/overnight-pass/${id}`, {
-                    method: 'PATCH',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ status: 'denied', reviewedBy: 'Management' })
-                });
-                await loadOvernightPasses();
-            } catch (e) { console.error('Error denying pass:', e); }
-        }
-        window.approveOvernightPass = approveOvernightPass;
-        window.denyOvernightPass = denyOvernightPass;
+        window.confirmPassDecision = confirmPassDecision;
 
         // -- KIOSK MESSAGES --------------------------------------
         let _allMembersCache = null;

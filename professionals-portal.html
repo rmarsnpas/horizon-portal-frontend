@@ -327,6 +327,7 @@
       <button class="tab-btn"        data-tab="ua"        onclick="switchTab('ua',this)">UA Results</button>
       <button class="tab-btn"        data-tab="druglog"   onclick="switchTab('druglog',this)">Drug Log</button>
       <button class="tab-btn"        data-tab="incidents" onclick="switchTab('incidents',this)">Incidents</button>
+      <button class="tab-btn"        data-tab="notes"     onclick="switchTab('notes',this)">Notes</button>
       <button class="tab-btn"        data-tab="docs"      onclick="switchTab('docs',this)">Documents</button>
       <button class="tab-btn"        data-tab="messages"  onclick="switchTab('messages',this)">Messages</button>
     </div>
@@ -369,6 +370,36 @@
     <div class="tab-panel" id="tab-incidents">
       <div id="incidentsWrap">
         <div class="loading"><div class="spinner"></div>Loading incidents…</div>
+      </div>
+    </div>
+
+    <!-- Notes Tab -->
+    <div class="tab-panel" id="tab-notes">
+      <div class="info-card">
+        <h3>📝 Add a Progress Note</h3>
+        <p style="color:var(--muted);font-size:.88rem;margin-bottom:1.25rem">Share progress notes or observations with Horizon House staff. Staff-only notes are not shown here.</p>
+        <div class="form-row">
+          <label>Note Type</label>
+          <select id="newProfNoteCategory">
+            <option value="progress">Progress Note</option>
+            <option value="observation">Observation</option>
+            <option value="contact">Contact Note</option>
+            <option value="other">Other</option>
+          </select>
+        </div>
+        <div class="form-row">
+          <label>Note</label>
+          <textarea id="newProfNoteText" placeholder="Enter a progress note or observation…"></textarea>
+        </div>
+        <div style="display:flex;gap:.6rem;flex-wrap:wrap">
+          <button class="btn-sm green" onclick="submitProfessionalNote()">Add Note</button>
+        </div>
+        <div id="profNoteStatus" style="font-size:.85rem;margin-top:.6rem;min-height:1.1rem"></div>
+      </div>
+      <div style="height:1.25rem"></div>
+      <div class="section-label">Notes on File</div>
+      <div class="info-card" style="padding:0;overflow:hidden" id="notesListCard">
+        <div class="loading"><div class="spinner"></div>Loading notes…</div>
       </div>
     </div>
 
@@ -782,11 +813,19 @@ function startApp() {
   _inboxBadgePoll = setInterval(refreshProfessionalInboxBadge, 15000);
 }
 
-const ALL_TABS = ['profile','sio','ua','incidents','docs','messages'];
+const ALL_TABS = ['profile','sio','ua','incidents','notes','docs','messages'];
 
 const TAB_LABELS = {
   profile:'Profile', sio:'Sign In/Out', ua:'UA Results',
-  incidents:'Incidents', docs:'Documents', messages:'Messages'
+  incidents:'Incidents', notes:'Notes', docs:'Documents', messages:'Messages'
+};
+
+const PROF_NOTE_CATEGORIES = {
+  progress: 'Progress Note',
+  observation: 'Observation',
+  contact: 'Contact Note',
+  general: 'General',
+  other: 'Other'
 };
 
 /* ============================================================
@@ -1050,6 +1089,7 @@ function resetPanels() {
   document.getElementById('sioHistoryCard').innerHTML = loading('Loading history');
   document.getElementById('uaCard').innerHTML         = loading('Loading UA results');
   document.getElementById('incidentsWrap').innerHTML  = loading('Loading incidents');
+  document.getElementById('notesListCard').innerHTML  = loading('Loading notes');
   document.getElementById('docsListCard').innerHTML   = loading('Loading documents');
   document.getElementById('messagesThread').innerHTML = loading('Loading messages');
   document.getElementById('docsAlert').innerHTML      = '';
@@ -1068,7 +1108,7 @@ function switchTab(tabId, btnEl) {
   if (btnEl) btnEl.classList.add('active');
   document.getElementById('tab-' + tabId)?.classList.add('active');
   const loaders = { profile: renderProfile, sio: loadSIO, ua: loadUA, druglog: loadDrugLog,
-                    incidents: loadIncidents, docs: loadDocs, messages: initMessages };
+                    incidents: loadIncidents, notes: loadNotes, docs: loadDocs, messages: initMessages };
   loaders[tabId]?.();
 }
 
@@ -1369,6 +1409,113 @@ function openIncidentModal(id) {
 
 function closeIncidentModal() {
   document.getElementById('incidentModal').classList.remove('open');
+}
+
+/* ============================================================
+   NOTES TAB (progress notes & observations)
+============================================================ */
+async function loadNotes() {
+  if (!_current) return;
+  const id   = String(_current.ID || _current.id || '');
+  const profId = String(_prof.ID || _prof.id || '');
+
+  const fn = mVal(_current,'firstName','FIRST_NAME','FIRST\r\nNAME');
+  const ln = mVal(_current,'lastName','LAST_NAME','LAST\r\nNAME');
+  const name = (fn + ' ' + ln).trim();
+  logActivity('VIEW_NOTES', id, name, 'Viewed progress notes');
+
+  const card = document.getElementById('notesListCard');
+  try {
+    const data = await apiFetch(`/emr/${encodeURIComponent(id)}/notes/professional?professionalId=${encodeURIComponent(profId)}`);
+    const notes = Array.isArray(data?.notes) ? data.notes : [];
+    window._portalNotes = notes;
+
+    if (!notes.length) {
+      card.innerHTML = '<div class="empty"><div class="empty-icon">\uD83D\uDCDD</div><div>No notes on file yet.</div></div>';
+      return;
+    }
+    card.innerHTML = notes.map(n => {
+      const catLabel = PROF_NOTE_CATEGORIES[n.category] || n.category || 'General';
+      const who = n.authorRole === 'professional' ? `${n.author || 'Professional'} (You/Professional)` : (n.author || 'Staff');
+      const mine = n.authorRole === 'professional' && String(n.authorId) === profId;
+      return `<div style="padding:1rem 1.25rem;border-bottom:1px solid var(--border)">
+        <div style="display:flex;justify-content:space-between;flex-wrap:wrap;gap:.4rem;margin-bottom:.4rem">
+          <span class="pill info">${esc(catLabel)}</span>
+          <span style="font-size:.78rem;color:var(--muted)">${esc(who)} \u00b7 ${esc(fmtDate(n.createdAt))}${n.editedAt ? ' (edited)' : ''}</span>
+        </div>
+        <div style="font-size:.9rem;color:var(--text);white-space:pre-wrap;line-height:1.55">${esc(n.text)}</div>
+        ${mine ? `<div style="margin-top:.6rem;display:flex;gap:.5rem">
+          <button class="btn-sm gray" onclick="editMyNote('${esc(n.id)}')">Edit</button>
+          <button class="btn-sm gray" onclick="deleteMyNote('${esc(n.id)}')">Delete</button>
+        </div>` : ''}
+      </div>`;
+    }).join('');
+  } catch (e) {
+    card.innerHTML = `<div class="empty"><div class="alert error">\u26A0\uFE0F Could not load notes. ${esc(e.message||'')}</div></div>`;
+  }
+}
+
+async function submitProfessionalNote() {
+  if (!_current) return;
+  const statusEl = document.getElementById('profNoteStatus');
+  const text = document.getElementById('newProfNoteText').value.trim();
+  if (!text) { statusEl.style.color = '#f87171'; statusEl.textContent = '\u26A0\uFE0F Enter a note before saving.'; return; }
+  const category = document.getElementById('newProfNoteCategory').value;
+  const id     = String(_current.ID || _current.id || '');
+  const profId = String(_prof.ID || _prof.id || '');
+  const pFn    = mVal(_prof,'firstName','FIRST_NAME','FIRST\r\nNAME');
+  const pLn    = mVal(_prof,'lastName','LAST_NAME','LAST\r\nNAME');
+  const org    = mVal(_prof,'professionalOrg','organization','org');
+  const pName  = (pFn + ' ' + pLn).trim() || profId;
+
+  statusEl.style.color = '';
+  statusEl.textContent = '\u23F3 Saving\u2026';
+  try {
+    await apiPost(`/emr/${encodeURIComponent(id)}/notes/professional`, {
+      professionalId: profId, text, category,
+      author: org ? `${pName} (${org})` : pName
+    });
+    document.getElementById('newProfNoteText').value = '';
+    statusEl.style.color = '#4ade80';
+    statusEl.textContent = '\u2713 Note added.';
+    await loadNotes();
+  } catch (e) {
+    statusEl.style.color = '#f87171';
+    statusEl.textContent = '\u26A0\uFE0F ' + (e.message || 'Could not save note.');
+  }
+}
+
+async function editMyNote(noteId) {
+  const note = (window._portalNotes || []).find(n => String(n.id) === String(noteId));
+  if (!note) return;
+  const newText = prompt('Edit your note:', note.text);
+  if (newText === null) return;
+  const trimmed = newText.trim();
+  if (!trimmed) return;
+  const id     = String(_current.ID || _current.id || '');
+  const profId = String(_prof.ID || _prof.id || '');
+  try {
+    await fetch(`${API}/emr/${encodeURIComponent(id)}/notes/${encodeURIComponent(noteId)}/professional`, {
+      method: 'PUT', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ text: trimmed, professionalId: profId })
+    }).then(async res => { if (!res.ok) { const d = await res.json().catch(()=>({})); throw new Error(d.error || 'Update failed'); } });
+    await loadNotes();
+  } catch (e) {
+    alert(e.message || 'Could not update note.');
+  }
+}
+
+async function deleteMyNote(noteId) {
+  if (!confirm('Delete this note? This cannot be undone.')) return;
+  const id     = String(_current.ID || _current.id || '');
+  const profId = String(_prof.ID || _prof.id || '');
+  try {
+    const res = await fetch(`${API}/emr/${encodeURIComponent(id)}/notes/${encodeURIComponent(noteId)}/professional?professionalId=${encodeURIComponent(profId)}`, { method: 'DELETE' });
+    if (!res.ok) { const d = await res.json().catch(()=>({})); throw new Error(d.error || 'Delete failed'); }
+    await loadNotes();
+  } catch (e) {
+    alert(e.message || 'Could not delete note.');
+  }
 }
 
 /* ============================================================

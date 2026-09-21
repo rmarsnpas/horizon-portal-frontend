@@ -750,7 +750,7 @@ async function openMemberFile(memberId) {
 
 function renderMemberFile(data) {
   _emrViewCacheIdx = 0; _emrViewCache = {}; // reset once before all sections render
-  const { member, docs, drugScreens, passes, meetingCards, intakeForms, submittedForms, applications, incidentReports, signInOutRecords, medLogs, drugLog } = data;
+  const { member, docs, drugScreens, passes, meetingCards, intakeForms, submittedForms, applications, incidentReports, signInOutRecords, medLogs, drugLog, notes } = data;
   const { first, last, full } = getMemberName(member);
   const initials = (first[0] || '') + (last[0] || '');
   const s = String(member.STATUS || member.status || member.STATU || '').trim();
@@ -852,6 +852,7 @@ function renderMemberFile(data) {
       <button class="btn-upload-file" onclick="openImport()" style="background:#1a4f3a;font-size:13px;">📥 Save Records to File</button>
     </div>
 
+    ${sectionCard('📝 Progress Notes & Observations', notes, renderNotesSection(notes))}
     ${sectionCard('📎 General Documents', generalDocs, renderDocsTable(generalDocs))}
     ${sectionCard('📋 Intake Forms', [{_count: intakeCount}], renderIntakeForms(intakeForms, intakeFormDocs), intakeCount)}
     ${sectionCard('💊 Med Logs', medLogDocs, renderDocsTable(medLogDocs))}
@@ -1545,6 +1546,112 @@ function renderDrugLog(logs) {
 
 function emptyRow(msg) {
   return `<table class="file-table"><tbody><tr class="empty-row"><td>${msg}</td></tr></tbody></table>`;
+}
+
+// ── Progress Notes & Observations ───────────────────────────────────────────
+const NOTE_CATEGORIES = {
+  progress: '📈 Progress Note',
+  observation: '👁️ Observation',
+  contact: '📞 Contact Note',
+  general: '📝 General',
+  other: 'Other'
+};
+
+function renderNotesSection(notes) {
+  const sess = JSON.parse(sessionStorage.getItem(SESSION_KEY) || '{}');
+  const formHtml = `
+    <div style="padding:16px;border-bottom:1px solid var(--border);background:#f8fafb;">
+      <div style="display:flex;gap:10px;flex-wrap:wrap;margin-bottom:8px;">
+        <select id="newNoteCategory" style="padding:8px 10px;border:1px solid var(--border);border-radius:6px;font-size:13px;">
+          ${Object.entries(NOTE_CATEGORIES).map(([k,v]) => `<option value="${k}">${v}</option>`).join('')}
+        </select>
+        <label style="display:flex;align-items:center;gap:6px;font-size:13px;color:var(--muted);">
+          <input type="checkbox" id="newNotePrivate"> Staff-only (hide from professionals)
+        </label>
+      </div>
+      <textarea id="newNoteText" placeholder="Enter a progress note or observation…" style="width:100%;min-height:70px;padding:10px 12px;border:1px solid var(--border);border-radius:6px;font:inherit;font-size:14px;resize:vertical;"></textarea>
+      <div style="display:flex;justify-content:flex-end;margin-top:8px;">
+        <button class="btn-upload-file" style="background:var(--green);" onclick="addEmrNote()">➕ Add Note</button>
+      </div>
+    </div>
+    <div id="notesListWrap">${renderNotesList(notes, sess)}</div>`;
+  return formHtml;
+}
+
+function renderNotesList(notes, sess) {
+  if (!notes || !notes.length) return `<div style="padding:20px;color:var(--muted);font-style:italic;text-align:center;">No notes on file yet.</div>`;
+  return notes.map(n => {
+    const key = _cacheItem({ note: n });
+    const catLabel = NOTE_CATEGORIES[n.category] || n.category || 'General';
+    const who = n.authorRole === 'professional' ? `${n.author || 'Professional'} (Professional)` : (n.author || 'Staff');
+    return `<div style="padding:14px 16px;border-bottom:1px solid #f0f4f8;">
+      <div style="display:flex;justify-content:space-between;flex-wrap:wrap;gap:6px;margin-bottom:6px;">
+        <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;">
+          <span class="badge ${n.authorRole==='professional' ? 'badge-purple' : 'badge-blue'}">${esc(catLabel)}</span>
+          ${n.isPrivate ? '<span class="badge badge-gray">🔒 Staff-only</span>' : ''}
+        </div>
+        <span style="font-size:12px;color:var(--muted);">${esc(who)} · ${fmtDate(n.createdAt)}${n.editedAt ? ' (edited)' : ''}</span>
+      </div>
+      <div style="font-size:14px;color:var(--text);white-space:pre-wrap;line-height:1.5;">${esc(n.text)}</div>
+      <div style="margin-top:8px;display:flex;gap:8px;">
+        <button class="btn-view" onclick="editEmrNote('${key}')">Edit</button>
+        <button class="btn-del" onclick="deleteEmrNote('${n.id}')">Delete</button>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+async function addEmrNote() {
+  const text = document.getElementById('newNoteText').value.trim();
+  if (!text) return;
+  const category = document.getElementById('newNoteCategory').value;
+  const isPrivate = document.getElementById('newNotePrivate').checked;
+  const sess = JSON.parse(sessionStorage.getItem(SESSION_KEY) || '{}');
+  try {
+    const res = await fetch(`${API}/emr/${encodeURIComponent(_currentMemberId)}/notes`, {
+      method: 'POST', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ text, category, author: (sess.name || '').trim() || sess.id || 'Staff', isPrivate })
+    });
+    if (!res.ok) throw new Error('Failed to save note');
+    openMemberFile(_currentMemberId);
+  } catch (e) {
+    alert('Could not save note: ' + e.message);
+  }
+}
+
+function editEmrNote(cacheKey) {
+  const cached = _emrViewCache[cacheKey];
+  if (!cached) return;
+  const n = cached.note;
+  const newText = prompt('Edit note:', n.text);
+  if (newText === null) return;
+  const trimmed = newText.trim();
+  if (!trimmed) return;
+  updateEmrNote(n.id, trimmed);
+}
+
+async function updateEmrNote(noteId, text) {
+  try {
+    const res = await fetch(`${API}/emr/${encodeURIComponent(_currentMemberId)}/notes/${encodeURIComponent(noteId)}`, {
+      method: 'PUT', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ text })
+    });
+    if (!res.ok) throw new Error('Failed to update note');
+    openMemberFile(_currentMemberId);
+  } catch (e) {
+    alert('Could not update note: ' + e.message);
+  }
+}
+
+async function deleteEmrNote(noteId) {
+  if (!confirm('Delete this note? This cannot be undone.')) return;
+  try {
+    const res = await fetch(`${API}/emr/${encodeURIComponent(_currentMemberId)}/notes/${encodeURIComponent(noteId)}`, { method: 'DELETE' });
+    if (!res.ok) throw new Error('Failed to delete note');
+    openMemberFile(_currentMemberId);
+  } catch (e) {
+    alert('Could not delete note: ' + e.message);
+  }
 }
 
 // ── Upload ────────────────────────────────────────────────────────────────────
