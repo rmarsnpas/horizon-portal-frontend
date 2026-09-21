@@ -56,6 +56,10 @@ body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; b
 .member-item .m-name { font-weight: 700; font-size: 14px; color: var(--text); }
 .member-item .m-meta { font-size: 12px; color: var(--muted); margin-top: 2px; }
 .member-count { padding: 8px 16px; font-size: 12px; color: var(--muted); background: #f8fafb; border-bottom: 1px solid var(--border); }
+.sign-status-badge { flex-shrink: 0; padding: 1px 7px; border-radius: 8px; font-size: 10px; font-weight: 700; white-space: nowrap; }
+.sign-status-in { background: #d4edda; color: #155724; }
+.sign-status-out { background: #fde8e8; color: #c53030; }
+.sign-status-overdue { background: #dc2626; color: #fff; animation: urgent-note-flash 1s ease-in-out infinite; }
 
 /* ── File View ── */
 .file-view { flex: 1; overflow-y: auto; padding: 24px; }
@@ -481,9 +485,11 @@ let _previewDoc = null;
 let _activeTab = 'active';
 let _currentMemberData = null;
 let _staffConversations = [];
+let _currentlyOutIds = new Map(); // memberId (normalized) -> { isOverdue }
 let _staffConversationId = null;
 let _staffMessagePoll = null;
 let _staffBadgePoll = null;
+let _signStatusPoll = null;
 let _memberConversationId = null;
 let _memberLoadPromise = null;
 let _staffMessageReturnFocus = null;
@@ -526,6 +532,8 @@ function showApp() {
   refreshStaffInboxBadge();
   clearInterval(_staffBadgePoll);
   _staffBadgePoll = setInterval(refreshStaffInboxBadge, 15000);
+  clearInterval(_signStatusPoll);
+  _signStatusPoll = setInterval(async () => { await loadSignInOutStatus(); filterMembers(); }, 30000);
   if (new URLSearchParams(location.search).get('inbox') === '1') {
     const openComposeToo = new URLSearchParams(location.search).get('new') === '1';
     setTimeout(async () => {
@@ -553,10 +561,29 @@ window.addEventListener('DOMContentLoaded', () => {
 });
 
 // ── Member List ───────────────────────────────────────────────────────────────
+function normalizeMemberId(v) { return String(v ?? '').trim().replace(/^0+/, '') || '0'; }
+
+async function loadSignInOutStatus() {
+  try {
+    const data = await fetch(`${API}/signInOut/current`).then(r => r.json());
+    const map = new Map();
+    (data.membersOut || []).forEach(m => {
+      const id = normalizeMemberId(m.memberId);
+      map.set(id, { isOverdue: !!m.isOverdue });
+    });
+    _currentlyOutIds = map;
+  } catch {
+    _currentlyOutIds = new Map();
+  }
+}
+
 async function loadMemberList() {
   document.getElementById('memberCount').textContent = 'Loading…';
   try {
-    const data = await fetch(`${API}/members`).then(r => r.json());
+    const [data] = await Promise.all([
+      fetch(`${API}/members`).then(r => r.json()),
+      loadSignInOutStatus()
+    ]);
     // Keep all statuses; sort: 1 first, H, W, 2, 3, 4, 5 — then alpha by last name
     const order = { '1':0, 'H':1, 'W':2, '2':3, '3':4, '4':5, '5':6 };
     _allMembers = (Array.isArray(data) ? data : []).sort((a, b) => {
@@ -611,8 +638,18 @@ function renderMemberList(members) {
     const color = statusColor[s] || '#4a5568';
     const bg    = statusBg[s]    || '#e2e8f0';
     const bed = m.BED || m.bed || '';
+    let signBadge = '';
+    if (s === '1' || s === '4') {
+      const out = _currentlyOutIds.get(normalizeMemberId(id));
+      signBadge = out
+        ? `<span class="sign-status-badge ${out.isOverdue ? 'sign-status-overdue' : 'sign-status-out'}" title="${out.isOverdue ? 'Overdue — not returned by expected time' : 'Currently signed out'}">${out.isOverdue ? '⏰ Overdue' : '🔴 Out'}</span>`
+        : `<span class="sign-status-badge sign-status-in" title="Currently signed in">🟢 In</span>`;
+    }
     return `<div class="member-item" data-id="${id}" onclick="openMemberFile('${id}')">
-      <div class="m-name">${esc(full || 'Unknown')} <span style="font-weight:400;color:#aaa;font-size:12px;">#${id}</span></div>
+      <div class="m-name" style="display:flex;align-items:center;justify-content:space-between;gap:6px;">
+        <span>${esc(full || 'Unknown')} <span style="font-weight:400;color:#aaa;font-size:12px;">#${id}</span></span>
+        ${signBadge}
+      </div>
       <div class="m-meta" style="display:flex;gap:6px;align-items:center;margin-top:3px;">
         <span style="background:${bg};color:${color};padding:1px 7px;border-radius:8px;font-size:11px;font-weight:700;">${label}</span>
         ${bed ? `<span style="font-size:12px;color:#718096;">Bed ${bed}</span>` : ''}
@@ -764,19 +801,19 @@ function renderMemberFile(data) {
       <button class="btn-upload-file" onclick="openImport()" style="background:#1a4f3a;font-size:13px;">📥 Save Records to File</button>
     </div>
 
-    ${sectionCard(`📝 Progress Notes & Observations${(notes||[]).some(n => n.isUrgent) ? ' <span class="urgent-flag">🚨 URGENT</span>' : ''}`, notes, renderNotesSection(notes))}
-    ${sectionCard('📎 General Documents', generalDocs, renderDocsTable(generalDocs))}
+    ${sectionCard('📝 Application', applications, renderApplications(applications))}
     ${sectionCard('📋 Intake Forms', [{_count: intakeCount}], renderIntakeForms(intakeForms, intakeFormDocs), intakeCount)}
-    ${sectionCard('💊 Med Logs', medLogDocs, renderDocsTable(medLogDocs))}
-    ${sectionCard('⚖️ Court Documents', courtDocs, renderDocsTable(courtDocs))}
-    ${sectionCard('🏥 Medical Records', medRecordDocs, renderDocsTable(medRecordDocs))}
+    ${sectionCard('📎 General Documents', generalDocs, renderDocsTable(generalDocs))}
+    ${sectionCard(`📝 Progress Notes & Observations${(notes||[]).some(n => n.isUrgent) ? ' <span class="urgent-flag">🚨 URGENT</span>' : ''}`, notes, renderNotesSection(notes))}
+    ${sectionCard('🚨 Incident Reports', incidentReports, renderIncidentReports(incidentReports))}
     ${sectionCard('🧪 Drug Screens', drugScreens, renderDrugScreens(drugScreens))}
+    ${sectionCard('💊 Member Drug & Medication Tracking', drugLog, renderDrugLog(drugLog))}
+    ${sectionCard('🏥 Medical Records', medRecordDocs, renderDocsTable(medRecordDocs))}
+    ${sectionCard('⚖️ Court Documents', courtDocs, renderDocsTable(courtDocs))}
+    ${sectionCard('🚪 Sign In / Out Records', signInOutRecords, renderSignInOut(signInOutRecords))}
     ${sectionCard('🌙 Overnight Passes', passes, renderPasses(passes))}
     ${sectionCard('🪪 Meeting Cards', meetingCards, renderMeetingCards(meetingCards))}
-    ${sectionCard('🚨 Incident Reports', incidentReports, renderIncidentReports(incidentReports))}
-    ${sectionCard('🚪 Sign In / Out Records', signInOutRecords, renderSignInOut(signInOutRecords))}
-    ${sectionCard('💊 Member Drug & Medication Tracking', drugLog, renderDrugLog(drugLog))}
-    ${sectionCard('📝 Application', applications, renderApplications(applications))}
+    ${sectionCard('💊 Med Logs', medLogDocs, renderDocsTable(medLogDocs))}
     ${sectionCard('📄 Submitted Forms', submittedForms, renderSubmittedForms(submittedForms))}
     </div>
 
