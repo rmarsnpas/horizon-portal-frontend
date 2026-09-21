@@ -156,6 +156,7 @@
     .inbox-badge{display:inline-flex;min-width:1.25rem;height:1.25rem;padding:0 .35rem;align-items:center;justify-content:center;border-radius:999px;background:#dc2626;color:#fff;font-size:.7rem;font-weight:800}
     @keyframes inbox-alert-pulse{0%,100%{transform:scale(1);box-shadow:0 0 0 0 rgba(245,158,11,.75)}50%{transform:scale(1.06);box-shadow:0 0 0 9px rgba(245,158,11,0)}}
     #professionalInboxBtn.has-new-messages{background:#d97706;color:#fff;animation:inbox-alert-pulse 1.25s ease-in-out infinite}
+    @keyframes urgent-note-flash{0%,100%{background:#fee2e2}50%{background:#fecaca}}
 
     /* Document upload */
     .upload-zone{border:2px dashed var(--border);border-radius:var(--radius);padding:2.5rem 1.5rem;text-align:center;cursor:pointer;transition:all .2s;background:var(--surface2)}
@@ -380,16 +381,23 @@
         <p style="color:var(--muted);font-size:.88rem;margin-bottom:1.25rem">Share progress notes or observations with Horizon House staff. Staff-only notes are not shown here.</p>
         <div class="form-row">
           <label>Note Type</label>
-          <select id="newProfNoteCategory">
-            <option value="progress">Progress Note</option>
-            <option value="observation">Observation</option>
-            <option value="contact">Contact Note</option>
-            <option value="other">Other</option>
-          </select>
+          <div style="display:flex;gap:1.25rem;flex-wrap:wrap;padding:.3rem 0">
+            <label style="display:flex;align-items:center;gap:.4rem;font-weight:400">
+              <input type="radio" name="newProfNoteCategory" value="progress" checked> Progress Note
+            </label>
+            <label style="display:flex;align-items:center;gap:.4rem;font-weight:400">
+              <input type="radio" name="newProfNoteCategory" value="observation"> Observation
+            </label>
+          </div>
         </div>
         <div class="form-row">
           <label>Note</label>
           <textarea id="newProfNoteText" placeholder="Enter a progress note or observation…"></textarea>
+        </div>
+        <div class="form-row">
+          <label style="display:flex;align-items:center;gap:.5rem;color:#dc2626;font-weight:700">
+            <input type="checkbox" id="newProfNoteUrgent"> 🚨 Mark urgent — needs staff attention
+          </label>
         </div>
         <div style="display:flex;gap:.6rem;flex-wrap:wrap">
           <button class="btn-sm green" onclick="submitProfessionalNote()">Add Note</button>
@@ -1438,9 +1446,12 @@ async function loadNotes() {
       const catLabel = PROF_NOTE_CATEGORIES[n.category] || n.category || 'General';
       const who = n.authorRole === 'professional' ? `${n.author || 'Professional'} (You/Professional)` : (n.author || 'Staff');
       const mine = n.authorRole === 'professional' && String(n.authorId) === profId;
-      return `<div style="padding:1rem 1.25rem;border-bottom:1px solid var(--border)">
+      return `<div style="padding:1rem 1.25rem;border-bottom:1px solid var(--border)${n.isUrgent ? ';animation:urgent-note-flash 1s ease-in-out infinite' : ''}">
         <div style="display:flex;justify-content:space-between;flex-wrap:wrap;gap:.4rem;margin-bottom:.4rem">
-          <span class="pill info">${esc(catLabel)}</span>
+          <div style="display:flex;align-items:center;gap:.4rem;flex-wrap:wrap">
+            ${n.isUrgent ? '<span class="pill" style="background:#dc2626;color:#fff">\uD83D\uDEA8 URGENT</span>' : ''}
+            <span class="pill info">${esc(catLabel)}</span>
+          </div>
           <span style="font-size:.78rem;color:var(--muted)">${esc(who)} \u00b7 ${esc(fmtDate(n.createdAt))}${n.editedAt ? ' (edited)' : ''}</span>
         </div>
         <div style="font-size:.9rem;color:var(--text);white-space:pre-wrap;line-height:1.55">${esc(n.text)}</div>
@@ -1460,7 +1471,8 @@ async function submitProfessionalNote() {
   const statusEl = document.getElementById('profNoteStatus');
   const text = document.getElementById('newProfNoteText').value.trim();
   if (!text) { statusEl.style.color = '#f87171'; statusEl.textContent = '\u26A0\uFE0F Enter a note before saving.'; return; }
-  const category = document.getElementById('newProfNoteCategory').value;
+  const category = (document.querySelector('input[name="newProfNoteCategory"]:checked') || {}).value || 'progress';
+  const isUrgent = document.getElementById('newProfNoteUrgent').checked;
   const id     = String(_current.ID || _current.id || '');
   const profId = String(_prof.ID || _prof.id || '');
   const pFn    = mVal(_prof,'firstName','FIRST_NAME','FIRST\r\nNAME');
@@ -1472,10 +1484,11 @@ async function submitProfessionalNote() {
   statusEl.textContent = '\u23F3 Saving\u2026';
   try {
     await apiPost(`/emr/${encodeURIComponent(id)}/notes/professional`, {
-      professionalId: profId, text, category,
+      professionalId: profId, text, category, isUrgent,
       author: org ? `${pName} (${org})` : pName
     });
     document.getElementById('newProfNoteText').value = '';
+    document.getElementById('newProfNoteUrgent').checked = false;
     statusEl.style.color = '#4ade80';
     statusEl.textContent = '\u2713 Note added.';
     await loadNotes();

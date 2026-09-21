@@ -135,6 +135,10 @@ body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; b
 .unread-badge { display:inline-flex;min-width:20px;height:20px;padding:0 6px;align-items:center;justify-content:center;border-radius:999px;background:#dc2626;color:#fff;font-size:11px;font-weight:800; }
 @keyframes staff-inbox-alert-pulse { 0%,100%{transform:scale(1);box-shadow:0 0 0 0 rgba(255,255,255,.65)} 50%{transform:scale(1.06);box-shadow:0 0 0 8px rgba(255,255,255,0)} }
 #staffInboxButton.has-new-messages { background:#d97706;color:#fff;animation:staff-inbox-alert-pulse 1.25s ease-in-out infinite; }
+@keyframes urgent-note-flash { 0%,100%{background:#fee2e2;border-color:#f87171;} 50%{background:#fecaca;border-color:#dc2626;} }
+.note-urgent { animation:urgent-note-flash 1s ease-in-out infinite; border:2px solid #f87171 !important; }
+.badge-urgent { background:#dc2626;color:#fff;animation:urgent-note-flash 1s ease-in-out infinite; }
+.section-title .urgent-flag { display:inline-block;animation:urgent-note-flash 1s ease-in-out infinite;background:#dc2626;color:#fff;border-radius:10px;padding:1px 8px;font-size:12px;margin-left:6px; }
 #staffMessageOverlay { display:none;position:fixed;inset:0;background:rgba(0,0,0,.62);z-index:30000;align-items:center;justify-content:center;padding:18px; }
 .staff-message-box { width:min(1050px,97vw);max-height:calc(100vh - 36px);background:#fff;border-radius:14px;overflow:hidden;box-shadow:0 18px 60px rgba(0,0,0,.35);display:flex;flex-direction:column; }
 .staff-message-header { display:flex;justify-content:space-between;align-items:center;padding:14px 20px;border-bottom:1px solid var(--border);gap:16px; }
@@ -852,7 +856,7 @@ function renderMemberFile(data) {
       <button class="btn-upload-file" onclick="openImport()" style="background:#1a4f3a;font-size:13px;">📥 Save Records to File</button>
     </div>
 
-    ${sectionCard('📝 Progress Notes & Observations', notes, renderNotesSection(notes))}
+    ${sectionCard(`📝 Progress Notes & Observations${(notes||[]).some(n => n.isUrgent) ? ' <span class="urgent-flag">🚨 URGENT</span>' : ''}`, notes, renderNotesSection(notes))}
     ${sectionCard('📎 General Documents', generalDocs, renderDocsTable(generalDocs))}
     ${sectionCard('📋 Intake Forms', [{_count: intakeCount}], renderIntakeForms(intakeForms, intakeFormDocs), intakeCount)}
     ${sectionCard('💊 Med Logs', medLogDocs, renderDocsTable(medLogDocs))}
@@ -1561,12 +1565,18 @@ function renderNotesSection(notes) {
   const sess = JSON.parse(sessionStorage.getItem(SESSION_KEY) || '{}');
   const formHtml = `
     <div style="padding:16px;border-bottom:1px solid var(--border);background:#f8fafb;">
-      <div style="display:flex;gap:10px;flex-wrap:wrap;margin-bottom:8px;">
-        <select id="newNoteCategory" style="padding:8px 10px;border:1px solid var(--border);border-radius:6px;font-size:13px;">
-          ${Object.entries(NOTE_CATEGORIES).map(([k,v]) => `<option value="${k}">${v}</option>`).join('')}
-        </select>
+      <div style="display:flex;gap:16px;flex-wrap:wrap;margin-bottom:8px;align-items:center;">
+        <label style="display:flex;align-items:center;gap:5px;font-size:13px;color:var(--text);">
+          <input type="radio" name="newNoteCategory" value="progress" checked> 📈 Progress Note
+        </label>
+        <label style="display:flex;align-items:center;gap:5px;font-size:13px;color:var(--text);">
+          <input type="radio" name="newNoteCategory" value="observation"> 👁️ Observation
+        </label>
         <label style="display:flex;align-items:center;gap:6px;font-size:13px;color:var(--muted);">
           <input type="checkbox" id="newNotePrivate"> Staff-only (hide from professionals)
+        </label>
+        <label style="display:flex;align-items:center;gap:6px;font-size:13px;color:#b91c1c;font-weight:700;">
+          <input type="checkbox" id="newNoteUrgent"> 🚨 Mark urgent
         </label>
       </div>
       <textarea id="newNoteText" placeholder="Enter a progress note or observation…" style="width:100%;min-height:70px;padding:10px 12px;border:1px solid var(--border);border-radius:6px;font:inherit;font-size:14px;resize:vertical;"></textarea>
@@ -1580,13 +1590,15 @@ function renderNotesSection(notes) {
 
 function renderNotesList(notes, sess) {
   if (!notes || !notes.length) return `<div style="padding:20px;color:var(--muted);font-style:italic;text-align:center;">No notes on file yet.</div>`;
-  return notes.map(n => {
+  const sorted = [...notes].sort((a, b) => (b.isUrgent ? 1 : 0) - (a.isUrgent ? 1 : 0));
+  return sorted.map(n => {
     const key = _cacheItem({ note: n });
     const catLabel = NOTE_CATEGORIES[n.category] || n.category || 'General';
     const who = n.authorRole === 'professional' ? `${n.author || 'Professional'} (Professional)` : (n.author || 'Staff');
-    return `<div style="padding:14px 16px;border-bottom:1px solid #f0f4f8;">
+    return `<div style="padding:14px 16px;border-bottom:1px solid #f0f4f8;${n.isUrgent ? 'border-radius:8px;' : ''}" class="${n.isUrgent ? 'note-urgent' : ''}">
       <div style="display:flex;justify-content:space-between;flex-wrap:wrap;gap:6px;margin-bottom:6px;">
         <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;">
+          ${n.isUrgent ? '<span class="badge badge-urgent">🚨 URGENT</span>' : ''}
           <span class="badge ${n.authorRole==='professional' ? 'badge-purple' : 'badge-blue'}">${esc(catLabel)}</span>
           ${n.isPrivate ? '<span class="badge badge-gray">🔒 Staff-only</span>' : ''}
         </div>
@@ -1604,13 +1616,14 @@ function renderNotesList(notes, sess) {
 async function addEmrNote() {
   const text = document.getElementById('newNoteText').value.trim();
   if (!text) return;
-  const category = document.getElementById('newNoteCategory').value;
+  const category = (document.querySelector('input[name="newNoteCategory"]:checked') || {}).value || 'progress';
   const isPrivate = document.getElementById('newNotePrivate').checked;
+  const isUrgent = document.getElementById('newNoteUrgent').checked;
   const sess = JSON.parse(sessionStorage.getItem(SESSION_KEY) || '{}');
   try {
     const res = await fetch(`${API}/emr/${encodeURIComponent(_currentMemberId)}/notes`, {
       method: 'POST', headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ text, category, author: (sess.name || '').trim() || sess.id || 'Staff', isPrivate })
+      body: JSON.stringify({ text, category, author: (sess.name || '').trim() || sess.id || 'Staff', isPrivate, isUrgent })
     });
     if (!res.ok) throw new Error('Failed to save note');
     openMemberFile(_currentMemberId);
