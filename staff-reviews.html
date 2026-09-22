@@ -183,6 +183,15 @@
             background: #c53030;
         }
 
+        .btn-delete {
+            background: #718096;
+            color: white;
+        }
+
+        .btn-delete:hover {
+            background: #4a5568;
+        }
+
         .empty-state {
             background: white;
             padding: 60px 40px;
@@ -481,6 +490,7 @@
                     <button class="btn btn-view" onclick="viewApplication(${idx})">👁️ View Full Application</button>
                     ${app.status !== 'approved' ? `<button class="btn btn-approve" onclick="updateStatus(${idx}, 'approved')">✓ Approve</button>` : ''}
                     ${app.status !== 'rejected' ? `<button class="btn btn-deny" onclick="updateStatus(${idx}, 'rejected')">✗ Deny</button>` : ''}
+                    <button class="btn btn-delete" onclick="deleteApplication(${idx})">🗑️ Delete</button>
                 </div>
             `;
             
@@ -711,6 +721,33 @@
             } catch (error) {
                 console.error('Error:', error);
                 alert('Error updating application status');
+            }
+        }
+
+        async function deleteApplication(idx) {
+            const app = allApplications[idx];
+            if (!app) return;
+            const ref = app.referenceNumber || app.id;
+            if (!ref) return;
+            const data = app.data || app.formData || app;
+            const name = `${data.first_name || ''} ${data.last_name || ''}`.trim() || 'this application';
+            if (!confirm(`Permanently delete ${name}? This cannot be undone.`)) return;
+
+            try {
+                const response = await fetch(`${API_BASE}/api/applications/${encodeURIComponent(ref)}`, {
+                    method: 'DELETE'
+                });
+
+                if (response.ok) {
+                    alert('Application deleted.');
+                    location.reload();
+                } else {
+                    const result = await response.json();
+                    alert('Error: ' + (result.error || 'Unknown error'));
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                alert('Error deleting application');
             }
         }
 
