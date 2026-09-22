@@ -1,2 +1,7 @@
 /members/invoices    /members/invoices.html   200
 /members/dashboard   /members/dashboard.html  200
+/application-v2.html          /application-new.html   301
+/application-v2-RFTCPC1A.html  /application-new.html   301
+/application-old-simple.html  /application-new.html   301
+/application-old-backup.html  /application-new.html   301
+
