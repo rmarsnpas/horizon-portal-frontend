@@ -3685,14 +3685,18 @@ ${rateSummaryHtml}
                     return dateStr;
                 }
                 function getPrefillVal(k) {
+                    // Different application form versions use different field names
+                    // (e.g. application-new.html uses date_of_birth/cell_phone/email_address/
+                    // desired_move_in_date, while the older application-v2.html form used
+                    // dob/phone/email/move_in), so check all known variants.
                     switch(k) {
                         case 'FIRST': return pf.first_name || '';
                         case 'LAST': return pf.last_name || '';
                         case 'NICKNAME': return pf.nickname || '';
-                        case 'DOB': return toMMDDYYYY(pf.dob || '');
-                        case 'PHONE': return pf.phone || '';
-                        case 'EMAIL': return pf.email || '';
-                        case 'ADMIT DATE': return isReserve ? pf._reserveAdmitDate : toMMDDYYYY(pf.admit_date || '');
+                        case 'DOB': return toMMDDYYYY(pf.date_of_birth || pf.dob || '');
+                        case 'PHONE': return pf.cell_phone || pf.phone || '';
+                        case 'EMAIL': return pf.email_address || pf.email || '';
+                        case 'ADMIT DATE': return isReserve ? pf._reserveAdmitDate : toMMDDYYYY(pf.desired_move_in_date || pf.move_in || pf.admit_date || '');
                         case 'SOBER DATE': return toMMDDYYYY(pf.sobriety_date || '');
                         case 'REF': return pf.referred_by || '';
                         default: return '';
