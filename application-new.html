@@ -1115,14 +1115,20 @@ document.getElementById('signatureUpload')?.addEventListener('change', function(
 });
 
 // Form submission
+const APP_REF_STORAGE_KEY = 'horizonApplicationRef';
+let isSubmittingApplication = false;
+
 document.getElementById('applicationForm').addEventListener('submit', async function(e) {
   e.preventDefault();
-  
+
+  if (isSubmittingApplication) return; // guard against double-fire / double-click
+  isSubmittingApplication = true;
+
   const submitBtn = document.getElementById('submitBtn');
   const statusEl = document.getElementById('submitStatus');
   
   submitBtn.disabled = true;
-  submitBtn.textContent = 'Submitting Application...';
+  submitBtn.textContent = 'Submitting… (may take up to 30 seconds, please wait)';
   statusEl.style.display = 'none';
   
   // Collect form data
@@ -1144,7 +1150,14 @@ document.getElementById('applicationForm').addEventListener('submit', async func
     formData[el.name] = el.checked ? 'Yes' : '';
   });
   
-  const referenceNumber = 'APP-' + Date.now();
+  // Reuse the same reference number across retries (e.g. if a previous attempt
+  // appeared to fail due to a slow/cold-start response) so the backend updates
+  // the existing pending application instead of creating a duplicate.
+  let referenceNumber = localStorage.getItem(APP_REF_STORAGE_KEY);
+  if (!referenceNumber) {
+    referenceNumber = 'APP-' + Date.now();
+    localStorage.setItem(APP_REF_STORAGE_KEY, referenceNumber);
+  }
   
   try {
     const response = await fetch(`${API_BASE}/api/applications`, {
@@ -1166,6 +1179,7 @@ document.getElementById('applicationForm').addEventListener('submit', async func
     statusEl.className = 'success';
     statusEl.style.display = 'block';
     
+    localStorage.removeItem(APP_REF_STORAGE_KEY);
     form.reset();
     clearSignature();
     
@@ -1175,12 +1189,13 @@ document.getElementById('applicationForm').addEventListener('submit', async func
     
   } catch (error) {
     console.error('Application submission error:', error);
-    statusEl.textContent = '❌ There was a problem submitting your application. Please try again or call us at (760) 766-0300.';
+    statusEl.textContent = '❌ There was a problem submitting your application. Please wait a moment and try again (do not refresh the page), or call us at (760) 766-0300.';
     statusEl.className = 'error';
     statusEl.style.display = 'block';
   } finally {
     submitBtn.disabled = false;
     submitBtn.textContent = 'Submit Application for Review';
+    isSubmittingApplication = false;
   }
 });
 </script>
