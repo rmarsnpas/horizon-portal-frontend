@@ -1112,9 +1112,8 @@
                             <thead class="sticky-header" id="allMembersTableHead">
                                 <tr>
                                     <th class="narrow">#</th>
-                                    <th class="narrow">YR</th>
                                     <th class="narrow">ID</th>
-                                    <th class="narrow">STATUS</th>
+                                    <th class="narrow" id="statusColTh" style="display:none;">STATUS</th>
                                     <th>FIRST</th>
                                     <th>LAST</th>
                                     <th>NICKNAME</th>
@@ -1123,14 +1122,15 @@
                                     <th>DOB</th>
                                     <th>ADMIT DATE</th>
                                     <th>DISCHARGE DATE</th>
-                                    <th>DAYS HERE</th>
+                                    <th>P. DC DATE</th>
+                                    <th class="narrow">DAYS HERE</th>
                                     <th>SOBER DATE</th>
-                                    <th>DAYSOBER</th>
+                                    <th class="narrow">DAYSOBER</th>
                                     <th>RATE</th>
                                     <th>PHONE</th>
                                     <th>EMAIL</th>
                                     <th>PIN</th>
-                                    <th>BILL ON DAY</th>
+                                    <th class="narrow">BILL ON DAY</th>
                                     <th>KEY</th>
                                     <th>REF</th>
                                     <th>Actions</th>
@@ -1375,15 +1375,28 @@
                             return Number.isFinite(num) ? num : 0;
                         };
 
-                        let cols = ['#','ID','First Name','Last Name','Gender','DOB','Admit Date','Discharge Date','Days Here','Sober Date','Sober Days'];
-                        if (inclRef)     cols.push('Ref');
-                        if (inclRate)  { cols.push('Rate'); cols.push('Scholarship %'); }
-                        if (inclPhone)   cols.push('Phone');
-                        if (inclEmail)   cols.push('Email');
-                        if (inclPin)     cols.push('PIN');
-                        if (inclBillDay) cols.push('Bill Day');
+                        let cols = [
+                            {label:'#', cls:'narrow'},
+                            {label:'ID', cls:'narrow'},
+                            {label:'First Name'},
+                            {label:'Last Name'},
+                            {label:'Gender', cls:'narrow'},
+                            {label:'DOB'},
+                            {label:'Admit Date'},
+                            {label:'Discharge Date'},
+                            {label:'P DC Date'},
+                            {label:'Days Here', cls:'narrow'},
+                            {label:'Sober Date'},
+                            {label:'Sober Days', cls:'narrow'}
+                        ];
+                        if (inclRef)     cols.push({label:'Ref'});
+                        if (inclRate)  { cols.push({label:'Rate'}); cols.push({label:'Scholarship %'}); }
+                        if (inclPhone)   cols.push({label:'Phone'});
+                        if (inclEmail)   cols.push({label:'Email'});
+                        if (inclPin)     cols.push({label:'PIN', cls:'narrow'});
+                        if (inclBillDay) cols.push({label:'Bill Day', cls:'narrow'});
 
-                        const headerRow = `<tr>${cols.map(c => `<th>${c}</th>`).join('')}</tr>`;
+                        const headerRow = `<tr>${cols.map(c => `<th${c.cls ? ` class="${c.cls}"` : ''}>${c.label}</th>`).join('')}</tr>`;
 
                         const rows = members.map((m, rowIdx) => {
                             const st = String(m.STATUS || m.status || m.STATU || '').trim().toUpperCase();
@@ -1395,6 +1408,7 @@
                             const dob      = fmt(m.DOB || m.dob || '');
                             const admit    = m['ADMIT\r\nDATE'] || m['ADMIT\nDATE'] || m['ADMIT DATE'] || m.admitDate || '';
                             const dc       = m['DC DATE'] || m['DC\nDATE'] || m['DC\r\nDATE'] || m['DISCHARGE DATE'] || m['DISCHARGE\nDATE'] || m['DISCHARGE\r\nDATE'] || m.dischargeDate || '';
+                            const pdc      = m.presumptiveExitDate || m['PRESUMPTIVE_EXIT_DATE'] || m['PRESUMPTIVE EXIT DATE'] || '';
                             const sober    = m['SOBER\r\nDATE'] || m['SOBER\nDATE'] || m['SOBER DATE'] || m.sobrietyDate || '';
                             const daysHere  = daysBetween(admit, dc || null);
                             const daysSober = daysBetween(sober, null);
@@ -1402,7 +1416,8 @@
                             const ref = m.REF || m.ref || '';
                             const _rcs = ref.trim().toUpperCase().split(',').map(s=>s.trim()).filter(Boolean);
                             const refDisplay = ref + (_rcs.includes('H') ? ' <img src="/iehp-logo.png" alt="IEHP" title="IEHP" style="height:18px;vertical-align:middle;background:#fff;border-radius:3px;padding:1px 4px;border:1px solid #ddd;">' : '');
-                            const cells = [rowIdx + 1, idVal, first, last, gender, dob, fmt(admit), fmt(dc), daysHere, fmt(sober), daysSober];
+                            const dcDisplay = st === '1' ? '' : fmt(dc);
+                            const cells = [rowIdx + 1, idVal, first, last, gender, dob, fmt(admit), dcDisplay, fmt(pdc), daysHere, fmt(sober), daysSober];
                             if (inclRef)     cells.push(refDisplay);
                             if (inclRate) {
                                 cells.push(m.RATE || m.rate ? '$' + (m.RATE || m.rate) : '');
@@ -1419,7 +1434,10 @@
                             if (inclEmail)   cells.push(m.EMAIL || m.email || '');
                             if (inclPin)     cells.push(m.PIN || m.pin || '');
                             if (inclBillDay) cells.push(m['BILL ON DAY'] || m['BILL ON \nDAY'] || m['BILL ON\r\nDAY'] || m.billOnDay || '');
-                            return `<tr${isBedHold ? ' class="bh-row"' : (isHW ? ' class="hw-row"' : '')}>${cells.map(v => typeof v === 'object' && v !== null ? `<td style="${v.style}">${v.value}</td>` : `<td>${v}</td>`).join('')}</tr>`;
+                            return `<tr${isBedHold ? ' class="bh-row"' : (isHW ? ' class="hw-row"' : '')}>${cells.map((v, i) => {
+                                const cls = cols[i] && cols[i].cls ? ` class="${cols[i].cls}"` : '';
+                                return typeof v === 'object' && v !== null ? `<td${cls} style="${v.style}">${v.value}</td>` : `<td${cls}>${v}</td>`;
+                            }).join('')}</tr>`;
                         }).join('');
 
                         const printDate = today.toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' });
@@ -1464,6 +1482,7 @@
   th{background:#1a3a5c;color:white;padding:6px 8px;text-align:left;white-space:nowrap;font-size:9.5px;font-weight:700;letter-spacing:.3px;border-right:1px solid rgba(255,255,255,.15)}
   th:last-child{border-right:none}
   td{border-bottom:1px solid #dde4f0;padding:3.5px 8px;white-space:nowrap;vertical-align:middle}
+  th.narrow,td.narrow{width:34px;max-width:40px;text-align:center}
   tr:nth-child(even) td{background:#eef2fb}
   tr:nth-child(odd) td{background:#ffffff}
   tr.hw-row td{background:#fff3cd!important}
@@ -2857,6 +2876,8 @@ ${rateSummaryHtml}
                             btn.style.color = btn.style.borderColor;
                         }
                     });
+                    const statusTh = document.getElementById('statusColTh');
+                    if (statusTh) statusTh.style.display = (tab === 'all') ? '' : 'none';
                     const { members } = window._allMembersTableData || {};
                     if (members) renderAllMembersTable(members);
                 }
@@ -3121,12 +3142,15 @@ ${rateSummaryHtml}
                         const key       = member.KEY || member.key || '';
                         const ref       = member.REF || member.ref || '';
                         const id        = member.ID || member.id || '';
-                        const yr        = member.YR || member.yr || '';
                         const status    = member.STATUS || member.status || '';
                         const admitDate = parseDate(admitRaw);
                         const admitText = admitDate ? String(admitDate.getMonth()+1).padStart(2,'0') + '-' + String(admitDate.getDate()).padStart(2,'0') + '-' + admitDate.getFullYear() : '';
                         const dischargeDate = parseDate(dischargeRaw);
                         const dischargeText = dischargeDate ? String(dischargeDate.getMonth()+1).padStart(2,'0') + '-' + String(dischargeDate.getDate()).padStart(2,'0') + '-' + dischargeDate.getFullYear() : '';
+                        const dischargeDisplay = String(status).trim() === '1' ? '' : dischargeText;
+                        const presumptiveRaw = member.presumptiveExitDate || member['PRESUMPTIVE_EXIT_DATE'] || member['PRESUMPTIVE EXIT DATE'] || '';
+                        const presumptiveDate = parseDate(presumptiveRaw);
+                        const presumptiveText = presumptiveDate ? String(presumptiveDate.getMonth()+1).padStart(2,'0') + '-' + String(presumptiveDate.getDate()).padStart(2,'0') + '-' + presumptiveDate.getFullYear() : '';
                         const today = new Date(); today.setHours(0, 0, 0, 0);
                         const admitDisplay = admitDate && admitDate > today
                             ? `<span style="display:inline-block;padding:3px 7px;border-radius:5px;background:#fee2e2;color:#b91c1c;font-weight:700;" title="Future admit date">${admitText}</span>`
@@ -3177,11 +3201,11 @@ ${rateSummaryHtml}
                         }
                         const billCellAttr = billCellClass ? ` class="${billCellClass}" title="${billCellTitle}"` : '';
 
+                        const statusCellStyle = window._currentMembersTab === 'all' ? '' : ' style="display:none;"';
                         return `<tr style="cursor:pointer;" onclick="openStaffProfileModalFromTable('${id}')">
-                            <td>${displayNum}</td>
-                            <td>${yr}</td>
-                            <td>${id}</td>
-                            <td>${status}</td>
+                            <td class="narrow">${displayNum}</td>
+                            <td class="narrow">${id}</td>
+                            <td class="narrow"${statusCellStyle}>${status}</td>
                             <td>${firstName}</td>
                             <td>${lastName}</td>
                             <td>${nickname}</td>
@@ -3189,15 +3213,16 @@ ${rateSummaryHtml}
                             <td>${bed}</td>
                             <td>${dob}</td>
                             <td>${admitDisplay}</td>
-                            <td>${dischargeText}</td>
-                            <td>${daysHere}</td>
+                            <td>${dischargeDisplay}</td>
+                            <td>${presumptiveText}</td>
+                            <td class="narrow">${daysHere}</td>
                             <td>${soberText}</td>
-                            <td>${daysSober}</td>
+                            <td class="narrow">${daysSober}</td>
                             <td>${rateDisplay}</td>
                             <td>${phone}</td>
                             <td>${email}</td>
                             <td>${pinDisplay}</td>
-                            <td><span${billCellAttr}>${billOnDayDisplay}</span></td>
+                            <td class="narrow"><span${billCellAttr}>${billOnDayDisplay}</span></td>
                             <td>${key}</td>
                             <td>${ref}</td>
                             <td style="white-space:nowrap;">
@@ -3261,7 +3286,7 @@ ${rateSummaryHtml}
 
                                 // Use the same rendering logic as the Active Members Board, but include all fields and add Add/Edit buttons
                                 const allFields = [
-                                    '#','YR','ID','STATUS','FIRST','LAST','NICKNAME','M/F','BED','DOB','ADMIT DATE','DISCHARGE DATE','DAYS HERE','SOBER DATE','DAYSOBER','RATE','PHONE','EMAIL','PIN','BILL ON DAY','KEY','REF'
+                                    '#','ID','STATUS','FIRST','LAST','NICKNAME','M/F','BED','DOB','ADMIT DATE','DISCHARGE DATE','P. DC DATE','DAYS HERE','SOBER DATE','DAYSOBER','RATE','PHONE','EMAIL','PIN','BILL ON DAY','KEY','REF'
                                 ];
                                 // Store for search and editing
                                 window._allMembersTableData = { members, allKeys: allFields };
