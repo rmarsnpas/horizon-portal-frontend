@@ -118,6 +118,29 @@
 <div class="step"><div class="num">4</div><div>Processed files move to the <strong>processed</strong> subfolder. Unidentified files go to <strong>review</strong> with a .ocr.txt note.</div></div>
 <div class="step"><div class="num">5</div><div>When done, close the black window (or press Ctrl+C).</div></div>
 
+<!-- ── SECTION 4.5 ── -->
+<h2>📧 Alternative — Scan to Email (Outlook Mailbox) Instead of a Folder</h2>
+<p>Some Ricoh setups use <strong>Scan to Email</strong> instead of a shared folder — the scanner emails each PDF to a dedicated mailbox, e.g. <strong>scandocs@horizon-house.org</strong>. A second watcher program reads that mailbox instead of a folder. Use this option if the Ricoh already emails scans somewhere, or if a shared network folder isn't practical.</p>
+
+<div class="tip">
+  <strong>⚠️ Important:</strong> This watcher must run on a computer where classic Outlook desktop (not "new Outlook" or the web) is installed, signed in, <strong>and has the scan mailbox added so it shows in the folder pane</strong>. That's usually a computer at the same location as the Ricoh, since it needs to stay on and running.
+</div>
+
+<div class="step"><div class="num">1</div><div>Confirm the Ricoh's <strong>Scan to Email</strong> destination is set to the dedicated mailbox (e.g. <span class="path">scandocs@horizon-house.org</span>). This is usually configured once in Web Image Monitor → Address Book, same as the SMB folder destination in Part B above, just with an email type destination instead.</div></div>
+<div class="step"><div class="num">2</div><div>On the computer that will run the watcher, add the mailbox to Outlook: <strong>File → Account Settings → Account Settings…</strong> → double-click your account → <strong>More Settings → Advanced tab → Add</strong> → type the mailbox address → OK. (If your organization's Microsoft 365 admin has already granted you Full Access permission to that mailbox, it may appear automatically.)</div></div>
+<div class="step"><div class="num">3</div><div>Confirm the mailbox now shows as its own entry in the Outlook folder pane (left sidebar), with its own Inbox underneath it.</div></div>
+<div class="step"><div class="num">4</div><div>Double-click <strong>START OUTLOOK SCAN WATCHER.bat</strong> (next to the regular watcher). The first time it runs, Outlook may show a security prompt asking whether to allow a program to access it — click <strong>Allow</strong>.</div></div>
+<div class="step"><div class="num">5</div><div>The watcher creates <strong>Processed</strong> and <strong>Review</strong> subfolders under that mailbox's Inbox automatically. Matched scans move to Processed; unmatched ones move to Review with a <em>review-notes.txt</em> attachment showing what OCR read (if anything).</div></div>
+
+<div class="box">
+  <strong>Member ID in the Ricoh's filename or subject field:</strong><br>
+  If staff type the member ID into the filename or subject field on the Ricoh's touchscreen before scanning (same as the folder-based setup), the watcher matches instantly and skips OCR — fastest and most reliable. OCR is only used as a fallback when no ID is typed in.
+</div>
+
+<div class="tip">
+  <strong>💡 Mailbox name must match exactly:</strong> Open <span class="path">auto-doc-inbox-outlook.ps1</span> in Notepad and check the <span class="path">$MAILBOX_NAME</span> value at the top matches exactly what's shown in Outlook's folder pane on the computer running the watcher.
+</div>
+
 <!-- ── SECTION 5 ── -->
 <h2>🌐 Alternative — Upload Manually from Any Device</h2>
 <p>If you're on a different computer or an iPad, use the web inbox instead:</p>
@@ -136,6 +159,9 @@
   <tr><td>Black window says "Cannot reach server"</td><td>Check your internet connection. The watcher needs internet to reach the portal server.</td></tr>
   <tr><td>File stays in inbox and nothing happens</td><td>Make sure the watcher window is open. If it closed, double-click the .bat file again.</td></tr>
   <tr><td>Not sure what a member's ID is</td><td>Log into the portal staff dashboard and search for the member — their ID shows on their profile card.</td></tr>
+  <tr><td>Outlook watcher: "Could not find a mailbox named…"</td><td>Open <code>auto-doc-inbox-outlook.ps1</code> and make sure <code>$MAILBOX_NAME</code> matches exactly what's shown in Outlook's folder pane on that computer, and that the mailbox has been added to Outlook.</td></tr>
+  <tr><td>Outlook watcher: security popup on first run</td><td>Click <strong>Allow</strong> when Outlook asks if a program may access it. This is normal for any script that reads Outlook via COM.</td></tr>
+  <tr><td>Outlook watcher: emails never leave Inbox</td><td>Make sure the watcher window is still open and connected. Check the black window for error messages; it logs everything it does.</td></tr>
 </table>
 
 <div style="margin-top:40px;padding-top:16px;border-top:1px solid #e2e8f0;color:#a0aec0;font-size:12px;">
