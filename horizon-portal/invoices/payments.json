@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-10-13T20:24:43.000Z",
+  "generatedAt": "2026-10-13T20:47:15.000Z",
   "payments": [
     {
       "memberId": "152",
@@ -882,6 +882,15 @@
       "paymentMethod": "Transfer",
       "invoiceId": "192_202609",
       "notes": "400 credit | OVERPAYMENT CREDIT: +$400.00 (invoice $800.00) | PAID IN FULL"
+    },
+    {
+      "memberId": "192",
+      "memberName": "David Spiggle",
+      "date": "10-13-2026",
+      "amount": 400.0,
+      "paymentMethod": "Transfer",
+      "invoiceId": "192_MANUAL_20261013_134239",
+      "notes": "400 paid"
     }
   ]
 }
