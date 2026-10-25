@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-10-25T02:27:02.000Z",
+  "generatedAt": "2026-10-25T02:27:46.000Z",
   "payments": [
     {
       "memberId": "152",
@@ -512,6 +512,15 @@
       "amount": 660.0,
       "paymentMethod": "Cash",
       "invoiceId": "144_MANUAL_20261024_192354",
+      "notes": "PAID IN FULL"
+    },
+    {
+      "memberId": "154",
+      "memberName": "Jared Mercado",
+      "date": "10-22-2026",
+      "amount": 200.0,
+      "paymentMethod": "Cash",
+      "invoiceId": "154_MANUAL_20260914_130430",
       "notes": "PAID IN FULL"
     }
   ]
