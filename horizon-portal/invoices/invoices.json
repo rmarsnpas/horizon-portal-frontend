@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-10-25T02:24:12.000Z",
+  "generatedAt": "2026-10-25T02:27:11.000Z",
   "invoices": [
     {
       "memberId": "142",
@@ -483,17 +483,6 @@
       "amount": "",
       "pdfPath": "invoices/unpaid/MID193_INV193-20261026_MANUAL_DUE10-26-2026.pdf",
       "fileName": "MID193_INV193-20261026_MANUAL_DUE10-26-2026.pdf",
-      "parseOk": true
-    },
-    {
-      "memberId": "144",
-      "invoiceNumber": "144-20261031",
-      "status": "unpaid",
-      "dueDate": "10-31-2026",
-      "paidDate": "",
-      "amount": "",
-      "pdfPath": "invoices/unpaid/MID144_INV144-20261031_MANUAL_DUE10-31-2026.pdf",
-      "fileName": "MID144_INV144-20261031_MANUAL_DUE10-31-2026.pdf",
       "parseOk": true
     },
     {
@@ -1319,6 +1308,17 @@
       "amount": "",
       "pdfPath": "invoices/paid/MID192_INV192-20260918_DUE09-18-2026_PAID10-13-2026.pdf",
       "fileName": "MID192_INV192-20260918_DUE09-18-2026_PAID10-13-2026.pdf",
+      "parseOk": true
+    },
+    {
+      "memberId": "144",
+      "invoiceNumber": "144-20261031",
+      "status": "paid",
+      "dueDate": "10-31-2026",
+      "paidDate": "10-24-2026",
+      "amount": "",
+      "pdfPath": "invoices/paid/MID144_INV144-20261031_MANUAL_DUE10-31-2026_PAID10-24-2026.pdf",
+      "fileName": "MID144_INV144-20261031_MANUAL_DUE10-31-2026_PAID10-24-2026.pdf",
       "parseOk": true
     }
   ]
