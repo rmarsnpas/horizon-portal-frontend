@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-10-19T18:40:20.000Z",
+  "generatedAt": "2026-10-25T02:27:02.000Z",
   "payments": [
     {
       "memberId": "152",
@@ -504,6 +504,15 @@
       "paymentMethod": "Cash",
       "invoiceId": "154_MANUAL_20260914_130430",
       "notes": ""
+    },
+    {
+      "memberId": "144",
+      "memberName": "Adriana Cadena",
+      "date": "10-24-2026",
+      "amount": 660.0,
+      "paymentMethod": "Cash",
+      "invoiceId": "144_MANUAL_20261024_192354",
+      "notes": "PAID IN FULL"
     }
   ]
 }
