@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-10-25T02:35:10.000Z",
+  "generatedAt": "2026-10-25T02:35:58.000Z",
   "payments": [
     {
       "memberId": "152",
@@ -593,6 +593,15 @@
       "amount": 1400.0,
       "paymentMethod": "Check",
       "invoiceId": "187_County_202610",
+      "notes": "PAID IN FULL"
+    },
+    {
+      "memberId": "188",
+      "memberName": "Kory McLauglin",
+      "date": "10-24-2026",
+      "amount": 1350.0,
+      "paymentMethod": "Check",
+      "invoiceId": "188_County_202610",
       "notes": "PAID IN FULL"
     }
   ]
