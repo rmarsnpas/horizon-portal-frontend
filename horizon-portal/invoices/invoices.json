@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-10-25T02:27:58.000Z",
+  "generatedAt": "2026-10-25T02:28:38.000Z",
   "invoices": [
     {
       "memberId": "142",
@@ -395,17 +395,6 @@
       "amount": "",
       "pdfPath": "invoices/unpaid/MID189_INV189-20261001_COUNTY_DUE10-01-2026.pdf",
       "fileName": "MID189_INV189-20261001_COUNTY_DUE10-01-2026.pdf",
-      "parseOk": true
-    },
-    {
-      "memberId": "190",
-      "invoiceNumber": "190-20261001",
-      "status": "unpaid",
-      "dueDate": "10-01-2026",
-      "paidDate": "",
-      "amount": "",
-      "pdfPath": "invoices/unpaid/MID190_INV190-20261001_COUNTY_DUE10-01-2026.pdf",
-      "fileName": "MID190_INV190-20261001_COUNTY_DUE10-01-2026.pdf",
       "parseOk": true
     },
     {
@@ -1319,6 +1308,17 @@
       "amount": "",
       "pdfPath": "invoices/paid/MID144_INV144-20261031_MANUAL_DUE10-31-2026_PAID10-24-2026.pdf",
       "fileName": "MID144_INV144-20261031_MANUAL_DUE10-31-2026_PAID10-24-2026.pdf",
+      "parseOk": true
+    },
+    {
+      "memberId": "190",
+      "invoiceNumber": "190-20261001",
+      "status": "paid",
+      "dueDate": "10-01-2026",
+      "paidDate": "10-24-2026",
+      "amount": "",
+      "pdfPath": "invoices/paid/MID190_INV190-20261001_COUNTY_DUE10-01-2026_PAID10-24-2026.pdf",
+      "fileName": "MID190_INV190-20261001_COUNTY_DUE10-01-2026_PAID10-24-2026.pdf",
       "parseOk": true
     }
   ]
