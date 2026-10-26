@@ -1422,7 +1422,7 @@
                             if (inclRate) {
                                 cells.push(m.RATE || m.rate ? '$' + (m.RATE || m.rate) : '');
                                 const _rv = parseRate(m.RATE || m.rate);
-                                const _p  = Math.max(0, Math.min(1, (1500 - _rv) / 1500));
+                                const _p  = Math.max(0, Math.min(1, (1350 - _rv) / 1350));
                                 const _pct = Math.round(_p * 100);
                                 let _r, _g;
                                 const _c = 1 - _p;
@@ -1456,14 +1456,14 @@
                         const totalRIV  = members.filter(m => _refCodes(m).includes('H')).length;
                         const totalSelf = members.filter(m => { const rc = _refCodes(m); return !rc.includes('A') && !rc.includes('H'); }).length;
                                                 const rateTotal = members.reduce((sum, m) => sum + parseRate(m.RATE || m.rate), 0);
-                                                const targetRateTotal = members.length * 1500;
+                                                const targetRateTotal = members.length * 1350;
                                                 const rateDifference = rateTotal - targetRateTotal;
                                                 const deficit = Math.max(0, targetRateTotal - rateTotal);
                                                 const money = n => `$${n.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
                                                 const rateSummaryHtml = inclRateSummary ? `
 <div class="rs">
     <span>Rate Total: <strong>${money(rateTotal)}</strong></span>
-    <span>Members x 1500: <strong>${money(targetRateTotal)}</strong></span>
+    <span>Members x 1350: <strong>${money(targetRateTotal)}</strong></span>
     <span>Difference: <strong>${money(rateDifference)}</strong></span>
     <span>Deficit: <strong>${money(deficit)}</strong></span>
 </div>` : '';
