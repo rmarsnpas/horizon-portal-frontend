@@ -126,8 +126,36 @@ If you have Mobile Device Management (MDM) software:
 - Test the setup weekly to ensure it's still locked properly
 - Consider using different passcodes for men's vs women's kiosks
 
+## Offline Mode (WiFi Outage Protection)
+
+The kiosk pages now work even if the iPad loses WiFi:
+
+- **Sign-in/out still works offline.** If a sign-in or sign-out can't reach
+  the server, it's saved on the iPad itself (in the browser's local storage)
+  instead of showing a connection error.
+- **Automatic sync.** Once the iPad reconnects to WiFi, any saved records are
+  sent to the server automatically within a few seconds — no staff action
+  needed.
+- **Red banner while offline.** A red bar appears at the top of the screen
+  reading "No internet connection — sign-ins/outs are being saved on this
+  iPad (N pending)." It turns yellow briefly ("Reconnected — syncing…") while
+  catching up, then disappears once everything is synced.
+- **Status board stays accurate.** The "Currently Signed Out" board merges
+  the last known server data with anything still waiting to sync, so staff
+  see an accurate picture even mid-outage.
+- **Page itself loads offline too.** After the kiosk page has loaded
+  successfully once, it's cached on the device, so reopening the app (even
+  after a reboot) still works with no WiFi at all.
+- **Known limitation:** Member ID lookups require the member to have been
+  looked up at least once while online (so their name is cached). Brand-new
+  members who've never loaded on that iPad won't resolve until it's back
+  online. Overnight-pass detection on kiosk-signin.html also requires a live
+  connection — if offline, it falls back to a normal sign-out.
+- No setup is required for this — it's built into the kiosk pages
+  (`kiosk-offline.js` + `kiosk-sw.js` alongside each kiosk HTML file).
+
 ## Notes
 - The kiosk page auto-refreshes status every 30 seconds
 - Internet connection required for real-time updates
 - Backend API: https://horizon-portal-backend-production-3532.up.railway.app
-- If internet fails, status board will show last cached data
+- If internet fails, status board will show last cached data plus any pending offline records

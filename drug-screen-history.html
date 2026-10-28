@@ -602,6 +602,20 @@
                     </div>
                 ` : '';
 
+                const photosHTML = (test.photos && test.photos.length > 0) ? `
+                    <div class="notes-box" style="margin-top: 10px;">
+                        <strong>Photos:</strong>
+                        <div style="display: flex; flex-wrap: wrap; gap: 10px; margin-top: 8px;">
+                            ${test.photos.map(url => `
+                                <a href="${API_BASE}${url}" target="_blank" rel="noopener">
+                                    <img src="${API_BASE}${url}" alt="Test photo" style="width: 100px; height: 100px; object-fit: cover; border-radius: 6px; border: 1px solid #e2e8f0;">
+                                </a>
+                            `).join('')}
+                        </div>
+                    </div>
+                ` : '';
+
+
                 return `
                     <div class="test-card ${test.overallResult}">
                         ${bacHTML}
@@ -651,6 +665,8 @@
                         </div>
 
                         ${notesHTML}
+
+                        ${photosHTML}
 
                         ${signaturesHTML}
 

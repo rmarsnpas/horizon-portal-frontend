@@ -305,6 +305,75 @@
             background: #c53030;
         }
 
+        .photo-upload-buttons {
+            display: flex;
+            gap: 12px;
+            flex-wrap: wrap;
+            margin-bottom: 15px;
+        }
+
+        .photo-upload-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 12px 20px;
+            background: #667eea;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+        }
+
+        .photo-upload-btn:hover {
+            background: #5a67d8;
+        }
+
+        .photo-preview-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+            gap: 12px;
+            margin-top: 10px;
+        }
+
+        .photo-preview-item {
+            position: relative;
+            border-radius: 8px;
+            overflow: hidden;
+            border: 1px solid #e2e8f0;
+            aspect-ratio: 1 / 1;
+        }
+
+        .photo-preview-item img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            display: block;
+        }
+
+        .photo-preview-remove {
+            position: absolute;
+            top: 4px;
+            right: 4px;
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            background: rgba(197, 48, 48, 0.9);
+            color: white;
+            border: none;
+            cursor: pointer;
+            font-size: 14px;
+            line-height: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .photo-preview-remove:hover {
+            background: #c53030;
+        }
+
         @media print {
             @page {
                 margin: 0.2in;
@@ -953,6 +1022,18 @@
             </div>
 
             <div class="form-section">
+                <h2>Photos</h2>
+                <p style="color: #718096; margin-bottom: 15px;">Attach photos of the test strip/cup, taken with your device camera or chosen from your gallery (optional, multiple allowed)</p>
+                <div class="photo-upload-buttons">
+                    <button type="button" class="photo-upload-btn" onclick="document.getElementById('drugScreenPhotoCamera').click()">📷 Take Photo</button>
+                    <button type="button" class="photo-upload-btn" onclick="document.getElementById('drugScreenPhotoBrowse').click()">🖼️ Browse Photos</button>
+                </div>
+                <input type="file" id="drugScreenPhotoCamera" accept="image/*" capture="environment" style="display:none">
+                <input type="file" id="drugScreenPhotoBrowse" accept="image/*" multiple style="display:none">
+                <div id="photoPreviewGrid" class="photo-preview-grid"></div>
+            </div>
+
+            <div class="form-section">
                 <h2>Signatures</h2>
                 <p style="color: #718096; margin-bottom: 15px;">Sign below using touch or mouse</p>
                 <div class="signature-container">
@@ -979,6 +1060,58 @@
 
     <script>
         const API_BASE = 'https://horizon-portal-backend-production-3532.up.railway.app';
+
+        // ===== Photo upload (Take Photo / Browse Photos) =====
+        let drugScreenPhotos = [];
+
+        function renderPhotoPreviews() {
+            const grid = document.getElementById('photoPreviewGrid');
+            grid.innerHTML = drugScreenPhotos.map((file, idx) => `
+                <div class="photo-preview-item">
+                    <img src="${URL.createObjectURL(file)}" alt="Photo ${idx + 1}">
+                    <button type="button" class="photo-preview-remove" onclick="removeDrugScreenPhoto(${idx})">&times;</button>
+                </div>
+            `).join('');
+        }
+
+        function removeDrugScreenPhoto(idx) {
+            drugScreenPhotos.splice(idx, 1);
+            renderPhotoPreviews();
+        }
+
+        function addDrugScreenPhotos(fileList) {
+            for (const file of fileList) {
+                if (file.type.startsWith('image/')) {
+                    drugScreenPhotos.push(file);
+                }
+            }
+            renderPhotoPreviews();
+        }
+
+        document.getElementById('drugScreenPhotoCamera').addEventListener('change', (e) => {
+            addDrugScreenPhotos(e.target.files);
+            e.target.value = '';
+        });
+
+        document.getElementById('drugScreenPhotoBrowse').addEventListener('change', (e) => {
+            addDrugScreenPhotos(e.target.files);
+            e.target.value = '';
+        });
+
+        async function uploadDrugScreenPhotos() {
+            if (drugScreenPhotos.length === 0) return [];
+            const formData = new FormData();
+            drugScreenPhotos.forEach(file => formData.append('photos', file));
+            const response = await fetch(`${API_BASE}/api/drugScreen/upload-photos`, {
+                method: 'POST',
+                body: formData
+            });
+            const result = await response.json();
+            if (!response.ok) {
+                throw new Error(result.error || 'Failed to upload photos');
+            }
+            return result.photos.map(p => p.url);
+        }
 
         // Date formatting functions
         function parseDate(str) {
@@ -1474,6 +1607,20 @@
                 const hasPositive = Object.values(data.results).some(result => result === 'positive');
                 data.overallResult = hasPositive ? 'positive' : 'negative';
 
+                // Upload any attached photos first, then attach their URLs to the record
+                if (drugScreenPhotos.length > 0) {
+                    statusDiv.textContent = `Uploading ${drugScreenPhotos.length} photo(s)...`;
+                    try {
+                        data.photos = await uploadDrugScreenPhotos();
+                    } catch (photoErr) {
+                        statusDiv.textContent = '✗ Photo upload failed: ' + photoErr.message + ' — please try submitting again.';
+                        statusDiv.className = 'status-message error';
+                        submitBtn.disabled = false;
+                        return;
+                    }
+                    statusDiv.textContent = 'Submitting...';
+                }
+
                 const response = await fetch(`${API_BASE}/api/drugScreen`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
@@ -1490,6 +1637,10 @@
                     // Clear signatures
                     clearSignature('staffSignature');
                     clearSignature('memberSignature');
+
+                    // Clear photos
+                    drugScreenPhotos = [];
+                    renderPhotoPreviews();
                     
                     // Reset date/time to now
                     const now = new Date();

@@ -477,8 +477,16 @@
         <button class="indiv-msg-ok-btn" onclick="acknowledgeIndivMsgs()">? OK, Got It!</button>
     </div>
 
+    <script src="kiosk-offline.js"></script>
     <script>
         const API_URL = 'https://horizon-portal-backend-production-3532.up.railway.app';
+        window.KIOSK_API_URL = API_URL;
+        if (window.KioskOffline) { window.KioskOffline.startAutoSync(15000); }
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', function () {
+                navigator.serviceWorker.register('kiosk-sw.js', { scope: './kiosk-' }).catch(function () {});
+            });
+        }
         // Helper utilities to normalize IDs and active status across backend variations
         function normalizeId(v) {
             return String(v ?? '').trim();

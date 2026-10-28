@@ -2035,6 +2035,12 @@ function viewDrugScreen(cacheKey) {
       ${s.memberSignature ? `<div style="text-align:center;"><div style="font-size:12px;color:#718096;margin-bottom:4px;">Member</div><img src="${s.memberSignature}" style="max-width:180px;border:1px solid #e2e8f0;border-radius:4px;"></div>` : ''}
     </div>` : '';
 
+  const apiOrigin = API.replace(/\/api\/?$/, '');
+  const photosHtml = (s.photos && s.photos.length) ? `<h3>Photos</h3>
+    <div style="display:flex;gap:10px;flex-wrap:wrap;margin-bottom:8px;">
+      ${s.photos.map(url => `<a href="${apiOrigin}${url}" target="_blank" rel="noopener"><img src="${apiOrigin}${url}" style="width:100px;height:100px;object-fit:cover;border:1px solid #e2e8f0;border-radius:6px;"></a>`).join('')}
+    </div>` : '';
+
   const html = `<div class="form-detail">
     <h3>Test Info</h3>
     <div style="display:inline-block;padding:4px 16px;border-radius:20px;font-size:13px;font-weight:700;background:${isNeg?'#c6f6d5':'#fed7d7'};color:${isNeg?'#276749':'#c53030'};margin-bottom:10px;">${isNeg?'✓ NEGATIVE':'⚠️ POSITIVE'}</div>
@@ -2046,6 +2052,7 @@ function viewDrugScreen(cacheKey) {
     ${(s.results && s.results.alcohol) ? row('Breathalyzer', s.results.alcohol.charAt(0).toUpperCase() + s.results.alcohol.slice(1)) : (s.alcohol ? row('Breathalyzer', s.alcohol) : '')}
     ${row('Notes', s.notes)}
     ${resultsHtml}
+    ${photosHtml}
     ${sigHtml}
   </div>`;
 
