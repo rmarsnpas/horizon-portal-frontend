@@ -386,13 +386,13 @@
         const all = await res.json();
         const today = new Date(); today.setHours(0,0,0,0);
 
-        // --- Hide overnight pass button if member has been here < 60 days ---
+        // --- Hide overnight pass button if member has been here < 45 days ---
         const currentMember = all.find(m => String(getField(m, 'MEMBER ID', 'MEMBER_ID', 'memberId', 'id')).trim() === String(memberId).trim());
         if (currentMember) {
           const admitDate = parseDate(getField(currentMember, 'ADMIT\r\nDATE', 'ADMIT\nDATE', 'ADMIT DATE', 'ADMIT_DATE', 'admitDate'));
           if (admitDate) {
             const daysIn = Math.floor((today - admitDate) / 86400000);
-            if (daysIn < 60) {
+            if (daysIn < 45) {
               const passCard = document.getElementById('overnightPassCard');
               if (passCard) passCard.style.display = 'none';
             }
