@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-10-30T03:39:44.000Z",
+  "generatedAt": "2026-10-30T03:40:05.000Z",
   "payments": [
     {
       "memberId": "152",
@@ -527,7 +527,7 @@
       "memberId": "190",
       "memberName": "Marlin Perez",
       "date": "10-24-2026",
-      "amount": 1500.0,
+      "amount": 1000.0,
       "paymentMethod": "Check",
       "invoiceId": "190_County_202610",
       "notes": "PAID IN FULL"
