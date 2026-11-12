@@ -2903,13 +2903,16 @@ ${rateSummaryHtml}
                     });
                 }
 
-                // Bed inventory (321 + 351). Coed assignment enabled.
+                // Bed inventory by assignment rules:
+                // - 351-* are M only
+                // - M beds in 321 are: 321-1A, 321-1B, 321-2A, 321-2B
                 const BEDS_321 = ['321-1A','321-1B','321-2A','321-2B','321-3A','321-3B','321-3C','321-4','321-5A','321-5B'];
                 const BEDS_351 = ['351-1A','351-1B','351-2A','351-2B','351-2C','351-2D','351-3A','351-3B','351-4A','351-4B'];
-                const COED_BEDS = [...BEDS_321, ...BEDS_351];
+                const M_BEDS_IN_321 = ['321-1A','321-1B','321-2A','321-2B'];
+                const F_BEDS_IN_321 = BEDS_321.filter(b => !M_BEDS_IN_321.includes(b));
                 const BED_INVENTORY = {
-                    F: COED_BEDS,
-                    M: COED_BEDS
+                    F: F_BEDS_IN_321,
+                    M: [...M_BEDS_IN_321, ...BEDS_351]
                 };
 
                 function normalizeBedCode(rawBed, memberGender) {
