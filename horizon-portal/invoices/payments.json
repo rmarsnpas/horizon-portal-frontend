@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-11-08T01:30:21.000Z",
+  "generatedAt": "2026-11-11T00:36:40.000Z",
   "payments": [
     {
       "memberId": "152",
@@ -629,6 +629,33 @@
       "amount": 55.0,
       "paymentMethod": "Transfer",
       "invoiceId": "177_202609",
+      "notes": ""
+    },
+    {
+      "memberId": "192",
+      "memberName": "David Spiggle",
+      "date": "11-09-2026",
+      "amount": 400.0,
+      "paymentMethod": "Transfer",
+      "invoiceId": "192_202610",
+      "notes": "PAID IN FULL"
+    },
+    {
+      "memberId": "192",
+      "memberName": "David Spiggle",
+      "date": "11-09-2026",
+      "amount": 800.0,
+      "paymentMethod": "Transfer",
+      "invoiceId": "192_MANUAL_20261107_173156",
+      "notes": "PAID IN FULL"
+    },
+    {
+      "memberId": "154",
+      "memberName": "Jared Mercado",
+      "date": "11-10-2026",
+      "amount": 400.0,
+      "paymentMethod": "Cash",
+      "invoiceId": "154_MANUAL_20261029_204905",
       "notes": ""
     }
   ]

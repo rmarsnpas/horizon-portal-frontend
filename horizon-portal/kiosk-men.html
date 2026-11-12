@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Horizon House - Men's Sign In/Out</title>
+    <title>Horizon House - 351 Sign In/Out</title>
     <style>
         * {
             box-sizing: border-box;
@@ -330,7 +330,7 @@
             <div class="screen-header">
                 <div>
                     <h1>351</h1>
-                    <p class="subtitle">Status Board</p>
+                    <p class="subtitle">351 Status Board</p>
                 </div>
                 <button class="btn-action" onclick="showSignInScreen()">Sign In/Out</button>
             </div>
@@ -595,24 +595,14 @@
                 const data = await response.json();
                 hideOfflineIndicator();
 
-                // Build a set of male member IDs from the members endpoint (robust to field names)
                 const membersResponse = await fetchWithLogging(`${API_URL}/api/members`, {}, 'loadStatusBoard-members');
                 const allMembers = await membersResponse.json();
                 memberCache = allMembers || [];
-                const menIds = new Set((allMembers || [])
-                    .filter(isActiveMember)
-                    .filter(m => {
-                        const g = ((m['M/F'] || m.GENDER || m.SEX || m.gender) || '').toString().toUpperCase().trim();
-                        return g.startsWith('M');
-                    })
-                    .map(m => memberIdFrom(m))
-                );
 
                 const statusGrid = document.getElementById('statusGrid');
                 const statusSummary = document.getElementById('statusSummary');
 
-                // Filter status entries to only show men (normalize IDs)
-                const membersOut = (data.membersOut || []).filter(m => menIds.has(memberIdFrom(m)));
+                const membersOut = data.membersOut || [];
                 const total = membersOut.length;
                 const overdue = membersOut.filter(m => m.isOverdue).length;
                 
@@ -667,11 +657,12 @@
 
         async function loadKioskMessages() {
             try {
-                const res = await fetchWithLogging(`${API_URL}/api/kioskMessages?target=men`, {}, 'loadKioskMessages');
+                const res = await fetchWithLogging(`${API_URL}/api/kioskMessages`, {}, 'loadKioskMessages');
                 const msgs = await res.json();
+                const filtered = msgs.filter(m => m.target === 'everyone' || m.target === 'men' || m.target === 'women');
                 const container = document.getElementById('kioskMessages');
-                if (!msgs.length) { container.innerHTML = ''; return; }
-                container.innerHTML = msgs.map(m => {
+                if (!filtered.length) { container.innerHTML = ''; return; }
+                container.innerHTML = filtered.map(m => {
                     const icon = m.target === 'everyone' ? '&#x1F4E2;' : m.target === 'men' ? '&#x1F535;' : '&#x1F464;';
                     const cls  = m.target === 'everyone' ? 'target-everyone' : m.target === 'men' ? 'target-men' : 'target-individual';
                     return `<div class="kiosk-msg-banner ${cls}">
@@ -755,7 +746,7 @@
                 // Try to fetch fresh member list, fall back to cache if offline
                 if (!offlineMode) {
                     try {
-                        const membersResponse = await fetchWithLogging(`${API_URL}/api/members?gender=M`, {}, 'processSignInOut-members');
+                        const membersResponse = await fetchWithLogging(`${API_URL}/api/members`, {}, 'processSignInOut-members');
                         allMembers = await membersResponse.json();
                         memberCache = allMembers;
                         hideOfflineIndicator();
@@ -780,14 +771,6 @@
                     return;
                 }
                 
-                // Check if member is male
-                const memberGender = (memberData['M/F'] || memberData.GENDER || memberData.SEX || '').toString().toUpperCase().trim();
-                if (!memberGender.startsWith('M')) {
-                    showLoading(false);
-                    showStatus('This kiosk is for men only', 'error');
-                    return;
-                }
-
                 // Get member name from FIRST\nNAME and LAST\nNAME fields (with or without \r)
                 const firstName = memberData['FIRST\r\nNAME'] || memberData['FIRST\nNAME'] || memberData.FIRST_NAME || memberData.first_name || '';
                 const lastName = memberData['LAST\r\nNAME'] || memberData['LAST\nNAME'] || memberData.LAST_NAME || memberData.last_name || '';
@@ -816,16 +799,12 @@
                     statusData = { membersOut: getLocalSignOuts() };
                 }
                 
-                // Use the already-loaded members list
-                const menIds = new Set((allMembers || []).filter(isActiveMember).map(m => memberIdFrom(m)));
-
-                // Filter status to only show men (robust to different id field names)
-                statusData.membersOut = (statusData.membersOut || []).filter(m => menIds.has(memberIdFrom(m)));
+                const allMembersOut = statusData.membersOut || [];
 
                 showLoading(false);
 
                 // Check if this member is in the signed-out list
-                const isSignedOut = (statusData.membersOut || []).some(m => memberIdFrom(m) === normalizeId(memberId));
+                const isSignedOut = allMembersOut.some(m => memberIdFrom(m) === normalizeId(memberId));
 
                 // Fetch any personal messages for this member and show them briefly
                 try {

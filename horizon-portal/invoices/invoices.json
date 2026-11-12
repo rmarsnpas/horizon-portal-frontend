@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-11-08T01:33:06.000Z",
+  "generatedAt": "2026-11-10T22:33:03.000Z",
   "invoices": [
     {
       "memberId": "142",
@@ -354,17 +354,6 @@
       "parseOk": true
     },
     {
-      "memberId": "192",
-      "invoiceNumber": "192-20261018",
-      "status": "unpaid",
-      "dueDate": "10-18-2026",
-      "paidDate": "",
-      "amount": "",
-      "pdfPath": "invoices/unpaid/MID192_INV192-20261018_DUE10-18-2026.pdf",
-      "fileName": "MID192_INV192-20261018_DUE10-18-2026.pdf",
-      "parseOk": true
-    },
-    {
       "memberId": "166",
       "invoiceNumber": "166-20261021",
       "status": "unpaid",
@@ -472,17 +461,6 @@
       "amount": "",
       "pdfPath": "invoices/unpaid/MID196_INV196-20261101_COUNTY_DUE11-01-2026.pdf",
       "fileName": "MID196_INV196-20261101_COUNTY_DUE11-01-2026.pdf",
-      "parseOk": true
-    },
-    {
-      "memberId": "192",
-      "invoiceNumber": "192-20261118",
-      "status": "unpaid",
-      "dueDate": "11-18-2026",
-      "paidDate": "",
-      "amount": "",
-      "pdfPath": "invoices/unpaid/MID192_INV192-20261118_MANUAL_DUE11-18-2026.pdf",
-      "fileName": "MID192_INV192-20261118_MANUAL_DUE11-18-2026.pdf",
       "parseOk": true
     },
     {
@@ -1429,6 +1407,28 @@
       "amount": "",
       "pdfPath": "invoices/paid/MID192_INV192-20261011_MANUAL_DUE10-11-2026_PAID10-29-2026.pdf",
       "fileName": "MID192_INV192-20261011_MANUAL_DUE10-11-2026_PAID10-29-2026.pdf",
+      "parseOk": true
+    },
+    {
+      "memberId": "192",
+      "invoiceNumber": "192-20261018",
+      "status": "paid",
+      "dueDate": "10-18-2026",
+      "paidDate": "11-09-2026",
+      "amount": "",
+      "pdfPath": "invoices/paid/MID192_INV192-20261018_DUE10-18-2026_PAID11-09-2026.pdf",
+      "fileName": "MID192_INV192-20261018_DUE10-18-2026_PAID11-09-2026.pdf",
+      "parseOk": true
+    },
+    {
+      "memberId": "192",
+      "invoiceNumber": "192-20261118",
+      "status": "paid",
+      "dueDate": "11-18-2026",
+      "paidDate": "11-09-2026",
+      "amount": "",
+      "pdfPath": "invoices/paid/MID192_INV192-20261118_MANUAL_DUE11-18-2026_PAID11-09-2026.pdf",
+      "fileName": "MID192_INV192-20261118_MANUAL_DUE11-18-2026_PAID11-09-2026.pdf",
       "parseOk": true
     }
   ]

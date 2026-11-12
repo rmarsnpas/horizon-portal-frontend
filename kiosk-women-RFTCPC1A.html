@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Horizon House - Women's Sign In/Out</title>
+    <title>Horizon House - 321 Sign In/Out</title>
     <style>
         * {
             box-sizing: border-box;
@@ -386,8 +386,8 @@
         <div id="statusScreen" class="status-screen">
             <div class="screen-header">
                 <div>
-                    <h1>Horizon House - Women</h1>
-                    <p class="subtitle">Women's Status Board</p>
+                    <h1>321</h1>
+                    <p class="subtitle">321 Status Board</p>
                 </div>
                 <button class="btn-action" onclick="showSignInScreen()">Sign In/Out</button>
             </div>
@@ -555,22 +555,10 @@
                 const response = await fetch(`${API_URL}/api/signInOut/current`);
                 const data = await response.json();
 
-                // Build a set of female member IDs from the members endpoint (robust to field names)
-                const membersResponse = await fetch(`${API_URL}/api/members`);
-                const allMembers = await membersResponse.json();
-                const womenIds = new Set((allMembers || [])
-                    .filter(m => {
-                        const g = ((m['M/F'] || m.GENDER || m.SEX || m.gender) || '').toString().toUpperCase().trim();
-                        return g.startsWith('F');
-                    })
-                    .map(m => memberIdFrom(m))
-                );
-
                 const statusGrid = document.getElementById('statusGrid');
                 const statusSummary = document.getElementById('statusSummary');
 
-                // Filter status entries to only show women (normalize IDs)
-                const membersOut = (data.membersOut || []).filter(m => womenIds.has(memberIdFrom(m)));
+                const membersOut = data.membersOut || [];
                 const total = membersOut.length;
                 const overdue = membersOut.filter(m => m.isOverdue).length;
                 
@@ -708,30 +696,15 @@
                     return;
                 }
                 
-                // Check if member is female
-                const memberGender = (memberData['M/F'] || memberData.GENDER || memberData.SEX || '').toString().toUpperCase().trim();
-                if (!memberGender.startsWith('F')) {
-                    showLoading(false);
-                    showStatus('This kiosk is for women only', 'error');
-                    return;
-                }
-
                 const memberName = `${memberData.FIRST_NAME || ''} ${memberData.LAST_NAME || ''}`.trim();
 
                 // Check for individual kiosk messages (non-blocking)
                 checkIndivMessages(memberId);
 
                 // Check current sign-in status - get list of all signed-out members
-                // Filter to show only women (F gender)
                 const statusResponse = await fetch(`${API_URL}/api/signInOut/current`);
                 const statusData = await statusResponse.json();
-                
-                // Get all members to check gender (for display filtering only)
-                const membersResponse = await fetch(`${API_URL}/api/members?gender=F`);
-                const womenMembers = await membersResponse.json();
-                const womenIds = new Set((womenMembers || []).map(m => memberIdFrom(m)));
                 const allMembersOut = statusData.membersOut || [];
-                statusData.membersOut = allMembersOut.filter(m => womenIds.has(memberIdFrom(m)));
 
                 showLoading(false);
 
@@ -837,11 +810,12 @@
 
         async function loadKioskMessages() {
             try {
-                const res = await fetch(`${API_URL}/api/kioskMessages?target=women`);
+                const res = await fetch(`${API_URL}/api/kioskMessages`);
                 const msgs = await res.json();
+                const filtered = msgs.filter(m => m.target === 'everyone' || m.target === 'men' || m.target === 'women');
                 const container = document.getElementById('kioskMessages');
-                if (!msgs.length) { container.innerHTML = ''; return; }
-                container.innerHTML = msgs.map(m => {
+                if (!filtered.length) { container.innerHTML = ''; return; }
+                container.innerHTML = filtered.map(m => {
                     const icon = m.target === 'everyone' ? '📢' : m.target === 'women' ? '💗' : '👤';
                     const cls  = m.target === 'everyone' ? 'target-everyone' : m.target === 'women' ? 'target-women' : 'target-individual';
                     return `<div class="kiosk-msg-banner ${cls}">

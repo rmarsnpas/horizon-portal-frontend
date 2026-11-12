@@ -2903,24 +2903,36 @@ ${rateSummaryHtml}
                     });
                 }
 
-                // Bed inventory by gender
+                // Bed inventory (321 + 351). Coed assignment enabled.
+                const BEDS_321 = ['321-1A','321-1B','321-2A','321-2B','321-3A','321-3B','321-3C','321-4','321-5A','321-5B'];
+                const BEDS_351 = ['351-1A','351-1B','351-2A','351-2B','351-2C','351-2D','351-3A','351-3B','351-4A','351-4B'];
+                const COED_BEDS = [...BEDS_321, ...BEDS_351];
                 const BED_INVENTORY = {
-                    F: ['1A','1B','2A','2B','3A','3B','3C','4','5A','5B'],
-                    M: ['1A','1B','2A','2B','2C','2D','3A','3B','4A','4B']
+                    F: COED_BEDS,
+                    M: COED_BEDS
                 };
+
+                function normalizeBedCode(rawBed, memberGender) {
+                    const bed = String(rawBed || '').toUpperCase().trim();
+                    if (!bed) return '';
+                    if (bed.includes('-')) return bed;
+                    const g = String(memberGender || '').toUpperCase().trim();
+                    const housePrefix = g === 'F' ? '321' : (g === 'M' ? '351' : '');
+                    return housePrefix ? `${housePrefix}-${bed}` : bed;
+                }
 
                 function getOccupiedBeds(gender) {
                     const members = (window._allMembersTableData || {}).members || [];
+                    const allowedBeds = new Set(BED_INVENTORY[gender] || []);
                     const occupied = [];
                     members.forEach(m => {
                         const s = String(m.STATUS || m.status || m.STATU || '').toUpperCase().trim();
                         const isInCensusStaff = (s === '4') && m.inCensus === true;
                         // Status 1, H, or inCensus staff occupy beds
                         if (s !== '1' && s !== 'H' && !isInCensusStaff) return;
-                        const g = String(m['M/F'] || m.GENDER || m.gender || '').toUpperCase().trim();
-                        if (g !== gender) return;
-                        const bed = String(m.BED || m['BED#'] || m.bed || '').toUpperCase().trim();
-                        if (bed) occupied.push(bed);
+                        const memberGender = String(m['M/F'] || m.GENDER || m.gender || '').toUpperCase().trim();
+                        const bed = normalizeBedCode((m.BED || m['BED#'] || m.bed || ''), memberGender);
+                        if (bed && allowedBeds.has(bed)) occupied.push(bed);
                     });
                     return occupied;
                 }
@@ -2939,11 +2951,12 @@ ${rateSummaryHtml}
                     }
                     const available = getAvailableBeds(gender);
                     const allBeds = BED_INVENTORY[gender] || [];
-                    const forceUpper = forceBed ? forceBed.toUpperCase() : '';
+                    const selectedUpper = normalizeBedCode(selectedVal, gender);
+                    const forceUpper = normalizeBedCode(forceBed, gender);
                     let opts = `<option value=''>-- Select Bed --</option>`;
                     allBeds.forEach(b => {
                         const isAvail = available.includes(b);
-                        const isCurrent = b.toUpperCase() === String(selectedVal || '').toUpperCase().trim();
+                        const isCurrent = b.toUpperCase() === selectedUpper;
                         const isForced = b.toUpperCase() === forceUpper;
                         if (isAvail || isCurrent || isForced) {
                             const label = isForced && !isAvail ? b + ' (reserved)' : b;
