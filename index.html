@@ -95,6 +95,18 @@
     .expand-button:hover{background:linear-gradient(135deg,#004d99,#003366);transform:translateY(-2px);box-shadow:0 4px 12px rgba(0,51,102,0.3)}
     .expand-button::after{content:'';}
     .expand-button.active::after{transform:rotate(180deg)}
+    .cta-jump-subtle{
+      animation: ctaSubtleJump 4.8s ease-in-out infinite;
+      transform-origin: center;
+    }
+    @keyframes ctaSubtleJump{
+      0%, 82%, 100%{transform:translateY(0);box-shadow:0 2px 8px rgba(30,115,190,0.08);}
+      88%{transform:translateY(-3px);box-shadow:0 6px 16px rgba(30,115,190,0.16);}
+      94%{transform:translateY(0);box-shadow:0 2px 8px rgba(30,115,190,0.08);}
+    }
+    @media (prefers-reduced-motion: reduce){
+      .cta-jump-subtle{animation:none;}
+    }
     .expandable-content{max-height:0;overflow:hidden;transition:max-height 0.5s ease-out}
     .expandable-content.active{max-height:5000px;transition:max-height 0.8s ease-in}
     .expandable-content > div{padding-top:1.5rem}
@@ -409,7 +421,7 @@
 
     <!-- Why Sober Living Matters - Expandable -->
     <div class="expandable-section" style="margin-bottom:2.5rem;">
-      <a href="why-sober-living-matters.html" class="expand-button orange-btn" style="margin-bottom:1.1rem;">Why Sober Living Matters</a>
+      <a href="why-sober-living-matters.html" class="expand-button orange-btn cta-jump-subtle" style="margin-bottom:1.1rem;">Why Sober Living Matters</a>
       <a href="what-makes-us-different.html" class="expand-button orange-btn">The Horizon House Difference</a>
     </div>
 
