@@ -132,7 +132,8 @@ label { font-size: 0.8125rem; font-weight: 500; color: #334155; display: block; 
       pointer-events:none;
       z-index:0;
     }
-    header,.page-hero,main,footer{position:relative;z-index:1;}
+    .page-hero,main,footer{position:relative;z-index:1;}
+    header{position:relative;z-index:50;}
     @media (prefers-reduced-motion: reduce){
       .page-video-bg{display:none;}
       body::before{background:rgba(245,241,234,.95);}
