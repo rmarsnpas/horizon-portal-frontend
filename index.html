@@ -73,6 +73,19 @@
     }
     .hero-content{position:relative;z-index:2;width:100%;}
     .hero.hero-video h1,.hero.hero-video p,.hero.hero-video .trust{color:#f5f1ea;}
+    .hero-video-caption{
+      position:absolute;
+      right:.75rem;
+      bottom:.5rem;
+      z-index:2;
+      font-size:.68rem;
+      line-height:1.3;
+      color:rgba(255,255,255,.65);
+      text-align:right;
+      max-width:280px;
+      text-shadow:0 1px 3px rgba(0,0,0,.6);
+      pointer-events:none;
+    }
     .hero.hero-video .hero-cta-secondary{
       background:rgba(255,255,255,.92);
       color:var(--slate);
@@ -471,6 +484,7 @@
         <source src="uploads/IMG_0112 (1).MOV" type="video/quicktime">
       </video>
       <div class="hero-video-overlay" aria-hidden="true"></div>
+      <p class="hero-video-caption">California Brown Pelicans, passing through Palm Springs, heading south for the winter. Oct 2026 (With our weather, they'll probably just call it good and stay the winter.)</p>
       <div class="hero-content">
         <h1 id="hero-title">Rise • Recover • Rebuild</h1>
         <p>A calm, accountable sober living community where Members rebuild their lives through structure, clarity, and shared purpose.</p>
