@@ -100,9 +100,37 @@
     .btn-primary{display:inline-block;background:var(--amber);color:#1d1d1d;font-weight:700;padding:.8rem 2rem;border-radius:.5rem;font-size:1rem;}
     .btn-outline{display:inline-block;border:2px solid var(--amber);color:hsl(42,84%,70%);font-weight:700;padding:.75rem 1.8rem;border-radius:.5rem;font-size:1rem;}
     .btn-row{display:flex;flex-wrap:wrap;gap:1rem;justify-content:center;}
+      .page-video-bg{
+      position:fixed;
+      inset:0;
+      width:100%;
+      height:100%;
+      object-fit:cover;
+      opacity:.2;
+      pointer-events:none;
+      z-index:0;
+      filter:saturate(.8) brightness(.72);
+    }
+    body::before{
+      content:'';
+      position:fixed;
+      inset:0;
+      background:rgba(245,241,234,.68);
+      pointer-events:none;
+      z-index:0;
+    }
+    header,.page-hero,main,footer{position:relative;z-index:1;}
+    @media (prefers-reduced-motion: reduce){
+      .page-video-bg{display:none;}
+      body::before{background:rgba(245,241,234,.95);}
+    }
   </style>
 </head>
 <body>
+  <video class="page-video-bg" autoplay muted loop playsinline preload="metadata" poster="sunrise1.jpg" aria-hidden="true">
+    <source src="uploads/IMG_0112_1_trim.mp4" type="video/mp4">
+    <source src="uploads/IMG_0112 (1).MOV" type="video/quicktime">
+  </video>
 
   <a href="#main" class="sr-only">Skip to main content</a>
 
@@ -156,7 +184,7 @@
     <div class="page-hero">
       <a href="index.html" class="back-home">Back to Home</a>
       <h1>Funding &amp; Insurance Options</h1>
-      <p>We work with families, individuals, and referring professionals to find a funding path that works — because cost should never be the barrier to recovery.</p>
+      <p>We work with families, individuals, and referring professionals to find a funding path that works â€” because cost should never be the barrier to recovery.</p>
     </div>
 
     <!-- Private Pay & Other -->
@@ -166,7 +194,7 @@
       <div class="ins-grid" style="margin-top:1.25rem;">
         <div class="ins-card">
           Private Pay
-          <span>Self-pay accepted — contact us for current rates</span>
+          <span>Self-pay accepted â€” contact us for current rates</span>
         </div>
         <div class="ins-card">
           Scholarships
@@ -177,7 +205,7 @@
           <span>Considered case-by-case for those who qualify</span>
         </div>
       </div>
-      <p style="margin-top:1.25rem;font-size:.95rem;color:#555;">For questions about scholarships, sliding scale availability, or current private pay rates, reach out directly — we'll work through every option with you.</p>
+      <p style="margin-top:1.25rem;font-size:.95rem;color:#555;">For questions about scholarships, sliding scale availability, or current private pay rates, reach out directly â€” we'll work through every option with you.</p>
     </section>
 
     <!-- Medi-Cal -->
@@ -210,11 +238,11 @@
       <h2 id="faq-title">Common Questions</h2>
       <div class="faq-item">
         <div class="faq-q" tabindex="0" role="button" aria-expanded="false">How do I check if Medi-Cal will cover placement?</div>
-        <div class="faq-a">Check with your case worker first — they can confirm your active Medi-Cal coverage and which managed care plan you're enrolled in. You can also call us at <a href="tel:7607660300">(760) 766-0300</a> and we'll help verify eligibility on our end, usually within one business day.</div>
+        <div class="faq-a">Check with your case worker first â€” they can confirm your active Medi-Cal coverage and which managed care plan you're enrolled in. You can also call us at <a href="tel:7607660300">(760) 766-0300</a> and we'll help verify eligibility on our end, usually within one business day.</div>
       </div>
       <div class="faq-item">
         <div class="faq-q" tabindex="0" role="button" aria-expanded="false">Is prior authorization required for Medi-Cal?</div>
-        <div class="faq-a">Yes — a referral is required before prior authorization can be requested. Your case worker can provide this referral. Once we receive it, we will put a bed on hold for you. If you're unsure how to get a referral, your case worker is the right person to contact first.</div>
+        <div class="faq-a">Yes â€” a referral is required before prior authorization can be requested. Your case worker can provide this referral. Once we receive it, we will put a bed on hold for you. If you're unsure how to get a referral, your case worker is the right person to contact first.</div>
       </div>
       <div class="faq-item">
         <div class="faq-q" tabindex="0" role="button" aria-expanded="false">How do scholarships work?</div>
@@ -233,10 +261,10 @@
     <!-- CTA -->
     <div class="cta-strip">
       <h2>Ready to Talk Through Your Options?</h2>
-      <p>Our team is here to help you or your client find the right funding path — no pressure, just honest answers.</p>
+      <p>Our team is here to help you or your client find the right funding path â€” no pressure, just honest answers.</p>
       <div class="btn-row">
-        <a href="mailto:mars@horizon-house.org" class="btn-primary">Email Marshall (His House)</a>
-        <a href="mailto:liz@horizon-house.org" class="btn-primary">Email Liz (Her House)</a>
+        <a href="mailto:mars@horizon-house.org" class="btn-primary">Email Marshall (Men's House)</a>
+        <a href="mailto:liz@horizon-house.org" class="btn-primary">Email Liz (Co-Ed House)</a>
         <a href="index.html#contact" class="btn-outline">General Contact Form</a>
       </div>
       <p style="margin-top:1rem;color:#cfd6e6;font-size:.95rem;">Main line: <a href="tel:7607660300" style="color:hsl(42,84%,70%);">(760) 766-0300</a></p>
@@ -246,7 +274,7 @@
 
   <footer role="contentinfo">
     <div class="wrap">
-      <p><strong>Horizon House</strong> — Structured, caring sober living</p>
+      <p><strong>Horizon House</strong> â€” Structured, caring sober living</p>
       <div style="display:flex;justify-content:flex-start;align-items:center;flex-wrap:wrap;gap:2rem;margin-bottom:0.25rem;">
         <div>
           <p style="margin:0;">28321 Horizon Rd.<br>Cathedral City, CA 92234</p>
@@ -260,7 +288,7 @@
         <a href="resources.html" style="color:#8a95a3;">Resources</a> &nbsp;|&nbsp;
         <a href="privacy.html" style="color:#8a95a3;">Privacy Policy</a>
       </p>
-      <p style="margin:0;">© <span id="y"></span> Horizon House. All rights reserved.</p>
+      <p style="margin:0;">Â© <span id="y"></span> Horizon House. All rights reserved.</p>
     </div>
   </footer>
 
@@ -304,3 +332,4 @@
 
 </body>
 </html>
+

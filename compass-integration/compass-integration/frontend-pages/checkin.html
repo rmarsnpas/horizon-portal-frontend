@@ -70,9 +70,37 @@
   #install-banner button { border-radius: 999px; padding: 6px 14px; font-size: 12px; font-weight: 600; cursor: pointer; }
   #install-btn { background: var(--paper); color: var(--teal); border: none; display: none; }
   #install-dismiss { background: transparent; color: var(--paper); border: 1px solid var(--paper); }
-</style>
+    .page-video-bg{
+      position:fixed;
+      inset:0;
+      width:100%;
+      height:100%;
+      object-fit:cover;
+      opacity:.2;
+      pointer-events:none;
+      z-index:0;
+      filter:saturate(.8) brightness(.72);
+    }
+    body::before{
+      content:'';
+      position:fixed;
+      inset:0;
+      background:rgba(245,241,234,.68);
+      pointer-events:none;
+      z-index:0;
+    }
+    header,.page-hero,main,footer{position:relative;z-index:1;}
+    @media (prefers-reduced-motion: reduce){
+      .page-video-bg{display:none;}
+      body::before{background:rgba(245,241,234,.95);}
+    }
+  </style>
 </head>
 <body>
+  <video class="page-video-bg" autoplay muted loop playsinline preload="metadata" poster="/sunrise1.jpg" aria-hidden="true">
+    <source src="/uploads/IMG_0112_1_trim.mp4" type="video/mp4">
+    <source src="/uploads/IMG_0112 (1).MOV" type="video/quicktime">
+  </video>
 <div class="wrap">
 
   <div id="install-banner">
@@ -139,7 +167,31 @@
   </div>
 
 </div>
-<style>@keyframes pulse { 0%,100%{opacity:1;} 50%{opacity:0.3;} }</style>
+<style>@keyframes pulse { 0%,100%{opacity:1;} 50%{opacity:0.3;} }    .page-video-bg{
+      position:fixed;
+      inset:0;
+      width:100%;
+      height:100%;
+      object-fit:cover;
+      opacity:.2;
+      pointer-events:none;
+      z-index:0;
+      filter:saturate(.8) brightness(.72);
+    }
+    body::before{
+      content:'';
+      position:fixed;
+      inset:0;
+      background:rgba(245,241,234,.68);
+      pointer-events:none;
+      z-index:0;
+    }
+    header,.page-hero,main,footer{position:relative;z-index:1;}
+    @media (prefers-reduced-motion: reduce){
+      .page-video-bg{display:none;}
+      body::before{background:rgba(245,241,234,.95);}
+    }
+  </style>
 
 <script>
 // Point this at your Railway backend.

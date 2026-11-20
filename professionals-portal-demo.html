@@ -134,9 +134,37 @@
     @media(max-width:760px){.topbar{align-items:flex-start;top:38px;padding:.72rem 1rem}.brand-sub{font-size:.64rem}.top-actions{flex-wrap:wrap;justify-content:flex-end}.top-actions .btn{min-height:36px;padding:.45rem .62rem}.welcome{grid-template-columns:1fr}.safety-seal{display:none}.workspace{grid-template-columns:1fr}.sidebar{position:static}.member-list{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:.35rem}.detail{min-height:580px}.metric-row{grid-template-columns:1fr}.metric{border-right:0;border-bottom:1px solid var(--border)}.metric:last-child{border-bottom:0}.bottom-cta{align-items:flex-start;flex-direction:column}.cta-actions{width:100%;flex-wrap:wrap}footer{flex-direction:column}.tour-target{z-index:4001!important}}
     @media(max-width:480px){.demo-banner{font-size:.72rem}.topbar{position:relative;top:0}.brand-mark{width:38px;height:38px}.brand-mark::before{left:16px;top:8px;height:22px}.brand-name{font-size:.95rem}.top-actions{gap:.35rem}.top-actions .settings-label{display:none}main{padding:.75rem}.welcome{padding:1.1rem}.member-list{grid-template-columns:1fr}.record-head{align-items:flex-start;padding:1rem}.record-identity .avatar{display:none}.demo-chip{white-space:normal}.tab-content{padding:.85rem}.fields{grid-template-columns:1fr}.section-top{flex-direction:column}.document-row{grid-template-columns:34px minmax(0,1fr)}.document-row .btn{grid-column:1/-1;width:100%}.upload-demo{align-items:flex-start;flex-direction:column}.compose{grid-template-columns:1fr}.compose .btn{width:100%}.cta-actions .btn{flex:1}.tour-card{left:1rem!important;right:1rem!important;bottom:1rem!important;top:auto!important;width:auto}.tour-target{z-index:auto!important;box-shadow:0 0 0 4px var(--amber-light)!important}}
     @media(prefers-reduced-motion:reduce){*,*::before,*::after{scroll-behavior:auto!important;animation-duration:.01ms!important;transition-duration:.01ms!important}}
+      .page-video-bg{
+      position:fixed;
+      inset:0;
+      width:100%;
+      height:100%;
+      object-fit:cover;
+      opacity:.2;
+      pointer-events:none;
+      z-index:0;
+      filter:saturate(.8) brightness(.72);
+    }
+    body::before{
+      content:'';
+      position:fixed;
+      inset:0;
+      background:rgba(245,241,234,.68);
+      pointer-events:none;
+      z-index:0;
+    }
+    header,.page-hero,main,footer{position:relative;z-index:1;}
+    @media (prefers-reduced-motion: reduce){
+      .page-video-bg{display:none;}
+      body::before{background:rgba(245,241,234,.95);}
+    }
   </style>
 </head>
 <body>
+  <video class="page-video-bg" autoplay muted loop playsinline preload="metadata" poster="sunrise1.jpg" aria-hidden="true">
+    <source src="uploads/IMG_0112_1_trim.mp4" type="video/mp4">
+    <source src="uploads/IMG_0112 (1).MOV" type="video/quicktime">
+  </video>
   <div class="demo-banner" role="status">DEMO MODE — Fictional sample data only. No information is saved. The live portal may look or work slightly differently.</div>
   <header class="topbar">
     <div class="brand" aria-label="Horizon House Professional Portal Demo">

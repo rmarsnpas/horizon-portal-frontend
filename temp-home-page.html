@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Horizon House Sober Living | Palm Desert & Coachella Valley Recovery Housing</title>
-<meta name="description" content="Horizon House offers safe, structured sober living homes in Cathedral City and Coachella Valley. His House and Her House provide peer-driven accountability, compassionate support, and comfortable recovery housing. Call (760) 766-0300.">
+<meta name="description" content="Horizon House offers safe, structured sober living homes in Cathedral City and Coachella Valley. Men's House and Co-Ed House provide peer-driven accountability, compassionate support, and comfortable recovery housing. Call (760) 766-0300.">
 <link rel="icon" type="image/png" href="HH%20logo%20grntree.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@500;700&family=Nunito:wght@400;600&display=swap" rel="stylesheet">
@@ -131,10 +131,38 @@
     .hero { padding: 2.5rem 1rem; }
   }
   .sr-only { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0,0,0,0); }
-</style>
+    .page-video-bg{
+      position:fixed;
+      inset:0;
+      width:100%;
+      height:100%;
+      object-fit:cover;
+      opacity:.2;
+      pointer-events:none;
+      z-index:0;
+      filter:saturate(.8) brightness(.72);
+    }
+    body::before{
+      content:'';
+      position:fixed;
+      inset:0;
+      background:rgba(245,241,234,.68);
+      pointer-events:none;
+      z-index:0;
+    }
+    header,.page-hero,main,footer{position:relative;z-index:1;}
+    @media (prefers-reduced-motion: reduce){
+      .page-video-bg{display:none;}
+      body::before{background:rgba(245,241,234,.95);}
+    }
+  </style>
   <link rel="stylesheet" href="hope-cloud.css">
 </head>
 <body>
+  <video class="page-video-bg" autoplay muted loop playsinline preload="metadata" poster="sunrise1.jpg" aria-hidden="true">
+    <source src="uploads/IMG_0112_1_trim.mp4" type="video/mp4">
+    <source src="uploads/IMG_0112 (1).MOV" type="video/quicktime">
+  </video>
 <a class="sr-only" href="#main">Skip to content</a>
 
 <header>
@@ -159,7 +187,7 @@
 </header>
 
 <div class="banner">
-  <span class="banner-text">Check back here often � this website is a work in progress and pages are being added and updated regularly.</span>
+  <span class="banner-text">Check back here often ï¿½ this website is a work in progress and pages are being added and updated regularly.</span>
 </div>
 
 <main id="main">
@@ -169,7 +197,7 @@
     <div class="section-inner">
       <img src="sunrise1.jpg" alt="Sunrise over the desert" class="hero-photo">
       <h1>A safe, structured path to sober living and community</h1>
-      <p>We offer clear policies, respectful accountability, and a supportive environment so you can focus on recovery�one steady day at a time.</p>
+      <p>We offer clear policies, respectful accountability, and a supportive environment so you can focus on recoveryï¿½one steady day at a time.</p>
       <div class="cta-row">
         <a href="why-sober-living-matters.html" class="btn-primary">Why Sober Living Matters</a>
         <a href="what-makes-us-different.html" class="btn-secondary">The Horizon House Difference</a>
@@ -186,7 +214,7 @@
   <section style="background:#f3f7fb;">
     <div class="section-inner">
       <h2 style="text-align:center;">What Makes Us Different</h2>
-      <p style="text-align:center;color:#555;font-style:italic;margin:0.5rem auto 1.5rem;max-width:700px;">First and foremost, we care � and we've been there. We focus on compassionate guidance toward positive behavioral change.</p>
+      <p style="text-align:center;color:#555;font-style:italic;margin:0.5rem auto 1.5rem;max-width:700px;">First and foremost, we care ï¿½ and we've been there. We focus on compassionate guidance toward positive behavioral change.</p>
       <div class="feature-grid">
         <div class="feature-card">
           <div class="icon">??</div>
@@ -206,7 +234,7 @@
         <div class="feature-card">
           <div class="icon">???</div>
           <strong>Spacious living.</strong>
-          <p>Well-maintained, spacious accommodations � no bunk beds. Comfort that feels like home.</p>
+          <p>Well-maintained, spacious accommodations ï¿½ no bunk beds. Comfort that feels like home.</p>
         </div>
       </div>
     </div>
@@ -217,15 +245,15 @@
     <div class="section-inner">
       <h2>Our Mission</h2>
       <p>We believe structure and compassion can coexist. Our team blends building safety expertise with recovery-minded care to create a place where people feel safe, respected, and supported.</p>
-      <p style="margin-top:0.75rem;"><strong>Two Houses, One Mission:</strong> Horizon House operates two separate facilities � <strong>His House</strong> and <strong>Her House</strong>. This structure provides comfortable, focused environments where members can concentrate on their recovery journey with supportive peers.</p>
+      <p style="margin-top:0.75rem;"><strong>Two Houses, One Mission:</strong> Horizon House operates two separate facilities ï¿½ <strong>Men's House</strong> and <strong>Co-Ed House</strong>. This structure provides comfortable, focused environments where members can concentrate on their recovery journey with supportive peers.</p>
       <img src="houses.jpg" alt="Horizon Houses" style="max-width:100%;border-radius:12px;margin:1.5rem 0;box-shadow:0 2px 8px rgba(0,0,0,0.08);">
       <div class="house-grid">
         <div class="house-card">
-          <h3>His House</h3>
+          <h3>Men's House</h3>
           <p>Men's sober living residence<br><strong>Marshall:</strong> (626) 616-7273</p>
         </div>
         <div class="house-card">
-          <h3>Her House</h3>
+          <h3>Co-Ed House</h3>
           <p>Women's sober living residence<br><strong>Liz:</strong> (818) 916-2214</p>
         </div>
       </div>
@@ -267,8 +295,8 @@
         <div class="contact-info">
           <p><strong>Phone:</strong> (760) 766-0300</p>
           <p><strong>Email:</strong> info@horizon-house.org</p>
-          <p><strong>Her House � Liz:</strong> (818) 916-2214</p>
-          <p><strong>His House � Marshall:</strong> (626) 616-7273</p>
+          <p><strong>Co-Ed House ï¿½ Liz:</strong> (818) 916-2214</p>
+          <p><strong>Men's House ï¿½ Marshall:</strong> (626) 616-7273</p>
           <p style="margin-top:1rem;color:#555;">Call or email with questions, to start your application, or fill out the short form and we will be in touch shortly.</p>
         </div>
         <form id="contact-form">
@@ -291,7 +319,7 @@
 
 <footer>
   <div class="wrap">
-    <p><strong>Horizon House</strong> � Structured, caring sober living</p>
+    <p><strong>Horizon House</strong> ï¿½ Structured, caring sober living</p>
     <p>28321 Horizon Rd., Cathedral City, CA 92234</p>
     <p style="margin-top:0.75rem;">
       <a href="privacy.html">Privacy</a> &bull;
@@ -368,3 +396,4 @@
 <script src="hope-cloud.js"></script>
 </body>
 </html>
+

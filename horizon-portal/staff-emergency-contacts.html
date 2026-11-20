@@ -105,9 +105,37 @@
     .search-bar input:focus { outline:none; border-color:#667eea; }
 
     @media(max-width:600px) { .member-header { flex-direction:column; align-items:flex-start; } }
+      .page-video-bg{
+      position:fixed;
+      inset:0;
+      width:100%;
+      height:100%;
+      object-fit:cover;
+      opacity:.2;
+      pointer-events:none;
+      z-index:0;
+      filter:saturate(.8) brightness(.72);
+    }
+    body::before{
+      content:'';
+      position:fixed;
+      inset:0;
+      background:rgba(245,241,234,.68);
+      pointer-events:none;
+      z-index:0;
+    }
+    header,.page-hero,main,footer{position:relative;z-index:1;}
+    @media (prefers-reduced-motion: reduce){
+      .page-video-bg{display:none;}
+      body::before{background:rgba(245,241,234,.95);}
+    }
   </style>
 </head>
 <body>
+  <video class="page-video-bg" autoplay muted loop playsinline preload="metadata" poster="/sunrise1.jpg" aria-hidden="true">
+    <source src="/uploads/IMG_0112_1_trim.mp4" type="video/mp4">
+    <source src="/uploads/IMG_0112 (1).MOV" type="video/quicktime">
+  </video>
 
 <header>
   <h1>🚨 Emergency Contacts</h1>
@@ -336,7 +364,35 @@ td:first-child { font-weight:600; color:#4a5568; width:170px; }
 .sig-section strong { display:block; font-size:11px; text-transform:uppercase; letter-spacing:.06em; color:#718096; margin-bottom:3px; }
 .print-btn { margin-top:22px; padding:10px 24px; background:#1a3a5c; color:#fff; border:none; border-radius:6px; font-size:14px; font-weight:700; cursor:pointer; }
 @media print { .print-btn { display:none; } }
-</style></head><body>
+    .page-video-bg{
+      position:fixed;
+      inset:0;
+      width:100%;
+      height:100%;
+      object-fit:cover;
+      opacity:.2;
+      pointer-events:none;
+      z-index:0;
+      filter:saturate(.8) brightness(.72);
+    }
+    body::before{
+      content:'';
+      position:fixed;
+      inset:0;
+      background:rgba(245,241,234,.68);
+      pointer-events:none;
+      z-index:0;
+    }
+    header,.page-hero,main,footer{position:relative;z-index:1;}
+    @media (prefers-reduced-motion: reduce){
+      .page-video-bg{display:none;}
+      body::before{background:rgba(245,241,234,.95);}
+    }
+  </style></head><body>
+  <video class="page-video-bg" autoplay muted loop playsinline preload="metadata" poster="/sunrise1.jpg" aria-hidden="true">
+    <source src="/uploads/IMG_0112_1_trim.mp4" type="video/mp4">
+    <source src="/uploads/IMG_0112 (1).MOV" type="video/quicktime">
+  </video>
 <div class="org">Horizon House Recovery Center</div>
 <h1>Emergency Contact Information</h1>
 <div class="sub">Member: <strong>${esc(fn)} ${esc(ln)}</strong> &nbsp;&middot;&nbsp; Submitted: ${esc(dateStr)}</div>

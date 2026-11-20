@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="utf-8">
-  <title>Horizon House — Property Storage Log</title>
+  <title>Horizon House ï¿½ Property Storage Log</title>
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="robots" content="noindex, nofollow">
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@500;700&family=Nunito:wght@400;600&display=swap" rel="stylesheet">
@@ -199,10 +199,38 @@
         display: none;
       }
     }
+      .page-video-bg{
+      position:fixed;
+      inset:0;
+      width:100%;
+      height:100%;
+      object-fit:cover;
+      opacity:.2;
+      pointer-events:none;
+      z-index:0;
+      filter:saturate(.8) brightness(.72);
+    }
+    body::before{
+      content:'';
+      position:fixed;
+      inset:0;
+      background:rgba(245,241,234,.68);
+      pointer-events:none;
+      z-index:0;
+    }
+    header,.page-hero,main,footer{position:relative;z-index:1;}
+    @media (prefers-reduced-motion: reduce){
+      .page-video-bg{display:none;}
+      body::before{background:rgba(245,241,234,.95);}
+    }
   </style>
 </head>
 
 <body>
+  <video class="page-video-bg" autoplay muted loop playsinline preload="metadata" poster="sunrise1.jpg" aria-hidden="true">
+    <source src="uploads/IMG_0112_1_trim.mp4" type="video/mp4">
+    <source src="uploads/IMG_0112 (1).MOV" type="video/quicktime">
+  </video>
 
 <form id="storageForm">
   <div class="page">

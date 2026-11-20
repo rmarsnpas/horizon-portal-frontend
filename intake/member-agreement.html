@@ -309,12 +309,40 @@
                 font-size: 16px;
             }
         }
-    </style>
+        .page-video-bg{
+      position:fixed;
+      inset:0;
+      width:100%;
+      height:100%;
+      object-fit:cover;
+      opacity:.2;
+      pointer-events:none;
+      z-index:0;
+      filter:saturate(.8) brightness(.72);
+    }
+    body::before{
+      content:'';
+      position:fixed;
+      inset:0;
+      background:rgba(245,241,234,.68);
+      pointer-events:none;
+      z-index:0;
+    }
+    header,.page-hero,main,footer{position:relative;z-index:1;}
+    @media (prefers-reduced-motion: reduce){
+      .page-video-bg{display:none;}
+      body::before{background:rgba(245,241,234,.95);}
+    }
+  </style>
 </head>
 <body>
+  <video class="page-video-bg" autoplay muted loop playsinline preload="metadata" poster="/sunrise1.jpg" aria-hidden="true">
+    <source src="/uploads/IMG_0112_1_trim.mp4" type="video/mp4">
+    <source src="/uploads/IMG_0112 (1).MOV" type="video/quicktime">
+  </video>
     <div class="container">
         <div class="header">
-            <h1>🏠 Horizon House</h1>
+            <h1>ðŸ  Horizon House</h1>
             <p>Member Agreement</p>
         </div>
 
@@ -352,7 +380,7 @@
         const introSlides = [
             {
                 title: "Welcome to Horizon House Sober Living",
-                text: `<p style="margin-bottom: 20px; font-size: 18px; line-height: 1.8;">HORIZON HOUSE SOBER LIVING is made up of HIS HORIZON-HOUSE and HER HORIZON-HOUSE (His House and/or Her House). There are 2 separate houses offering beds for men and women 18 years of age and over whose primary goal is to overcome alcoholism and drug dependency.</p>
+                text: `<p style="margin-bottom: 20px; font-size: 18px; line-height: 1.8;">HORIZON HOUSE SOBER LIVING is made up of HIS HORIZON-HOUSE and HER HORIZON-HOUSE (Men's House and/or Co-Ed House). There are 2 separate houses offering beds for men and women 18 years of age and over whose primary goal is to overcome alcoholism and drug dependency.</p>
                 <p style="font-size: 18px; line-height: 1.8;">HHSL's program is designed to assist alcohol and drug-dependent individuals in the transition to a sober and productive life. Learning (or relearning) the life skills to become an active member of today's society.</p>`,
                 isIntro: true
             },
@@ -516,7 +544,7 @@
                 ctx.lineTo(coords.x, coords.y);
                 ctx.stroke();
                 hasSignature = true;
-                document.getElementById('signatureStatus').textContent = 'Signature captured ✓';
+                document.getElementById('signatureStatus').textContent = 'Signature captured âœ“';
                 document.getElementById('signatureStatus').style.color = '#48bb78';
             };
 
@@ -561,10 +589,10 @@
                         
                         <div class="button-container">
                             <button class="btn btn-back" onclick="previousItem()" ${index === 0 ? 'disabled' : ''}>
-                                ← Back
+                                â† Back
                             </button>
                             <button class="btn btn-next" onclick="nextItem()">
-                                Next →
+                                Next â†’
                             </button>
                         </div>
                     </div>
@@ -588,10 +616,10 @@
 
                         <div class="button-container">
                             <button class="btn btn-back" onclick="previousItem()">
-                                ← Back
+                                â† Back
                             </button>
                             <button class="btn btn-next" id="nextBtn" onclick="nextItem()" disabled>
-                                ${isLast ? 'Complete Agreement →' : 'Next →'}
+                                ${isLast ? 'Complete Agreement â†’' : 'Next â†’'}
                             </button>
                         </div>
                     </div>
@@ -667,7 +695,7 @@
 
             content.innerHTML = `
                 <div class="completion-screen active">
-                    <div class="completion-icon">✅</div>
+                    <div class="completion-icon">âœ…</div>
                     <h2>Agreement Complete!</h2>
                     <p>You have read and agreed to all ${agreementItems.length} items of the Horizon House Member Agreement.</p>
                     
@@ -848,3 +876,4 @@
     </script>
 </body>
 </html>
+

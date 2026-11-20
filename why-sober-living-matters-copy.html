@@ -1,4 +1,4 @@
-﻿<!doctype html>
+<!doctype html>
 <html lang="en">
 <head>
   <meta charset="utf-8">
@@ -11,10 +11,38 @@
     .quote { background: #f8f9fa; border-left: 4px solid #c98a22; padding: 1.5rem; margin: 1.5rem 0; font-style: italic; }
     p { line-height: 1.8; margin-bottom: 1.2rem; }
     strong { font-weight: 700; }
+      .page-video-bg{
+      position:fixed;
+      inset:0;
+      width:100%;
+      height:100%;
+      object-fit:cover;
+      opacity:.2;
+      pointer-events:none;
+      z-index:0;
+      filter:saturate(.8) brightness(.72);
+    }
+    body::before{
+      content:'';
+      position:fixed;
+      inset:0;
+      background:rgba(245,241,234,.68);
+      pointer-events:none;
+      z-index:0;
+    }
+    header,.page-hero,main,footer{position:relative;z-index:1;}
+    @media (prefers-reduced-motion: reduce){
+      .page-video-bg{display:none;}
+      body::before{background:rgba(245,241,234,.95);}
+    }
   </style>
   <link rel="stylesheet" href="hope-cloud.css">
 </head>
 <body>
+  <video class="page-video-bg" autoplay muted loop playsinline preload="metadata" poster="sunrise1.jpg" aria-hidden="true">
+    <source src="uploads/IMG_0112_1_trim.mp4" type="video/mp4">
+    <source src="uploads/IMG_0112 (1).MOV" type="video/quicktime">
+  </video>
   <div class="content">
     <h1>Why Sober Living Matters</h1>
     <p>Sober living has become one of the most important stepping‑stones in recovery. When individuals complete treatment, they leave behind the structure, support, and safety they relied on every day. The "bubble" disappears. And without that safety net, staying sober becomes harder—not because people lack desire, but because early recovery is fragile and real life comes rushing back all at once.</p>
