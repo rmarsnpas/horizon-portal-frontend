@@ -55,7 +55,7 @@
       padding:4rem 1.5rem;
       color:#fff;
       background:#1f2530;
-      margin:3rem 0;
+      margin:3rem auto;
     }
     .hero-bg-video{
       position:absolute;
@@ -81,6 +81,8 @@
     .hero h1{font-family:Inter,system-ui;font-size:2.2rem;margin:.5rem 0}
     .hero p{max-width:720px;margin:0 auto 1rem}
     .hero h11{font-family:Inter,system-ui;font-size:3.2rem;margin:.5rem 0}
+    .hero-media-wrap{width:100%;max-width:none;margin:1rem 0 0;padding:0;}
+    .hero-media-wrap img{width:100%;display:block;border-radius:0;}
     .cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:1rem;margin:2rem 0}
     .card{background:#fff;padding:1rem;border-radius:.75rem;box-shadow:0 2px 6px rgba(0,0,0,.06)}
     .trust{display:flex;flex-wrap:wrap;gap:.75rem;justify-content:center;font-weight:600}
@@ -431,7 +433,9 @@
 
 
   <main id="main">
-    <img src="sunrise1.jpg" alt="Sunrise" style="width:100%;max-width:100%;display:block;margin:1rem 0;border-radius:.5rem;">
+    <div class="hero-media-wrap">
+      <img src="sunrise1.jpg" alt="Sunrise">
+    </div>
     <section class="hero wrap hero-video" aria-labelledby="hero-title">
       <video class="hero-bg-video" autoplay muted loop playsinline preload="metadata" poster="sunrise1.jpg" aria-hidden="true">
         <source src="uploads/IMG_0112_1_trim.mp4" type="video/mp4">
