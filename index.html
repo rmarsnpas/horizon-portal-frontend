@@ -44,6 +44,40 @@
     nav a{color:#fff;font-weight:600}
     .cta{background:var(--amber);color:#1d1d1d;padding:.8rem 1.4rem;border-radius:.5rem;border:none;font-weight:700;cursor:pointer;font-size:1.1rem}
     .hero{padding:4rem 0;text-align:center}
+    .hero.hero-video{
+      position:relative;
+      overflow:hidden;
+      border-radius:.75rem;
+      min-height:420px;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      padding:4rem 1.5rem;
+      color:#fff;
+      background:#1f2530;
+      margin-top:1rem;
+    }
+    .hero-bg-video{
+      position:absolute;
+      inset:0;
+      width:100%;
+      height:100%;
+      object-fit:cover;
+      z-index:0;
+    }
+    .hero-video-overlay{
+      position:absolute;
+      inset:0;
+      background:rgba(16,23,31,.45);
+      z-index:1;
+    }
+    .hero-content{position:relative;z-index:2;width:100%;}
+    .hero.hero-video h1,.hero.hero-video p,.hero.hero-video .trust{color:#f5f1ea;}
+    .hero.hero-video .hero-cta-secondary{
+      background:rgba(255,255,255,.92);
+      color:var(--slate);
+      border:2.5px solid rgba(255,255,255,.85);
+    }
     .hero h1{font-family:Inter,system-ui;font-size:2.2rem;margin:.5rem 0}
     .hero p{max-width:720px;margin:0 auto 1rem}
     .hero h11{font-family:Inter,system-ui;font-size:3.2rem;margin:.5rem 0}
@@ -106,6 +140,12 @@
     }
     @media (prefers-reduced-motion: reduce){
       .cta-jump-subtle{animation:none;}
+      .hero-bg-video{display:none;}
+      .hero.hero-video{
+        background-image:linear-gradient(rgba(16,23,31,.45),rgba(16,23,31,.45)),url('sunrise1.jpg');
+        background-size:cover;
+        background-position:center;
+      }
     }
     .expandable-content{max-height:0;overflow:hidden;transition:max-height 0.5s ease-out}
     .expandable-content.active{max-height:5000px;transition:max-height 0.8s ease-in}
@@ -391,22 +431,25 @@
 
 
   <main id="main">
-
-    </div>
-    <img src="sunrise1.jpg" alt="Sunrise" style="width:100%;max-width:100%;display:block;margin:1rem 0;border-radius:.5rem;">
-    <section class="hero wrap" aria-labelledby="hero-title">
-      <h1 id="hero-title">Rise • Recover • Rebuild</h1>
-      <p>A calm, accountable sober living community where Members rebuild their lives through structure, clarity, and shared purpose.</p>
-      <p>
-        <img src="HH logo blk 626.png" alt="Horizon House logo" style="height:170px;">
-      </p>
-      <!-- Removed floating button from hero section -->
-      <div class="trust" aria-label="Trust highlights">
-        <span>Clear Expectations</span> • <span>Consistent Routines</span> • <span>A community that works</span>
-      </div>
-      <div class="hero-cta-wrap" id="heroCtas">
-        <a href="application-new.html" class="hero-cta hero-cta-primary" id="ctaApply">Apply Now</a>
-        <a href="#contact" class="hero-cta hero-cta-secondary" id="ctaTour">Schedule a Tour</a>
+    <section class="hero wrap hero-video" aria-labelledby="hero-title">
+      <video class="hero-bg-video" autoplay muted loop playsinline preload="metadata" poster="sunrise1.jpg" aria-hidden="true">
+        <source src="uploads/IMG_0112.mp4" type="video/mp4">
+        <source src="uploads/IMG_0112.mov" type="video/quicktime">
+      </video>
+      <div class="hero-video-overlay" aria-hidden="true"></div>
+      <div class="hero-content">
+        <h1 id="hero-title">Rise • Recover • Rebuild</h1>
+        <p>A calm, accountable sober living community where Members rebuild their lives through structure, clarity, and shared purpose.</p>
+        <p>
+          <img src="HH logo blk 626.png" alt="Horizon House logo" style="height:170px;">
+        </p>
+        <div class="trust" aria-label="Trust highlights">
+          <span>Clear Expectations</span> • <span>Consistent Routines</span> • <span>A community that works</span>
+        </div>
+        <div class="hero-cta-wrap" id="heroCtas">
+          <a href="application-new.html" class="hero-cta hero-cta-primary" id="ctaApply">Apply Now</a>
+          <a href="#contact" class="hero-cta hero-cta-secondary" id="ctaTour">Schedule a Tour</a>
+        </div>
       </div>
     </section>
 
