@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-11-10T22:33:03.000Z",
+  "generatedAt": "2026-11-16T02:40:36.000Z",
   "invoices": [
     {
       "memberId": "142",
@@ -461,6 +461,17 @@
       "amount": "",
       "pdfPath": "invoices/unpaid/MID196_INV196-20261101_COUNTY_DUE11-01-2026.pdf",
       "fileName": "MID196_INV196-20261101_COUNTY_DUE11-01-2026.pdf",
+      "parseOk": true
+    },
+    {
+      "memberId": "154",
+      "invoiceNumber": "154-20261114",
+      "status": "unpaid",
+      "dueDate": "11-14-2026",
+      "paidDate": "",
+      "amount": "",
+      "pdfPath": "invoices/unpaid/MID154_INV154-20261114_MANUAL_DUE11-14-2026.pdf",
+      "fileName": "MID154_INV154-20261114_MANUAL_DUE11-14-2026.pdf",
       "parseOk": true
     },
     {

@@ -342,7 +342,7 @@
   </video>
     <div class="container">
         <div class="header">
-            <h1>ðŸ  Horizon House</h1>
+            <h1>🏠 Horizon House</h1>
             <p>Member Agreement</p>
         </div>
         
@@ -524,7 +524,7 @@
                 ctx.lineTo(coords.x, coords.y);
                 ctx.stroke();
                 hasSignature = true;
-                document.getElementById('signatureStatus').textContent = 'Signature captured âœ“';
+                document.getElementById('signatureStatus').textContent = 'Signature captured ✓';
                 document.getElementById('signatureStatus').style.color = '#48bb78';
             };
 
@@ -569,10 +569,10 @@
                         
                         <div class="button-container">
                             <button class="btn btn-back" onclick="previousItem()" ${index === 0 ? 'disabled' : ''}>
-                                â† Back
+                                ← Back
                             </button>
                             <button class="btn btn-next" onclick="nextItem()">
-                                Next â†’
+                                Next →
                             </button>
                         </div>
                     </div>
@@ -596,10 +596,10 @@
 
                         <div class="button-container">
                             <button class="btn btn-back" onclick="previousItem()">
-                                â† Back
+                                ← Back
                             </button>
                             <button class="btn btn-next" id="nextBtn" onclick="nextItem()" disabled>
-                                ${isLast ? 'Complete Agreement â†’' : 'Next â†’'}
+                                ${isLast ? 'Complete Agreement →' : 'Next →'}
                             </button>
                         </div>
                     </div>
@@ -675,7 +675,7 @@
 
             content.innerHTML = `
                 <div class="completion-screen active">
-                    <div class="completion-icon">âœ…</div>
+                    <div class="completion-icon">✅</div>
                     <h2>Agreement Complete!</h2>
                     <p>You have read and agreed to all ${agreementItems.length} items of the Horizon House Member Agreement.</p>
                     
