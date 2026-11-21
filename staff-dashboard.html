@@ -6022,7 +6022,8 @@ function printMemberDoc() {
   <video class="page-video-bg" autoplay muted loop playsinline preload="metadata" poster="sunrise1.jpg" aria-hidden="true">
     <source src="uploads/IMG_0112_1_trim.mp4" type="video/mp4">
     <source src="uploads/IMG_0112 (1).MOV" type="video/quicktime">
-  </video><img src="${fileUrl}" style="max-width:100%;"></body></html>`);
+  </video><img src="${fileUrl}" style="max-width:100%;"><script src="/bg-video-autoplay.js" defer></script>
+</body></html>`);
         iframe.contentDocument.close();
         iframe.contentWindow.onload = function() {
             iframe.contentWindow.print();

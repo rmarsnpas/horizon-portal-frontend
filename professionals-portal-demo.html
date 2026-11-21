@@ -478,5 +478,6 @@
     function trapFocus(event,container){const nodes=[...container.querySelectorAll('button:not(:disabled),a[href],textarea:not(:disabled),input:not(:disabled),[tabindex]:not([tabindex="-1"])')];if(!nodes.length)return;const first=nodes[0],last=nodes[nodes.length-1];if(event.shiftKey&&document.activeElement===first){event.preventDefault();last.focus();}else if(!event.shiftKey&&document.activeElement===last){event.preventDefault();first.focus();}}
     renderAll();
   </script>
+<script src="/bg-video-autoplay.js" defer></script>
 </body>
 </html>
