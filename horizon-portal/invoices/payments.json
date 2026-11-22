@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-11-22T05:29:38.000Z",
+  "generatedAt": "2026-11-22T05:30:55.000Z",
   "payments": [
     {
       "memberId": "152",
@@ -897,6 +897,15 @@
       "memberName": "Michael Brabo",
       "date": "11-09-2026",
       "amount": 180.0,
+      "paymentMethod": "Cash",
+      "invoiceId": "201_MANUAL_20261121_203632",
+      "notes": ""
+    },
+    {
+      "memberId": "201",
+      "memberName": "Michael Brabo",
+      "date": "11-16-2026",
+      "amount": 100.0,
       "paymentMethod": "Cash",
       "invoiceId": "201_MANUAL_20261121_203632",
       "notes": ""
