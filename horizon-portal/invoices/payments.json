@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-11-16T03:26:45.000Z",
+  "generatedAt": "2026-11-22T04:28:30.000Z",
   "payments": [
     {
       "memberId": "152",
@@ -855,6 +855,15 @@
       "paymentMethod": "Check",
       "invoiceId": "178_202609",
       "notes": "BACKFILL: archived paid invoice had no receipt row"
+    },
+    {
+      "memberId": "204",
+      "memberName": "Alex",
+      "date": "11-21-2026",
+      "amount": 1000.0,
+      "paymentMethod": "Transfer",
+      "invoiceId": "204_202611",
+      "notes": ""
     }
   ]
 }
