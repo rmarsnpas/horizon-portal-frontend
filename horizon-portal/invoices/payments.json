@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-11-22T04:28:57.000Z",
+  "generatedAt": "2026-11-22T04:35:35.000Z",
   "payments": [
     {
       "memberId": "152",
@@ -873,6 +873,15 @@
       "paymentMethod": "Cash",
       "invoiceId": "204_202611",
       "notes": "PAID IN FULL"
+    },
+    {
+      "memberId": "203",
+      "memberName": "Dana Chavez",
+      "date": "11-15-2026",
+      "amount": 225.0,
+      "paymentMethod": "Transfer",
+      "invoiceId": "203_MANUAL_20261121_203343",
+      "notes": ""
     }
   ]
 }
