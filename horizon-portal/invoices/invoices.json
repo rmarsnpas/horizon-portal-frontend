@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-11-26T03:12:58.000Z",
+  "generatedAt": "2026-11-27T22:00:32.000Z",
   "invoices": [
     {
       "memberId": "142",
@@ -498,17 +498,6 @@
     },
     {
       "memberId": "199",
-      "invoiceNumber": "199-20261116",
-      "status": "unpaid",
-      "dueDate": "11-16-2026",
-      "paidDate": "",
-      "amount": "",
-      "pdfPath": "invoices/unpaid/MID199_INV199-20261116_DUE11-16-2026.pdf",
-      "fileName": "MID199_INV199-20261116_DUE11-16-2026.pdf",
-      "parseOk": true
-    },
-    {
-      "memberId": "199",
       "invoiceNumber": "199-20261118",
       "status": "unpaid",
       "dueDate": "11-18-2026",
@@ -516,6 +505,17 @@
       "amount": "",
       "pdfPath": "invoices/unpaid/MID199_INV199-20261118_DUE11-18-2026.pdf",
       "fileName": "MID199_INV199-20261118_DUE11-18-2026.pdf",
+      "parseOk": true
+    },
+    {
+      "memberId": "144",
+      "invoiceNumber": "144-20261127",
+      "status": "unpaid",
+      "dueDate": "11-27-2026",
+      "paidDate": "",
+      "amount": "",
+      "pdfPath": "invoices/unpaid/MID144_INV144-20261127_DUE11-27-2026.pdf",
+      "fileName": "MID144_INV144-20261127_DUE11-27-2026.pdf",
       "parseOk": true
     },
     {
